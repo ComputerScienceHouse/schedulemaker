@@ -1,0 +1,310 @@
+<?php
+// REQUIRED FILES
+require_once('./inc/config.php');
+require_once('./inc/databaseConn.php');
+require_once('./inc/timeFunctions.php');
+?>
+<html>
+	<head>
+		<title><?= (!empty($TITLE)) ? $TITLE : "Schedule Maker" ?></title>
+		
+		<style>
+			/* to be exported to a CSS file */
+			
+			body {
+				margin: 0px;
+				font-size:12px;
+			}
+			#container {
+				position: relative;
+				float: center;
+				width: 1200px;
+				padding-top:20px;
+				padding-bottom:20px;
+				padding-left:10px;
+				padding-right:20px;				
+				margin-left: auto;
+				margin-right: auto;
+				background-color: lightblue;
+			}
+			#mainMenu {
+				width:100%;
+				margin-top:200px;
+				margin-bottom:200px;
+				text-align:center;
+				v-align:middle;
+			}
+			#mainMenu td {
+				padding:15px;
+			}
+			.lbl {
+				text-align:right;
+			}
+
+			/* ROULETTE */
+			#rouletteForm {
+				width:100%;
+				padding:20px;
+				background-color:lightgreen;
+				font-size:12px;
+			}
+			#rouletteForm td {
+				vertical-align:top;
+			}
+			#rouletteImg {
+				width:100%;
+				margin-top:200px;
+				margin-bottom:200px;
+				text-align:center;
+				v-align:middle;
+			}
+			.rouletteCourse {
+				background-color:lightgreen;
+			}
+			.rouletteError {
+				background-color:salmon;
+			}
+			#rouletteCourse {
+				display:none;
+				width:100%;
+				padding:20px;
+				text-align:center;
+			}
+			#rouletteSpin {
+				width:100%;
+				text-align:center;
+			}
+			#rouletteCourseTimes {
+				width:400px;
+				position:relative;
+				float:center;
+				margin-left:auto;
+				margin-right:auto;
+			}
+			
+			/* SCHEDULE */
+			.scheduleForm {
+				position:relative;
+				float:center;
+				margin-left:auto;
+				margin-right:auto;
+				width:1120px;
+				padding:20px;
+				padding-bottom:0px;
+				background-color:lightgreen;
+				overflow:auto;
+			}
+			.subheader {
+				position:relative;
+				border-bottom: solid 1px grey;
+				padding-bottom:5px;
+				margin-bottom:15px;
+			}
+			.subheader h2,h3 {
+				display:inline;
+			}
+			.subheader input {
+				float:right;
+				v-align:middle;
+			}
+			#scheduleCourses
+			{
+				position:relative;
+				float:center;
+				margin-left:auto;
+				margin-right:auto;
+				margin-bottom:20px;
+				width:1000px;
+			}
+			#nonCourses,
+			#noCourses,
+			#advancedOptions
+			{
+				position:relative;
+				float:center;
+				margin-left:auto;
+				margin-right:auto;
+				margin-bottom:20px;
+				width:600px;
+			}			
+			.courseRow {
+				overflow:auto;
+			}
+			.course {
+				position:relative;
+				float:left;
+				margin:10px;
+				width:230px;
+			}
+			.course h3 {
+				margin:0px;
+			}
+			.courseOpts {
+				margin-top:5px;
+				padding:5px;
+				width:100%;
+				display:none;
+			}
+			.courseOptsError {
+				background-color:salmon;
+			}
+			.courseOpts table {
+				width:100%;
+				font-size:12px;
+			}
+			.course input {
+				color:grey;
+			}
+			#nonCourses,
+			#noCourses td {
+				text-align:center;
+			}
+			#formSubmit {
+				text-align:center;
+				padding-bottom:20px;
+			}
+			#schedules {
+				display:none;
+			}
+			.scheduleError {
+				position:relative;
+				float:center;
+				margin-top:20px;
+				margin-left:auto;
+				margin-right:auto;
+				width:1120px;
+				padding:20px;
+				background-color:salmon;
+				overflow:auto;
+			}
+			.scheduleWarning {
+				position:relative;
+				float:center;
+				margin-top:20px;
+				margin-left:auto;
+				margin-right:auto;
+				width:1120px;
+				padding:20px;
+				background-color:darkorange;
+				overflow:auto;
+			}
+			.schedule {
+				/*width:800px;*/
+				/*height:980px;*/
+				overflow:hidden;
+				font-size:10px;
+				border-bottom:solid 1px black;
+				border-right:solid 1px black;
+			}
+			.schedule div {
+				position:absolute;
+				width:99px;
+				border:solid 1px black;
+				background-color:white;
+			}
+			.scheduleWrapper {
+				position:relative;
+				float:center;
+				margin-bottom:20px;
+				margin-left:auto;
+				margin-right:auto;
+				background-color:lightgreen;
+			}
+			.scheduleControl {
+				position:absolute;
+				width:150px;
+				height:150px;
+				right:-152px;
+				border-right:solid 1px black;
+				border-top:solid 1px black;
+				border-bottom:solid 1px black;
+				top:60px;
+				background-color:salmon;
+				text-align:center;
+			}
+			.scheduleControl input,button {
+				margin-top:5px;
+			}
+			.scheduleControl button img {
+				vertical-align:bottom;
+			}
+			.schedule h4 {
+				margin:0px;
+			}
+			.weekday {
+				position:absolute;
+				width:99px;
+				height:19px;
+				top:0px;
+				font-weight:bold;
+				font-height:18px;
+				text-align:center;
+				vertical-align:middle;
+			}
+			.daytime {
+				position:absolute;
+				width:99px;
+				height:19px;
+				left:0px;
+				font-weight:bold;
+				font-height:18px;
+				text-align:right;
+				vertical-align:middle;
+			}
+			.day0 {
+				left:100px;
+			}
+			.day1 {
+				left:200px;
+			}
+			.day2 {
+				left:300px;
+			}
+			.day3 {
+				left:400px;
+			}
+			.day4 {
+				left:500px;
+			}
+			.day5 {
+				left:600px;
+			}
+			.day6 {
+				left:700px;
+			}
+			.prevbutton {
+				position: relative;
+				float:left;
+			}
+			.nextbutton {
+				position: relative;
+				float:right;
+			}
+			.schedulePagination {
+				text-align: center;
+				margin-bottom:20px;
+			}
+			.schedUrl {
+				position:relative;
+				margin-left:auto;
+				margin-right:auto;
+			}
+			.schedUrl p {
+				margin:2px;
+				text-align:center;
+			}
+			.schedUrl p.disclaimer {
+				font-style:italic;
+			}	
+			.c {
+				color:darkgreen;
+			}
+			.b {
+				color:orange;
+			}
+		</style>
+		<script type='text/javascript' src='./js/jquery.js'></script>
+	</head>
+
+	<body>
+		<div id="container">

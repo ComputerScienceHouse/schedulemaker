@@ -1,0 +1,3 @@
+TRUNCATE TABLE times;
+TRUNCATE TABLE courses;
+TRUNCATE TABLE sections;
