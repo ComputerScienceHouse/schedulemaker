@@ -40,6 +40,9 @@ require_once('./inc/timeFunctions.php');
 			.lbl {
 				text-align:right;
 			}
+			form {
+				margin-bottom:5px;
+			}
 
 			/* ROULETTE */
 			#rouletteForm {
@@ -213,7 +216,6 @@ require_once('./inc/timeFunctions.php');
 			.scheduleControl {
 				position:absolute;
 				width:150px;
-				height:150px;
 				right:-152px;
 				border-right:solid 1px black;
 				border-top:solid 1px black;
@@ -285,7 +287,10 @@ require_once('./inc/timeFunctions.php');
 				margin-bottom:20px;
 			}
 			.schedUrl {
+				background-color:#FFFF99;
 				position:relative;
+				padding-top:2px;
+				padding-bottom:2px;
 				margin-left:auto;
 				margin-right:auto;
 			}

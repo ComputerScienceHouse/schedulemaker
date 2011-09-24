@@ -9,6 +9,13 @@
 //			links to everything.
 ////////////////////////////////////////////////////////////////////////////
 
+// If the link is to ?s=yadayada Redirect to the schedule page
+if(isset($_GET['s'])) {
+	require_once("./inc/config.php");
+	header("Location: {$HTTPROOTADDRESS}schedule.php?mode=old&id={$_GET['s']}");
+	die();
+} 
+
 require "./inc/header.inc";
 ?>
 <h1>Schedule Maker</h1>

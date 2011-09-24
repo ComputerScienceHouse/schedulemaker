@@ -170,6 +170,10 @@ function collapseErrors() {
 }
 
 function collapseForm() {
+	// Scroll up to the top of the page (a workaround for tiny screens)
+	$("html, body").animate({ scrollTop: 0 }, "fast");
+
+
 	// Grab the schedule form div and slide it up
 	$('.scheduleForm').each(function(k, v) {
 		$(v).slideUp('slow');
@@ -211,7 +215,7 @@ function drawCourse(parent, course, startDay, endDay, startTime, endTime) {
 		}
 
 		// Skip times that aren't part of the displayed hours
-		if(course.times[t].start < startTime || course.times[t].start > endTime) {
+		if(course.times[t].start < startTime || course.times[t].start > endTime || course.times[t].end > endTime) {
 			continue;
 		}
 
@@ -250,7 +254,7 @@ function drawCourse(parent, course, startDay, endDay, startTime, endTime) {
 	}
 }
 
-function drawPage(pageNum) {
+function drawPage(pageNum, print) {
 	// Clear out the currently displayed schedules
 	$(".scheduleWrapper").each(function(k,v) {
 		$(v).remove();
@@ -290,13 +294,14 @@ function drawPage(pageNum) {
 								.css("width", schedWidth + "px");
 		sched.appendTo(nohidesched);
 
+		if(!print) {
 		// Create a control box
 		schedControl = $("<div>").addClass("scheduleControl");
 		saveForm = $("<form>").attr("action", "schedule.php")
 						.attr("method", "POST")
 						.appendTo(schedControl);
 		saveInput = $("<input>").attr("type", "hidden")
-						.attr("name", "json")
+						.attr("name", "schedule")
 						.val(JSON.stringify(schedSubset[s]))
 						.appendTo(saveForm);
 		urlInput = $("<input>").attr("type", "hidden")
@@ -308,10 +313,13 @@ function drawPage(pageNum) {
 						.val("sched" + schedId)
 						.appendTo(saveForm); 
 		printButton = $("<input type='button' value='Print Schedule'>")
-						.click(function(obj) { printSchedule(obj); })
+						.click(function(obj) { printSchedule($(this)); })
 						.appendTo(saveForm);
 		saveButton = $("<input type='button' value='Save Schedule'>")
 						.click(function(obj) { saveSchedule($(this)); })
+						.appendTo(saveForm);
+		downButton = $("<input type='button' value='Download iCal'>")
+						.click(function(obj) { icalSchedule($(this)); })
 						.appendTo(saveForm);
 		faceButton = $("<button type='button'>")
 						.html("<img src='img/share_facebook.png' /> Share Facebook")
@@ -326,6 +334,7 @@ function drawPage(pageNum) {
 						.click(function() { shareTwitter($(this)); })
 						.appendTo(saveForm);
 		schedControl.appendTo(nohidesched);
+		}
 
 		// Add the schedule to the schedules
 		$('#schedules').append(nohidesched);
@@ -487,7 +496,7 @@ function getNextPage() {
 	}
 
 	// Now we need to draw the next set of schedules
-	drawPage(curPage + 1);
+	drawPage(curPage + 1, false);
 
 	// Set the current page number and hide the next button if need be, show prev button
 	curPage++;
@@ -514,7 +523,7 @@ function getPrevPage() {
 	}
 
 	// Draw the previous set of schedules
-	drawPage(curPage - 1);
+	drawPage(curPage - 1, false);
 
 	// Set the current page number, hide previous button if needed, show next button
 	curPage--;
@@ -568,6 +577,42 @@ function getScheduleUrl(button) {
 	}
 }
 
+function icalSchedule(button) {
+	// Grab the schedule's form
+	form = button.parent();
+	
+	// Add an input field for the mode
+	$("<input type='hidden' name='mode' value='ical'/>").appendTo(form);
+	
+	// Submit it!
+	form.submit();
+}
+
+function printSchedule(button) {
+	// We need a schedule json object
+	jsonobj = eval($(button.parent().children()[0]).val());
+	json = {
+		courses: [jsonobj],
+		startTime: starttime,
+		endTime: endtime,
+		startDay: startday,
+		endDay: endday
+		};
+
+	// Store the schedule in local storage
+	window.sessionStorage.setItem("scheduleJson", JSON.stringify(json));
+
+	// Open up a new window
+	window.prin=window.prin||{};
+	var D=550, A=450, C=screen.height, B=screen.width, H=Math.round((B/2)-(D/2)), G=0;
+	window.prin.prinWin=window.open(
+		"schedule.php?mode=print",
+		"",
+		'left='+H+',top='+G+',width='+D+',height='+A+',personalbar=0,toolbar=0,scrollbars=1,resizable=1'
+		);
+}
+
+
 function saveSchedule(button) {
 	// We need a schedule url
 	url = getScheduleUrl(button);
@@ -586,7 +631,6 @@ function saveSchedule(button) {
 				.css("width", schedule.css("width"))
 				.insertBefore(schedule)
 				.slideDown();
-alert("it happened.");
 }
 	
 function shareFacebook(button) {
@@ -647,8 +691,6 @@ function showSchedules() {
 	// Hide the form and show the expand bar
 	collapseForm();
 
-	// Show the spinner?
-
 	// Serialize the form and store it if it changed
 	if(serialForm != $('#scheduleForm').serialize()) {
 		serialForm = $('#scheduleForm').serialize();
@@ -707,7 +749,7 @@ function showSchedules() {
 			schedWidth  = ((endday - startday) * 100) + 200;		// +200 b/c we always show at least ONE day
 
 			// Now we draw the schedules
-			drawPage(0);
+			drawPage(0, false);
 		});
 	}
 
