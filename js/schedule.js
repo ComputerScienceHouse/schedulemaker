@@ -15,7 +15,7 @@ var pages;				// The number of pages
 var schedHeight;		// Height of the schedule
 var SCHEDPERPAGE = 3;	// The number of schedules per page
 var schedules;			// jSON object of schedules that was retreived via AJAX
-var schedwidth;			// Width of the schedule
+var schedWidth;			// Width of the schedule
 var serialForm;			// The serialized form so we can tell if there has been 
 						// any changes to the form
 var startday;			// The starting day for the schedule
@@ -337,7 +337,11 @@ function drawPage(pageNum, print) {
 		}
 
 		// Add the schedule to the schedules
-		$('#schedules').append(nohidesched);
+		if($(".schedulePagination").length) {
+			$(nohidesched).insertBefore($(".schedulePagination").last());
+		} else {
+			$('#schedules').append(nohidesched);
+		}
 	}
 }
 
@@ -604,7 +608,7 @@ function printSchedule(button) {
 
 	// Open up a new window
 	window.prin=window.prin||{};
-	var D=550, A=450, C=screen.height, B=screen.width, H=Math.round((B/2)-(D/2)), G=0;
+	var D=schedWidth + 40, A=450, C=screen.height, B=screen.width, H=Math.round((B/2)-(D/2)), G=0;
 	window.prin.prinWin=window.open(
 		"schedule.php?mode=print",
 		"",
