@@ -515,6 +515,9 @@ function getNextPage() {
 	$(".prevbutton").each(function(k,v) {
 		$(v).show();
 		});
+
+	// Scroll up to the top of the page
+	$("html, body").animate({ scrollTop: 0 }, "fast");
 }
 
 function getPrevPage() {
@@ -542,6 +545,9 @@ function getPrevPage() {
 	$(".nextbutton").each(function(k,v) {
 		$(v).show();
 		});
+
+	// Scroll up to the top of the page
+	$("html, body").animate({ scrollTop: 0 }, "fast");
 }
 
 function getScheduleUrl(button) {
