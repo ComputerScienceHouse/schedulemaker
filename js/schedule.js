@@ -25,6 +25,21 @@ var starttime;			// The starting time for the schedule
 // We NEED to make any ajax a synchronous call
 $.ajaxSetup({async: false});
 
+// If session data for a roulette course was stored, load it and delete it
+$(document).ready(function() {
+	if(sessionStorage.getItem("rouletteCourse") != null) {
+		// Show the course in the list
+		courseOnFocus(document.getElementById("courses1"));
+		$("#courses1").val(sessionStorage.getItem("rouletteCourse"));
+		getCourseOptions(document.getElementById("courses1"));
+
+		// Delete the data from the session data
+		sessionStorage.removeItem("rouletteCourse");
+	}
+	});
+
+// @TODO: save the schedule data between page loads?
+
 function addCourse() {
 	// First things first. Grab the schedulCourses div and the last row
 	scheduleCourses = document.getElementById('scheduleCourses');
@@ -320,6 +335,7 @@ function drawPage(pageNum, print) {
 						.appendTo(saveForm);
 		downButton = $("<input type='button' value='Download iCal'>")
 						.click(function(obj) { icalSchedule($(this)); })
+						.attr("disabled", "disabled")
 						.appendTo(saveForm);
 		faceButton = $("<button type='button'>")
 						.html("<img src='img/share_facebook.png' /> Share Facebook")

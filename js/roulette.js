@@ -27,21 +27,43 @@ function spinRoulette() {
 			$('#rouletteCourse').removeClass();
 			$('#rouletteCourse').addClass('rouletteError');
 		} else {
-			// Display the course in the result box
-			htmll = "<h2>Your Random Course</h2>";
-			htmll += "<p style='font-weight:bold'>" + jsonResult.department + "-" + jsonResult.course + "-" + jsonResult.section + "</p>";
-			htmll += "<p>" + jsonResult.title + " with " + jsonResult.instructor + "</p>";
-			htmll += "<table id='rouletteCourseTimes'>";
+			courseDiv = $('#rouletteCourse');
+			courseDiv.empty();
+			$("<h2>").html("Your Random Course")
+					.appendTo(courseDiv);
+			$("<p>").css("font-weight", "bold")
+					.html(jsonResult.department + "-" + jsonResult.course + "-" + jsonResult.section)
+					.appendTo(courseDiv);
+			$("<p>").html(jsonResult.title + " with " + jsonResult.instructor)
+					.appendTo(courseDiv);
+			table = $("<table>").attr("id", "rouletteCourseTimes");
 			for(i = 0; i < jsonResult.times.length; i++) {
-				htmll += "<tr>";
-				htmll += "<td>" + jsonResult.times[i].day + "</td><td>" + jsonResult.times[i].start + "</td><td>-</td><td>" + jsonResult.times[i].end + "</td>";
-				htmll += "<td>" + jsonResult.times[i].bldg + "-" + jsonResult.times[i].room + "</td>";
-				htmll += "</tr>";
+				row = $("<tr>");
+				$("<td>").html(jsonResult.times[i].day)
+						.appendTo(row);
+				$("<td>").html(jsonResult.times[i].start)
+						.appendTo(row);
+				$("<td>").html("-")
+						.appendTo(row);
+				$("<td>").html(jsonResult.times[i].end)
+						.appendTo(row);
+				$("<td>").html(jsonResult.times[i].bldg + "-" + jsonResult.times[i].room)
+						.appendTo(row);
+				row.appendTo(table);
 			}
-			htmll += "</table>";
-			// @todo:	Link to course in SIS
-			// @todo:	Link to make into schedule
-			$('#rouletteCourse').html(htmll);
+			table.appendTo(courseDiv);			
+
+			// @TODO:	Link to course in SIS
+			
+			// Make a button that stores the course info in session data
+			$("<input>").attr("type", "button")
+						.attr("value", "Build Schedule with this Course")
+						.click(function() {	
+							sessionStorage.setItem("rouletteCourse", jsonResult.department + "-" + jsonResult.course + "-" + jsonResult.section); 
+							window.location = "generate.php";
+							})
+						.appendTo(courseDiv);
+
 			$('#rouletteCourse').removeClass();
 			$('#rouletteCourse').addClass('rouletteCourse');
 		}
