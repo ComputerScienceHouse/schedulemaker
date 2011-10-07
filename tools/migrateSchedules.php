@@ -4,7 +4,7 @@
 //
 // @author	Ben Russell (benrr101@csh.rit.edu)
 //
-// @file	tools/migrate.php
+// @file	tools/migrateSchedules.php
 // @descrip	A stand alone tool for migrating saved schedules.
 ////////////////////////////////////////////////////////////////////////////
 
