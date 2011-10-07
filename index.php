@@ -38,13 +38,13 @@ require "./inc/header.inc";
 	<li>Schedule Generator - <span class='c'>COMPLETE (09-01-11)</span></li>
 	<li>Course Roulette - <span class='c'>COMPLETE (08-06-11)</span></li>
 	<li>Cronjob Status - Not complete</li>
-	<li>AJAX Integration - Not complete</li>
+	<li>AJAX Integration - <span class='c'>COMPLETE</span></li>
 	<li>Courses DB - <span class='c'>COMPLETE (08-03-11)</span></li>
-	<li>Saved Schedule Lookup - Not complete</li>
+	<li>Saved Schedule Lookup - <span class='c'>COMPLETE (10-07-11)</span></li>
 	<li>Saved Schedule Cleaner - Not complete</li>
 	<li>Schedule Output - <span class='c'>COMPLETE (09-17-11)</span></li>
 	<li>Social Media Sharing - <span class='c'>COMPLETE (09-17-11)</span></li>
-	<li>iCal Exporting - Not complete</li>
+	<li>iCal Exporting - <span class='b'>Partial</span></li>
 	<li>Browse Courses - Not complete</li>
 	<li>Scraper Migration - Not complete</li>
 	<li>Migrator: Courses - <span class='c'>COMPLETE (08-03-11)</span></li>

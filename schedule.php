@@ -10,7 +10,7 @@
 
 // FUNCTIONS ///////////////////////////////////////////////////////////////
 
-function drawCourse($couse, $startTime, $endTime, $startDay, $endDay) {
+function drawCourse($course, $startTime, $endTime, $startDay, $endDay) {
 	$code = "";
 
 	// Iterate over the times that the couse has session
@@ -28,7 +28,7 @@ function drawCourse($couse, $startTime, $endTime, $startDay, $endDay) {
 		// Add a div for the time
 		$code .= "<div class='day" . ($time['day'] - $startDay) . "' style = '";
 
-		$height    = (ceil(($time['end'] - $time['start']) / 30) * 20) + 1;
+		$height    = (ceil(($time['end'] - $time['start']) / 30) * 20) - 1;
 		$topOffset = (floor(($time['start'] - $startTime) / 30) * 20) + 20;
 		$code .= "height: {$height}px; top: {$topOffset}px";
 		$code .= "'>";
@@ -37,8 +37,10 @@ function drawCourse($couse, $startTime, $endTime, $startDay, $endDay) {
 		$code .= "<h4>{$course['title']}</h4>";
 		if($course['courseNum'] != "non") {
 			$code .= $course['courseNum'] . "<br />";
-			if($height > 40) {
+			if($height > 60) {
 				$code .= $course['instructor'] . "<br />";
+			}
+			if($height > 40) {
 				$code .= $time['bldg'] . "-" . $time['room'];
 			}
 		}
@@ -79,7 +81,7 @@ function drawHeaders($startTime, $endTime, $startDay, $endDay) {
 
 	// Draw the time divs
 	for($time = $startTime; $time < $endTime; $time += 30) {
-		$code .= "<div class='daytime' style='top:" . floor((($time - $startTime) / 30) * 20) + 20 . "px'>";
+		$code .= "<div class='daytime' style='top:" . (floor((($time - $startTime) / 30) * 20) + 20) . "px'>";
 		$code .= translateTime($time);
 		$code .= "</div>";
 	}
@@ -96,7 +98,7 @@ function generateIcal($schedule) {
 		// Iterate over all the times
 		foreach($course['times'] as $time) {
 			$code .= "BEGIN:VEVENT\n";
-			$code .= "UID:" . md5(uniqueid(mt_rand(), true) . " @{$HTTPROOTADDRESS}\n";
+			$code .= "UID:" . md5(uniqueid(mt_rand(), true) . " @{$HTTPROOTADDRESS}\n");
 			$code .= "DTSTAMP:" . gmdate('Ymd') . "T" . gmdate("His") . "Z\n";
 
 			// Convert the times
@@ -131,26 +133,123 @@ function generateScheduleFromCourses($courses) {
 	$schedWidth  = (($endDay - $startDay) * 100) + 200;
 
 	// Start outputting the code
-	$code = "<div class='schedule' style='height:{$schedHeight}; width:{$schedWidth}'>";
+	$code = "<div class='scheduleWrapper' style='height:{$schedHeight}; width:{$schedWidth}'>";
+	$code .= "<div class='schedule' style='height:{$schedHeight}; width:{$schedWidth}'>";
 	$code .= "<img src='img/grid.png'>";
 	$code .= drawHeaders($startTime, $endTime, $startDay, $endDay);
-	var_dump($courseList);
+
 	foreach($courseList as $course) {
 		$code .= drawCourse($course, $startTime, $endTime, $startDay, $endDay);
 	}
-	$code .= "</div>";
+	$code .= "</div></div>";
 
 	return $code;
 }
 
-function generateScheduleFromId($id) {
-	// Figure out if it's an old id or a new id
-	$idType = determineIdType($id);
+function getScheduleFromId($id) {
+	// Query to see if the id exists, if we can update the last accessed time,
+	// then the id most definitely exists.
+	$query = "UPDATE schedules SET datelastaccessed = NOW() WHERE id={$id}";
+	$result = mysql_query($query);
+	if(!$result) {
+		echo mysql_error();
+		return NULL;
+	}
+	
+	$query = "SELECT startday, endday, starttime, endtime FROM schedules WHERE id={$id}";
+	$result = mysql_query($query);
+	$scheduleInfo = mysql_fetch_assoc($result);
 
-	// Do a different query based on the type
+	// Grab the metadata of the schedule
+	$startDay  = $scheduleInfo['startday'];
+	$endDay    = $scheduleInfo['endday'];
+	$startTime = $scheduleInfo['starttime'];
+	$endTime   = $scheduleInfo['endtime'];
 
-	// Query for the id
-	//$query = 
+	// Create storage for the courses that will be returned
+	$schedule = array();
+
+	// It exists, so grab all the courses that exist for this schedule
+	$query = "SELECT section FROM schedulecourses WHERE schedule = {$id}";
+	$result = mysql_query($query);
+	while($course = mysql_fetch_assoc($result)) {
+		// Query for the section's information
+		$query = "SELECT * FROM sections WHERE id={$course['section']}";
+		$sectionResult = mysql_query($query);
+		$sectionInfo = mysql_fetch_assoc($sectionResult);
+
+		// Query for the course's information
+		$query = "SELECT * FROM courses WHERE id={$sectionInfo['course']}";
+		$courseResult = mysql_query($query);
+		$courseInfo = mysql_fetch_assoc($courseResult);
+
+		// Generate the information for the course
+		$course = array(
+			"title"      => $courseInfo['title'],
+			"instructor" => $sectionInfo['instructor'],
+			"curenroll"  => $sectionInfo['curenroll'],
+			"maxenroll"  => $sectionInfo['maxenroll'],
+			"courseNum"  => "{$courseInfo['department']}-{$courseInfo['course']}-{$sectionInfo['section']}",
+			"times"      => array()
+			);
+		
+		// Query for the times that the course has
+		$query = "SELECT * FROM times WHERE section = {$sectionInfo['id']}";
+		$timeResult = mysql_query($query);
+		while($timeInfo = mysql_fetch_assoc($timeResult)) {
+			// Add the course's times to the course information
+			$course['times'][] = array(
+				"bldg"  => $timeInfo['building'],
+				"room"  => $timeInfo['room'],
+				"day"   => $timeInfo['day'],
+				"start" => $timeInfo['start'], 
+				"end"   => $timeInfo['end']
+				);
+		}
+
+		// Add the course to the schedule
+		$schedule[] = $course;
+	}
+
+	// Grab all the non courses that exist for this schedule
+	$query = "SELECT * FROM schedulenoncourses WHERE schedule = $id";
+	$result = mysql_query($query);
+	if(!$result) {
+		echo mysql_error();
+	}
+	while($nonCourseInfo = mysql_fetch_assoc($result)) {
+		$schedule[] = array(
+			"title"     => $nonCourseInfo['title'],
+			"courseNum" => "non",
+			"times"     => array(
+							"day"   => $nonCourseInfo['day'],
+							"start" => $nonCourseInfo['start'],
+							"end"   => $nonCourseInfo['end']
+							)
+			);
+	}
+
+	return array(
+			"courses"   => $schedule,
+			"startTime" => $startTime,
+			"endTime"   => $endTime,
+			"startDay"  => $startDay,
+			"endDay"    => $endDay
+			);
+}
+
+function getScheduleFromOldId($id) {
+	$query = "SELECT id FROM schedules WHERE oldid = '{$id}'";
+	$result = mysql_query($query);
+	if(!$result || mysql_num_rows($result) != 1) {
+		return NULL;
+	} else {
+		$newId = mysql_fetch_assoc($result);
+		$newId = $newId['id'];
+		$schedule = getScheduleFromId($newId);
+		$schedule['id'] = $newId;
+		return $schedule;
+	}
 }
 
 function queryOldId($id) {
@@ -167,7 +266,7 @@ $mode = (empty($_REQUEST['mode'])) ? "schedule" : mysql_real_escape_string($_REQ
 switch($mode) {
 	case "print":
 		// PRINTABLE SCHEDULE //////////////////////////////////////////////
-		// No header, no footer, just the schedulexX
+		// No header, no footer, just the schedule
 	
 		?>
 		<html>
@@ -220,6 +319,7 @@ switch($mode) {
 
 		// Set header for ical mime, output the xml
 		header("Content-Type: text/calendar");
+		header("Content-Disposition: attachment; filename='generated_schedule" . md5(serialize($schedule)) . ".ics'");
 		?>
 BEGIN:VCALENDAR
 PRODID: -//CSH ScheduleMaker//iCal4j 1.0//EN
@@ -235,14 +335,29 @@ END:VCALENDAR
 		// OLD SCHEDULE FORMAT /////////////////////////////////////////////
 		require "./inc/header.inc";
 		
-		require "./inc/footer.ing";
+		// Grab the schedule
+		$schedule = getScheduleFromOldId($_GET['id']);
+		?>
+		<div class='schedUrl'>
+			<p>This schedule was created using the old schedule maker!</p>
+			<p>You should now access this schedule at:
+				<a href="<?= $HTTPROOTADDRESS ?>schedule.php?id=<?= dechex($schedule['id']) ?>">
+					<?= $HTTPROOTADDRESS ?>schedule.php?id=<?= dechex($schedule['id']) ?>
+				</a>
+			</p>
+		</div>
+		<?
+		echo generateScheduleFromCourses($schedule);
+
+		require "./inc/footer.inc";
 		break;
 
 	case "schedule":
 		// DEFAULT SCHEDULE FORMAT /////////////////////////////////////////
 		require "./inc/header.inc";
 		
-		echo "qqq";
+		$schedule = getScheduleFromId(hexdec($_GET['id']));
+		echo generateScheduleFromCourses($schedule);
 
 		require "./inc/footer.inc";
 		break;

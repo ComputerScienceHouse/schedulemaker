@@ -353,8 +353,7 @@ switch($_POST['action']) {
 		// Everything was successful, return a nice, simple URL to the schedule
 		// To make it cool, let's make it a hex id
 		$hexId = dechex($schedId);
-		// @TODO: THIS MUST BE CHANGED WHEN IT GOES LIVE.
-		$url = "http://iota.csh.rit.edu/schedule.php?id={$hexId}";
+		$url = "{$HTTPROOTADDRESS}schedule.php?id={$hexId}";
 		
 		echo json_encode(array("url" => $url, "id" => $hexId));
 
