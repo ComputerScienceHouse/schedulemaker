@@ -300,7 +300,20 @@ require_once('./inc/timeFunctions.php');
 			}
 			.schedUrl p.disclaimer {
 				font-style:italic;
-			}	
+			}
+
+			/* COURSE BROWSER */
+			.subDivision {
+				display:none;
+				margin-left:20px;
+			}
+			.item {
+				padding:2px;
+				margin:5px;
+				border: solid 1px white;
+				background:lightgreen;
+			}
+
 			.c {
 				color:darkgreen;
 			}
