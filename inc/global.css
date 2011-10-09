@@ -21,7 +21,7 @@ body {
 	position:relative;
 	float:center;
 	min-width:960px;
-	max-width:1200px;
+	max-width:1240px;
 	margin-left:auto;
 	margin-right:auto;
 	background-color: lightgreen;
@@ -32,12 +32,16 @@ body {
 	float:center;
 	min-width:960px;
 	max-width:1200px;
-	padding:10px;
+	padding:20px;
 	margin-top:0px;
 	margin-left:auto;
 	margin-right:auto;
 	background-color:lightgreen;
 	text-align: center;
+}
+
+#footer h2 {
+	margin:0px;
 }
 
 /**************************************************************************/
@@ -75,17 +79,14 @@ form {
 	margin-top:200px;
 	margin-bottom:200px;
 	text-align:center;
-	v-align:middle;
-}
-.rouletteCourse {
-	background-color:lightgreen;
+	vertical-align:middle;
 }
 .rouletteError {
 	background-color:salmon;
 }
 #rouletteCourse {
+	background-color:lightgreen;
 	display:none;
-	width:100%;
 	padding:20px;
 	text-align:center;
 }
@@ -136,7 +137,6 @@ form {
 	margin-bottom:20px;
 	min-width:900px;
 	max-width:1000px;
-	/*width:1000px;*/
 }
 #nonCourses,
 #noCourses,
@@ -199,7 +199,6 @@ form {
 	margin-top:20px;
 	margin-left:auto;
 	margin-right:auto;
-	width:1120px;
 	padding:20px;
 	background-color:salmon;
 	overflow:auto;
@@ -208,9 +207,9 @@ form {
 	position:relative;
 	float:center;
 	margin-top:20px;
+	margin-bottom:20px;
 	margin-left:auto;
 	margin-right:auto;
-	width:1120px;
 	padding:20px;
 	background-color:darkorange;
 	overflow:auto;

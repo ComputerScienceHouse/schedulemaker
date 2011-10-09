@@ -728,8 +728,11 @@ function showSchedules() {
 		$.post("./js/scheduleAjax.php", $('#scheduleForm').serialize(), function(data) {
 			// If there was a single, non-recoverable error, show it and die
 			if(data.error != null && data.error != undefined) {
-				errorDiv = $("<div id='errorDiv' class='scheduleError'>").html("<b>Fatal Error: </b>" + data.msg);
-				$('#schedules').append(errorDiv);
+				$("<div>").attr("id", "errorDiv")
+						.addClass("scheduleError")
+						.html("<b>Fatal Error: </b>" + data.msg)
+						.appendTo($("#schedules"));
+				$("#schedules").slideDown();
 				return;
 			}
 
@@ -776,30 +779,30 @@ function showSchedules() {
 
 			// Now we draw the schedules
 			drawPage(0, false);
+
+			// Add next/previous page controls
+			pagination = $("<div>").addClass("schedulePagination");
+			pageinfo = schedules.length + " Schedules Generated (Page <span class='curpage'>" + (curPage + 1) + "</span> of " + pages + ")";
+			pagination.html(pageinfo);
+			if(pages > 1) {
+				prev = $("<input>").attr("type", "button")
+							.attr("value", "<- Previous")
+							.attr("onClick", "getPrevPage();")
+							.addClass("prevbutton")
+							.css("display", "none");
+				next = $("<input>").attr("type", "button")
+							.attr("value", "Next ->")
+							.attr("onClick", "getNextPage();")
+							.addClass("nextbutton");
+				pagination.append(prev);
+				pagination.append(next);
+			}
+			pagination.insertAfter('#matchingSchedules');
+			pagination2 = pagination.clone();
+			pagination2.appendTo('#schedules');
+
+			// Unhide the schedules page
+			$('#schedules').slideDown();
 		});
 	}
-
-	// Add next/previous page controls
-	pagination = $("<div>").addClass("schedulePagination");
-	pageinfo = schedules.length + " Schedules Generated (Page <span class='curpage'>" + (curPage + 1) + "</span> of " + pages + ")";
-	pagination.html(pageinfo);
-	if(pages > 1) {
-		prev = $("<input>").attr("type", "button")
-					.attr("value", "<- Previous")
-					.attr("onClick", "getPrevPage();")
-					.addClass("prevbutton")
-					.css("display", "none");
-		next = $("<input>").attr("type", "button")
-					.attr("value", "Next ->")
-					.attr("onClick", "getNextPage();")
-					.addClass("nextbutton");
-		pagination.append(prev);
-		pagination.append(next);
-	}
-	pagination.insertAfter('#matchingSchedules');
-	pagination2 = pagination.clone();
-	pagination2.appendTo('#schedules');
-
-	// Unhide the schedules page
-	$('#schedules').slideDown();
 }

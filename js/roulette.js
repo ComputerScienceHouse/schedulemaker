@@ -65,7 +65,6 @@ function spinRoulette() {
 						.appendTo(courseDiv);
 
 			$('#rouletteCourse').removeClass();
-			$('#rouletteCourse').addClass('rouletteCourse');
 		}
 
 		// Make it visible and change the button text
