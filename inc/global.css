@@ -8,7 +8,6 @@ body {
 	float: center;
 	min-width: 960px;
 	max-width: 1200px;
-	/*width: 1200px;*/
 	padding-top:20px;
 	padding-bottom:20px;
 	padding-left:20px;
@@ -16,6 +15,29 @@ body {
 	margin-left: auto;
 	margin-right: auto;
 	background-color: lightblue;
+}
+
+#header {
+	position:relative;
+	float:center;
+	min-width:960px;
+	max-width:1200px;
+	margin-left:auto;
+	margin-right:auto;
+	background-color: lightgreen;
+}
+
+#footer {
+	position: relative;
+	float:center;
+	min-width:960px;
+	max-width:1200px;
+	padding:10px;
+	margin-top:0px;
+	margin-left:auto;
+	margin-right:auto;
+	background-color:lightgreen;
+	text-align: center;
 }
 
 /**************************************************************************/
@@ -79,6 +101,7 @@ form {
 	margin-right:auto;
 }
 
+/**************************************************************************/
 /* SCHEDULE */
 .scheduleForm {
 	position:relative;
@@ -301,6 +324,7 @@ form {
 	font-style:italic;
 }
 
+/**************************************************************************/
 /* COURSE BROWSER */
 .subDivision {
 	display:none;
@@ -313,6 +337,7 @@ form {
 	background:lightgreen;
 }
 
+/* Some other stuff */
 .c {
 	color:darkgreen;
 }

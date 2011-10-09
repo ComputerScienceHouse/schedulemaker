@@ -13,4 +13,10 @@ require_once('./inc/timeFunctions.php');
 	</head>
 
 	<body>
+		<div id='header'>
+			<div><a href='index.php'>Schedule Maker</a></div>
+			<div><a href='generate.php'>Build Schedules</a></div>
+			<div><a href='browse.php'>Browse Courses</a></div>
+			<div><a href='roulette.php'>Course Roulette</a></div>
+		</div>
 		<div id="container">
