@@ -22,7 +22,9 @@ switch($quarter) {
 	case null:
 		// No quarter was specified, so we need to print the list of quarters
 		require "./inc/header.inc";
-		
+		?>		
+		<h1>Browse Courses &gt; Select a Quarter</h1>
+		<?
 		// Query for the quarters
 		$query = "SELECT quarter FROM quarters ORDER BY quarter DESC";
 		$result = mysql_query($query);
@@ -53,7 +55,7 @@ switch($quarter) {
 			}
 			$q['year'] = substr($q['quarter'], 0, -1);
 			?>
-			<h1>Browse Courses &gt; Select a Quarter</h1>
+			
 			<p>
 				<a href="browse.php?quarter=<?= $q['quarter'] ?>"><?= $q['string'] ?> <?= $q['year'] ?> (<?= $q['quarter'] ?>)</a>
 			</p>
