@@ -151,8 +151,7 @@ function getScheduleFromId($id) {
 	// then the id most definitely exists.
 	$query = "UPDATE schedules SET datelastaccessed = NOW() WHERE id={$id}";
 	$result = mysql_query($query);
-	if(!$result) {
-		echo mysql_error();
+	if(!$result || mysql_affected_rows() != 1) {
 		return NULL;
 	}
 	
@@ -337,18 +336,25 @@ END:VCALENDAR
 		
 		// Grab the schedule
 		$schedule = getScheduleFromOldId($_GET['id']);
-		?>
-		<div class='schedUrl'>
-			<p>This schedule was created using the old schedule maker!</p>
-			<p>You should now access this schedule at:
-				<a href="<?= $HTTPROOTADDRESS ?>schedule.php?id=<?= dechex($schedule['id']) ?>">
-					<?= $HTTPROOTADDRESS ?>schedule.php?id=<?= dechex($schedule['id']) ?>
-				</a>
-			</p>
-		</div>
-		<?
-		echo generateScheduleFromCourses($schedule);
-
+		if($schedule == NULL) {
+			?>
+			<div class='schedUrl error'>
+				<p><span style='font-weight:bold'>Fatal Error:</span> The requested schedule does not exist!</p>
+			</div>
+			<?
+		} else {
+			?>
+			<div class='schedUrl'>
+				<p>This schedule was created using the old schedule maker!</p>
+				<p>You should now access this schedule at:
+					<a href="<?= $HTTPROOTADDRESS ?>schedule.php?id=<?= dechex($schedule['id']) ?>">
+						<?= $HTTPROOTADDRESS ?>schedule.php?id=<?= dechex($schedule['id']) ?>
+					</a>
+				</p>
+			</div>
+			<?
+			echo generateScheduleFromCourses($schedule);
+		}
 		require "./inc/footer.inc";
 		break;
 
@@ -357,7 +363,16 @@ END:VCALENDAR
 		require "./inc/header.inc";
 		
 		$schedule = getScheduleFromId(hexdec($_GET['id']));
-		echo generateScheduleFromCourses($schedule);
+		print_r($schedule);
+		if($schedule == NULL) {
+			?>
+			<div class='schedUrl error'>
+				<p><span style='font-weight:bold'>Fatal Error:</span> The requested schedule does not exist!</p>
+			</div>
+			<?
+		} else {
+			echo generateScheduleFromCourses($schedule);
+		}
 
 		require "./inc/footer.inc";
 		break;
