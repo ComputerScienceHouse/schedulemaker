@@ -464,7 +464,7 @@ function getCourseOptions(field) {
 	}
 
 	// It wasn't blank! Let's send it to the ajaxHandler
-	$.post("./js/ajaxCalls.php", {'action': 'getCourseOpts', 'course': $(field).val(), 'quarter': $('#quarter').val()} , function(data) {		
+	$.post("./js/scheduleAjax.php", {'action': 'getCourseOpts', 'course': $(field).val(), 'quarter': $('#quarter').val()} , function(data) {		
 		try {		
 		// Grab the course options (results) div
 		courseOpts = field.parentNode.children[2];

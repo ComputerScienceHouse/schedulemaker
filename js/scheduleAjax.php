@@ -199,6 +199,90 @@ if(empty($_POST['action'])) {
 
 switch($_POST['action']) {
 	////////////////////////////////////////////////////////////////////////
+	// GET COURSE OPTIONS	
+	case "getCourseOpts":
+		// Verify that we got a course (or partial course) and a quarter
+		if(empty($_POST['course'])) {
+			die(json_encode(array("error" => "argument", "msg" => "You must provide at least a department number", "arg" => "course")));
+		}
+		if(empty($_POST['quarter'])) {
+			die(json_encode(array("error" => "argument", "msg" => "You must provide a quarter", "arg" => "course")));
+		}
+
+		// If it's not a number, we'll remove the dashes
+		if(!is_numeric($_POST['course'])) {
+			$course = str_replace("-", "", $_POST['course']);
+		} else {
+			$course = $_POST['course'];
+		}
+
+		// If it's still not a number, then we can't process it
+		if(preg_match("/[a-zA-Z]+/", $course)) {
+			die(json_encode(array("error" => "argument", "msg" => "Your course must contain numbers", "arg" => "course")));
+		}		
+		if(!is_numeric($course)) {
+			die(json_encode(array("error" => "argument", "msg" => "Your course must be in the format XXXX-XXX-XX", "arg" => "course")));
+		}
+
+		// Now we'll split the course into the various components
+		$department = substr($course, 0, 4);
+		if(strlen($department) != 4) {
+			// We didn't get an entire department. We won't proceed
+			die(json_encode(array("error" => "argument", "msg" => "You must provide at least a complete department number", "arg" => "course")));
+		}
+
+		$coursenum = substr($course, 4, 3);
+		if(!$coursenum || strlen($coursenum) != 3) {
+			// We got a partial course. That's ok.
+			$partialCourse = true;
+		} else {
+			$partialCourse = false;
+		}
+
+		$section = substr($course, 7);
+		if(!$section || strlen($coursenum) != 2) {
+			// We got a partial section number. That's ok. Dumb, but OK (in the case of condition 2)
+			$partialSection = true;
+		} else {
+			$partialSection = false;
+		}
+
+		// Build a query and run it
+		$query = "SELECT c.department, c.course, s.section FROM courses AS c, sections AS s WHERE";
+		$query .= " s.course = c.id";
+		$query .= " AND c.quarter = {$_POST['quarter']}";
+		$query .= " AND c.department = {$department}";
+		if($partialCourse) {
+			$query .= " AND c.course LIKE '{$coursenum}%'";
+		} else {
+			$query .= " AND c.course = {$coursenum}";
+		}
+		if($partialSection) {
+			$query .= " AND s.section LIKE '{$section}%'";
+		} else {
+			$query .= " AND s.section = {$section}";
+		}		
+		$query .= " ORDER BY c.course, s.section";
+		
+		$result = mysql_query($query);
+		if(!$result) {
+			die(json_encode(array("error" => "mysql", "msg" => "There was a database error!", "arg" => "course", 'guru' => $query)));
+		}
+		if(mysql_num_rows($result) == 0) {
+			die(json_encode(array("error" => "result", "msg" => "No courses match")));
+		}
+
+		// Now we can process it into a list of courses. It's pretty simple from here
+		$return = array();
+		while($row = mysql_fetch_assoc($result)) {
+			$return[] = implode('-', $row);
+		}
+		
+		echo json_encode($return);
+
+		break;
+
+	////////////////////////////////////////////////////////////////////////
 	// GET TIME DROPDOWNS
 	case "getTimeField":
 		// Verify that we have the field name and the default time

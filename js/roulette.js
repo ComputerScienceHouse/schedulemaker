@@ -10,7 +10,7 @@
 
 function spinRoulette() {
 	// Serialize the data from the restrictions form and send it in a POST request
-	$.post("./js/ajaxCalls.php", $('#restrictions').serialize(), function(data) {
+	$.post("./js/rouletteAjax.php", $('#restrictions').serialize(), function(data) {
 		// Process the resulting code
 		try {		
 			jsonResult = eval(data);
