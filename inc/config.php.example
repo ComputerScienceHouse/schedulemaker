@@ -17,6 +17,7 @@ $DATABASE_SERVER = 'yourdatabaseserver';
 $DATABASE_USER   = 'yourusername';
 $DATABASE_PASS   = 'yourpassword';
 $DATABASE_DB     = 'yourdatabase';
+$DUMPLOCATION    = 'pathtothedumpfile';
 $HTTPROOTADDRESS = 'http://path.to.your/schedule/';
 
 ////////////////////////////////////////////////////////////////////////////

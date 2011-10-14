@@ -165,4 +165,15 @@ function translateTime($time, $twelve = true) {
 	}
 }
 
-
+/**
+ * Translates the time provided by the dump file into the format needed
+ * by the database
+ * @param	int		$time	The time as provided by the dump file
+ * @return	int		The time as formatted for the database (ie: number of
+ *					minutes into the day
+ */
+function translateTimeDump($time) {
+	$hour = substr($time, 0, 2);
+	$min  = substr($time, -2);
+	return ($hour * 60) + $min;
+}

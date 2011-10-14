@@ -15,6 +15,7 @@
 // REQUIRED FILES //////////////////////////////////////////////////////////
 require_once "../inc/config.php";
 require_once "../inc/databaseConn.php";
+require_once "../inc/timeFunctions.php";
 
 // MAIN EXECUTION //////////////////////////////////////////////////////////
 // Open up the dump file
@@ -110,13 +111,12 @@ while($line = fgets($dumpHandle, 4096)) {
 		$courseId = mysql_fetch_assoc($result);
 		$courseId = $courseId['id'];
 	}
-
+	
 	// The courseID is preserved between iterations in this loop.
-
 	// What's left in the line is information on the section
-	$instructor = mysql_real_escape_string(ucfirst(strtolower($lineSplit[21])) . ' ' . ucfirst(strtolower($lineSplit[22])));
-	$maxEnroll  = mysql_real_escape_string($lineSplit[12]);
-	$curEnroll  = mysql_real_escape_string($lineSplit[13]);
+	$instructor = mysql_real_escape_string(ucfirst(strtolower($lineSplit[22])) . ' ' . ucfirst(strtolower($lineSplit[23])));
+	$maxEnroll  = mysql_real_escape_string($lineSplit[13]);
+	$curEnroll  = mysql_real_escape_string($lineSplit[14]);
 	$status     = mysql_real_escape_string($lineSplit[6]);
 
 	// Does this section already exist
@@ -126,7 +126,6 @@ while($line = fgets($dumpHandle, 4096)) {
 		echo("      *** Failed attempting to lookup section\n");
 		continue;
 	}
-
 	if(mysql_num_rows($result)) {
 		// The section already exists, so we need to update it
 		$sectionId = mysql_fetch_assoc($result);
@@ -138,7 +137,7 @@ while($line = fgets($dumpHandle, 4096)) {
 		$query .= " WHERE id = {$sectionId}";
 		$result = mysql_query($query);
 		if(!$result) {
-			echo("         *** Failed to insert section\n");
+			echo("         *** Failed to update section\n");
 			continue;
 		}
 	} else {
@@ -146,8 +145,14 @@ while($line = fgets($dumpHandle, 4096)) {
 		echo("      ... Inserting Section: {$department}-{$course}-{$section}\n");
 		
 		$query = "INSERT INTO sections (course, section, status, instructor, maxenroll, curenroll) ";
-		$query .= "VALUES ({$course}, {$section}, '{$status}', '{$instructor}', {$maxEnroll}, {$curEnroll})";
+		$query .= "VALUES ({$courseId}, {$section}, '{$status}', '{$instructor}', {$maxEnroll}, {$curEnroll})";
+		$result = mysql_query($query);
+		if(!$result) {
+			echo("         *** Failed to insert section\n");
+			continue;
+		}
 		$sectionId = mysql_insert_id();
+		print($sectionId . "\n");
 	}
 
 	// Now for the fun part: times
@@ -161,10 +166,10 @@ while($line = fgets($dumpHandle, 4096)) {
 	
 	// Next, we'll check each time slot from the dump and see if we need to
 	// insert a row
-	if(!empty($lineSplit[26])) {
+	if(!empty($lineSplit[28])) {
 		// Split it by , to get each piece of information
-		$timeSplit = explode($lineSplit[26], ',');
-
+		$timeSplit = explode(',', $lineSplit[28]);
+		
 		// Process the first time		
 		if(count($timeSplit) >= 5) {
 			$day   = mysql_real_escape_string($timeSplit[0]);
@@ -174,7 +179,7 @@ while($line = fgets($dumpHandle, 4096)) {
 			$room  = mysql_real_escape_string($timeSplit[4]);
 
 			$query = "INSERT INTO times (section, day, start, end, building, room) ";
-			$query .= "VALUES ({$sectionId}, {$day}, {$start}, {$end}, '{$building}', '{$room}')";
+			$query .= "VALUES ({$sectionId}, {$day}, {$start}, {$end}, '{$bldg}', '{$room}')";
 		}
 
 		// Process the second time
@@ -185,7 +190,7 @@ while($line = fgets($dumpHandle, 4096)) {
 			$bldg  = mysql_real_escape_string($timeSplit[8]);
 			$room  = mysql_real_escape_string($timeSplit[9]);
 
-			$query .= ", ({$sectionId}, {$day}, {$start}, {$end}, '{$building}', '{$room}')";
+			$query .= ", ({$sectionId}, {$day}, {$start}, {$end}, '{$bldg}', '{$room}')";
 		}
 
 		// Process the third time
@@ -196,7 +201,7 @@ while($line = fgets($dumpHandle, 4096)) {
 			$bldg  = mysql_real_escape_string($timeSplit[13]);
 			$room  = mysql_real_escape_string($timeSplit[14]);
 
-			$query .= ", ({$sectionId}, {$day}, {$start}, {$end}, '{$building}', '{$room}')";
+			$query .= ", ({$sectionId}, {$day}, {$start}, {$end}, '{$bldg}', '{$room}')";
 		}
 
 		// Process the fourth time
@@ -207,13 +212,14 @@ while($line = fgets($dumpHandle, 4096)) {
 			$bldg  = mysql_real_escape_string($timeSplit[18]);
 			$room  = mysql_real_escape_string($timeSplit[19]);
 
-			$query .= ", ({$sectionId}, {$day}, {$start}, {$end}, '{$building}', '{$room}')";
+			$query .= ", ({$sectionId}, {$day}, {$start}, {$end}, '{$bldg}', '{$room}')";
 		}
 		
 		// Run the query
 		$result = mysql_query($query);
-		if(!$query) {
-			echo("         *** Could not add times for section!\n");
+		
+		if(!$result || mysql_affected_rows() == 0) {
+			echo("         *** Could not add times for section! " . mysql_error() . "\n");
 			continue;
 		}
 	}
