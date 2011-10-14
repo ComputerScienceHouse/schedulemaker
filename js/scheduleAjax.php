@@ -417,9 +417,9 @@ switch($_POST['action']) {
 				// Process each time as a seperate item
 				foreach($item['times'] as $time) {
 					$query = "INSERT INTO schedulenoncourses (title, day, start, end, schedule)" .
-							" VALUES('{$item['title']}', {$time['day']}, {$time['start']}, {$time['end']}, {$schedId}";
+							" VALUES('{$item['title']}', {$time['day']}, {$time['start']}, {$time['end']}, {$schedId})";
 					$result = mysql_query($query);
-					if(!result) {
+					if(!$result) {
 						die(json_encode(array("error" => "mysql", "msg" => "Storing non-course item '{$item['title']}' failed: " . mysql_error($dbConn))));
 					}
 				}

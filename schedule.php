@@ -47,7 +47,6 @@ function drawCourse($course, $startTime, $endTime, $startDay, $endDay) {
 
 		$code .= "</div>";
 	}
-
 	return $code;
 }
 
@@ -220,11 +219,11 @@ function getScheduleFromId($id) {
 		$schedule[] = array(
 			"title"     => $nonCourseInfo['title'],
 			"courseNum" => "non",
-			"times"     => array(
+			"times"     => array(array(
 							"day"   => $nonCourseInfo['day'],
 							"start" => $nonCourseInfo['start'],
 							"end"   => $nonCourseInfo['end']
-							)
+							))
 			);
 	}
 
@@ -363,7 +362,6 @@ END:VCALENDAR
 		require "./inc/header.inc";
 		
 		$schedule = getScheduleFromId(hexdec($_GET['id']));
-		print_r($schedule);
 		if($schedule == NULL) {
 			?>
 			<div class='schedUrl error'>
