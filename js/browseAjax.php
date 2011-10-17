@@ -37,7 +37,7 @@ switch($_POST['action']) {
 		}
 
 		// Do the query
-		$query = "SELECT title, department, course, id FROM courses WHERE department = {$_POST['department']} AND quarter = {$_POST['quarter']}";
+		$query = "SELECT title, department, course, id FROM courses WHERE department = {$_POST['department']} AND quarter = {$_POST['quarter']} ORDER BY course";
 		$result = mysql_query($query);
 		if(!$result) {
 			die(json_encode(array("error" => "mysql", "msg" => mysql_error())));
@@ -62,7 +62,7 @@ switch($_POST['action']) {
 		}
 
 		// Do the query
-		$query = "SELECT title, id FROM departments WHERE school = {$_POST['school']}";
+		$query = "SELECT title, id FROM departments WHERE school = {$_POST['school']} ORDER BY id";
 		$result = mysql_query($query);
 		if(!$result) {
 			die(json_encode(array("error" => "mysql", "msg" => mysql_error())));
@@ -87,7 +87,7 @@ switch($_POST['action']) {
 		}
 
 		// Do the query
-		$query = "SELECT c.title, c.course, c.department, s.section, s.instructor, s.id FROM sections AS s, courses AS c WHERE s.course = c.id AND s.course = {$_POST['course']}";
+		$query = "SELECT c.title, c.course, c.department, s.section, s.instructor, s.id FROM sections AS s, courses AS c WHERE s.course = c.id AND s.course = {$_POST['course']} ORDER BY c.course, s.section";
 		$sectionResult = mysql_query($query);
 		if(!$sectionResult) {
 			die(json_encode(array("error" => "mysql", "msg" => mysql_error())));
@@ -98,7 +98,7 @@ switch($_POST['action']) {
 		while($section = mysql_fetch_assoc($sectionResult)) {
 			$section['times'] = array();
 
-			$query = "SELECT day, start, end, building, room FROM times WHERE times.section = {$section['id']}";
+			$query = "SELECT day, start, end, building, room FROM times WHERE times.section = {$section['id']} ORDER BY day, start";
 			$timeResult = mysql_query($query);
 			if(!$timeResult) {
 				die(json_encode(array("error" => "mysql", "msg" => mysql_error())));
