@@ -152,7 +152,6 @@ while($line = fgets($dumpHandle, 4096)) {
 			continue;
 		}
 		$sectionId = mysql_insert_id();
-		print($sectionId . "\n");
 	}
 
 	// Now for the fun part: times

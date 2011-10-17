@@ -156,6 +156,11 @@ foreach($files as $file) {
 					// Process the start and end times
 					$startSplit = explode('.', $timeSplit[3]);
 					$endSplit   = explode('.', $timeSplit[4]);
+					if(count($startSplit) < 3 ) {
+						// Someone dun goofed.
+						$startSplit = explode('.', $timeSplit[4]);
+						$endSplit   = explode('.', $timeSplit[5]);
+					}
 					$startTime = $startSplit[1] * 60 + str_pad($startSplit[2], 2, "0");
 					$endTime   = $endSplit[1] * 60 + str_pad($endSplit[2], 2, "0");
 
@@ -164,7 +169,7 @@ foreach($files as $file) {
 					$room = $timeSplit[2];
 
 					// Build and execute a query
-					$query = "INSERT INTO schedulenoncourses (section, day, start, end, building, room) ";
+					$query = "INSERT INTO times (section, day, start, end, building, room) ";
 					$query .= "VALUES('{$sectionID}', '{$day}', '{$startTime}', '{$endTime}', '{$bldg}', '{$room}')";
 					$result = mysql_query($query);
 					if(!$result) {

@@ -82,7 +82,7 @@ foreach($files as $file) {
 						// Grab the relavent information from the detail
 						preg_match("/title::(.*?)(::|$|,,)/", $detail, $titleMatches);
 						preg_match("/days::(.*)(::|$|,,)/", $detail, $daysMatches);
-						$title = $titleMatches[1];
+						$title = mysql_real_escape_string($titleMatches[1]);
 						$times = $daysMatches[1];
 					
 						// Now we process the times
