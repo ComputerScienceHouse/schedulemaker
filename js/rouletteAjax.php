@@ -80,30 +80,31 @@ switch($_POST['action']) {
 			if($level == 'int') { $query .= " AND c.course >= 300 AND c.course < 600"; }
 			if($level == 'grad') { $query .= " AND c.course >= 600"; }
 		}
-		if($times || $days) { // Process the time constraints
+		$timeConstraints = array();
+		if($times) { // Process the time constraints
 			$timequery = array();
-			if(in_array("morn", $times)) { $timequery[] = "(start >= 800 AND start < 1200)"; }
-			if(in_array("aftn", $times)) { $timequery[] = "(start >= 1200 AND start < 1700)"; }
-			if(in_array("even", $times)) { $timequery[] = "(start > 1700)"; }
-			$timequery = "(" . implode(" OR ", $timequery) . ")"; // Make it a single string (condition OR condition ...)
-
+			if(in_array("morn", $times)) { $timequery[] = "(start >= 480 AND start < 720)"; }
+			if(in_array("aftn", $times)) { $timequery[] = "(start >= 720 AND start < 1020)"; }
+			if(in_array("even", $times)) { $timequery[] = "(start > 1020)"; }
+			$timeConstriants[] = "(" . implode(" OR ", $timequery) . ")"; // Make it a single string (condition OR condition ...)
+		}
+		if($days) { // Process the day constraints
 			$dayquery = array();
-			if($days) {
-				foreach($days as $day) {
-					$dayquery[] = "day = " . translateDay($day);
-				}
+			foreach($days as $day) {
+				$dayquery[] = "day = " . translateDay($day);
 			}
-			$dayquery = "(" . implode(" OR ", $dayquery) . ")"; // Do the same as we did with the times
-					
+			$timeConstraints[] = "(" . implode(" OR ", $dayquery) . ")"; // Do the same as we did with the times
+		}
+		if(count($timeConstraints)) {
 			// Now cram the two together into one concise subquery
-			$query .= " AND s.id IN (SELECT section FROM times WHERE " . implode(" AND ", array($timequery, $dayquery)) . ")";
+			$query .= " AND s.id IN (SELECT section FROM times WHERE " . implode(" AND ", $timeConstraints) . ")";
 		}
 		$query .= " AND s.course = c.id";
 
 		// Run it!
 		$result = mysql_query($query);
 		if(!$result) {
-			echo json_encode(array("error" => "mysql", "msg" => mysql_error()));
+			echo json_encode(array("error" => "mysql", "msg" => mysql_error(), "guru" => $query));
 			break;
 		}
 		if(mysql_num_rows($result) == 0) {
