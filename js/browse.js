@@ -22,7 +22,8 @@ function courseOnCollapse(obj) {
 	
 	// Get the parent and hide all it's children courses
 	parent = obj.parent();
-	parent.children().last().slideUp()
+	parent.children().last().slideUp();
+	obj.next().next().slideUp();
 
 	// Reset the click function
 	obj.unbind("click");
@@ -38,6 +39,9 @@ function courseOnExpand(obj) {
 	// Get the parent and the input field
 	parent = obj.parent();
 	input  = obj.next();
+
+	// Expand the course description
+	input.next().slideDown();
 	
 	// If the sections already exist, then don't do the post request
 	if(parent.children().last().hasClass("subDivision")) {
@@ -150,6 +154,9 @@ function departmentOnExpand(obj) {
 		for(i=0; i < data.courses.length; i++) {
 			div = $("<div>").addClass("item")
 						.html(" " + data.courses[i].department + "-" + data.courses[i].course + " - " + data.courses[i].title);
+			$("<p>").html(data.courses[i].description)
+						.addClass("courseDescription")
+						.appendTo(div);
 			$("<input>").attr("type", "hidden")
 						.val(data.courses[i].id)
 						.prependTo(div);

@@ -335,6 +335,10 @@ form {
 	border: solid 1px white;
 	background:lightgreen;
 }
+.courseDescription {
+	display: none;
+	margin:5px;
+}
 
 /* Some other stuff */
 .c {

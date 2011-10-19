@@ -37,7 +37,7 @@ switch($_POST['action']) {
 		}
 
 		// Do the query
-		$query = "SELECT title, department, course, id FROM courses WHERE department = {$_POST['department']} AND quarter = {$_POST['quarter']} ORDER BY course";
+		$query = "SELECT title, department, course, description, id FROM courses WHERE department = {$_POST['department']} AND quarter = {$_POST['quarter']} ORDER BY course";
 		$result = mysql_query($query);
 		if(!$result) {
 			die(json_encode(array("error" => "mysql", "msg" => mysql_error())));
