@@ -61,7 +61,7 @@ while($line = fgets($dumpHandle, 4096)) {
 	$course     = substr($lineSplit[1], 4, 3);
 	$section    = substr($lineSplit[1], -2);
 	$courseNum   = $department . $course;
-
+	
 	// Have we already looked at this course?
 	if($curCourse != $courseNum) {
 		echo("   ... Processing Course: {$department}-{$course}\n");
@@ -118,6 +118,9 @@ while($line = fgets($dumpHandle, 4096)) {
 	$maxEnroll  = mysql_real_escape_string($lineSplit[13]);
 	$curEnroll  = mysql_real_escape_string($lineSplit[14]);
 	$status     = mysql_real_escape_string($lineSplit[6]);
+	if($lineSplit[15] == "Y") { $type = "O"; }
+	elseif($lineSplit[16] == "Y") { $type = "N"; }
+	else { $type = "R"; }
 
 	// Does this section already exist
 	$query = "SELECT id FROM sections WHERE course = {$courseId} AND section = {$section}";
@@ -133,7 +136,7 @@ while($line = fgets($dumpHandle, 4096)) {
 
 		echo("      ... Updating Section: {$department}-{$course}-{$section}\n");
 		
-		$query = "UPDATE sections SET instructor = '{$instructor}', maxenroll = {$maxEnroll}, curenroll = {$curEnroll}, status = '{$status}'";
+		$query = "UPDATE sections SET instructor = '{$instructor}', maxenroll = {$maxEnroll}, curenroll = {$curEnroll}, status = '{$status}', type = '{$type}'";
 		$query .= " WHERE id = {$sectionId}";
 		$result = mysql_query($query);
 		if(!$result) {
@@ -144,8 +147,8 @@ while($line = fgets($dumpHandle, 4096)) {
 		// The section does not exist, so it needs to be inserted
 		echo("      ... Inserting Section: {$department}-{$course}-{$section}\n");
 		
-		$query = "INSERT INTO sections (course, section, status, instructor, maxenroll, curenroll) ";
-		$query .= "VALUES ({$courseId}, {$section}, '{$status}', '{$instructor}', {$maxEnroll}, {$curEnroll})";
+		$query = "INSERT INTO sections (course, section, status, instructor, maxenroll, curenroll, type) ";
+		$query .= "VALUES ({$courseId}, {$section}, '{$status}', '{$instructor}', {$maxEnroll}, {$curEnroll}, {$type})";
 		$result = mysql_query($query);
 		if(!$result) {
 			echo("         *** Failed to insert section\n");

@@ -39,7 +39,7 @@ if(!$dbConn) {
  */
 function getCourse($quarter, $deptNum, $courseNum, $sectNum) {
 	// Build the query
-	$query = "SELECT s.id, c.title, s.instructor, s.curenroll, s.maxenroll";
+	$query = "SELECT s.id, c.title, s.instructor, s.curenroll, s.maxenroll, s.type";
 	$query .= " FROM courses AS c, sections AS s";
 	$query .= " WHERE c.id = s.course AND c.quarter = {$quarter} AND c.department = {$deptNum} AND c.course = {$courseNum} AND s.section = {$sectNum}";
 
@@ -61,10 +61,14 @@ function getCourse($quarter, $deptNum, $courseNum, $sectNum) {
 		"curenroll"  => $row['curenroll'],
 		"maxenroll"  => $row['maxenroll'],
 		"courseNum"  => "{$deptNum}-{$courseNum}-{$sectNum}",
-		"sectionId"  => $row['id']
+		"sectionId"  => $row['id'],
+		"online"     => $row['type'] == "O"
 		);
 	
-	// Now we query for the times of the section
+	// If the course is online, then don't even bother looking for it's times
+	if($course['online']) { return $course; }
+
+	// Now we query for the times of the section	
 	$query = "SELECT * FROM times WHERE section = {$row['id']}";
 	$result = mysql_query($query);
 	if(!$result) {

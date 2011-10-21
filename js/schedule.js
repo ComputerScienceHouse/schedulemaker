@@ -222,6 +222,11 @@ function courseOnFocus(field) {
 }
 
 function drawCourse(parent, course, startDay, endDay, startTime, endTime) {
+	// If the course is online OR there aren't any times set, don't even bother
+	if(course.online || course.times == undefined) {
+		return;
+	}
+
 	// Draw the time divs of the course
 	for(t = 0; t < course.times.length; t++) {
 		// Skip times that aren't part of the displayed days
@@ -295,10 +300,16 @@ function drawPage(pageNum, print) {
 		drawScheduleHeaders(sched, startday, endday, starttime, endtime);
 
 		// Iterate over each course and draw them
+		var onlineCourses = new Array();
 		for(c = 0; c < schedSubset[s].length; c++) {
 			drawCourse(sched, schedSubset[s][c], startday, endday, starttime, endtime);
-		}
 
+			// If we found an online course
+			if(schedSubset[s][c].online) {
+				onlineCourses.push(schedSubset[s][c].courseNum);
+			}
+		}
+		
 		// Calculate the id of the schedule (should be unique)
 		schedId = s + startIndex;
 
@@ -308,6 +319,16 @@ function drawPage(pageNum, print) {
 								.css("height", schedHeight + "px")
 								.css("width", schedWidth + "px");
 		sched.appendTo(nohidesched);
+		
+		// If we have onlineCourses then show a little notice
+		if(onlineCourses.length) {
+			var onlineWarning = $("<div>").addClass("schedUrl")
+						.html("Notice: This schedule contains online courses ");
+			for(ol = 0; ol < onlineCourses.length; ol++) {
+				onlineWarning.html(onlineWarning.html() + " " + onlineCourses[ol]);
+			}
+			onlineWarning.appendTo(nohidesched);
+		}
 
 		if(!print) {
 		// Create a control box

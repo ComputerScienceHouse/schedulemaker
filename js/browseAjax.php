@@ -87,16 +87,24 @@ switch($_POST['action']) {
 		}
 
 		// Do the query
-		$query = "SELECT c.title, c.course, c.department, s.section, s.instructor, s.id FROM sections AS s, courses AS c WHERE s.course = c.id AND s.course = {$_POST['course']} ORDER BY c.course, s.section";
+		$query = "SELECT c.title, c.course, c.department, s.section, s.instructor, s.id, s.type, s.maxenroll, s.curenroll FROM sections AS s, courses AS c";
+		$query .= " WHERE s.course = c.id AND s.course = {$_POST['course']} ORDER BY c.course, s.section";
 		$sectionResult = mysql_query($query);
 		if(!$sectionResult) {
 			die(json_encode(array("error" => "mysql", "msg" => mysql_error())));
 		}
 		
-		// Collect the sections and their times
+		// Collect the sections and their times, modify the section inline
 		$sections = array();
 		while($section = mysql_fetch_assoc($sectionResult)) {
 			$section['times'] = array();
+
+			// If it's online, don't bother looking up the times
+			if($section['type'] == "O") {
+				$section['online'] = true;
+				$sections[] = $section;
+				continue;
+			}
 
 			$query = "SELECT day, start, end, building, room FROM times WHERE times.section = {$section['id']} ORDER BY day, start";
 			$timeResult = mysql_query($query);

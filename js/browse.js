@@ -79,7 +79,16 @@ function courseOnExpand(obj) {
 		for(i=0; i < data.sections.length; i++) {
 			div = $("<div>").addClass("item")
 					.html(data.sections[i].department + "-" + data.sections[i].course + "-" + data.sections[i].section
-						+ " " + data.sections[i].title + " with " + data.sections[i].instructor);
+						+ " : " + data.sections[i].title + " with " + data.sections[i].instructor + " ");
+			
+			// If the section is online, mark it as such
+			if(data.sections[i].online) {
+				div.append($("<span class='online'>[ONLINE]</span>"));
+			}
+
+			// Add a paragraph for the current and maximum enrollment
+			$("<p>").html("Course Enrollment: " + data.sections[i].curenroll + " out of " + data.sections[i].maxenroll)
+				.appendTo(div);
 
 			// Add a paragraph for each meeting time
 			for(j=0; j < data.sections[i].times.length; j++) {

@@ -87,6 +87,12 @@ function generateSchedules($courses, $nonCourses, $noCourses, $chain=array(), $r
 }
 
 function overlapBase($item, $course) {
+	// If there isn't even times defined for this course, or item, then
+	// return false
+	if(empty($itme['times']) || empty($course['times'])) {
+		return false;
+	}
+
 	// Does the item overlap with the course?
 	foreach($item['times'] as $itemTime) {
 		foreach($course['times'] as $courseTime) {
@@ -266,7 +272,7 @@ switch($_POST['action']) {
 		
 		$result = mysql_query($query);
 		if(!$result) {
-			die(json_encode(array("error" => "mysql", "msg" => "There was a database error!", "arg" => "course", 'guru' => $query)));
+			die(json_encode(array("error" => "mysql", "msg" => "There was a database error!", "arg" => "course")));
 		}
 		if(mysql_num_rows($result) == 0) {
 			die(json_encode(array("error" => "result", "msg" => "No courses match")));
