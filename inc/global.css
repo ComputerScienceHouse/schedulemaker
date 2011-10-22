@@ -295,6 +295,13 @@ form {
 .day6 {
 	left:700px;
 }
+.shortenBottom {
+	border-bottom:2px solid orange !important;
+}
+.shortenTop {
+	border-top:2px solid orange !important;
+}
+
 .prevbutton {
 	position: relative;
 	float:left;

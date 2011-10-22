@@ -236,7 +236,17 @@ function drawCourse(parent, course, startDay, endDay, startTime, endTime) {
 
 		// Skip times that aren't part of the displayed hours
 		if(course.times[t].start < startTime || course.times[t].start > endTime || course.times[t].end > endTime) {
-			continue;
+			// Shorten up the boxes of times that extend into
+			// the visible spectrum
+			if(course.times[t].end > startTime) {
+				course.times[t].start = startTime;
+				course.times[t].shorten = "top";
+			} else if(course.times[t].start < endTime) {
+				course.times[t].end = endTime;
+				course.times[t].shorten = "bottom";
+			} else {
+				continue;
+			}
 		}
 
 		// Add a div for the time
@@ -267,6 +277,20 @@ function drawCourse(parent, course, startDay, endDay, startTime, endTime) {
 				timeDiv.html(timeDiv.html() + course.instructor + "<br />");
 				timeDiv.html(timeDiv.html() + course.times[t].bldg + "-" + course.times[t].room);
 			}
+		}
+		if(course.times[t].shorten == "top") {
+			var curHeight = timeDiv.css("height");
+			curHeight = curHeight.substring(0, curHeight.length - 2); 
+			var newHeight = curHeight - 1;
+			timeDiv.css("height", newHeight + "px");
+			timeDiv.addClass("shortenTop");
+		}
+		if(course.times[t].shorten == "bottom") {
+			var curHeight = timeDiv.css("height");
+			curHeight = curHeight.substring(0, curHeight.length - 2); 
+			var newHeight = curHeight - 1;
+			timeDiv.css("height", newHeight + "px");
+			timeDiv.addClass("shortenBottom");
 		}
 		
 		// Add the time to the schedule
