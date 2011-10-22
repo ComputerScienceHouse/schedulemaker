@@ -15,7 +15,7 @@ require_once "./inc/databaseConn.php";
 require_once "./inc/timeFunctions.php";
 
 // Do we have a quarter specified?
-$quarter = (empty($_GET['quarter'])) ? null : mysql_real_escape_string($_GET['quarter']);
+$quarter = (empty($_GET['quarter']) || !is_numeric($_GET['quarter'])) ? null : mysql_real_escape_string($_GET['quarter']);
 
 // MAIN EXECUTION //////////////////////////////////////////////////////////
 switch($quarter) {

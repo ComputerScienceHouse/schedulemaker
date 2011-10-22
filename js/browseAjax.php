@@ -30,10 +30,10 @@ switch($_POST['action']) {
 		// Query for the courses in this department
 
 		// Verify that we have department to get courses for and a quarter
-		if(empty($_POST['department'])) {
-			die(json_encode(array("error" => "argument", "msg" => "You must provide a department")));
-		} elseif(empty($_POST['quarter'])) {
-			die(json_encode(array("error" => "argument", "msg" => "You must provide a quarter")));
+		if(empty($_POST['department']) || !is_numeric($_POST['department'])) {
+			die(json_encode(array("error" => "argument", "msg" => "You must provide a valid department")));
+		} elseif(empty($_POST['quarter']) || !is_numeric($_POST['quarter'])) {
+			die(json_encode(array("error" => "argument", "msg" => "You must provide a valid quarter")));
 		}
 
 		// Do the query
@@ -57,7 +57,7 @@ switch($_POST['action']) {
 		// Query for the departments of the school
 		
 		// Verify that we have a school to get departments for
-		if(empty($_POST['school'])) {
+		if(empty($_POST['school']) || !is_numeric($_POST['school'])) {
 			die(json_encode(array("error" => "argument", "msg" => "You must provide a school")));
 		}
 
@@ -82,7 +82,7 @@ switch($_POST['action']) {
 		// Query for the sections and times of a given course
 		
 		// Verify that we have a course to get sections for
-		if(empty($_POST['course'])) {
+		if(empty($_POST['course']) || !is_numeric($_POST['course'])) {
 			die(json_encode(array("error" => "argument", "msg" => "You must provide a course")));
 		}
 
