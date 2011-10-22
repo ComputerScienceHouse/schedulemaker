@@ -9,10 +9,29 @@
 //			roulette page
 ////////////////////////////////////////////////////////////////////////////
 
+// FUNCTIONS ///////////////////////////////////////////////////////////////
+
+/**
+ * Halts execution if the provided variable is not numeric and it isn't null.
+ * This also dumps a nice jSON encoded error message
+ * @param	mixed	$var	The variable we're asserting is numeric
+ * @param	string	$name	The name of the variable to include in the error
+ *							message. Also the name of the argument.
+ */
+function assertNumeric($var, $name) {
+	if(!is_numeric($var) && !is_null($var)) {
+		die(json_encode(array("error" => "argument", "msg" => "You must provide a valid {$name}!", "arg" => $name)));
+	}
+}
+
 // REQUIRED FILES //////////////////////////////////////////////////////////
 require_once "../inc/config.php";
 require_once "../inc/databaseConn.php";
 require_once "../inc/timeFunctions.php";
+require_once "../inc/ajaxError.php";
+
+// POST PROCESSING /////////////////////////////////////////////////////////
+$_POST = sanitize($_POST);
 
 // MAIN EXECUTION //////////////////////////////////////////////////////////
 
@@ -44,6 +63,13 @@ switch($_POST['action']) {
 		} else {
 			$department = null;
 		}
+
+		// Validate the numerical arguments we got
+		assertNumeric($quarter, "quarter");
+		assertNumeric($school, "school");
+		assertNumeric($credits, "number of credits");
+		assertNumeric($department, "department");
+
 		// Times (Search for any if any is selected, search for the specified times, OR don't specify any time data)
 		if(!empty($_POST['timesAny']) && $_POST['timesAny'] == 'any') {
 			$times = null;

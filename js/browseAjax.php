@@ -13,11 +13,10 @@
 require_once "../inc/config.php";
 require_once "../inc/databaseConn.php";
 require_once "../inc/timeFunctions.php";
+require_once "../inc/ajaxError.php";
 
 // POST PROCESSING /////////////////////////////////////////////////////////
-foreach($_POST as $key => $value) {
-	$_POST[$key] = mysql_real_escape_string($value);
-}
+$_POST = sanitize($_POST);
 
 // MAIN EXECUTION //////////////////////////////////////////////////////////
 if(empty($_POST['action'])) {

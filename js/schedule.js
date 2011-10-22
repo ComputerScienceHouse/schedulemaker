@@ -322,7 +322,7 @@ function drawPage(pageNum, print) {
 		
 		// If we have onlineCourses then show a little notice
 		if(onlineCourses.length) {
-			var onlineWarning = $("<div>").addClass("schedUrl")
+			var onlineWarning = $("<div>").addClass("schedNotes")
 						.html("Notice: This schedule contains online courses ");
 			for(ol = 0; ol < onlineCourses.length; ol++) {
 				onlineWarning.html(onlineWarning.html() + " " + onlineCourses[ol]);

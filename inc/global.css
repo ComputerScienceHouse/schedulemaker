@@ -82,7 +82,7 @@ form {
 	vertical-align:middle;
 }
 .rouletteError {
-	background-color:salmon;
+	background-color:salmon !important;
 }
 #rouletteCourse {
 	background-color:lightgreen;
@@ -315,8 +315,17 @@ form {
 	margin-left:auto;
 	margin-right:auto;
 }
-.schedUrl p {
-	margin:2px;
+.schedNotes {
+	background-color:#FFFF99;
+	position:relative;
+	padding-top:2px;
+	padding-bottom:2px;
+	margin-left:auto;
+	margin-right:auto;
+	margin-bottom:10px;	
+}
+.schedUrl, .schedNotes p {
+	/*margin:2px;*/
 	text-align:center;
 }
 .schedUrl p.disclaimer {
@@ -338,6 +347,10 @@ form {
 .courseDescription {
 	display: none;
 	margin:5px;
+}
+.online {
+	font-weight:bold;
+	color:red;
 }
 
 /* Some other stuff */

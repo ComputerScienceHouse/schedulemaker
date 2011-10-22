@@ -176,3 +176,21 @@ function getDepartmentField($fieldname = "department", $selected = null, $any = 
 	$return .= "</select>";
 	return $return;
 }
+
+/**
+ * Recursively sanitizes all the information passed to it
+ * @param	mixed	$item	The item to sanitize, can be an array
+ * @return	mixed	The item after it has been sanitized
+ */
+function sanitize($item) {
+	if(is_array($item)) {
+		// If it's an array, then recursively call it on the item
+		foreach($item as $key => $value) {
+			$item[$key] = sanitize($value);
+		}
+		return $item;
+	} else {
+		// Base case, return the sanitized item
+		return mysql_real_escape_string($item);
+	}
+}

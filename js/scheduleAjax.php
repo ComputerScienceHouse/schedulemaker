@@ -13,6 +13,7 @@
 require_once "../inc/config.php";
 require_once "../inc/databaseConn.php";
 require_once "../inc/timeFunctions.php";
+require_once "../inc/ajaxError.php";
 
 ////////////////////////////////////////////////////////////////////////////
 // GLOBALS
