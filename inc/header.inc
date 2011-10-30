@@ -4,7 +4,7 @@ require_once('./inc/config.php');
 require_once('./inc/databaseConn.php');
 require_once('./inc/timeFunctions.php');
 ?>
-<DOCTYPE! html>
+<!DOCTYPE html>
 <html>
 	<head>
 		<title><?= (!empty($TITLE)) ? $TITLE : "Schedule Maker" ?></title>

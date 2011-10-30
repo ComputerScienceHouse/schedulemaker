@@ -1,6 +1,7 @@
 body {
 	margin: 0px;
 	font-size:12px;
+	font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
 }
 
 #container {
@@ -50,8 +51,13 @@ body {
 	width:100%;
 	margin-top:200px;
 	margin-bottom:200px;
+	overflow:auto;
+}
+#mainMenu .navItem {
+	width:33%;
+	position:relative;
+	float:left;
 	text-align:center;
-	vertical-align:middle;
 }
 #mainMenu td {
 	padding:15px;
@@ -61,6 +67,10 @@ body {
 }
 form {
 	margin-bottom:5px;
+}
+li {
+	margin-top:3px;
+	margin-bottom:3px;
 }
 
 /**************************************************************************/
@@ -361,9 +371,17 @@ form {
 }
 
 /* Some other stuff */
+.c, .b {
+	border-radius: 3px 3px 3px 3px;
+ 	font-size: 9.75px;
+ 	font-weight: bold;
+ 	padding: 1px 3px 2px;
+ 	text-transform: uppercase;
+	color:white;
+}
 .c {
-	color:darkgreen;
+	background-color:darkgreen;
 }
 .b {
-	color:orange;
+	background-color:orange;
 }

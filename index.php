@@ -19,18 +19,20 @@ if(isset($_GET['s'])) {
 require "./inc/header.inc";
 ?>
 <h1>Schedule Maker</h1>
-<table id="mainMenu">
-	<tr>
-		<td><!-- image goes here --></td>
-		<td><!-- image goes here --></td>
-		<td><!-- image goes here --></td>
-	</tr>
-	<tr>
-		<td><a href='generate.php'>Make a Schedule</a></td>
-		<td><a href='browse.php'>Browse Courses</a></td>
-		<td><a href='roulette.php'>Course Roulette</a></td>
-	</tr>
-</table>
+<div id="mainMenu">
+	<div class='navItem'>
+		<!-- image goes here -->
+		<a href='generate.php'>Make a Schedule</a>
+	</div>
+	<div class='navItem'>
+		<!-- image goes here -->
+		<a href='browse.php'>Browse Courses</a>
+	</div>
+	<div class='navItem'>
+		<!-- image goes here -->
+		<a href='roulette.php'>Course Roulette</a>
+	</div>
+</div>
 <h2>Project Progress</h2>
 <ul>
 	<li>Index Page/Styling - <span class='b'>Partial</span></li>
