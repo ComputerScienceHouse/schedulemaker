@@ -172,57 +172,28 @@ while($line = fgets($dumpHandle, 4096)) {
 		// Split it by , to get each piece of information
 		$timeSplit = explode(',', $lineSplit[28]);
 		
-		// Process the first time		
-		if(count($timeSplit) >= 5) {
-			$day   = mysql_real_escape_string($timeSplit[0]);
-			$start = mysql_real_escape_string(translateTimeDump($timeSplit[1]));
-			$end   = mysql_real_escape_string(translateTimeDump($timeSplit[2]));
-			$bldg  = mysql_real_escape_string($timeSplit[3]);
-			$room  = mysql_real_escape_string($timeSplit[4]);
+		// Process each time (there are 5 fields per time)
+		for($i = 0; $i < count($timeSplit); $i += 5) {
+			$day   = mysql_real_escape_string($timeSplit[$i]);
+			$start = mysql_real_escape_string(translateTimeDump($timeSplit[$i+1]));
+			$end   = mysql_real_escape_string(translateTimeDump($timeSplit[$i+2]));
+			$bldg  = mysql_real_escape_string($timeSplit[$i+3]);
+			$room  = mysql_real_escape_string($timeSplit[$i+4]);
 
+			$times[] = "({$sectionId}, {$day}, {$start}, {$end}, '{$bldg}', '{$room}')";
+		}
+
+		// Bring the query together
+		if(count($times)) {
 			$query = "INSERT INTO times (section, day, start, end, building, room) ";
-			$query .= "VALUES ({$sectionId}, {$day}, {$start}, {$end}, '{$bldg}', '{$room}')";
-		}
-
-		// Process the second time
-		if(count($timeSplit) >= 10) {
-			$day   = mysql_real_escape_string($timeSplit[5]);
-			$start = mysql_real_escape_string(translateTimeDump($timeSplit[6]));
-			$end   = mysql_real_escape_string(translateTimeDump($timeSplit[7]));
-			$bldg  = mysql_real_escape_string($timeSplit[8]);
-			$room  = mysql_real_escape_string($timeSplit[9]);
-
-			$query .= ", ({$sectionId}, {$day}, {$start}, {$end}, '{$bldg}', '{$room}')";
-		}
-
-		// Process the third time
-		if(count($timeSplit) >= 15) {
-			$day   = mysql_real_escape_string($timeSplit[10]);
-			$start = mysql_real_escape_string(translateTimeDump($timeSplit[11]));
-			$end   = mysql_real_escape_string(translateTimeDump($timeSplit[12]));
-			$bldg  = mysql_real_escape_string($timeSplit[13]);
-			$room  = mysql_real_escape_string($timeSplit[14]);
-
-			$query .= ", ({$sectionId}, {$day}, {$start}, {$end}, '{$bldg}', '{$room}')";
-		}
-
-		// Process the fourth time
-		if(count($timeSplit) >= 20) {
-			$day   = mysql_real_escape_string($timeSplit[15]);
-			$start = mysql_real_escape_string(translateTimeDump($timeSplit[16]));
-			$end   = mysql_real_escape_string(translateTimeDump($timeSplit[17]));
-			$bldg  = mysql_real_escape_string($timeSplit[18]);
-			$room  = mysql_real_escape_string($timeSplit[19]);
-
-			$query .= ", ({$sectionId}, {$day}, {$start}, {$end}, '{$bldg}', '{$room}')";
-		}
-		
-		// Run the query
-		$result = mysql_query($query);
-		
-		if(!$result || mysql_affected_rows() == 0) {
-			echo("         *** Could not add times for section! " . mysql_error() . "\n");
-			continue;
+			$query .= implode(', ', $times);
+			
+			$result = mysql_query($query);
+			
+			if(!$result || mysql_affected_rows() == 0) {
+				echo("         *** Could not add times for section! " . mysql_error() . "\n");
+				continue;
+			}
 		}
 	}
 }
