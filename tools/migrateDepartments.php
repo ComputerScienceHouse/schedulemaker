@@ -53,8 +53,8 @@ for($i = 0; $i < $matches; $i++) {
 
 	// Now iterate over the departments and add them to the table
 	for($j = 0; $j < $deptMatches; $j++) {
-		$deptName = mysql_real_escape_string($deptMatches[2][$j]);
-		$deptNum  = mysql_real_escape_string($collegeNum . $deptMatches[1][$j]);
+		$deptName = mysql_real_escape_string($departments[2][$j]);
+		$deptNum  = mysql_real_escape_string($collegeNum . $departments[1][$j]);
 
 		// Build and execute the insert/update query
 		$query = "INSERT INTO departments (id, title, school) VALUES ('{$deptNum}', '{$deptName}', '{$collegeNum}') ";

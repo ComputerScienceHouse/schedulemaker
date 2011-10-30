@@ -9,6 +9,8 @@
 //			saved schedules.
 ////////////////////////////////////////////////////////////////////////////
 
+ini_set("memory_limit", "1024M"); // I'M GIVIN" "ER ALL SHE"S GOT, CAPPN!
+
 // CONFIGURATION DATA
 $MIGRATEFOLDER = "/home/web/schedulemigrate/";
 $IGNOREFILES   = array("..", ".");
