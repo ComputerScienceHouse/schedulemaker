@@ -185,7 +185,7 @@ while($line = fgets($dumpHandle, 4096)) {
 
 		// Bring the query together
 		if(count($times)) {
-			$query = "INSERT INTO times (section, day, start, end, building, room) ";
+			$query = "INSERT INTO times (section, day, start, end, building, room) VALUES ";
 			$query .= implode(', ', $times);
 			
 			$result = mysql_query($query);
