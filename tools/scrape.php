@@ -114,6 +114,7 @@ while($line = fgets($dumpHandle, 4096)) {
 	
 	// The courseID is preserved between iterations in this loop.
 	// What's left in the line is information on the section
+	$sectionTitle = mysql_real_escape_string(ucfirst(strtolower($lineSplit[2])));
 	$instructor = mysql_real_escape_string(ucfirst(strtolower($lineSplit[22])) . ' ' . ucfirst(strtolower($lineSplit[23])));
 	$maxEnroll  = mysql_real_escape_string($lineSplit[13]);
 	$curEnroll  = mysql_real_escape_string($lineSplit[14]);
@@ -137,6 +138,9 @@ while($line = fgets($dumpHandle, 4096)) {
 		echo("      ... Updating Section: {$department}-{$course}-{$section}\n");
 		
 		$query = "UPDATE sections SET instructor = '{$instructor}', maxenroll = {$maxEnroll}, curenroll = {$curEnroll}, status = '{$status}', type = '{$type}'";
+		if(!empty($sectionTitle)) {
+			$query .= ", title = '{$sectionTitle}'";
+		}
 		$query .= " WHERE id = {$sectionId}";
 		$result = mysql_query($query);
 		if(!$result) {
@@ -148,7 +152,7 @@ while($line = fgets($dumpHandle, 4096)) {
 		echo("      ... Inserting Section: {$department}-{$course}-{$section}\n");
 		
 		$query = "INSERT INTO sections (course, section, status, instructor, maxenroll, curenroll, type) ";
-		$query .= "VALUES ({$courseId}, {$section}, '{$status}', '{$instructor}', {$maxEnroll}, {$curEnroll}, {$type})";
+		$query .= "VALUES ({$courseId}, {$section}, '{$status}', '{$instructor}', {$maxEnroll}, {$curEnroll}, '{$type}', '{$title}')";
 		$result = mysql_query($query);
 		if(!$result) {
 			echo("         *** Failed to insert section\n");
