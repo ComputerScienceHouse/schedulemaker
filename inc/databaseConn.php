@@ -40,7 +40,7 @@ if(!$dbConn) {
 function getCourse($quarter, $deptNum, $courseNum, $sectNum) {
 	// Build the query
 	$query = "SELECT s.id,";
-	$query .= " (CASE WHEN (s.title != NULL AND s.title != '') THEN s.title ELSE c.title) AS title";
+	$query .= " (CASE WHEN (s.title != NULL) THEN s.title ELSE c.title END) AS title,";
 	$query .= " c.title, s.instructor, s.curenroll, s.maxenroll, s.type";
 	$query .= " FROM courses AS c, sections AS s";
 	$query .= " WHERE c.id = s.course AND c.quarter = {$quarter} AND c.department = {$deptNum} AND c.course = {$courseNum} AND s.section = {$sectNum}";
