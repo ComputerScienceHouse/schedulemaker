@@ -112,7 +112,7 @@ function addItem() {
 			timeDropDownStart = jsonResult.code;
 		}
 	});
-	timeDropDownEnd = timeDropDownStart.replace("nonCourseStartTime" + nonCourseCount, "nonCourseEndTime" + nonCourseCount);	// Replace the field name
+	timeDropDownEnd = timeDropDownStart.replace(/nonCourseStartTime/g, "nonCourseEndTime");	// Replace the field name
 
 	// Build the new row
 	newRow = document.createElement("tr");
@@ -157,7 +157,7 @@ function addTime() {
 			timeDropDownStart = jsonResult.code;
 		}
 	});
-	timeDropDownEnd = timeDropDownStart.replace("noCourseStartTime" + noCourseCount, "noCourseEndTime" + noCourseCount);	// Replace the field name
+	timeDropDownEnd = timeDropDownStart.replace(/noCourseStartTime/g, "noCourseEndTime");	// Replace the field name
 
 	// Build the new Row
 	newRow = document.createElement("tr");
