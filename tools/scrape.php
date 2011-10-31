@@ -168,6 +168,7 @@ while($line = fgets($dumpHandle, 4096)) {
 	
 	// Next, we'll check each time slot from the dump and see if we need to
 	// insert a row
+	$times = array();
 	if(!empty($lineSplit[28])) {
 		// Split it by , to get each piece of information
 		$timeSplit = explode(',', $lineSplit[28]);
@@ -180,6 +181,8 @@ while($line = fgets($dumpHandle, 4096)) {
 			$bldg  = mysql_real_escape_string($timeSplit[$i+3]);
 			$room  = mysql_real_escape_string($timeSplit[$i+4]);
 
+			if(!is_numeric($day)) { continue; }
+
 			$times[] = "({$sectionId}, {$day}, {$start}, {$end}, '{$bldg}', '{$room}')";
 		}
 
@@ -191,7 +194,7 @@ while($line = fgets($dumpHandle, 4096)) {
 			$result = mysql_query($query);
 			
 			if(!$result || mysql_affected_rows() == 0) {
-				echo("         *** Could not add times for section! " . mysql_error() . "\n");
+				echo("         *** Could not add times for section! " . mysql_error() . $query . "\n");
 				continue;
 			}
 		}
