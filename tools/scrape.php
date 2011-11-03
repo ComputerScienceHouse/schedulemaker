@@ -17,6 +17,19 @@ require_once "../inc/config.php";
 require_once "../inc/databaseConn.php";
 require_once "../inc/timeFunctions.php";
 
+// CMD LINE ARGUMENTS //////////////////////////////////////////////////////
+$arguments = $_SERVER['argv'];
+$debugMode = in_array("-d", $arguments);
+$quietMode = in_array("-q", $arguments);
+
+// FUNCTIONS ///////////////////////////////////////////////////////////////
+function debug($string) {
+	global $debugMode;
+	if($debugMode) {
+		echo($string);
+	}
+}
+
 // MAIN EXECUTION //////////////////////////////////////////////////////////
 // Open up the dump file
 $dumpHandle = fopen($DUMPLOCATION, "r");
@@ -37,7 +50,7 @@ while($line = fgets($dumpHandle, 4096)) {
 
 	// Have we already looked at this quarter?
 	if($curQuarter != $quarter) {
-		echo("... Processing Quarter: {$quarter}\n");
+		debug("... Processing Quarter: {$quarter}\n");
 		// Nope. Insert the quarter if it doesn't already exist
 		$curQuarter = $quarter;
 
@@ -52,7 +65,7 @@ while($line = fgets($dumpHandle, 4096)) {
 		$query .= "ON DUPLICATE KEY UPDATE start={$qStart}, end={$qEnd}";
 		$result = mysql_query($query);
 		if(!$result) {
-			echo("*** Could not add quarter! " . mysql_error() . "\n");
+			echo("*** Could not add quarter: {$quarter}\n" . mysql_error() . "\n");
 		}
 	}
 
@@ -64,7 +77,7 @@ while($line = fgets($dumpHandle, 4096)) {
 	
 	// Have we already looked at this course?
 	if($curCourse != $courseNum) {
-		echo("   ... Processing Course: {$department}-{$course}\n");
+		debug("   ... Processing Course: {$department}-{$course}\n");
 		// Nope. Insert the course if it doesn't already exist
 		$curCourse = $courseNum;
 		
@@ -75,7 +88,7 @@ while($line = fgets($dumpHandle, 4096)) {
 		// FUCK ITS.
 		$coursePage = file_get_contents("https://register.rit.edu/courseSchedule/{$department}{$course}");
 		if(!$coursePage) {
-			echo("      *** Could not load https://register.rit.edu/courseSchedule/{$department}{$course}\n");
+			echo("*** Could not load https://register.rit.edu/courseSchedule/{$department}{$course}\n");
 			continue;
 		}
 		
@@ -83,7 +96,7 @@ while($line = fgets($dumpHandle, 4096)) {
 		$pattern = "/<strong>Course Title: <\/strong>.*<td.*>(.*)<\/td>.*<strong>Description:<\/strong>.*<td.*>(.*)<\/td>/msU";
 		$matches = array();
 		if(preg_match($pattern, $coursePage, $matches) != 1) {
-			echo("      *** Could not match the regexp for course title and description! https://register.rit.edu/courseSchedule/{$department}{$course}\n");
+			echo("*** Could not match the regexp for course title and description! https://register.rit.edu/courseSchedule/{$department}{$course}\n");
 			continue;
 		}
 		$title       = mysql_real_escape_string($matches[1]);
@@ -95,7 +108,7 @@ while($line = fgets($dumpHandle, 4096)) {
 		$query .= "ON DUPLICATE KEY UPDATE credits={$credits}, title='{$title}', description='{$description}' ";
 		$result = mysql_query($query);
 		if(!$result) {
-			echo("      *** Could not add the course\n");
+			echo("*** Could not add the course {$department}-{$course}\n" . mysql_error() . "\n");
 			continue;
 		}
 
@@ -104,7 +117,7 @@ while($line = fgets($dumpHandle, 4096)) {
 		$query .= "WHERE quarter = {$quarter} AND course = {$course} AND department = {$department}";
 		$result = mysql_query($query);
 		if(!$result || mysql_num_rows($result) != 1) {
-			echo("      *** Failed to lookup course after insert/update\n{$query}\n" . mysql_error() . "\n");
+			echo("*** Failed to lookup course after insert/update\n{$query}\n" . mysql_error() . "\n");
 			continue;
 		}
 
@@ -127,7 +140,7 @@ while($line = fgets($dumpHandle, 4096)) {
 	$query = "SELECT id FROM sections WHERE course = {$courseId} AND section = {$section}";
 	$result = mysql_query($query);
 	if(!$result) {
-		echo("      *** Failed attempting to lookup section\n");
+		echo("*** Failed attempting to lookup section\n" . mysql_error() . "\n");
 		continue;
 	}
 	if(mysql_num_rows($result)) {
@@ -135,7 +148,7 @@ while($line = fgets($dumpHandle, 4096)) {
 		$sectionId = mysql_fetch_assoc($result);
 		$sectionId = $sectionId['id'];
 
-		echo("      ... Updating Section: {$department}-{$course}-{$section}\n");
+		debug("      ... Updating Section: {$department}-{$course}-{$section}\n");
 		
 		$query = "UPDATE sections SET instructor = '{$instructor}', maxenroll = {$maxEnroll}, curenroll = {$curEnroll}, status = '{$status}', type = '{$type}'";
 		if(!empty($sectionTitle)) {
@@ -144,18 +157,18 @@ while($line = fgets($dumpHandle, 4096)) {
 		$query .= " WHERE id = {$sectionId}";
 		$result = mysql_query($query);
 		if(!$result) {
-			echo("         *** Failed to update section\n");
+			echo("*** Failed to update section\n" . mysql_error() . "\n");
 			continue;
 		}
 	} else {
 		// The section does not exist, so it needs to be inserted
-		echo("      ... Inserting Section: {$department}-{$course}-{$section}\n");
+		debug("      ... Inserting Section: {$department}-{$course}-{$section}\n");
 		
 		$query = "INSERT INTO sections (course, section, status, instructor, maxenroll, curenroll, type) ";
 		$query .= "VALUES ({$courseId}, {$section}, '{$status}', '{$instructor}', {$maxEnroll}, {$curEnroll}, '{$type}', '{$title}')";
 		$result = mysql_query($query);
 		if(!$result) {
-			echo("         *** Failed to insert section\n");
+			echo("*** Failed to insert section\n" . mysql_error() . "\n");
 			continue;
 		}
 		$sectionId = mysql_insert_id();
@@ -166,7 +179,7 @@ while($line = fgets($dumpHandle, 4096)) {
 	$query = "DELETE FROM times WHERE section = {$sectionId}";
 	$result = mysql_query($query);
 	if(!$result) {
-		echo("         *** Failed to delete old section's times");
+		echo("*** Failed to delete old section's times\n" . mysql_error() . "\n");
 		continue;
 	}
 	
@@ -198,7 +211,7 @@ while($line = fgets($dumpHandle, 4096)) {
 			$result = mysql_query($query);
 			
 			if(!$result || mysql_affected_rows() == 0) {
-				echo("         *** Could not add times for section! " . mysql_error() . $query . "\n");
+				echo("*** Could not add times for section! " . mysql_error() . "\n");
 				continue;
 			}
 		}
