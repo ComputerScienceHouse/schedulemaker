@@ -259,6 +259,7 @@ switch($_POST['action']) {
 		$query .= " s.course = c.id";
 		$query .= " AND c.quarter = {$_POST['quarter']}";
 		$query .= " AND c.department = {$department}";
+		$query .= " AND s.status != 'X'";
 		if($partialCourse) {
 			$query .= " AND c.course LIKE '{$coursenum}%'";
 		} else {
