@@ -133,6 +133,7 @@ while($line = fgets($dumpHandle, 4096)) {
 	$curEnroll  = mysql_real_escape_string($lineSplit[14]);
 	$status     = mysql_real_escape_string($lineSplit[6]);
 	if($lineSplit[15] == "Y") { $type = "O"; }
+	elseif($lineSplit[17] == "Y") { $type = "H"; }
 	elseif($lineSplit[16] == "Y") { $type = "N"; }
 	else { $type = "R"; }
 

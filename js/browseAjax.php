@@ -87,7 +87,7 @@ switch($_POST['action']) {
 
 		// Do the query
 		$query = "SELECT c.title, c.course, c.department, s.section, s.instructor, s.id, s.type, s.maxenroll, s.curenroll FROM sections AS s, courses AS c";
-		$query .= " WHERE s.course = c.id AND s.course = {$_POST['course']} ORDER BY c.course, s.section";
+		$query .= " WHERE s.course = c.id AND s.course = {$_POST['course']} AND s.status != 'X' ORDER BY c.course, s.section";
 		$sectionResult = mysql_query($query);
 		if(!$sectionResult) {
 			die(json_encode(array("error" => "mysql", "msg" => mysql_error())));
