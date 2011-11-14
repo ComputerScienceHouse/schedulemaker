@@ -16,6 +16,7 @@
 require_once "../inc/config.php";
 require_once "../inc/databaseConn.php";
 require_once "../inc/timeFunctions.php";
+require_once "../inc/httphelper.php";
 
 // CMD LINE ARGUMENTS //////////////////////////////////////////////////////
 $arguments = $_SERVER['argv'];
@@ -37,8 +38,13 @@ if(!$dumpHandle) {
 	die("*** Could not open a handle to the dump file ({$DUMPLOCATION})\n");
 }
 
+// Create a handle for getting course lists
+$handle = new courseListHandle();
+
 // Variable to avoid doing extra queries on the quarters and courses
 $curQuarter = "";
+$curDepartment = "";
+$curDepartmentCourseList = "";
 $curCourse  = "";
 $courseId   = 0;
 // Read off all the courses
@@ -46,7 +52,7 @@ while($line = fgets($dumpHandle, 4096)) {
 	$lineSplit = explode('|', $line);
 
 	// Grab the quarter number
-	$quarter    = $lineSplit[0];
+	$quarter = $lineSplit[0];
 
 	// Have we already looked at this quarter?
 	if($curQuarter != $quarter) {
@@ -67,14 +73,24 @@ while($line = fgets($dumpHandle, 4096)) {
 		if(!$result) {
 			echo("*** Could not add quarter: {$quarter}\n" . mysql_error() . "\n");
 		}
+		
+		// Set the quarter on the course list handle
+		$handle->setQuarter($quarter);
 	}
 
 	// Determine the course numer of this line	
 	$department = substr($lineSplit[1], 0, 4);
 	$course     = substr($lineSplit[1], 4, 3);
 	$section    = substr($lineSplit[1], -2);
-	$courseNum   = $department . $course;
+	$courseNum  = $department . $course;
 	
+	// Have we already looked at this department?
+	if($curDepartment != $department) {
+		// Go download the latest course list
+		$curDepartmentCourseList = $handle->getCourseList($department);
+		$curDepartment = $department;
+	} 
+
 	// Have we already looked at this course?
 	if($curCourse != $courseNum) {
 		debug("   ... Processing Course: {$department}-{$course}\n");
@@ -151,9 +167,24 @@ while($line = fgets($dumpHandle, 4096)) {
 
 		debug("      ... Updating Section: {$department}-{$course}-{$section}\n");
 		
-		$query = "UPDATE sections SET instructor = '{$instructor}', maxenroll = {$maxEnroll}, curenroll = {$curEnroll}, status = '{$status}', type = '{$type}'";
-		if(!empty($sectionTitle)) {
-			$query .= ", title = '{$sectionTitle}'";
+		// Build the query for updating the section
+		$query = "UPDATE sections SET";
+		$query .= " instructor = '{$instructor}',";
+		$query .= " status = '{$status}',";
+		$query .= " type = '{$type}',";
+	
+		if($curDepartmentCourseList != NULL && isset($curDepartmentList[$course . $section])) {
+			// Steal course title and enrollment from the latest scrape of SIS
+			$query .= " title = '" . mysql_real_escape_string($curDepartmentCourseList[$course . $section]['title']) . "',";
+			$query .= " maxenroll='" . mysql_real_escape_string($curDepartmentCourseList[$course . $section]['maxEnroll']) . "',";
+			$query .= " curenroll='" . mysql_real_escape_string($curDepartmentCourseList[$course . $section]['curEnroll']) . "'";
+		} else {
+			// Nope, we had to use the course dump
+			if(!empty($sectionTitle)) {
+				$query .= " title = '{$sectionTitle}',";
+			}
+			$query .= " maxenroll='{$maxEnroll}',";
+			$query .= " curenroll='{$curEnroll}'";
 		}
 		$query .= " WHERE id = {$sectionId}";
 		$result = mysql_query($query);
@@ -165,8 +196,26 @@ while($line = fgets($dumpHandle, 4096)) {
 		// The section does not exist, so it needs to be inserted
 		debug("      ... Inserting Section: {$department}-{$course}-{$section}\n");
 		
-		$query = "INSERT INTO sections (course, section, status, instructor, maxenroll, curenroll, type) ";
-		$query .= "VALUES ({$courseId}, {$section}, '{$status}', '{$instructor}', {$maxEnroll}, {$curEnroll}, '{$type}', '{$title}')";
+		$query = "INSERT INTO sections (course, section, status, instructor, type, maxenroll, curenroll, title) ";
+		$query .= "VALUES (";
+		$query .= "{$courseId}, ";
+		$query .= "{$section}, ";
+		$query .= "'{$status}', ";
+		$query .= "'{$instructor}', ";
+		$query .= "'{$type}', ";
+		if($curDepartmentCourseList != NULL && isset($curDepartmentCourseList[$course . $section])) {
+			// Steal course title and enrollment from the latest scrape of SIS
+			$query .= "{$curDepartmentCourseList[$course . $section]['maxEnroll']}, ";
+			$query .= "{$curDepartmentCourseList[$course . $section]['curEnroll']}, ";
+			$query .= "{$curDepartmentCourseList[$course . $section]['title']}";
+		} else {
+			// Nope, we're gonna use the course dump
+			$query .= "{$maxEnroll}, ";
+			$query .= "{$curEnroll}, ";
+			$query .= "{$title}";
+		}
+		$query .= ")";
+
 		$result = mysql_query($query);
 		if(!$result) {
 			echo("*** Failed to insert section\n" . mysql_error() . "\n");
