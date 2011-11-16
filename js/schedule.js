@@ -221,7 +221,7 @@ function courseOnFocus(field) {
 	$(field).css("color", "black");
 }
 
-function drawCourse(parent, course, startDay, endDay, startTime, endTime) {
+function drawCourse(parent, course, startDay, endDay, startTime, endTime, colorNum) {
 	// If the course is online OR there aren't any times set, don't even bother
 	if(course.online || course.times == undefined) {
 		return;
@@ -270,13 +270,17 @@ function drawCourse(parent, course, startDay, endDay, startTime, endTime) {
 		timeDiv.css("top", timeTop + "px");
 
 		// Add the course information
-		timeDiv.html("<h4>" + course.title + "<h4>");
+		$("<h4>").addClass("colorHeader" + colorNum)
+			.html(course.title)
+			.appendTo(timeDiv);
+
 		if(course.courseNum != "non") {
-			timeDiv.html(timeDiv.html() + course.courseNum + "<br />");
+			var courseInfo = $("<div>").html(course.courseNum + "<br />");
 			if(timeHeight > 40) { 
-				timeDiv.html(timeDiv.html() + course.instructor + "<br />");
-				timeDiv.html(timeDiv.html() + course.times[t].bldg + "-" + course.times[t].room);
+				courseInfo.html(courseInfo.html() + course.instructor + "<br />");
+				courseInfo.html(courseInfo.html() + course.times[t].bldg + "-" + course.times[t].room);
 			}
+			courseInfo.appendTo(timeDiv);
 		}
 		if(course.times[t].shorten == "top") {
 			var curHeight = timeDiv.css("height");
@@ -326,7 +330,8 @@ function drawPage(pageNum, print) {
 		// Iterate over each course and draw them
 		var onlineCourses = new Array();
 		for(c = 0; c < schedSubset[s].length; c++) {
-			drawCourse(sched, schedSubset[s][c], startday, endday, starttime, endtime);
+			var colorNum = c % 6;
+			drawCourse(sched, schedSubset[s][c], startday, endday, starttime, endtime, colorNum);
 
 			// If we found an online course
 			if(schedSubset[s][c].online) {
@@ -346,11 +351,12 @@ function drawPage(pageNum, print) {
 		
 		// If we have onlineCourses then show a little notice
 		if(onlineCourses.length) {
-			var onlineWarning = $("<div>").addClass("schedNotes")
-						.html("Notice: This schedule contains online courses ");
+			var onlineWarning = $("<div>").addClass("schedNotes");
+			var notes = $("<p>").html("Notice: This schedule contains online courses ");
 			for(ol = 0; ol < onlineCourses.length; ol++) {
-				onlineWarning.html(onlineWarning.html() + " " + onlineCourses[ol]);
+				notes.html(notes.html() + " " + onlineCourses[ol]);
 			}
+			notes.appendTo(onlineWarning);
 			onlineWarning.appendTo(nohidesched);
 		}
 

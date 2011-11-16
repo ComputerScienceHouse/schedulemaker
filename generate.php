@@ -13,8 +13,6 @@ require "./inc/header.inc";
 
 ?>
 <script type='text/javascript' src='./js/schedule.js'></script>
-<h1>Build a Schedule</h1>
-
 <form id='scheduleForm' name='schedule' action='buildSchedule.php' method='POST'>
 <div class='scheduleForm'>
 	<div class='subheader'>
@@ -171,7 +169,7 @@ require "./inc/header.inc";
 	</table>
 </div>
 <input type='hidden' name='action' value='getMatchingSchedules' />
-<div id='formSubmit' class='scheduleForm'><input type='button' value="Show Matching Schedules" onClick="showSchedules();" /></div>
+<div id='formSubmit' class='scheduleForm'><input type='button' class='bigButton' value="Show Matching Schedules" onClick="showSchedules();" /></div>
 </form>
 <div id='schedules'>
 	<div id='matchingSchedules' class='subheader'>

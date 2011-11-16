@@ -25,11 +25,11 @@ require "./inc/header.inc";
 		<a href='generate.php'>Make a Schedule</a>
 	</div>
 	<div class='navItem'>
-		<!-- image goes here -->
+		<img src='./img/browse.png' />
 		<a href='browse.php'>Browse Courses</a>
 	</div>
 	<div class='navItem'>
-		<!-- image goes here -->
+		<img src='./img/roulette.png' />
 		<a href='roulette.php'>Course Roulette</a>
 	</div>
 </div>

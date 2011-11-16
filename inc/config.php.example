@@ -12,7 +12,7 @@
 // DATABASE CONFIG
 
 // NOTE: THESE ARE ALL SAMPLE VALUES, REPLACE THEM WITH YOUR VALUES!
-
+$COOKIE_STORE    = '/tmp/siscookies.txt';
 $DATABASE_SERVER = 'yourdatabaseserver';
 $DATABASE_USER   = 'yourusername';
 $DATABASE_PASS   = 'yourpassword';
