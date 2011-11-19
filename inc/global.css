@@ -320,7 +320,8 @@ input[type=text] {
 	width:auto;
 	color: white;
 }
-.courseOpts table {
+.courseOptsTable {
+	display:none;
 	width:100%;
 	font-size:12px;
 }
@@ -512,7 +513,7 @@ input[type=text] {
 }
 .schedNotes {
 	background-color:#FFD600;
-	position:relative;
+	sosition:relative;
 	padding-top:2px;
 	padding-bottom:2px;
 	margin-left:auto;
