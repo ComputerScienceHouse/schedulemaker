@@ -97,6 +97,7 @@ switch($_POST['action']) {
 		$query = "SELECT c.department, c.course, s.section, c.title, s.instructor, s.id";
 		$query .= " FROM courses AS c, sections AS s";
 		$query .= " WHERE quarter = {$quarter}";
+		$query .= " AND s.status != 'X'";
 		$query .= ($school)     ? " AND c.department > {$school} AND c.department < " . ($school+100) : "";
 		$query .= ($department) ? " AND c.department = {$department}" : "";
 		$query .= ($credits)    ? " AND c.credits = {$credits}" : "";
