@@ -181,42 +181,91 @@ li {
 
 /**************************************************************************/
 /* ROULETTE */
-#rouletteForm {
-	width:100%;
-	padding:20px;
-	background-color: #679FD2;
+#rouletteParams {
+	overflow:auto;
+	background-color:#679FD2;
+	padding-top:20px;
 }
 
-input[type=text] {
-	font-size:14px;
-	padding:3px;
-	font-size:12px;
+#rouletteHeader {
+	float: left;
+	position: relative;
+	text-align: left;
+	margin-left:20px;
+	width: 280px;
+}
+
+#rouletteHeader h2 {
+	font-size:20px;
+	margin-bottom:5px;
+	color: white;
+	text-shadow: 0 1px 1px black;
+}
+
+#rouletteParamFields {
+	position:relative;
+	float:left;
+	width:700px;
+}
+
+.rouletteParamField {
+	font-weight:bold;
+	text-align:center;
+	margin-bottom:20px;
+}
+
+.rouletteLabel {
+	position:relative;
+	float:left;
+	width:150px;
+	text-align:right;
+	font-weight:normal;
+	line-height:20px;
+	margin-right:10px;
+}
+
+.rouletteField {
+	font-weight:normal;
+	text-align:left;
+	line-height:20px;
+}
+
+.rouletteField table {
+	width:300px;
+	border-collapse:collapse;
+}
+
+#rouletteSpin {
+	text-align:center;
+	margin-top:20px;
 }
 
 #rouletteForm td {
 	vertical-align:top;
 }
-#rouletteImg {
-	width:100%;
-	margin-top:200px;
-	margin-bottom:200px;
-	text-align:center;
-	vertical-align:middle;
-}
 .rouletteError {
-	background-color: #CC3129 !important;
-	color: white;
+	background-color:#CC3129 !important;
+	color:white;
 }
 #rouletteCourse {
 	background-color:#679FD2;
 	display:none;
+	margin-top:20px;
 	padding:20px;
 	text-align:center;
 }
-#rouletteSpin {
-	width:100%;
-	text-align:center;
+
+#rouletteCourse h2 {
+	margin-top:0;
+	margin-bottom:5px;
+	color: white;
+	text-shadow: 0 1px 1px black;
 }
+
+#rouletteCourse input {
+	margin-top:10px;
+}
+
 #rouletteCourseTimes {
 	width:400px;
 	position:relative;
