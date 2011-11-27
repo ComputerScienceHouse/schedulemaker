@@ -435,7 +435,7 @@ li {
 	margin-left:auto;
 	margin-right:auto;
 	background-color:#679FD2;
-	box-shadow: 0 0 15px;
+	box-shadow: 0 0 15px black; 
 }
 .scheduleControl {
 	position:absolute;
@@ -444,8 +444,6 @@ li {
 	border-right:solid 1px black;
 	border-top:solid 1px black;
 	border-bottom:solid 1px black;
-	padding-top:5px;
-	padding-bottom:5px;
 	top:60px;
 	text-align:center;
 	background-image:-khtml-gradient(linear, left top, left bottom, from(#333), to(#111));
@@ -458,6 +456,7 @@ li {
 }
 .scheduleControl input,button {
 	margin-top:5px;
+	width:140px;
 }
 .scheduleControl button img {
 	vertical-align:bottom;
