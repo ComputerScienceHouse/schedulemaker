@@ -90,7 +90,7 @@ function generateSchedules($courses, $nonCourses, $noCourses, $chain=array(), $r
 function overlapBase($item, $course) {
 	// If there isn't even times defined for this course, or item, then
 	// return false
-	if(empty($itme['times']) || empty($course['times'])) {
+	if(empty($item['times']) || empty($course['times'])) {
 		return false;
 	}
 
@@ -106,11 +106,12 @@ function overlapBase($item, $course) {
 				$courseTime['day'] == $itemTime['day']															// AND the days are the same
 			  ) {
 				// They overlap.
+				#echo " -- CONFLICT!";
 				return true;
 			}
 		}
 	}
-
+    #echo "\n";
 	// The must not overlap
 	return false;
 }
