@@ -10,7 +10,7 @@
 
 // FUNCTIONS ///////////////////////////////////////////////////////////////
 
-function drawCourse($course, $startTime, $endTime, $startDay, $endDay) {
+function drawCourse($course, $startTime, $endTime, $startDay, $endDay, $headerColor) {
 	$code = "";
 
 	// Iterate over the times that the couse has session
@@ -34,15 +34,16 @@ function drawCourse($course, $startTime, $endTime, $startDay, $endDay) {
 		$code .= "'>";
 		
 		// Add information about the course
-		$code .= "<h4>{$course['title']}</h4>";
+		$code .= "<h4 class='colorHeader{$headerColor}'>{$course['title']}</h4>";
 		if($course['courseNum'] != "non") {
-			$code .= $course['courseNum'] . "<br />";
+			$code .= "<div>{$course['courseNum']}<br />";
 			if($height > 60) {
 				$code .= $course['instructor'] . "<br />";
 			}
 			if($height > 40) {
 				$code .= $time['bldg'] . "-" . $time['room'];
 			}
+			$code .= "</div>";
 		}
 
 		$code .= "</div>";
@@ -132,13 +133,14 @@ function generateScheduleFromCourses($courses) {
 	$schedWidth  = (($endDay - $startDay) * 100) + 200;
 
 	// Start outputting the code
-	$code = "<div class='scheduleWrapper' style='height:{$schedHeight}; width:{$schedWidth}'>";
-	$code .= "<div class='schedule' style='height:{$schedHeight}; width:{$schedWidth}'>";
+	$code = "<div class='scheduleWrapper' style='height:{$schedHeight}px; width:{$schedWidth}px'>";
+	$code .= "<div class='schedule' style='height:{$schedHeight}px; width:{$schedWidth}px'>";
 	$code .= "<img src='img/grid.png'>";
 	$code .= drawHeaders($startTime, $endTime, $startDay, $endDay);
 
-	foreach($courseList as $course) {
-		$code .= drawCourse($course, $startTime, $endTime, $startDay, $endDay);
+	for($i = 0; $i < count($courseList); $i++) {
+		$color = $i % 4;
+		$code .= drawCourse($courseList[$i], $startTime, $endTime, $startDay, $endDay, $color);
 	}
 	$code .= "</div></div>";
 
@@ -301,6 +303,7 @@ switch($mode) {
 				}
 				});
 		</script>
+		<? require "inc/footer_print.inc"; ?>
 		</html>
 		<?
 		break;

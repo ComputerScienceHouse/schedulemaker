@@ -9,7 +9,7 @@
 
 // Register the on clicks for the schools
 $(document).ready( function() {
-	$(".school > a").each(function(k, v) {
+	$(".school > button").each(function(k, v) {
 		$(v).click(function() {
 			schoolOnExpand($(v));
 			return false;			// Avoid following the clicks
@@ -78,12 +78,12 @@ function courseOnExpand(obj) {
 		// No Errors!! No we need to add a div for each section
 		for(i=0; i < data.sections.length; i++) {
 			div = $("<div>").addClass("item")
-					.html(data.sections[i].department + "-" + data.sections[i].course + "-" + data.sections[i].section
+					.html("<b>" + data.sections[i].department + "-" + data.sections[i].course + "-" + data.sections[i].section + "</b>"
 						+ " : " + data.sections[i].title + " with " + data.sections[i].instructor + " ");
 			
 			// If the section is online, mark it as such
 			if(data.sections[i].online) {
-				div.append($("<span class='online'>[ONLINE]</span>"));
+				div.append($("<span class='online'>ONLINE</span>"));
 			}
 
 			// Add a paragraph for the current and maximum enrollment
@@ -91,11 +91,13 @@ function courseOnExpand(obj) {
 				.appendTo(div);
 
 			// Add a paragraph for each meeting time
+			var times = $("<p>");
 			for(j=0; j < data.sections[i].times.length; j++) {
-				$("<p>").html(data.sections[i].times[j].day + " " + data.sections[i].times[j].start + " - " + data.sections[i].times[j].end
-							+ " " + data.sections[i].times[j].building + "-" + data.sections[i].times[j].room)
-						.appendTo(div);
+				times.html(times.html() +
+					data.sections[i].times[j].day + " " + data.sections[i].times[j].start + " - " + data.sections[i].times[j].end
+					+ " " + data.sections[i].times[j].building + "-" + data.sections[i].times[j].room + "<br />");
 			}
+			times.appendTo(div);
 
 			div.appendTo(box);
 		}
@@ -169,8 +171,7 @@ function departmentOnExpand(obj) {
 			$("<input>").attr("type", "hidden")
 						.val(data.courses[i].id)
 						.prependTo(div);
-			$("<a>").attr("href", "#")
-						.html("+")
+			$("<button>").html("+")
 						.click(function() { courseOnExpand($(this)); return false; })
 						.prependTo(div);
 			div.appendTo(box);
@@ -242,8 +243,7 @@ function schoolOnExpand(obj) {
 			$("<input>").attr("type", "hidden")
 					.val(data.departments[i].id)
 					.prependTo(div);
-			$("<a>").attr("href", "#")
-					.html("+")
+			$("<button>").html("+")
 					.click(function() { departmentOnExpand($(this)); return false; })
 					.prependTo(div);
 			div.appendTo(box);

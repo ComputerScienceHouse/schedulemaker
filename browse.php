@@ -22,48 +22,54 @@ switch($quarter) {
 	case null:
 		// No quarter was specified, so we need to print the list of quarters
 		require "./inc/header.inc";
-		?>		
-		<h1>Browse Courses &gt; Select a Quarter</h1>
+		?>
+		<h1 id='browseHeader'>Browse Courses &gt; Select a Quarter</h1>
 		<?
 		// Query for the quarters
 		$query = "SELECT quarter FROM quarters ORDER BY quarter DESC";
 		$result = mysql_query($query);
-		if(!$result) {
-			echo "Sorry! An error occurred!" . mysql_error();
-			return;
-		}
-		
-		// Start dumping the quarter list
-		while($q = mysql_fetch_assoc($result)) {
-			// Determine which quarter this is
-			switch(substr($q['quarter'], -1)) {
-				case 1:
-					$q['string'] = "Fall";
-					break;
-				case 2:
-					$q['string'] = "Winter";
-					break;
-				case 3:
-					$q['string'] = "Spring";
-					break;
-				case 4:
-					$q['string'] = "Summer";
-					break;
-				default:
-					$q['string'] = "Unknown";
-					break;
+		?>
+		<div id='quarterList'>
+		<?
+			if(!$result) {
+				echo "Sorry! An error occurred!" . mysql_error();
+				return;
 			}
-			$q['year'] = substr($q['quarter'], 0, -1);
-			?>
 			
-			<p>
-				<a href="browse.php?quarter=<?= $q['quarter'] ?>"><?= $q['string'] ?> <?= $q['year'] ?> (<?= $q['quarter'] ?>)</a>
-			</p>
-			<?
-		}
+			// Start dumping the quarter list
+			while($q = mysql_fetch_assoc($result)) {
+				// Determine which quarter this is
+				switch(substr($q['quarter'], -1)) {
+					case 1:
+						$q['string'] = "Fall";
+						break;
+					case 2:
+						$q['string'] = "Winter";
+						break;
+					case 3:
+						$q['string'] = "Spring";
+						break;
+					case 4:
+						$q['string'] = "Summer";
+						break;
+					default:
+						$q['string'] = "Unknown";
+						break;
+				}
+				$q['year'] = substr($q['quarter'], 0, -1);
+				?>
+				
+				<p>
+					<a href="browse.php?quarter=<?= $q['quarter'] ?>"><?= $q['string'] ?> <?= $q['year'] ?> (<?= $q['quarter'] ?>)</a>
+				</p>
+				<?
+			}
+		?>
+		</div>
+		<?	
 
 		require "./inc/footer.inc";
-
+	
 		break;
 
 	default:
@@ -79,14 +85,14 @@ switch($quarter) {
 		}
 		?>
 		<script src='./js/browse.js' type='text/javascript'></script>
-		<h1>Browse Courses &gt; <?= $quarter ?></h1>
+		<h1 id='browseHeader'>Browse Courses &gt; <?= $quarter ?></h1>
 		<input id='quarter' type='hidden' value="<?= $quarter ?>" />
 
 		<?
 		while($school = mysql_fetch_assoc($schoolResult)) {
 			?>
 			<div class="item school">
-				<a href='#'>+</a> 
+				<button>+</button>
 				<input type='hidden' value="<?= $school['id'] ?>" />
 				<?= $school['id'] ?> - <?= $school['title'] ?>
 			</div>

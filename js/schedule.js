@@ -304,7 +304,7 @@ function drawCourse(parent, course, startDay, endDay, startTime, endTime, colorN
 
 function drawPage(pageNum, print) {
 	// Clear out the currently displayed schedules
-	$(".scheduleWrapper").each(function(k,v) {
+	$(".schedSupaWrapper").each(function(k,v) {
 		$(v).remove();
 		});
 
@@ -317,12 +317,26 @@ function drawPage(pageNum, print) {
 
 	// Draw the new schedules
 	for(s = 0; s < schedSubset.length; s++) {
-		// Create a div for the entire schedule
-		sched = $("<div class='schedule'>");
-		grid = $("<img src='img/grid.png'>");
+		// Set the unique index of the schedule
+		schedId = s + startIndex;
+
+		// Create a 'super wrapper' for containing the URL div, schedule, and
+		// notes divs
+		var schedSupa = $("<div class='schedSupaWrapper'>");
+		schedSupa.attr("id", "sched" + schedId);
+
+		// Create a 'no-hide' wrapper for the schedule to show controls
+		var schedWrap = $("<div class='scheduleWrapper'>");
+		schedWrap.css("height", schedHeight + "px");
+		schedWrap.css("width", schedWidth + "px");
+		schedWrap.appendTo(schedSupa);
+
+		// Create a div for the schedule and it's components
+		var sched = $("<div class='schedule'>");
+		sched.append($("<img src='img/grid.png'>"));
 		sched.css("height", schedHeight + "px");
 		sched.css("width", schedWidth + "px");
-		sched.append(grid);
+		sched.appendTo(schedWrap);
 
 		// Add the headers to the schedules
 		drawScheduleHeaders(sched, startday, endday, starttime, endtime);
@@ -330,34 +344,27 @@ function drawPage(pageNum, print) {
 		// Iterate over each course and draw them
 		var onlineCourses = new Array();
 		for(c = 0; c < schedSubset[s].length; c++) {
-			var colorNum = c % 6;
-			drawCourse(sched, schedSubset[s][c], startday, endday, starttime, endtime, colorNum);
+			var colorNum = c % 4;
 
-			// If we found an online course
+			// If we found an online course, don't draw it
 			if(schedSubset[s][c].online) {
 				onlineCourses.push(schedSubset[s][c].courseNum);
+			} else {
+				drawCourse(sched, schedSubset[s][c], startday, endday, starttime, endtime, colorNum);
 			}
 		}
-		
-		// Calculate the id of the schedule (should be unique)
-		schedId = s + startIndex;
-
-		// Wrap the schedule in a non-hidden overflow
-		nohidesched = $("<div>").attr("id", "sched" + schedId)
-								.addClass("scheduleWrapper")
-								.css("height", schedHeight + "px")
-								.css("width", schedWidth + "px");
-		sched.appendTo(nohidesched);
 		
 		// If we have onlineCourses then show a little notice
 		if(onlineCourses.length) {
 			var onlineWarning = $("<div>").addClass("schedNotes");
+			onlineWarning.css("width", schedWidth + "px");
+
 			var notes = $("<p>").html("Notice: This schedule contains online courses ");
 			for(ol = 0; ol < onlineCourses.length; ol++) {
 				notes.html(notes.html() + " " + onlineCourses[ol]);
 			}
 			notes.appendTo(onlineWarning);
-			onlineWarning.appendTo(nohidesched);
+			onlineWarning.appendTo(schedSupa);
 		}
 
 		if(!print) {
@@ -400,14 +407,14 @@ function drawPage(pageNum, print) {
 						.html("<img src='img/share_twitter.png' /> Share Twitter")
 						.click(function() { shareTwitter($(this)); })
 						.appendTo(saveForm);
-		schedControl.appendTo(nohidesched);
+		schedControl.appendTo(schedWrap);
 		}
 
 		// Add the schedule to the schedules
 		if($(".schedulePagination").length) {
-			$(nohidesched).insertBefore($(".schedulePagination").last());
+			schedSupa.insertBefore($(".schedulePagination").last());
 		} else {
-			$('#schedules').append(nohidesched);
+			$('#schedules').append(schedSupa);
 		}
 	}
 }
@@ -725,21 +732,23 @@ function printSchedule(button) {
 function saveSchedule(button) {
 	// We need a schedule url
 	url = getScheduleUrl(button);
+	$(button).attr("disabled", "disabled");
 
 	// Error checking
-	if(!url) { alert("SHIT BROKE SON."); }
+	if(!url) { 
+		$(button).attr("disabled", "");
+		alert("SHIT BROKE SON.");
+	}
 
 	// Grab the schedule we're adding this to
-	schedule = $("#" + $(button.parent().children()[2]).val());
+	var schedule = $("#" + $(button.parent().children()[2]).val());
 
-	urldiv = $("<div>").addClass("schedUrl")
-				.html(
-					"<p>This schedule can be accessed at: <a href='" + url + "'>" + url + "</a></p>"
-					+ "<p class='disclaimer'>This schedule will be removed after 3 months of inactivity</p>"
-				)
-				.css("width", schedule.css("width"))
-				.insertBefore(schedule)
-				.slideDown();
+	var urldiv = $("<div>").addClass("schedUrl");
+	urldiv.html("<p>This schedule can be accessed at: <a href='" + url + "'>" + url + "</a></p>"
+				+ "<p class='disclaimer'>This schedule will be removed after 3 months of inactivity</p>");
+	urldiv.css("width", $(schedule.children()[0]).css("width"));
+	urldiv.prependTo(schedule);
+	urldiv.slideDown();
 }
 	
 function shareFacebook(button) {

@@ -374,7 +374,7 @@ li {
 	width:100%;
 	font-size:12px;
 }
-.course input {
+.course input[type='text'] {
 	width:193px;
 	color:grey;
 }
@@ -428,10 +428,14 @@ li {
 	padding:2px;
 	width:95px;
 }
+
+.schedSupaWrapper {
+	margin-bottom:20px;
+}
+
 .scheduleWrapper {
 	position:relative;
 	float:center;
-	margin-bottom:20px;
 	margin-left:auto;
 	margin-right:auto;
 	background-color:#679FD2;
@@ -457,6 +461,8 @@ li {
 .scheduleControl input,button {
 	margin-top:5px;
 	width:140px;
+	font-size:12px;
+	line-height:16px;
 }
 .scheduleControl button img {
 	vertical-align:bottom;
@@ -569,7 +575,7 @@ li {
 }
 .schedulePagination {
 	text-align: center;
-	margin-top:30px;
+	margin-top:20px;
 	margin-bottom:20px;
 	color:white;
 }
@@ -600,23 +606,73 @@ li {
 
 /**************************************************************************/
 /* COURSE BROWSER */
+#quarterList {
+	overflow:auto;
+	background-color: #679FD2;
+	padding:20px;
+}
+#browseHeader {
+	margin-top:none;
+	padding-bottom:20px;
+	margin: 0;
+	color:white;
+	text-shadow: 0 1px 1px black;
+}
+#quarterList p {
+	margin-top:0;
+}
+#quarterList p a {
+	color:black;
+}
+
 .subDivision {
 	display:none;
 	margin-left:20px;
+	margin-top:5px;
 }
 .item {
-	padding:2px;
-	margin:5px;
-	border: solid 1px white;
+	line-height:16px;
+	padding:5px;
 	background:#679FD2;
 }
+
+.item .item {
+	margin-left:10px;
+	margin-bottom:5px;
+	border: solid 1px white;
+}
+
+.item button {
+	width:25px;
+	margin-top:0;
+	margin-left:5px;
+	margin-right:5px;
+}
+
 .courseDescription {
 	display: none;
 	margin:5px;
+	margin-left:37px;
+	margin-bottom:10px;
 }
 .online {
-	font-weight:bold;
-	color:red;
+	border-radius: 3px 3px 3px 3px;
+	font-size: 9.75px;
+	font-weight: bold;
+	padding: 1px 3px 2px;
+	text-transform: uppercase;
+	color:white;
+	background-color:#CC3129;
+}
+
+.honors {
+	border-radius: 3px 3px 3px 3px;
+	font-size: 9.75px;
+	font-weight: bold;
+	padding: 1px 3px 2px;
+	text-transform: uppercase;
+	color:white;
+	background-color:darkgreen;
 }
 
 /* Some other stuff */
