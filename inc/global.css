@@ -150,8 +150,8 @@ input[type=text] {
 /* INDEX */
 #mainMenu {
 	width:100%;
-	margin-top:200px;
-	margin-bottom:200px;
+	margin-top:125px;
+	margin-bottom:125px;
 	overflow:auto;
 }
 #mainMenu .navItem {
@@ -165,6 +165,18 @@ input[type=text] {
 	margin-right:auto;
 	display:block;
 }
+
+#mainMenu .navItem div {
+	font-size: 18px;
+	text-shadow: 0 2px 1px black;
+	margin-top:40px;
+}
+
+#mainMenu .navItem a {
+	color: #EEE;
+	text-decoration: none;
+}
+
 #mainMenu td {
 	padding:15px;
 }
@@ -177,6 +189,20 @@ form {
 li {
 	margin-top:3px;
 	margin-bottom:3px;
+}
+#progress {
+	padding: 20px;
+	background-color: #679FD2;
+}
+
+#progress h2 {
+	margin-top:0px;
+	text-shadow:0 1px 1px black;
+	color: white;
+}
+
+#progress div {
+	padding:5px;
 }
 
 /**************************************************************************/
