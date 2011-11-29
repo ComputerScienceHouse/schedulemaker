@@ -152,9 +152,6 @@ function getScheduleFromId($id) {
 	// then the id most definitely exists.
 	$query = "UPDATE schedules SET datelastaccessed = NOW() WHERE id={$id}";
 	$result = mysql_query($query);
-	if(!$result || mysql_affected_rows() != 1) {
-		return NULL;
-	}
 	
 	$query = "SELECT startday, endday, starttime, endtime FROM schedules WHERE id={$id}";
 	$result = mysql_query($query);
