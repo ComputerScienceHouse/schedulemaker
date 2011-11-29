@@ -98,7 +98,7 @@ body {
 #footer .logo {
 	position:relative;
 	float:left;
-	margin-top:27px;
+	margin-top:31px;
 	margin-bottom:20px;
 	margin-right:180px;
 	font-size:25px;
@@ -108,6 +108,7 @@ body {
 #footer .csh {
 	position:relative;
 	float:right;
+	margin-top:6px;
 }
 
 #footer a {
