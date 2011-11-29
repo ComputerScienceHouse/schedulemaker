@@ -163,8 +163,8 @@ require "./inc/header.inc";
 			<td><?= getDayField("scheduleEndDay", 6, true) ?></td>
 		</tr>
 		<tr>
-			<td class='lbl'><input type='checkbox' name='verbose' value='true' /></td>
-			<td colspan='3'><label for='verbose'>Show Error Messages/Course Conflicts</td>
+			<td class='lbl'><input id='verbose' type='checkbox' name='verbose' value='true' /></td>
+			<td colspan='3'><label for='verbose'>Show Error Messages/Course Conflicts</label></td>
 		</tr>
 	</table>
 </div>

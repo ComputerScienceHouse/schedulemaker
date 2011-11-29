@@ -10,7 +10,6 @@ require_once('./inc/timeFunctions.php');
 		<title><?= (!empty($TITLE)) ? $TITLE : "Schedule Maker" ?></title>
 		
 		<link href='./inc/global.css' rel='stylesheet' type='text/css' />
-		<meta property=og:image content="img/csh_print.png"/>
 
 		<script type='text/javascript' src='./js/jquery.js'></script>
 	</head>

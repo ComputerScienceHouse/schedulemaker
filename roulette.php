@@ -37,7 +37,7 @@ require "./inc/header.inc";
 	<div class='rouletteParamField'>
 		<div class='rouletteLabel'><label for='level'>Level:</label></div>
 		<div class='rouletteField'>
-			<select name='level'>
+			<select name='level' id='level'>
 				<option value='any'>Any Level</option>
 				<option value='beg'>Introductory (0 - 300)</option>
 				<option value='int'>Intermediate (300 - 600)</option>
@@ -47,11 +47,11 @@ require "./inc/header.inc";
 	</div>
 	<div class='rouletteParamField'>
 		<div class='rouletteLabel'><label for='credits'>Credit Hours:</label></div>
-		<div class='rouletteField'><input type='text' name='credits' size='3' maxlength='2' /></div>
+		<div class='rouletteField'><input id='credits' type='text' name='credits' size='3' maxlength='2' /></div>
 	</div>
 	<div class='rouletteParamField'>
 		<div class='rouletteLabel'><label for='professor'>Professor:</label></div>
-		<div class='rouletteField'><input type='text' name='professor' /></div>
+		<div class='rouletteField'><input id='professor' type='text' name='professor' /></div>
 	</div>
 	<div class='rouletteParamField'>
 		<div class='rouletteLabel'>Days:</div>
@@ -84,11 +84,11 @@ require "./inc/header.inc";
 	</div>
 	<div class='rouletteParamField'>
 		<div class='rouletteLabel'><label for='online'>Include Online Courses:</label></div>
-		<div class='rouletteField'><input type='checkbox' name='online' value='true' checked='checked'></div>
+		<div class='rouletteField'><input id='online' type='checkbox' name='online' value='true' checked='checked'></div>
 	</div>
 	<div class='rouletteParamField'>
 		<div class='rouletteLabel'><label for='honors'>Include Honors Courses:</label></div>
-		<div class='rouletteField'><input type='checkbox' name='honors' value='true' checked='checked'></div>
+		<div class='rouletteField'><input id='honors' type='checkbox' name='honors' value='true' checked='checked'></div>
 	</div>
 	</div>
 </div>
