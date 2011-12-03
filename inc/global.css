@@ -468,6 +468,11 @@ li {
 	background-color:#679FD2;
 	box-shadow: 0 0 15px black; 
 }
+
+#savedControls {
+	text-align:center;
+}
+
 .scheduleControl {
 	position:absolute;
 	width:150px;

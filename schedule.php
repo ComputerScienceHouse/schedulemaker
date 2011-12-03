@@ -128,7 +128,7 @@ function generateIcal($schedule) {
 
 function generateScheduleFromCourses($courses) {
 	// Grab the start/end time/day
-	$courseList = $courses['courses'];
+	$courseList = $courses['courses'][0];
 	$startTime  = $courses['startTime'];
 	$endTime    = $courses['endTime'];
 	$startDay   = $courses['startDay'];
@@ -139,16 +139,38 @@ function generateScheduleFromCourses($courses) {
 	$schedWidth  = (($endDay - $startDay) * 100) + 200;
 
 	// Start outputting the code
-	$code = "<div class='scheduleWrapper' style='height:{$schedHeight}px; width:{$schedWidth}px'>";
+	$code = "<div class='schedSupaWrapper'>";
+	$code .= "<div class='scheduleWrapper' style='height:{$schedHeight}px; width:{$schedWidth}px'>";
 	$code .= "<div class='schedule' style='height:{$schedHeight}px; width:{$schedWidth}px'>";
 	$code .= "<img src='img/grid.png'>";
 	$code .= drawHeaders($startTime, $endTime, $startDay, $endDay);
 
+	// Storage for potential online courses
+	$onlineCourses = array();
+
+	// Output each of the courses in the schedule
 	for($i = 0; $i < count($courseList); $i++) {
+		if($courseList[$i]['online']) {
+			// Add it to the list of online courses
+			$onlineCourses[] = $courseList[$i];
+			continue;
+		}
+
 		$color = $i % 4;
 		$code .= drawCourse($courseList[$i], $startTime, $endTime, $startDay, $endDay, $color);
 	}
 	$code .= "</div></div>";
+	
+	// Output a notice if there were online courses
+	if(count($onlineCourses)) {
+		$code .= "<div class='schedNotes' style='width:{$schedWidth}px'>";
+		$code .= "<p>Notice: This schedule contains online courses: ";
+		foreach($onlineCourses as $course) {
+			$code .= $course['courseNum'];
+		}
+		$code .= "</p></div>";
+	}
+	$code .= "</div>";
 
 	return $code;
 }
@@ -164,10 +186,10 @@ function getScheduleFromId($id) {
 	$scheduleInfo = mysql_fetch_assoc($result);
 
 	// Grab the metadata of the schedule
-	$startDay  = $scheduleInfo['startday'];
-	$endDay    = $scheduleInfo['endday'];
-	$startTime = $scheduleInfo['starttime'];
-	$endTime   = $scheduleInfo['endtime'];
+	$startDay  = (int)$scheduleInfo['startday'];
+	$endDay    = (int)$scheduleInfo['endday'];
+	$startTime = (int)$scheduleInfo['starttime'];
+	$endTime   = (int)$scheduleInfo['endtime'];
 
 	// Create storage for the courses that will be returned
 	$schedule = array();
@@ -193,21 +215,25 @@ function getScheduleFromId($id) {
 			"curenroll"  => $sectionInfo['curenroll'],
 			"maxenroll"  => $sectionInfo['maxenroll'],
 			"courseNum"  => "{$courseInfo['department']}-{$courseInfo['course']}-{$sectionInfo['section']}",
+			"sectionId"  => $sectionInfo['id'],
+			"online"     => ($sectionInfo['type'] == 'O') ? true : false,
 			"times"      => array()
 			);
 		
 		// Query for the times that the course has
-		$query = "SELECT * FROM times WHERE section = {$sectionInfo['id']}";
-		$timeResult = mysql_query($query);
-		while($timeInfo = mysql_fetch_assoc($timeResult)) {
-			// Add the course's times to the course information
-			$course['times'][] = array(
-				"bldg"  => $timeInfo['building'],
-				"room"  => $timeInfo['room'],
-				"day"   => $timeInfo['day'],
-				"start" => $timeInfo['start'], 
-				"end"   => $timeInfo['end']
-				);
+		if(!$course['online']) {
+			$query = "SELECT * FROM times WHERE section = {$sectionInfo['id']}";
+			$timeResult = mysql_query($query);
+			while($timeInfo = mysql_fetch_assoc($timeResult)) {
+				// Add the course's times to the course information
+				$course['times'][] = array(
+					"bldg"  => $timeInfo['building'],
+					"room"  => $timeInfo['room'],
+					"day"   => $timeInfo['day'],
+					"start" => $timeInfo['start'], 
+					"end"   => $timeInfo['end']
+					);
+			}
 		}
 
 		// Add the course to the schedule
@@ -233,7 +259,8 @@ function getScheduleFromId($id) {
 	}
 
 	return array(
-			"courses"   => $schedule,
+			//@TODO: Fix this hackish error below
+			"courses"   => array($schedule),
 			"startTime" => $startTime,
 			"endTime"   => $endTime,
 			"startDay"  => $startDay,
@@ -377,6 +404,14 @@ END:VCALENDAR
 		} else {
 			echo generateScheduleFromCourses($schedule);
 		}
+		?>
+		<div id='savedControls'>
+			<input type='hidden' id='schedJson' value='<?= json_encode($schedule); ?>' name='schedJson' />
+			<button type='button' id='forkButton'>Fork Schedule</button>
+			<button type='button' id='printButton'>Print Schedule</button>
+		</div>
+		<script src='js/savedSchedule.js' type='text/javascript'></script>
+		<?
 
 		require "./inc/footer.inc";
 		break;
