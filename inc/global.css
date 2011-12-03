@@ -500,6 +500,7 @@ li {
 	padding-right: 2px;
 	padding-left:2px;
 	color: white;
+	overflow: hidden;
 }
 .daytime, .weekday {
 	position:absolute;
@@ -583,6 +584,11 @@ li {
 	background-image:-o-linear-gradient(top, #B13600, #8F2C00);
 	background-image:linear-gradient(top, #B13600, #8F2C00);
 	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#B13600', endColorstr='#8F2C00', GradientType=0);
+}
+
+.shortHeader { 
+	height: 20px;
+	line-height: 20px;
 }
 
 .shortenBottom {

@@ -34,17 +34,23 @@ function drawCourse($course, $startTime, $endTime, $startDay, $endDay, $headerCo
 		$code .= "'>";
 		
 		// Add information about the course
-		$code .= "<h4 class='colorHeader{$headerColor}'>{$course['title']}</h4>";
+		$code .= "<h4 class='colorHeader{$headerColor}";
+		if($height <= 40) {
+			// Include code to shorten the header for short classes
+			$code .= " shortHeader";
+		}
+		$code .= "'>{$course['title']}</h4><div>";
 		if($course['courseNum'] != "non") {
-			$code .= "<div>{$course['courseNum']}<br />";
-			if($height > 60) {
-				$code .= $course['instructor'] . "<br />";
-			}
 			if($height > 40) {
+				$code .= $course['courseNum'] . "<br />";
+				$code .= $course['instructor'] . "<br />";
+				$code .= $time['bldg'] . "-" . $time['room'];
+			} else {
 				$code .= $time['bldg'] . "-" . $time['room'];
 			}
 			$code .= "</div>";
 		}
+		
 
 		$code .= "</div>";
 	}

@@ -33,6 +33,7 @@ body {
 	padding-left: 2px;
 	padding-right: 2px;
 	padding-top:1px;
+	overflow: hidden;
 }
 .weekday {
 	position:absolute;
@@ -76,6 +77,11 @@ body {
 }
 .day6 {
 	left:700px;
+}
+
+.shortHeader {
+	height: 20px;
+	line-height: 20px;
 }
 
 #footer {

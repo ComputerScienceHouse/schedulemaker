@@ -270,16 +270,23 @@ function drawCourse(parent, course, startDay, endDay, startTime, endTime, colorN
 		timeDiv.css("top", timeTop + "px");
 
 		// Add the course information
-		$("<h4>").addClass("colorHeader" + colorNum)
+		var header = $("<h4>").addClass("colorHeader" + colorNum)
 			.html(course.title)
 			.appendTo(timeDiv);
 
 		if(course.courseNum != "non") {
-			var courseInfo = $("<div>").html(course.courseNum + "<br />");
+			var courseInfo = $("<div>");
 			if(timeHeight > 40) { 
+				// > 1hour course, show all the info
+				courseInfo.html(course.courseNum + "<br />");
 				courseInfo.html(courseInfo.html() + course.instructor + "<br />");
 				courseInfo.html(courseInfo.html() + course.times[t].bldg + "-" + course.times[t].room);
+			} else {
+				// < 1hour course, only show one line worth of title
+				header.addClass("shortHeader");
+				courseInfo.html(course.times[t].bldg + "-" + course.times[t].room);
 			}
+
 			courseInfo.appendTo(timeDiv);
 		}
 		if(course.times[t].shorten == "top") {
