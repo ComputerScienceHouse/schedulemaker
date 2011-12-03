@@ -12,13 +12,13 @@ body {
 	position:absolute;
 	width:99px;
 	border:solid 1px black;
-	background-color:white;
+	/*background-color:white;*/
 }
 .schedule div div {
 	position:inline;
 	border:none;
 	width:95px;
-	padding:2px;
+	margin:2px;
 }
 .scheduleWrapper {
 	position:relative;
@@ -26,7 +26,6 @@ body {
 	margin-bottom:20px;
 	margin-left:auto;
 	margin-right:auto;
-	background-color:lightgreen;
 }
 .schedule h4 {
 	margin:0px;
@@ -79,6 +78,19 @@ body {
 	left:700px;
 }
 
+.color0 {
+	background-color: #FFFFC0 !important;
+}
+.color1 {
+	background-color: #FFC0C0 !important;
+}
+.color2 {
+	background-color: #C0FFC0 !important;
+}
+.color3 {
+	background-color: #C0C0FF !important;
+}
+
 .shortHeader {
 	height: 20px;
 	line-height: 20px;
@@ -88,4 +100,8 @@ body {
 	height:50px;
 	text-align:center;
 	line-height:50px;
+}
+
+#footer img {
+	vertical-align:middle;
 }

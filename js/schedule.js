@@ -221,7 +221,7 @@ function courseOnFocus(field) {
 	$(field).css("color", "black");
 }
 
-function drawCourse(parent, course, startDay, endDay, startTime, endTime, colorNum) {
+function drawCourse(parent, course, startDay, endDay, startTime, endTime, colorNum, print) {
 	// If the course is online OR there aren't any times set, don't even bother
 	if(course.online || course.times == undefined) {
 		return;
@@ -251,6 +251,11 @@ function drawCourse(parent, course, startDay, endDay, startTime, endTime, colorN
 
 		// Add a div for the time
 		timeDiv = $("<div>").addClass("day" + (course.times[t].day - startDay));
+
+		// Shade the time slot if it's a printout
+		if(print) {
+			timeDiv.addClass("color" + colorNum);
+		}
 		
 		// Calculate the height
 		timeHeight = parseInt(course.times[t].end) - parseInt(course.times[t].start);
@@ -357,7 +362,7 @@ function drawPage(pageNum, print) {
 			if(schedSubset[s][c].online) {
 				onlineCourses.push(schedSubset[s][c].courseNum);
 			} else {
-				drawCourse(sched, schedSubset[s][c], startday, endday, starttime, endtime, colorNum);
+				drawCourse(sched, schedSubset[s][c], startday, endday, starttime, endtime, colorNum, print);
 			}
 		}
 		
