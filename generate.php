@@ -22,6 +22,9 @@ require "./inc/header.inc";
 	<div class='courseRow'>
 		<label for='quarter'>Quarter:</label> <?= getQuarterField('quarter', $CURRENT_QUARTER) ?>
 		<input id='courseCount' type='hidden' name='courseCount' value='4' />
+		
+		<input id='ignoreFull' type='checkbox' name='ignoreFull' value='true' />
+		<label for='ignoreFull'>Ignore full courses</label>
 	</div>
 	<div id='scheduleCourses'>
 		<div id='courseRow1' class='courseRow'>

@@ -97,7 +97,6 @@ function overlapBase($item, $course) {
 	// Does the item overlap with the course?
 	foreach($item['times'] as $itemTime) {
 		foreach($course['times'] as $courseTime) {
-			#echo "Comparing: {$courseTime['day']}{$courseTime['start']}-{$courseTime['end']} with {$itemTime['day']}{$itemTime['start']}-{$itemTime['end']}";
 			if(
 				(
 					($itemTime['start'] <= $courseTime['start'] && $courseTime['start'] < $itemTime['end']) || 	// itemStart <= courseStart < itemEnd
@@ -106,12 +105,10 @@ function overlapBase($item, $course) {
 				$courseTime['day'] == $itemTime['day']															// AND the days are the same
 			  ) {
 				// They overlap.
-				#echo " -- CONFLICT!";
 				return true;
 			}
 		}
 	}
-    #echo "\n";
 	// The must not overlap
 	return false;
 }
@@ -255,6 +252,11 @@ switch($_POST['action']) {
 			$partialSection = false;
 		}
 
+		// Determine if we need to hide the full sections
+		if($_POST['ignoreFull'] == 'true') {
+			
+		} 
+
 		// Build a query and run it
 		$query = "SELECT c.department, c.course, s.section FROM courses AS c, sections AS s WHERE";
 		$query .= " s.course = c.id";
@@ -270,7 +272,10 @@ switch($_POST['action']) {
 			$query .= " AND s.section LIKE '{$section}%'";
 		} else {
 			$query .= " AND s.section = {$section}";
-		}		
+		}
+		if($_POST['ignoreFull'] == 'true') {
+			$query .= " AND s.curEnroll < s.maxEnroll";
+		}	
 		$query .= " ORDER BY c.course, s.section";
 		
 		$result = mysql_query($query);
