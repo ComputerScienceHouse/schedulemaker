@@ -137,20 +137,16 @@ function translateTime($time, $twelve = true) {
 	if(is_numeric($time)) {
 		// Generate a 12-hour time if it is requested
 		if($twelve) {
-			if($time >= 780) {
-				// It's PM
-				$time -= 720;
-				$twelve = " pm";
-			} elseif($time < 60) {
-				// It's 12AM -- NOT 00am
-				$time += 720;
-				$twelve = " am";
-			} elseif($time >= 720) {
-				// It's 12PM -- NOT 12am
+			if($time >= 720 && $time < 1440) {
 				$twelve = " pm";
 			} else {
-				// It's AM
 				$twelve = " am";
+			}
+
+			if($time >= 780) {
+				$time -= 720;
+			} elseif($time < 60) {
+				$time += 720;
 			}
 		} else {
 			$twelve = "";

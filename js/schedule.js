@@ -242,10 +242,10 @@ function drawCourse(parent, course, startDay, endDay, startTime, endTime, colorN
 		if(course.times[t].start < startTime || course.times[t].start > endTime || course.times[t].end > endTime) {
 			// Shorten up the boxes of times that extend into
 			// the visible spectrum
-			if(course.times[t].end > startTime) {
+			if(course.times[t].start < startTime) {
 				course.times[t].start = startTime;
 				course.times[t].shorten = "top";
-			} else if(course.times[t].start < endTime) {
+			} else if(course.times[t].end > endTime) {
 				course.times[t].end = endTime;
 				course.times[t].shorten = "bottom";
 			} else {

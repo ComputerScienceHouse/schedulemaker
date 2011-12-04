@@ -11,8 +11,8 @@
 
 require "./inc/header.inc";
 ?>
-<script type='text/javascript' src='./js/schedule.js'></script>
 <script type='text/javascript' src='./js/reloadSchedule.js'></script>
+<script type='text/javascript' src='./js/schedule.js'></script>
 <form id='scheduleForm' name='schedule' action='buildSchedule.php' method='POST'>
 <div class='scheduleForm'>
 	<div class='subheader'>
