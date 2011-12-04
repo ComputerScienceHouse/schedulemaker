@@ -10,9 +10,9 @@
 ////////////////////////////////////////////////////////////////////////////
 
 require "./inc/header.inc";
-
 ?>
 <script type='text/javascript' src='./js/schedule.js'></script>
+<script type='text/javascript' src='./js/reloadSchedule.js'></script>
 <form id='scheduleForm' name='schedule' action='buildSchedule.php' method='POST'>
 <div class='scheduleForm'>
 	<div class='subheader'>
@@ -63,7 +63,7 @@ require "./inc/header.inc";
 			<th>Title</th><th>Start Time</th><th>End Time</th><th>U</th><th>M</th><th>T</th><th>W</th><th>R</th><th>F</th><th>S</th>
 		</tr>
 		<tr>
-			<td><input type='text' name='nonCourseTitle1' /></td>
+			<td><input type='text' name='nonCourseTitle1' id='nonCourseTitle1' /></td>
 			<td><?= getTimeField("nonCourseStartTime1") ?></td>
 			<td><?= getTimeField("nonCourseEndTime1") ?></td>
 			<td><input type='checkbox' name='nonCourseDays1[]' value='Sun' /></td>
@@ -75,7 +75,7 @@ require "./inc/header.inc";
 			<td><input type='checkbox' name='nonCourseDays1[]' value='Sat' /></td>
 		</tr>
 		<tr>
-			<td><input type='text' name='nonCourseTitle2' /></td>
+			<td><input type='text' name='nonCourseTitle2' id='nonCourseTitle2' /></td>
 			<td><?= getTimeField("nonCourseStartTime2") ?></td>
 			<td><?= getTimeField("nonCourseEndTime2") ?></td>
 			<td><input type='checkbox' name='nonCourseDays2[]' value='Sun' /></td>
@@ -87,7 +87,7 @@ require "./inc/header.inc";
 			<td><input type='checkbox' name='nonCourseDays2[]' value='Sat' /></td>
 		</tr>
 		<tr>
-			<td><input type='text' name='nonCourseTitle3' /></td>
+			<td><input type='text' name='nonCourseTitle3' id='nonCourseTitle3' /></td>
 			<td><?= getTimeField("nonCourseStartTime3") ?></td>
 			<td><?= getTimeField("nonCourseEndTime3") ?></td>
 			<td><input type='checkbox' name='nonCourseDays3[]' value='Sun' /></td>

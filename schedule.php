@@ -48,8 +48,8 @@ function drawCourse($course, $startTime, $endTime, $startDay, $endDay, $headerCo
 			} else {
 				$code .= $time['bldg'] . "-" . $time['room'];
 			}
-			$code .= "</div>";
 		}
+		$code .= "</div>";
 		
 
 		$code .= "</div>";
@@ -150,7 +150,7 @@ function generateScheduleFromCourses($courses) {
 
 	// Output each of the courses in the schedule
 	for($i = 0; $i < count($courseList); $i++) {
-		if($courseList[$i]['online']) {
+		if($courseList[$i]['courseNum'] != 'non' && $courseList[$i]['online']) {
 			// Add it to the list of online courses
 			$onlineCourses[] = $courseList[$i];
 			continue;
@@ -212,8 +212,8 @@ function getScheduleFromId($id) {
 		$course = array(
 			"title"      => $courseInfo['title'],
 			"instructor" => $sectionInfo['instructor'],
-			"curenroll"  => $sectionInfo['curenroll'],
-			"maxenroll"  => $sectionInfo['maxenroll'],
+			"curenroll"  => (int)$sectionInfo['curenroll'],
+			"maxenroll"  => (int)$sectionInfo['maxenroll'],
 			"courseNum"  => "{$courseInfo['department']}-{$courseInfo['course']}-{$sectionInfo['section']}",
 			"sectionId"  => $sectionInfo['id'],
 			"online"     => ($sectionInfo['type'] == 'O') ? true : false,
@@ -229,9 +229,9 @@ function getScheduleFromId($id) {
 				$course['times'][] = array(
 					"bldg"  => $timeInfo['building'],
 					"room"  => $timeInfo['room'],
-					"day"   => $timeInfo['day'],
-					"start" => $timeInfo['start'], 
-					"end"   => $timeInfo['end']
+					"day"   => (int)$timeInfo['day'],
+					"start" => (int)$timeInfo['start'], 
+					"end"   => (int)$timeInfo['end']
 					);
 			}
 		}

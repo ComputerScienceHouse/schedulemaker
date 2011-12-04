@@ -18,13 +18,23 @@ $(document).ready(function() {
 	});
 });
 
+function forkSchedule() {
+	// Load up the schedule's JSON into the session storage
+	json = $("#schedJson").val();
+	window.sessionStorage.setItem("scheduleJson", json);
+	json = eval("(" + json + ")");
+	
+	// Now redirect the browser to the generate page
+	window.location = "generate.php?mode=fork";	
+}
+
 function printSchedule() {
 	// Load up the schedule's JSON into the session storage
 	json = $("#schedJson").val();
 	window.sessionStorage.setItem("scheduleJson", json);
-
-	json = eval("(" + json + ")" );
 	
+	json = eval("(" + json + ")");
+
 	// Open the popup window with the printable schedule
 	window.prin=window.prin||{};
 	var D=((json.endDay - json.startDay + 1) * 100) + 40,

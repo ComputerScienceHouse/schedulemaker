@@ -36,6 +36,10 @@ $(document).ready(function() {
 		// Delete the data from the session data
 		sessionStorage.removeItem("rouletteCourse");
 	}
+
+	if(sessionStorage.getItem("scheduleJson") != null) {
+		reloadSchedule();
+	}
 	});
 
 // @TODO: save the schedule data between page loads?
@@ -116,7 +120,7 @@ function addItem() {
 
 	// Build the new row
 	newRow = document.createElement("tr");
-	newRow.innerHTML = "<td><input name='nonCourseTitle" + nonCourseCount + "' type='text'></td>";
+	newRow.innerHTML = "<td><input name='nonCourseTitle" + nonCourseCount + "' type='text' id='nonCourseTitle" + nonCourseCount + "'></td>";
 	newRow.innerHTML += "<td>" + timeDropDownStart + "</td>";
 	newRow.innerHTML += "<td>" + timeDropDownEnd + "</td>";
 	newRow.innerHTML += "<td><input name='nonCourseDays" + nonCourseCount + "[]' value='Sun' type='checkbox'></td>";
