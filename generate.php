@@ -23,7 +23,7 @@ require "./inc/header.inc";
 		<label for='quarter'>Quarter:</label> <?= getQuarterField('quarter', $CURRENT_QUARTER) ?>
 		<input id='courseCount' type='hidden' name='courseCount' value='4' />
 		
-		<input id='ignoreFull' type='checkbox' name='ignoreFull' value='true' />
+		<input id='ignoreFull' type='checkbox' name='ignoreFull' value='true' onClick='refreshCourses();' />
 		<label for='ignoreFull'>Ignore full courses</label>
 	</div>
 	<div id='scheduleCourses'>
