@@ -145,7 +145,22 @@ input[type=text] {
 	background-image:linear-gradient(top, #049CDB, #0064CD);
 	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#049CDB', endColorstr='#0064CD', GradientType=0);
 }
-	
+
+/**************************************************************************/
+/* STATUS */
+#status {
+	width:700px;
+	margin-left:auto;
+	margin-right:auto;
+	margin-bottom:20px;
+	padding:60px;
+	border-radius:30px;
+	background-color:darkgreen;
+	text-align:center;
+	font-size:100px;
+	font-weight:bolder;
+	color:white;
+}
 
 /**************************************************************************/
 /* INDEX */
