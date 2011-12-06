@@ -407,10 +407,10 @@ function drawPage(pageNum, print) {
 		saveButton = $("<input type='button' value='Save Schedule'>")
 						.click(function(obj) { saveSchedule($(this)); })
 						.appendTo(saveForm);
-		downButton = $("<input type='button' value='Download iCal'>")
-						.click(function(obj) { icalSchedule($(this)); })
-						.attr("disabled", "disabled")
-						.appendTo(saveForm);
+		//downButton = $("<input type='button' value='Download iCal'>")
+		//				.click(function(obj) { icalSchedule($(this)); })
+		//				.attr("disabled", "disabled")
+		//				.appendTo(saveForm);
 		faceButton = $("<button type='button'>")
 						.html("<img src='img/share_facebook.png' /> Share Facebook")
 						.click(function(obj) { shareFacebook($(this)); })
@@ -872,7 +872,7 @@ function showSchedules() {
 
 			// If there are no matching schedules, display an error
 			if(data.schedules == undefined || data.schedules == null || data.schedules.length == 0) {
-				errorDiv = $("<div id='errorDiv' class='scheduleError' styhle='text-align:center'>").html("There are no matching schedules!");
+				errorDiv = $("<div id='errorDiv' class='scheduleError'>").html("There are no matching schedules!");
 				$('#schedules').append(errorDiv);
 				return;
 			}
@@ -927,6 +927,13 @@ function showSchedules() {
 
 			// Unhide the schedules page
 			$('#schedules').slideDown();
+		}).error( function() {
+			var errorDiv = $("<div>");
+			errorDiv.attr("id", "errorDiv");
+			errorDiv.addClass("scheduleError");
+			errorDiv.html("Fatal Error: An internal server error occurred");
+			errorDiv.appendTo($("#schedules"));
+			$("#schedules").slideDown();
 		});
 	}
 }

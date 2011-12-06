@@ -38,7 +38,7 @@ require "./inc/header.inc";
 		Follow this project at <a href='http://github.com/benrr101/schedulemaker'>http://github.com/benrr101/schedulemaker</a>
 	</div>
 	<ul>
-		<li>Index Page/Styling - <span class='b'>Partial</span></li>
+		<li>Index Page/Styling - <span class='c'>COMPLETE (11-26-11)</span></li>
 		<li>Schedule Form - <span class='c'>COMPLETE (08-12-11)</span></li>
 		<li>Schedule Generator - <span class='c'>COMPLETE (09-01-11)</span></li>
 		<li>Course Roulette - <span class='c'>COMPLETE (08-06-11)</span></li>
