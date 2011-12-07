@@ -78,7 +78,7 @@ require "./inc/header.inc";
 				<tr style='border-bottom:1px solid #0C5DA5'><td><input type='checkbox' name='timesAny' value='any' onChange='toggleTimesAny(this)' /></td><td>Any Time</td></tr>
 				<tr><td><input id='morn' type='checkbox' name='times[]' value='morn' /></td><td>Morning (8am - noon)</td></tr>
 				<tr><td><input id='aftn' type='checkbox' name='times[]' value='aftn' /></td><td>Afternoon (noon - 5pm)</td></tr>
-				<tr><td><input id='even' type='checkbox' name='times[]' value='even' /></td><td>Morning (after 5pm)</td></tr>
+				<tr><td><input id='even' type='checkbox' name='times[]' value='even' /></td><td>Evening (after 5pm)</td></tr>
 			</table>
 		</div>
 	</div>
