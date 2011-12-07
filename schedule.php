@@ -290,7 +290,7 @@ function queryOldId($id) {
 // MAIN EXECUTION //////////////////////////////////////////////////////////
 
 // Determine the output mode
-$mode = (empty($_REQUEST['mode'])) ? "schedule" : mysql_real_escape_string($_REQUEST['mode']);
+$mode = (empty($_REQUEST['mode'])) ? "schedule" : $_REQUEST['mode'];
 
 // Switch on the mode
 switch($mode) {
