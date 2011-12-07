@@ -53,7 +53,7 @@ switch($_POST['action']) {
 		// Quarter, school, department, credits, times-any, times, professor
 		// School and department will be empty strings if any OR not selected
 		$quarter    = $_POST['quarter'];
-		$school     = (!empty($_POST['school']) && $_POST['school'] != 'any') ? $_POST['school'] * 100 : null;
+		$school     = (!empty($_POST['college']) && $_POST['college'] != 'any') ? $_POST['college'] * 100 : null;
 		$credits    = (!empty($_POST['credits'])) ? $_POST['credits'] : null;
 		$professor  = (!empty($_POST['professor'])) ? $_POST['professor'] : null;
 		$level      = (!empty($_POST['level']) && $_POST['level'] != 'any') ? $_POST['level'] : null;
@@ -127,6 +127,7 @@ switch($_POST['action']) {
 			$query .= " AND s.id IN (SELECT section FROM times WHERE " . implode(" AND ", $timeConstraints) . ")";
 		}
 		$query .= " AND s.course = c.id";
+		echo($query);
 
 		// Run it!
 		$result = mysql_query($query);
