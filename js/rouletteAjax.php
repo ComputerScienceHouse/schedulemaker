@@ -127,7 +127,6 @@ switch($_POST['action']) {
 			$query .= " AND s.id IN (SELECT section FROM times WHERE " . implode(" AND ", $timeConstraints) . ")";
 		}
 		$query .= " AND s.course = c.id";
-		echo($query);
 
 		// Run it!
 		$result = mysql_query($query);
