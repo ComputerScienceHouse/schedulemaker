@@ -407,7 +407,7 @@ END:VCALENDAR
 		?>
 		<div id='savedControls'>
 			<input type='hidden' id='schedJson' value='<?= json_encode($schedule); ?>' name='schedJson' />
-			<button type='button' id='forkButton'>Fork Schedule</button>
+			<button type='button' id='forkButton'>Copy and Edit Schedule</button>
 			<button type='button' id='printButton'>Print Schedule</button>
 		</div>
 		<script src='js/savedSchedule.js' type='text/javascript'></script>
