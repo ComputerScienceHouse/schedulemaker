@@ -14,81 +14,68 @@ require_once "./inc/config.php";
 require_once "./inc/databaseConn.php";
 require_once "./inc/timeFunctions.php";
 
+// FUNCTIONS ///////////////////////////////////////////////////////////////
+
+function getQuarterType($quarter) {
+	// Based on the last number of the quarter, return a title
+	switch(substr($quarter, -1)) {
+		case 1:
+			return "Fall";
+		case 2:
+			return "Winter";
+		case 3:
+			return "Spring";
+		case 4:
+			return "Summer";
+		default:
+			return "Unknown";
+	}
+}
+
 // Do we have a quarter specified?
 $quarter = (empty($_GET['quarter']) || !is_numeric($_GET['quarter'])) ? null : mysql_real_escape_string($_GET['quarter']);
 
 // MAIN EXECUTION //////////////////////////////////////////////////////////
 switch($quarter) {
 	case null:
-		// No quarter was specified, so we need to print the list of quarters
-		require "./inc/header.inc";
-		?>
-		<h1 id='browseHeader'>Browse Courses &gt; Select a Quarter</h1>
-		<?
-		// Query for the quarters
-		$query = "SELECT quarter FROM quarters ORDER BY quarter DESC";
-		$result = mysql_query($query);
-		?>
-		<div id='quarterList'>
-		<?
-			if(!$result) {
-				echo "Sorry! An error occurred!" . mysql_error();
-				return;
-			}
-			
-			// Start dumping the quarter list
-			while($q = mysql_fetch_assoc($result)) {
-				// Determine which quarter this is
-				switch(substr($q['quarter'], -1)) {
-					case 1:
-						$q['string'] = "Fall";
-						break;
-					case 2:
-						$q['string'] = "Winter";
-						break;
-					case 3:
-						$q['string'] = "Spring";
-						break;
-					case 4:
-						$q['string'] = "Summer";
-						break;
-					default:
-						$q['string'] = "Unknown";
-						break;
-				}
-				$q['year'] = substr($q['quarter'], 0, -1);
-				?>
-				
-				<p>
-					<a href="browse.php?quarter=<?= $q['quarter'] ?>"><?= $q['string'] ?> <?= $q['year'] ?> (<?= $q['quarter'] ?>)</a>
-				</p>
-				<?
-			}
-		?>
-		</div>
-		<?	
-
-		require "./inc/footer.inc";
-	
-		break;
+		// No quarter was specified, so load the current quarter
+		$quarter = $CURRENT_QUARTER;
+		// Now fall into the standard printout of courses
 
 	default:
 		// Display the fancy dropdown thingy that allows one to traverse the
 		// list of courses
 		require "./inc/header.inc";
 		
+		?>
+		<script src='./js/browse.js' type='text/javascript'></script>
+		<h1 id='browseHeader'>Browse Courses &gt; <?= getQuarterType($quarter) ?> <?= substr($quarter, 0, 4) ?></h1>
+		<input id='quarter' type='hidden' value="<?= $quarter ?>" />
+
+		<div class='subContainer'>
+			Select a Different Quarter:
+			<select name='quarterSelect' onChange='document.location=this.value'>
+			<?
+			$query = "SELECT quarter FROM quarters ORDER BY quarter DESC";
+			$quarterResult = mysql_query($query);
+			if(!$quarterResult) {
+				die("An error occurred!");
+			}
+			while($qtr = mysql_fetch_assoc($quarterResult)) { ?>
+				<option value='browse.php?quarter=<?= $qtr['quarter'] ?>' <?= ($qtr['quarter'] == $quarter) ? "selected='selected'" : "" ?>>
+					<?= substr($qtr['quarter'], 0, 4) ?> <?= getQuarterType($qtr['quarter']) ?>
+				</option>
+			<? } ?>
+			</select>
+		</div>
+
+		<?
 		// Display the list of departments
 		$query = "SELECT * FROM schools ORDER BY id";
 		$schoolResult = mysql_query($query);
 		if(!$schoolResult) {
 			die("An error occurred!");
 		}
-		?>
-		<script src='./js/browse.js' type='text/javascript'></script>
-		<h1 id='browseHeader'>Browse Courses &gt; <?= $quarter ?></h1>
-		<input id='quarter' type='hidden' value="<?= $quarter ?>" />
-
-		<?
 		while($school = mysql_fetch_assoc($schoolResult)) {
 			?>
 			<div class="item school">

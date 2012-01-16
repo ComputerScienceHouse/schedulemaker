@@ -5,6 +5,10 @@ body {
 	background-color:#FF9500;
 }
 
+img {
+	border: 0;
+}
+
 #superContainer {
 	position:relative;
 	margin-left:auto;
@@ -51,10 +55,6 @@ body {
 	text-decoration:none;
 	text-shadow:0 2px 1px black;
 }
-#header a:hover {
-	color:#EEE;
-	text-decoration:underline;
-}
 
 #header .logo {
 	position:relative;
@@ -65,6 +65,10 @@ body {
 	font-family:"Trebuchet MS", "Helvetica", "Lucida Sans", sans-serif;
 }
 
+#header .nav:hover {
+	border-bottom:2px solid #0C5DA5;
+}
+
 #header .nav {
 	position:relative;
 	float:right;
@@ -73,6 +77,10 @@ body {
 	font-size:16px;
 	margin-right: 25px;
 	margin-top:38px;
+}
+
+#header .underline {
+	border-bottom:2px solid #0C5DA5;
 }
 
 #footer {
@@ -145,6 +153,53 @@ input[type=text] {
 	background-image:linear-gradient(top, #049CDB, #0064CD);
 	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#049CDB', endColorstr='#0064CD', GradientType=0);
 }
+
+#oldBadge {
+	position: fixed;
+	bottom:0px;
+	right:0px;
+	z-index:9000;
+	border-top-left-radius: 5px;
+	background-color: white;
+	width:200px;
+	padding:10px;
+}
+
+/**************************************************************************/
+/* GLOBAL STYLES */
+/* Positioning - */
+
+.subContainer {
+	background-color: #679FD2;
+	overflow:auto;
+	padding:20px;
+}
+
+.leftColumn {
+	position:relative;
+	float:left;
+}
+
+.leftNoField { width: 400px; }
+.leftWidthField { width: 280px; }
+
+.rightColumn {
+	overflow:auto;
+}
+
+/* Font Styles - */
+h1,h2 {
+	color: white;
+	text-shadow:0 1px 1px black;
+}
+
+.leftColumn h2 {
+	margin-top:20px;
+
+	margin-bottom:5px;
+	font-size:20px;
+}
+
 
 /**************************************************************************/
 /* STATUS */
@@ -663,13 +718,6 @@ li {
 	overflow:auto;
 	background-color: #679FD2;
 	padding:20px;
-}
-#browseHeader {
-	margin-top:none;
-	padding-bottom:20px;
-	margin: 0;
-	color:white;
-	text-shadow: 0 1px 1px black;
 }
 #quarterList p {
 	margin-top:0;
