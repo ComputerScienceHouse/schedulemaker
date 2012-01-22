@@ -277,10 +277,10 @@ function drawCourse(parent, course, startDay, endDay, startTime, endTime, colorN
 		// Apply the styles
 		timeDiv.css("height", timeHeight + "px");
 		timeDiv.css("top", timeTop + "px");
+		timeDiv.addClass("color" + colorNum);
 
 		// Add the course information
-		var header = $("<h4>").addClass("colorHeader" + colorNum)
-			.html(course.title)
+		var header = $("<h4>").html(course.title)
 			.appendTo(timeDiv);
 
 		if(course.courseNum != "non") {

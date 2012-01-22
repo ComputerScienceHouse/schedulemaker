@@ -29,7 +29,7 @@ require "./inc/header.inc";
 		<div class='rouletteLabel'><label for='college'>College:</label></div>
 		<div class='rouletteField'><?= getCollegeField('college', null, true) ?></div>
 	</div>
-	<div class='rouletteParamField'>OR</div>
+	<div class='rouletteParamField rouletteOR'>OR</div>
 	<div class='rouletteParamField'>
 		<div class='rouletteLabel'><label for='department'>Department:</label></div>
 		<div class='rouletteField'><?= getDepartmentField('department', null, true) ?></div>
@@ -57,7 +57,7 @@ require "./inc/header.inc";
 		<div class='rouletteLabel'>Days:</div>
 		<div class='rouletteField'>
 			<table>
-				<tr style="border-bottom:solid 1px #0C5DA5;"><td><input type='checkbox' name='daysAny' value='any' onChange='toggleDaysAny(this)' /></td><td colspan='3'>Any Day</td></tr>
+				<tr class='separated'><td><input type='checkbox' name='daysAny' value='any' onChange='toggleDaysAny(this)' /></td><td colspan='3'>Any Day</td></tr>
 				<tr>
 					<td><input id='mon' type='checkbox' name='days[]' value='Mon' /></td><td>Monday</td>
 					<td><input id='tue' type='checkbox' name='days[]' value='Tue' /></td><td>Tuesday</td>
@@ -75,7 +75,7 @@ require "./inc/header.inc";
 		<div class='rouletteLabel'>Times:</div>
 		<div class='rouletteField'>
 			<table>
-				<tr style='border-bottom:1px solid #0C5DA5'><td><input type='checkbox' name='timesAny' value='any' onChange='toggleTimesAny(this)' /></td><td>Any Time</td></tr>
+				<tr class='separated'><td><input type='checkbox' name='timesAny' value='any' onChange='toggleTimesAny(this)' /></td><td>Any Time</td></tr>
 				<tr><td><input id='morn' type='checkbox' name='times[]' value='morn' /></td><td>Morning (8am - noon)</td></tr>
 				<tr><td><input id='aftn' type='checkbox' name='times[]' value='aftn' /></td><td>Afternoon (noon - 5pm)</td></tr>
 				<tr><td><input id='even' type='checkbox' name='times[]' value='even' /></td><td>Evening (after 5pm)</td></tr>
