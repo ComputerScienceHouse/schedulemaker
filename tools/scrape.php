@@ -12,6 +12,19 @@
 //			to be rewritten
 ////////////////////////////////////////////////////////////////////////////
 
+// CONSTANTS ///////////////////////////////////////////////////////////////
+$UTF_REGEXP = <<<'END'
+/
+  ( [\x00-\x7F]                 # single-byte sequences   0xxxxxxx
+  | [\xC0-\xDF][\x80-\xBF]      # double-byte sequences   110xxxxx 10xxxxxx
+  | [\xE0-\xEF][\x80-\xBF]{2}   # triple-byte sequences   1110xxxx 10xxxxxx * 2
+  | [\xF0-\xF7][\x80-\xBF]{3}   # quadruple-byte sequence 11110xxx 10xxxxxx * 3 
+  )
+| .                             # anything else
+/x
+END;
+
+
 // REQUIRED FILES //////////////////////////////////////////////////////////
 require_once "../inc/config.php";
 require_once "../inc/databaseConn.php";
@@ -24,11 +37,26 @@ $debugMode = in_array("-d", $arguments);
 $quietMode = in_array("-q", $arguments);
 
 // FUNCTIONS ///////////////////////////////////////////////////////////////
+/**
+ * Outputs a message if debug mode is enabled. If it isn't then nothing happens
+ * @param	$string	string	The message to ouput if debug mode is enabled
+ */
 function debug($string) {
 	global $debugMode;
 	if($debugMode) {
 		echo($string);
 	}
+}
+
+/**
+ * Performs a regexp replacement for all invalid UTF-8 chars
+ * @param	$string	string	The string in which to replace invalid chars
+ * @return	string	The original string sans-invalid chars
+ */
+function cleanScrape($string) {
+	// Perform a regexp replacement that will remove invalid UTF-8 chars
+	global $UTF_REGEXP;
+	return preg_replace($UTF_REGEXP, '$1', $string);
 }
 
 // MAIN EXECUTION //////////////////////////////////////////////////////////
@@ -103,6 +131,7 @@ while($line = fgets($dumpHandle, 4096)) {
 		// to do an old school scrape.
 		// FUCK ITS.
 		$coursePage = file_get_contents("https://register.rit.edu/courseSchedule/{$department}{$course}");
+		$coursePage = cleanScrape($coursePage); // Since ITS can somehow store non-UTF bytes in their DB...
 		if(!$coursePage) {
 			echo("*** Could not load https://register.rit.edu/courseSchedule/{$department}{$course}\n");
 			continue;
