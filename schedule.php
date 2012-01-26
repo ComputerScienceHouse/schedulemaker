@@ -10,7 +10,7 @@
 
 // FUNCTIONS ///////////////////////////////////////////////////////////////
 
-function drawCourse($course, $startTime, $endTime, $startDay, $endDay, $headerColor) {
+function drawCourse($course, $startTime, $endTime, $startDay, $endDay, $color) {
 	$code = "";
 
 	// Iterate over the times that the couse has session
@@ -26,7 +26,7 @@ function drawCourse($course, $startTime, $endTime, $startDay, $endDay, $headerCo
 		}
 
 		// Add a div for the time
-		$code .= "<div class='day" . ($time['day'] - $startDay) . "' style = '";
+		$code .= "<div class='day" . ($time['day'] - $startDay) . " color{$color}' style = '";
 
 		$height    = (ceil(($time['end'] - $time['start']) / 30) * 20) - 1;
 		$topOffset = (floor(($time['start'] - $startTime) / 30) * 20) + 20;
@@ -34,12 +34,12 @@ function drawCourse($course, $startTime, $endTime, $startDay, $endDay, $headerCo
 		$code .= "'>";
 		
 		// Add information about the course
-		$code .= "<h4 class='colorHeader{$headerColor}";
+		$code .= "<h4";
 		if($height <= 40) {
 			// Include code to shorten the header for short classes
-			$code .= " shortHeader";
+			$code .= " class='shortHeader'";
 		}
-		$code .= "'>{$course['title']}</h4><div>";
+		$code .= ">{$course['title']}</h4><div>";
 		if($course['courseNum'] != "non") {
 			if($height > 40) {
 				$code .= $course['courseNum'] . "<br />";

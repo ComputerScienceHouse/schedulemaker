@@ -226,6 +226,16 @@ h1,h2 {
 	color:white;
 }
 
+#scraperStatus {
+	width:100%;
+	text-align: center;
+}
+
+#scraperStatus .failure {
+	background-color:#CC3129;
+}
+
+
 /**************************************************************************/
 /* INDEX */
 #mainMenu {
@@ -248,7 +258,7 @@ h1,h2 {
 
 #mainMenu .navItem div {
 	font-size: 18px;
-	text-shadow: 0 2px .5px black;
+	text-shadow: 0 1px 1px black;
 	margin-top:40px;
 }
 
