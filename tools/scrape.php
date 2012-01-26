@@ -24,7 +24,6 @@ $UTF_REGEXP = <<<'END'
 /x
 END;
 
-
 // REQUIRED FILES //////////////////////////////////////////////////////////
 require_once "../inc/config.php";
 require_once "../inc/databaseConn.php";
@@ -60,6 +59,15 @@ function cleanScrape($string) {
 }
 
 // MAIN EXECUTION //////////////////////////////////////////////////////////
+// Initialize the logging variables
+$timeStarted     = time();
+$quartersAdded   = 0;
+$coursesAdded    = 0;
+$coursesUpdated  = 0;
+$sectionsAdded   = 0;
+$sectionsUpdated = 0;
+$failures        = 0;
+
 // Open up the dump file
 $dumpHandle = fopen($DUMPLOCATION, "r");
 if(!$dumpHandle) {
@@ -100,6 +108,7 @@ while($line = fgets($dumpHandle, 4096)) {
 		$result = mysql_query($query);
 		if(!$result) {
 			echo("*** Could not add quarter: {$quarter}\n" . mysql_error() . "\n");
+			$failures++;
 		}
 		
 		// Set the quarter on the course list handle
@@ -134,6 +143,7 @@ while($line = fgets($dumpHandle, 4096)) {
 		$coursePage = cleanScrape($coursePage); // Since ITS can somehow store non-UTF bytes in their DB...
 		if(!$coursePage) {
 			echo("*** Could not load https://register.rit.edu/courseSchedule/{$department}{$course}\n");
+			$failures++;
 			continue;
 		}
 		
@@ -142,18 +152,21 @@ while($line = fgets($dumpHandle, 4096)) {
 		$matches = array();
 		if(preg_match($pattern, $coursePage, $matches) != 1) {
 			echo("*** Could not match the regexp for course title and description! https://register.rit.edu/courseSchedule/{$department}{$course}\n");
+			$failures++;
 			continue;
 		}
 		$title       = mysql_real_escape_string($matches[1]);
 		$description = mysql_real_escape_string($matches[2]);
 		
 		// Build a query to insert the course
+		$coursesAdded++;
 		$query = "INSERT INTO courses (department, course, credits, quarter, title, description) ";
 		$query .= "VALUES ({$department}, {$course}, {$credits}, {$quarter}, '{$title}', '{$description}') ";
 		$query .= "ON DUPLICATE KEY UPDATE credits={$credits}, title='{$title}', description='{$description}' ";
 		$result = mysql_query($query);
 		if(!$result) {
 			echo("*** Could not add the course {$department}-{$course}\n" . mysql_error() . "\n");
+			$failures++;
 			continue;
 		}
 
@@ -163,6 +176,7 @@ while($line = fgets($dumpHandle, 4096)) {
 		$result = mysql_query($query);
 		if(!$result || mysql_num_rows($result) != 1) {
 			echo("*** Failed to lookup course after insert/update\n{$query}\n" . mysql_error() . "\n");
+			$failures++;
 			continue;
 		}
 
@@ -177,16 +191,27 @@ while($line = fgets($dumpHandle, 4096)) {
 	$maxEnroll  = mysql_real_escape_string($lineSplit[13]);
 	$curEnroll  = mysql_real_escape_string($lineSplit[14]);
 	$status     = mysql_real_escape_string($lineSplit[6]);
-	if($lineSplit[15] == "Y") { $type = "O"; }
-	elseif($lineSplit[17] == "Y") { $type = "H"; }
-	elseif($lineSplit[16] == "Y") { $type = "N"; }
-	else { $type = "R"; }
+
+	// If the class has 0 enrollment and 0 maxenroll, it is 'cancelled'
+	// ... technically it's used for reporting transfer/AP credits, but one
+	// cannot register for it
+	if($maxEnroll == 0 && $curEnroll == 0) {
+		debug("         --- Section {$section} is used for transfer credits\n");
+		$status = "X";
+	}
+
+	// Determine the type of the course based on the value of other fields
+	if($lineSplit[15] == "Y") { $type = "O"; }		// Course is online
+	elseif($lineSplit[17] == "Y") { $type = "H"; }	// Course is honors only
+	elseif($lineSplit[16] == "Y") { $type = "N"; }	// Course is a night class
+	else { $type = "R"; }							// Course is normal
 
 	// Does this section already exist
 	$query = "SELECT id FROM sections WHERE course = {$courseId} AND section = {$section}";
 	$result = mysql_query($query);
 	if(!$result) {
 		echo("*** Failed attempting to lookup section\n" . mysql_error() . "\n");
+		$failures++;
 		continue;
 	}
 	if(mysql_num_rows($result)) {
@@ -195,6 +220,7 @@ while($line = fgets($dumpHandle, 4096)) {
 		$sectionId = $sectionId['id'];
 
 		debug("      ... Updating Section: {$department}-{$course}-{$section}\n");
+		$sectionsUpdated++;
 		
 		// Build the query for updating the section
 		$query = "UPDATE sections SET";
@@ -219,11 +245,14 @@ while($line = fgets($dumpHandle, 4096)) {
 		$result = mysql_query($query);
 		if(!$result) {
 			echo("*** Failed to update section\n" . mysql_error() . "\n");
+			$sessionsUpdated--;
+			$failures++;
 			continue;
 		}
 	} else {
 		// The section does not exist, so it needs to be inserted
 		debug("      ... Inserting Section: {$department}-{$course}-{$section}\n");
+		$sectionsAdded++;
 		
 		$query = "INSERT INTO sections (course, section, status, instructor, type, maxenroll, curenroll, title) ";
 		$query .= "VALUES (";
@@ -236,18 +265,20 @@ while($line = fgets($dumpHandle, 4096)) {
 			// Steal course title and enrollment from the latest scrape of SIS
 			$query .= "{$curDepartmentCourseList[$course . $section]['maxEnroll']}, ";
 			$query .= "{$curDepartmentCourseList[$course . $section]['curEnroll']}, ";
-			$query .= "{$curDepartmentCourseList[$course . $section]['title']}";
+			$query .= "'" . mysql_real_escape_string($curDepartmentCourseList[$course . $section]['title']) . "'";
 		} else {
 			// Nope, we're gonna use the course dump
 			$query .= "{$maxEnroll}, ";
 			$query .= "{$curEnroll}, ";
-			$query .= "{$title}";
+			$query .= "'" . mysql_real_escape_string($title) . "'";
 		}
 		$query .= ")";
 
 		$result = mysql_query($query);
 		if(!$result) {
-			echo("*** Failed to insert section\n" . mysql_error() . "\n");
+			echo("*** Failed to insert section\n" . mysql_error() . "\n" . $query . "\n");
+			$sectionsAdded--;
+			$failures++;
 			continue;
 		}
 		$sectionId = mysql_insert_id();
@@ -259,6 +290,7 @@ while($line = fgets($dumpHandle, 4096)) {
 	$result = mysql_query($query);
 	if(!$result) {
 		echo("*** Failed to delete old section's times\n" . mysql_error() . "\n");
+		$failures++;
 		continue;
 	}
 	
@@ -291,8 +323,17 @@ while($line = fgets($dumpHandle, 4096)) {
 			
 			if(!$result || mysql_affected_rows() == 0) {
 				echo("*** Could not add times for section! " . mysql_error() . "\n");
+				$failures++;
 				continue;
 			}
 		}
 	}
 }
+
+// We're done processing, so update the log table
+$query = "INSERT INTO scrapelog (timeStarted, timeEnded, quartersAdded, coursesAdded, coursesUpdated, sectionsAdded, sectionsUpdated, failures) ";
+$query .= "VALUES('{$timeStarted}', '".time()."', '{$quartersAdded}', '{$coursesAdded}', '{$coursesUpdated}', '{$sectionsAdded}', '{$sectionsUpdated}', '{$failures}')";
+if(!mysql_query($query)) {
+	echo("*** Failed to update scrape log: " . mysql_error());
+}
+

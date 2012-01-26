@@ -7,41 +7,95 @@
 // @author	Ben Russell (benrr101@csh.rit.edu)
 ////////////////////////////////////////////////////////////////////////////
 
+// FUNCTIONS ///////////////////////////////////////////////////////////////
+function timeElapsed($time) {
+	// Initialize the return string
+	$return = "";
+
+	// Divide off days
+	$days = floor($time / (60 * 60 * 24));
+	if($days) {
+		$return .= "{$days} days ";
+		$time -= $days * 60 * 60 * 24;
+	}
+
+	// Divide off hours
+	$hours = floor($time / (60 * 60));
+	if($hours) {
+		$return .= "{$hours}:";
+		$time -= $hours * 60 * 60;
+	} else {
+		$return .= "00:";
+	}
+
+	// Divide off minutes
+	$mins = floor($time / 60);
+	if($mins) {
+		$return .= "{$mins}:";
+		$time -= $mins * 60;
+	} else {
+		$return .= "00:";
+	}
+
+	// Divide off seconds
+	$return .= str_pad($time, 2, "0", STR_PAD_LEFT);
+
+	return $return;
+}
+
+// REQUIRED FILES //////////////////////////////////////////////////////////
+require_once("inc/databaseConn.php");
+
+// MAIN EXECUTION //////////////////////////////////////////////////////////
+// Look up the last 20 scrape reports and store into an array
+$query = "SELECT * FROM scrapelog ORDER BY timeStarted DESC LIMIT 20";
+$result = mysql_query($query);
+$lastLogs = array();
+while($row = mysql_fetch_assoc($result)) {
+	$lastLogs[] = $row;
+}
+
 require "inc/header.inc";
 ?>
+<h1>Scraper Status</h1>
 
-<div id='status' class='working'>IT WORKS</div>
-<div class='schedNotes'>
-	<p>
-		Don't think so? Submit an issue at <a href='https://github.com/benrr101/schedulemaker/issues'>https://github.com/benrr101/schedulemaker/issues</a>
-	</p>
+<div class='subContainer'>
+	<h2>Scraper Last Ran: <?= ((count($lastLogs)) ? date("m/d/y h:ia", $lastLogs[0]['timeStarted']) : "Never") ?></h2>
+
+	<h2>Last 20 Scrape Reports</h2>
+	<table id='scraperStatus'>
+		<tr class='separated'>
+			<th>Scrape Started</th>
+			<th>Scrape Finished</th>
+			<th>Time Elapsed</th>
+			<th>Courses Added</th>
+			<th>Sections Added</th>
+			<th>Sections Updated</th>
+			<th>Failures</th>
+		</tr>
+		<? 
+		if(!count($lastLogs)) {
+			// No reports here
+			?><tr><td colspan='7'>No Logs Exist</td></tr><?
+		} else {
+			foreach($lastLogs as $log) { ?>
+			<tr>
+				<td><?= date('m/d/y h:ia', $log['timeStarted']) ?></td>
+				<td><?= date('m/d/y h:ia', $log['timeEnded']) ?></td>
+				<td><?= timeElapsed($log['timeEnded'] - $log['timeStarted']) ?></td>
+				<td><?= $log['coursesAdded'] ?></td>
+				<td><?= $log['sectionsAdded'] ?></td>
+				<td><?= $log['sectionsUpdated'] ?></td>
+				<? if($log['failures'] > 0) { ?>
+					<td class='failures'><?= $log['failures'] ?></td>
+				<? } else { ?>
+					<td>0</td>
+				<? } ?>
+			</tr>
+			<? }
+		} ?> 
+	</table>
 </div>
-
-<div id="progress">
-	<h2>Project Progress</h2>
-	<div class='schedNotes'>
-		Follow this project at <a href='http://github.com/benrr101/schedulemaker'>http://github.com/benrr101/schedulemaker</a>
-	</div>
-	<ul>
-		<li>Index Page/Styling - <span class='c'>COMPLETE (11-26-11)</span></li>
-		<li>Schedule Form - <span class='c'>COMPLETE (08-12-11)</span></li>
-		<li>Schedule Generator - <span class='c'>COMPLETE (09-01-11)</span></li>
-		<li>Course Roulette - <span class='c'>COMPLETE (08-06-11)</span></li>
-		<li>Cronjob Status - Not complete</li>
-		<li>AJAX Integration - <span class='c'>COMPLETE</span></li>
-		<li>Courses DB - <span class='c'>COMPLETE (08-03-11)</span></li>
-		<li>Saved Schedule Lookup - <span class='c'>COMPLETE (10-07-11)</span></li>
-		<li>Saved Schedule Cleaner - <span class='c'>COMPLETE (10-07-11)</span></li>
-		<li>Schedule Output - <span class='c'>COMPLETE (09-17-11)</span></li>
-		<li>Social Media Sharing - <span class='c'>COMPLETE (09-17-11)</span></li>
-		<li>iCal Exporting - <span class='b'>Partial</span></li>
-		<li>Browse Courses - <span class='c'>COMPLETE (10-08-11)</span></li>
-		<li>Scraper Migration - <span class='c'>COMPLETE (10-13-11)</span></li>
-		<li>Migrator: Courses - <span class='c'>COMPLETE (08-03-11)</span></li>
-		<li>Migrator: Saves Schedules - <span class='c'>COMPLETE (08-04-11)</span></li>
-	</ul>
-</div>
-
 <?
 require "inc/footer.inc";
 ?>

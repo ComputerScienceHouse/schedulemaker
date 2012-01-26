@@ -212,29 +212,15 @@ h1,h2 {
 
 /**************************************************************************/
 /* STATUS */
-#status {
-	width:700px;
-	margin-left:auto;
-	margin-right:auto;
-	margin-bottom:20px;
-	padding:60px;
-	border-radius:30px;
-	background-color:darkgreen;
-	text-align:center;
-	font-size:100px;
-	font-weight:bolder;
-	color:white;
-}
-
 #scraperStatus {
 	width:100%;
 	text-align: center;
+	border-collapse: collapse;
 }
 
-#scraperStatus .failure {
-	background-color:#CC3129;
+#scraperStatus .failures {
+	color:#CC3129;
 }
-
 
 /**************************************************************************/
 /* INDEX */
