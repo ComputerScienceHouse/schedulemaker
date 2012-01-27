@@ -874,6 +874,7 @@ function showSchedules() {
 			if(data.schedules == undefined || data.schedules == null || data.schedules.length == 0) {
 				errorDiv = $("<div id='errorDiv' class='scheduleError'>").html("There are no matching schedules!");
 				$('#schedules').append(errorDiv);
+				$('#schedules').slideDown();
 				return;
 			}
 
