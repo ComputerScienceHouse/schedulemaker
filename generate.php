@@ -166,8 +166,21 @@ require "./inc/header.inc";
 			<td><?= getDayField("scheduleEndDay", 6, true) ?></td>
 		</tr>
 		<tr>
+			<td class='lbl'>
+				<label class='lbl'>Schedules per Page:</label>
+			</td>
+			<td>
+				<select id='schedPerPage'>
+					<option value='3' selected='selected'>3 per Page</option>
+					<option value='5'>5 per Page</option>
+					<option value='10'>10 per Page</option>
+					<option value='15'>15 per Page</option>
+					<option value='20'>20 per Page</option>
+					<option value='all'>All Schedules</option>
+				</select>
+			</td>
 			<td class='lbl'><input id='verbose' type='checkbox' name='verbose' value='true' /></td>
-			<td colspan='3'><label for='verbose'>Show Error Messages/Course Conflicts</label></td>
+			<td><label for='verbose'>Show Error Messages/Course Conflicts</label></td>
 		</tr>
 	</table>
 </div>

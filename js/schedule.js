@@ -13,7 +13,7 @@ var endday;				// The ending day for the schedule
 var endtime;			// The ending time for the schedule
 var pages;				// The number of pages 
 var schedHeight;		// Height of the schedule
-var SCHEDPERPAGE = 3;	// The number of schedules per page
+var SCHEDPERPAGE;		// The number of schedules per page
 var schedules;			// jSON object of schedules that was retreived via AJAX
 var schedWidth;			// Width of the schedule
 var serialForm;			// The serialized form so we can tell if there has been 
@@ -291,7 +291,6 @@ function drawCourse(parent, course, startDay, endDay, startTime, endTime, colorN
 				courseInfo.html(courseInfo.html() + course.instructor + "<br />");
 				courseInfo.html(courseInfo.html() + course.times[t].bldg + "-" + course.times[t].room);
 			} else {
-				// < 1hour course, only show one line worth of title
 				header.addClass("shortHeader");
 				courseInfo.html(course.times[t].bldg + "-" + course.times[t].room);
 			}
@@ -841,6 +840,9 @@ function showSchedules() {
 	// Hide the form and show the expand bar
 	collapseForm();
 
+	// Grab and set the number of schedules per page
+	SCHEDPERPAGE = $("#schedPerPage").val();
+
 	// Serialize the form and store it if it changed
 	if(serialForm != $('#scheduleForm').serialize()) {
 		serialForm = $('#scheduleForm').serialize();
@@ -862,6 +864,11 @@ function showSchedules() {
 
 			// Store the data for pagination later
 			schedules = data.schedules;
+
+			// If we're showing all schedules on one page, then do that
+			if(SCHEDPERPAGE == 'all') {
+				SCHEDPERPAGE = schedules.length;
+			}
 			
 			// How many pages of schedules are there
 			pages = Math.ceil(schedules.length / SCHEDPERPAGE);
@@ -882,6 +889,7 @@ function showSchedules() {
 			// NOTE: the php side determines whether to send errors based on verbose value
 			if(data.errors != null && data.errors != undefined) {
 				errorDiv = $("<div id='errorDiv' class='scheduleWarning'>");
+				errorHTML = "<div class='subheader'><h3>Schedule Generator Warnings</h3><input id='errorControl' type='button' value='Collapse' onClick='collapseErrors();' /></div>";
 				errorHTML = "<div class='subheader'><h3>Schedule Generator Warnings</h3><input id='errorControl' type='button' value='Collapse' onClick='collapseErrors();' /></div>";
 				errorHTML += "<div id='errorContents'>";
 				for(i = 0; i < data.errors.length; i++) {
