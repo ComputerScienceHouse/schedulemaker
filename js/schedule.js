@@ -225,7 +225,7 @@ function courseOnFocus(field) {
 	$(field).css("color", "black");
 }
 
-function drawCourse(parent, course, startDay, endDay, startTime, endTime, colorNum, print) {
+function drawCourse(parent, course, startDay, endDay, startTime, endTime, colorNum, print, hiddenCourses) {
 	// If the course is online OR there aren't any times set, don't even bother
 	if(course.online || course.times == undefined) {
 		return;
@@ -235,6 +235,7 @@ function drawCourse(parent, course, startDay, endDay, startTime, endTime, colorN
 	for(t = 0; t < course.times.length; t++) {
 		// Skip times that aren't part of the displayed days
 		if(course.times[t].day < startDay || course.times[t].day > endDay) {
+			hiddenCourses.push(course.courseNum);
 			continue;
 		}
 
@@ -249,6 +250,8 @@ function drawCourse(parent, course, startDay, endDay, startTime, endTime, colorN
 				course.times[t].end = endTime;
 				course.times[t].shorten = "bottom";
 			} else {
+				// The course is completely hidden
+				hiddenCourses.push(course.courseNum);
 				continue;
 			}
 		}
@@ -358,6 +361,7 @@ function drawPage(pageNum, print) {
 
 		// Iterate over each course and draw them
 		var onlineCourses = new Array();
+		var hiddenCourses = new Array();
 		for(c = 0; c < schedSubset[s].length; c++) {
 			var colorNum = c % 4;
 
@@ -365,7 +369,7 @@ function drawPage(pageNum, print) {
 			if(schedSubset[s][c].online) {
 				onlineCourses.push(schedSubset[s][c].courseNum);
 			} else {
-				drawCourse(sched, schedSubset[s][c], startday, endday, starttime, endtime, colorNum, print);
+				drawCourse(sched, schedSubset[s][c], startday, endday, starttime, endtime, colorNum, print, hiddenCourses);
 			}
 		}
 		
@@ -382,6 +386,20 @@ function drawPage(pageNum, print) {
 			onlineWarning.appendTo(schedSupa);
 		}
 
+		// If we have hidden courses then show a little notice
+		if(hiddenCourses.length) {
+			// Create a box for it
+			var hiddenWarning = $("<div>").addClass("schedNotes");
+			hiddenWarning.css("width", schedWidth + "px");
+		
+			// Create a notice for the box
+			var notes = $("<p>").html("Notice: This schedule does not show ");
+			for(ol = 0; ol < hiddenCourses.length; ol++) {
+				notes.html(notes.html() + " " + hiddenCourses[ol]);
+			}
+			notes.appendTo(hiddenWarning);
+			hiddenWarning.appendTo(schedSupa);
+		}
 		if(!print) {
 		// Create a control box
 		schedControl = $("<div>").addClass("scheduleControl");
