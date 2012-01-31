@@ -239,16 +239,19 @@ function drawCourse(parent, course, startDay, endDay, startTime, endTime, colorN
 			continue;
 		}
 
+		// Make it easier for the developer
+		var time = course.times[t];
+
 		// Skip times that aren't part of the displayed hours
-		if(course.times[t].start < startTime || course.times[t].start > endTime || course.times[t].end > endTime) {
+		if(time.start < startTime || time.start > endTime || time.end > endTime) {
 			// Shorten up the boxes of times that extend into
 			// the visible spectrum
-			if(course.times[t].start < startTime) {
-				course.times[t].start = startTime;
-				course.times[t].shorten = "top";
-			} else if(course.times[t].end > endTime) {
-				course.times[t].end = endTime;
-				course.times[t].shorten = "bottom";
+			if(time.start < startTime && time.end > startTime) {
+				time.start = startTime;
+				time.shorten = "top";
+			} else if(time.end > endTime && time.start < endTime) {
+				time.end = endTime;
+				time.shorten = "bottom";
 			} else {
 				// The course is completely hidden
 				hiddenCourses.push(course.courseNum);
@@ -257,7 +260,7 @@ function drawCourse(parent, course, startDay, endDay, startTime, endTime, colorN
 		}
 
 		// Add a div for the time
-		timeDiv = $("<div>").addClass("day" + (course.times[t].day - startDay));
+		timeDiv = $("<div>").addClass("day" + (time.day - startDay));
 
 		// Shade the time slot if it's a printout
 		if(print) {
@@ -265,13 +268,13 @@ function drawCourse(parent, course, startDay, endDay, startTime, endTime, colorN
 		}
 		
 		// Calculate the height
-		timeHeight = parseInt(course.times[t].end) - parseInt(course.times[t].start);
+		timeHeight = parseInt(time.end) - parseInt(time.start);
 		timeHeight = timeHeight / 30;
 		timeHeight = Math.ceil(timeHeight);
 		timeHeight = (timeHeight * 20) - 1;
 
 		// Calculate the top offset
-		timeTop = parseInt(course.times[t].start) - startTime;
+		timeTop = parseInt(time.start) - startTime;
 		timeTop = timeTop / 30;
 		timeTop = Math.floor(timeTop);
 		timeTop = timeTop * 20;
@@ -292,22 +295,22 @@ function drawCourse(parent, course, startDay, endDay, startTime, endTime, colorN
 				// > 1hour course, show all the info
 				courseInfo.html(course.courseNum + "<br />");
 				courseInfo.html(courseInfo.html() + course.instructor + "<br />");
-				courseInfo.html(courseInfo.html() + course.times[t].bldg + "-" + course.times[t].room);
+				courseInfo.html(courseInfo.html() + time.bldg + "-" + time.room);
 			} else {
 				header.addClass("shortHeader");
-				courseInfo.html(course.times[t].bldg + "-" + course.times[t].room);
+				courseInfo.html(time.bldg + "-" + time.room);
 			}
 
 			courseInfo.appendTo(timeDiv);
 		}
-		if(course.times[t].shorten == "top") {
+		if(time.shorten == "top") {
 			var curHeight = timeDiv.css("height");
 			curHeight = curHeight.substring(0, curHeight.length - 2); 
 			var newHeight = curHeight - 1;
 			timeDiv.css("height", newHeight + "px");
 			timeDiv.addClass("shortenTop");
 		}
-		if(course.times[t].shorten == "bottom") {
+		if(time.shorten == "bottom") {
 			var curHeight = timeDiv.css("height");
 			curHeight = curHeight.substring(0, curHeight.length - 2); 
 			var newHeight = curHeight - 1;
