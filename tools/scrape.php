@@ -303,8 +303,7 @@ while($line = fgets($dumpHandle, 4096)) {
 		
 		// Process each time (there are 5 fields per time)
 		for($i = 0; $i < count($timeSplit); $i += 5) {
-			$day   = mysql_real_escape_string($timeSplit[$i]);
-			if($day == '7') { $day = '0'; }		// Work around for Sunday classes
+			$day   = mysql_real_escape_string($timeSplit[$i]) % 7;
 			$start = mysql_real_escape_string(translateTimeDump($timeSplit[$i+1]));
 			$end   = mysql_real_escape_string(translateTimeDump($timeSplit[$i+2]));
 			$bldg  = mysql_real_escape_string($timeSplit[$i+3]);
