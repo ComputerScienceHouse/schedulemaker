@@ -308,16 +308,18 @@ switch($mode) {
 		</head>
 		<body>
 			<div id='schedules'></div>
+			<? require "inc/footer_print.inc"; ?>
 		</body>
 		<script type='text/javascript'>
 			// Load the data out of the local storage and store it in the
 			// global fields
 			data = eval("(" + window.sessionStorage.getItem("scheduleJson") + ")");
-			schedules = data.courses;
-			startday  = data.startDay;
-			endday    = data.endDay;
-			starttime = data.startTime;
-			endtime   = data.endTime;
+			schedules   = data.courses;
+			startday    = data.startDay;
+			endday      = data.endDay;
+			starttime   = data.startTime;
+			endtime     = data.endTime;
+			SCHEDPERPAGE= 1;
 
 			// Calculate the schedule height and width
 			schedHeight = (Math.floor((endtime - starttime) / 30) * 20) + 20;
@@ -325,15 +327,14 @@ switch($mode) {
 
 			// Run the show schedules thing
 			drawPage(0, true);
-
+	
 			// Load the print dialog
 			$(document).ready(function() {
 				if($("div").length) {
 					window.print();
 				}
-				});
-		</script>
-		<? require "inc/footer_print.inc"; ?>
+			});
+		</script>	
 		</html>
 		<?
 		break;

@@ -37,7 +37,7 @@ $(document).ready(function() {
 		sessionStorage.removeItem("rouletteCourse");
 	}
 
-	if(sessionStorage.getItem("scheduleJson") != null) {
+	if(sessionStorage.getItem("scheduleJson") != null && window.location.search != "?mode=print") {
 		reloadSchedule();
 	}
 	});
@@ -233,14 +233,14 @@ function drawCourse(parent, course, startDay, endDay, startTime, endTime, colorN
 
 	// Draw the time divs of the course
 	for(t = 0; t < course.times.length; t++) {
+		// Make it easier for the developer
+		var time = course.times[t];
+		
 		// Skip times that aren't part of the displayed days
-		if(course.times[t].day < startDay || course.times[t].day > endDay) {
+		if((time.day < startDay || time.day > endDay) && $.inArray(course.courseNum, hiddenCourses) != -1) {
 			hiddenCourses.push(course.courseNum);
 			continue;
 		}
-
-		// Make it easier for the developer
-		var time = course.times[t];
 
 		// Skip times that aren't part of the displayed hours
 		if(time.start < startTime || time.start > endTime || time.end > endTime) {
