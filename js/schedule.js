@@ -237,8 +237,10 @@ function drawCourse(parent, course, startDay, endDay, startTime, endTime, colorN
 		var time = course.times[t];
 		
 		// Skip times that aren't part of the displayed days
-		if((time.day < startDay || time.day > endDay) && $.inArray(course.courseNum, hiddenCourses) != -1) {
-			hiddenCourses.push(course.courseNum);
+		if(time.day < startDay || time.day > endDay) {
+			if($.inArray(course.courseNum, hiddenCourses) == -1) {
+				hiddenCourses.push(course.courseNum);
+			}
 			continue;
 		}
 
@@ -254,7 +256,9 @@ function drawCourse(parent, course, startDay, endDay, startTime, endTime, colorN
 				time.shorten = "bottom";
 			} else {
 				// The course is completely hidden
-				hiddenCourses.push(course.courseNum);
+				if($.inArray(course.courseNum, hiddenCourses) == -1) {
+					hiddenCourses.push(course.courseNum);
+				}
 				continue;
 			}
 		}
