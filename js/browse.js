@@ -9,6 +9,15 @@
 
 // Register the on clicks for the schools
 $(document).ready( function() {
+	// Output a notice to Opera users
+	if(navigator.userAgent.match(/Opera/)) {
+		var operaNotice = $("<span>");
+		operaNotice.addClass("error");
+		operaNotice.html("This page is known to not work on Opera. We're currently looking into the issue. <a href='https://github.com/benrr101/schedulemaker/issues/43'>GitHub Issue</a>");
+		$("#browseQuarter").append(operaNotice);
+	}
+
+	// Add handlers to the 
 	$(".school > button").each(function(k, v) {
 		$(v).click(function() {
 			schoolOnExpand($(v));

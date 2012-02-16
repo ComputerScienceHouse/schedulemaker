@@ -52,7 +52,7 @@ switch($quarter) {
 		<h1 id='browseHeader'>Browse Courses &gt; <?= getQuarterType($quarter) ?> <?= substr($quarter, 0, 4) ?></h1>
 		<input id='quarter' type='hidden' value="<?= $quarter ?>" />
 
-		<div class='subContainer'>
+		<div class='subContainer' id='browseQuarter'>
 			Select a Different Quarter:
 			<select name='quarterSelect' onChange='document.location=this.value'>
 			<?
