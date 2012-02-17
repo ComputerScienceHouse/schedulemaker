@@ -9,6 +9,9 @@
 //			schedules that are older than 90 days.
 ////////////////////////////////////////////////////////////////////////////
 
+// Make sure the working directory is correct
+chdir(dirname($_SERVER['SCRIPT_FILENAME']));
+
 // Bring in the database connection
 require "../inc/databaseConn.php";
 global $dbConn;
