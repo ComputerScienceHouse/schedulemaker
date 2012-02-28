@@ -184,6 +184,9 @@ function getScheduleFromId($id) {
 	$query = "SELECT startday, endday, starttime, endtime FROM schedules WHERE id={$id}";
 	$result = mysql_query($query);
 	$scheduleInfo = mysql_fetch_assoc($result);
+	if(!$scheduleInfo) {
+		return NULL;
+	}
 
 	// Grab the metadata of the schedule
 	$startDay  = (int)$scheduleInfo['startday'];
@@ -199,12 +202,12 @@ function getScheduleFromId($id) {
 	$result = mysql_query($query);
 	while($course = mysql_fetch_assoc($result)) {
 		// Query for the section's information
-		$query = "SELECT * FROM sections WHERE id={$course['section']}";
+		$query = "SELECT * FROM sections WHERE id='{$course['section']}'";
 		$sectionResult = mysql_query($query);
 		$sectionInfo = mysql_fetch_assoc($sectionResult);
 
 		// Query for the course's information
-		$query = "SELECT * FROM courses WHERE id={$sectionInfo['course']}";
+		$query = "SELECT * FROM courses WHERE id='{$sectionInfo['course']}'";
 		$courseResult = mysql_query($query);
 		$courseInfo = mysql_fetch_assoc($courseResult);
 
