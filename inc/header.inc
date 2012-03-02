@@ -14,7 +14,7 @@ require_once('./inc/timeFunctions.php');
 		<script type='text/javascript' src='./js/jquery.js'></script>
 		<script type="text/javascript">
 			var _gaq = _gaq || [];
-			_gaq.push(['_setAccount', 'UA-75959-4']);
+			_gaq.push(['_setAccount', '<?= $GOOGLEANALYTICS ?>']);
 			_gaq.push(['_trackPageview']);
 
 			(function() {
