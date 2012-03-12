@@ -9,14 +9,6 @@
 
 // Register the on clicks for the schools
 $(document).ready( function() {
-	// Output a notice to Opera users
-	if(navigator.userAgent.match(/Opera/)) {
-		var operaNotice = $("<span>");
-		operaNotice.addClass("error");
-		operaNotice.html("This page is known to not work on Opera. We're currently looking into the issue. <a href='https://github.com/benrr101/schedulemaker/issues/43'>GitHub Issue</a>");
-		$("#browseQuarter").append(operaNotice);
-	}
-
 	// Add handlers to the 
 	$(".school > button").each(function(k, v) {
 		$(v).click(function() {
@@ -30,8 +22,8 @@ function courseOnCollapse(obj) {
 	obj.html("+");
 	
 	// Get the parent and hide all it's children courses
-	parent = obj.parent();
-	parent.children().last().slideUp();
+	var p = obj.parent();
+	p.children().last().slideUp();
 	obj.next().next().slideUp();
 
 	// Reset the click function
@@ -46,26 +38,26 @@ function courseOnExpand(obj) {
 	obj.click(function() { courseOnCollapse($(this)); return false; });
 
 	// Get the parent and the input field
-	parent = obj.parent();
-	input  = obj.next();
+	var p = obj.parent();
+	var input  = obj.next();
 
 	// Expand the course description
 	input.next().slideDown();
 	
 	// If the sections already exist, then don't do the post request
-	if(parent.children().last().hasClass("subDivision")) {
-		parent.children().last().slideDown();
+	if(p.children().last().hasClass("subDivision")) {
+		p.children().last().slideDown();
 		return;
 	}
 
 	// If there was an error, remove the error and redo the post request
-	if(parent.children().last().hasClass("error")) {
-		parent.children().last().remove();
+	if(p.children().last().hasClass("error")) {
+		p.children().last().remove();
 	}
 
 	// Creat a div for storing all the sections
-	box = $("<div>").addClass("subDivision")
-			.appendTo(parent);
+	var box = $("<div>").addClass("subDivision")
+			.appendTo(p);
 
 	// Do an ajax call for the sections of the course
 	$.post("js/browseAjax.php", {"action": "getSections", "course": input.val()}, function(data) {
@@ -119,8 +111,8 @@ function departmentOnCollapse(obj) {
 	obj.html("+");
 	
 	// Get the parent and hide all it's children courses
-	parent = obj.parent();
-	parent.children().last().slideUp()
+	var p = obj.parent();
+	p.children().last().slideUp()
 
 	// Reset the click function
 	obj.unbind("click");
@@ -134,24 +126,24 @@ function departmentOnExpand(obj) {
 	obj.click(function() { departmentOnCollapse($(this)); return false; });
 
 	// Get the parent and the input field
-	parent  = obj.parent();
-	input   = obj.next();
-	quarter = $("#quarter");
+	var p       = obj.parent();
+	var input   = obj.next();
+	var quarter = $("#quarter");
 
 	// If the courses already exist, then don't do the post request
-	if(parent.children().last().hasClass("subDivision")) {
-		parent.children().last().slideDown();
+	if(p.children().last().hasClass("subDivision")) {
+		p.children().last().slideDown();
 		return;
 	}
 
 	// If there was an error, remove the error and redo the post request
-	if(parent.children().last().hasClass("error")) {
-		parent.children().last().remove();
+	if(p.children().last().hasClass("error")) {
+		p.children().last().remove();
 	}
 
 	// Create a div for storing all the courses
-	box = $("<div>").addClass("subDivision")
-			.appendTo(parent);
+	var box = $("<div>").addClass("subDivision")
+			.appendTo(p);
 
 	// Do an ajax call for the courses within the department
 	$.post("js/browseAjax.php", {"action": "getCourses", "department": input.val(), "quarter": quarter.val()}, function(data) {
@@ -195,8 +187,8 @@ function schoolOnCollapse(obj) {
 	obj.html("+");
 	
 	// Get the parent and hide all it's children	
-	parent = obj.parent();
-	parent.children().last().slideUp();
+	var p = obj.parent();
+	p.children().last().slideUp();
 
 	// Reset the click mechanism
 	obj.unbind("click");
@@ -210,23 +202,23 @@ function schoolOnExpand(obj) {
 	obj.click(function() {schoolOnCollapse($(this)); return false;});
 
 	// Get the parent and the input field of this school
-	parent = obj.parent();
-	input  = obj.next();
+	var p      = obj.parent();
+	var input  = obj.next();
 
 	// If the department already exists, then don't do the post resquest
-	if(parent.children().last().hasClass("subDivision")) {
-		parent.children().last().slideDown();
+	if(p.children().last().hasClass("subDivision")) {
+		p.children().last().slideDown();
 		return;
 	}
 
 	// If there was an error, remove the departments and redo the post request
-	if(parent.children().last().hasClass("error")) {
-		parent.children().last().remove();
+	if(p.children().last().hasClass("error")) {
+		p.children().last().remove();
 	}
 	
 	// Create a div for storing all the departments
-	box    = $("<div>").addClass("subDivision")
-					.appendTo(parent);
+	var box    = $("<div>").addClass("subDivision")
+			.appendTo(p);
 
 	// Do an ajax call for the departments within this school
 	$.post("js/browseAjax.php", {'action': 'getDepartments', 'school': input.val()}, function(data) {
