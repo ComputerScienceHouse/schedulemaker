@@ -125,15 +125,16 @@ $meetSize  = filesize($DUMPMEETING);
 $notesSize = filesize($DUMPNOTES);
 
 // Build the temporary tables
+mysql_query("DROP TABLE classes");
 $tempQuery = <<<ENE
-CREATE TEMPORARY TABLE `classes` (
+CREATE TABLE IF NOT EXISTS `classes` (
   `crse_id` int(6) NOT NULL,
   `crse_offer_nbr` int(2) NOT NULL,
   `strm` int(4) NOT NULL,
   `session_code` int(1) NOT NULL,
   `class_section` int(4) NOT NULL,
-  `subject` int(8) NOT NULL,
-  `catalog_nbr` int(3) NOT NULL,
+  `subject` int(4) UNSIGNED ZEROFILL NOT NULL,
+  `catalog_nbr` int(3) UNSIGNED ZEROFILL NOT NULL,
   `descr` text NOT NULL,
   `class_nbr` int(5) NOT NULL,
   `ssr_component` varchar(3) NOT NULL,
@@ -171,8 +172,9 @@ fileToTempTable("classes", $classFile, 22, $classSize, "procClassArray");
 fclose($classFile);
 
 // Build a temporary table for the meeting patterns
+mysql_query("DROP TABLE meeting");
 $tempQuery = <<<ENE
-CREATE TEMPORARY TABLE `meeting` (
+CREATE TABLE IF NOT EXISTS `meeting` (
   `crse_id` int(6) NOT NULL,
   `crse_offer_nbr` int(2) NOT NULL,
   `strm` int(4) NOT NULL,
@@ -217,8 +219,9 @@ fileToTempTable("meeting", $meetFile, 19, $meetSize, 'procMeetArray');
 
 
 // Process the instructor file
+mysql_query("DROP TABLE instructors");
 $tempQuery = <<<ENE
-CREATE TEMPORARY TABLE `instructors` (
+CREATE TABLE IF NOT EXISTS `instructors` (
   `crse_id` int(6) NOT NULL,
   `crse_offer_nbr` int(2) NOT NULL,
   `strm` int(4) NOT NULL,
@@ -246,4 +249,179 @@ function procInstrArray($lineSplit) {
 }
 fileToTempTable("instructors", $instrFile, 8, $instrSize, 'procInstrArray');
 
-// DATABASE PARSING //////////////////////////////////////////////////////// 
+// DATABASE PARSING ////////////////////////////////////////////////////////
+// Setup for counting statistics
+$failures = 0;
+$quartersAdded = 0;
+$departmentsAdded = 0;
+$coursesAdded = 0;
+
+// Select all the 'quarters' from the meeting pattern to get the start/end
+// times for the quarter. Then insert into the quarters table
+$quarterQuery = "SELECT strm, start_dt, end_dt FROM meeting GROUP BY strm";
+debug("... Creating quarters");
+$quarterResult = mysql_query($quarterQuery);
+while($row = mysql_fetch_assoc($quarterResult)) {
+	// We're not ignant. 5 digit terms!
+	preg_match("/(\d)(\d{3})/", $row['strm'], $match);
+	$row['strm'] = $match[1] . 0 . $match[2];
+
+	// Insert the quarter
+	$query = "INSERT INTO quarters (quarter, start, end)";
+	$query .= " VALUES({$row['strm']}, '{$row['start_dt']}', '{$row['end_dt']}')";
+	$query .= " ON DUPLICATE KEY UPDATE";
+	$query .= " start='{$row['start_dt']}', end='{$row['end_dt']}'";
+
+	if(mysql_query($query)) {
+		// Success! 2 rows are affected if it was a duplicate
+		debug("    ... Processed {$row['strm']}");
+		$quartersAdded += mysql_affected_rows();
+	} else {
+		// Failure.
+		echo("    *** Error: Failed to insert/update quarter {$row['strm']}\n");
+		echo("        " . mysql_error() . "\n" . $query . "\n");
+		$failures++;
+	}
+}
+
+// Update all the school
+$schoolQuery = "INSERT IGNORE INTO schools (id, code)";
+$schoolQuery .= " SELECT SUBSTR( subject, 1, 2 ), acad_group FROM classes GROUP BY acad_group ORDER BY subject";
+debug("... Updating schools");
+if(!mysql_query($schoolQuery)) {
+	echo("*** Error: Failed to update school listings\n");
+	echo("    " . mysql_error() . "\n");
+	$failures++;
+}
+
+// Select all the departments to add/update
+$departmentQuery = "INSERT IGNORE INTO departments (id, code)";
+$departmentQuery .= " SELECT subject, acad_org FROM classes GROUP BY acad_org";
+debug("... Updating departments");
+if(!mysql_query($departmentQuery)) {
+	echo("*** Error: Failed to update department listings\n");
+	echo("    " . mysql_error() . "\n");
+	$failures++;
+}
+
+// Grab each COURSE from the classes table
+$courseQuery = "SELECT strm, subject, catalog_nbr, descr, course_descrlong,";
+$courseQuery .= " crse_id, crse_offer_nbr, session_code";
+$courseQuery .= " FROM classes GROUP BY crse_id";
+debug("... Updating courses");
+$courseResult = mysql_query($courseQuery);
+while($row = mysql_fetch_assoc($courseResult)) {
+	// Make the term number correct
+	preg_match("/(\d)(\d{3})/", $row['strm'], $match);
+	$row['qtr'] = $match[1] . 0 . $match[2];
+
+	// Escape the necessary fields
+	$row['descr'] = mysql_real_escape_string($row['descr']);
+	$row['course_descrlong'] = mysql_real_escape_string($row['course_descrlong']);
+
+	debug("    ... Processing {$row['qtr']} {$row['subject']}-{$row['catalog_nbr']}");
+
+	// Insert or update the course
+	$cUpdate = "INSERT INTO courses (quarter, department, course, title, description)";
+	$cUpdate .= " VALUES({$row['qtr']},{$row['subject']},{$row['catalog_nbr']},'{$row['descr']}','{$row['course_descrlong']}')";
+	$cUpdate .= " ON DUPLICATE KEY UPDATE title='{$row['descr']}', description='{$row['course_descrlong']}'";
+
+	if(!mysql_query($cUpdate)) {
+		echo("    *** Error: Failed to update {$row['qtr']} {$row['subject']}-{$row['catalog_nbr']}\n");
+		echo("    " . mysql_error() . "\n");
+		$failures++;
+	} else {
+		// Successfully updated/added the course
+		$coursesAdded += mysql_affected_rows();
+
+		// Process the sections that this course has
+		// Step 1) Get the id of the course from the permament tables
+		$idQuery = "SELECT id FROM courses";
+		$idQuery .= " WHERE quarter={$row['qtr']} AND department={$row['subject']} AND course={$row['catalog_nbr']}";
+		$idResult = mysql_query($idQuery);
+		if(!$idResult || !mysql_num_rows($idResult)) {
+			echo("        *** Failed to lookup id for course\n");
+			echo("            " . mysql_error() . "\n");
+			continue;
+		}
+
+		// Fetch the id into a var
+		$id = mysql_fetch_assoc($idResult);
+		$id = $id['id'];
+
+		// Step 2) Grab the sections that this course has from temp tables
+		$sectSel = "SELECT class_section, descr, enrl_stat, class_stat, class_type, enrl_cap, enrl_tot, instruction_mode";
+		$sectSel .= " FROM classes WHERE crse_id={$row['crse_id']} AND crse_offer_nbr={$row['crse_offer_nbr']}";
+		$sectSel .= " AND strm={$row['strm']} AND session_code={$row['session_code']}";
+		$sectResult = mysql_query($sectSel);
+		if(!$sectResult || !mysql_num_rows($sectResult)) {
+			// We couldn't lookup the sections.
+			echo("        *** Failed to lookup sections for course\n");
+			echo("            " . mysql_error() . "\n");
+			continue;
+		}
+
+		// Iterate over the sections of the course
+		while($sRow = mysql_fetch_assoc($sectResult)) {
+			debug("        ... Processing section {$sRow['class_section']}");
+
+			// Fetch the first instructor for the section
+			$instQuery = "SELECT CONCAT(first_name,' ',last_name) AS i FROM instructors";
+			$instQuery .= " WHERE crse_id={$row['crse_id']} AND crse_offer_nbr={$row['crse_offer_nbr']}";
+			$instQuery .= " AND strm={$row['strm']} AND session_code={$row['session_code']}";
+			$instQuery .= " AND class_section={$sRow['class_section']} LIMIT 1";
+			$instResult = mysql_query($instQuery);
+			if(!$instResult) {
+				echo(mysql_error() . "\n");
+				echo($instQuery);
+				die();
+			}
+			$instructor = mysql_fetch_assoc($instResult);
+			if(!$instructor || $instructor['i'] == NULL) {
+				debug("            --- Instructor not found");
+				$instructor = NULL;
+			} else {
+				$instructor = $instructor['i'];
+			}
+			
+			// Process the information about the sesction
+			// Status --
+			if($sRow['class_stat'] == 'X' || $sRow['class_type'] == 'N') {
+				// Cancelled class
+				$status = 'X';
+			} else {
+				$status = $sRow['enrl_stat'];
+			}
+
+			// Type --
+			if($sRow['instruction_mode'] == 'P') {
+				// Regular mode
+				$type = 'R';
+			} else {
+				// Just listen to the mode
+				$type = $sRow['instruction_mode'];
+			}
+
+			// Escapables --
+			$title = mysql_real_escape_string($sRow['descr']);
+			$instructor = mysql_real_escape_string($instructor);
+
+			// Insert into the sections table
+			$sectQuery = "INSERT INTO sections (course,section,title,instructor,type,status,maxenroll,curenroll)";
+			$sectQuery .= " VALUES({$id}, {$sRow['class_section']}, '{$title}', '{$instructor}', '{$type}',";
+			$sectQuery .= " '{$status}', {$sRow['enrl_cap']}, {$sRow['enrl_tot']} )";
+			$sectQuery .= " ON DUPLICATE KEY UPDATE title='{$title}', instructor='{$instructor}', status='{$status}',";
+			$sectQuery .= " maxenroll={$sRow['enrl_cap']}, curenroll={$sRow['enrl_tot']}";
+			
+			if(!mysql_query($sectQuery)) {
+				echo("            *** Failed to insert section!\n");
+				echo("            " . mysql_error() . "\n");
+			}
+		}
+	}
+}
+
+// Process the meeting times
+
+// Insert processing statistics
+
