@@ -285,8 +285,9 @@ while($row = mysql_fetch_assoc($quarterResult)) {
 }
 
 // Update all the school
-$schoolQuery = "INSERT IGNORE INTO schools (id, code)";
-$schoolQuery .= " SELECT SUBSTR( subject, 1, 2 ), acad_group FROM classes GROUP BY acad_group ORDER BY subject";
+$schoolQuery = "INSERT INTO schools (id, code)";
+$schoolQuery .= " SELECT SUBSTR( subject, 1, 2 ) AS school, acad_group FROM classes GROUP BY acad_group ORDER BY subject";
+$schoolQuery .= " ON DUPLICATE KEY UPDATE code=(SELECT acad_group FROM classes WHERE id=SUBSTR(subject,1,2) LIMIT 1)";
 debug("... Updating schools");
 if(!mysql_query($schoolQuery)) {
 	echo("*** Error: Failed to update school listings\n");
@@ -295,12 +296,14 @@ if(!mysql_query($schoolQuery)) {
 }
 
 // Select all the departments to add/update
-$departmentQuery = "INSERT IGNORE INTO departments (id, code)";
-$departmentQuery .= " SELECT subject, acad_org FROM classes GROUP BY acad_org";
+$departmentQuery = "INSERT INTO departments (id, code, school)";
+$departmentQuery .= " SELECT subject, acad_org, SUBSTR(subject,1,2) FROM classes GROUP BY acad_org";
+$departmentQuery .= " ON DUPLICATE KEY UPDATE code=(SELECT acad_org FROM classes WHERE id=subject LIMIT 1)";
 debug("... Updating departments");
 if(!mysql_query($departmentQuery)) {
 	echo("*** Error: Failed to update department listings\n");
 	echo("    " . mysql_error() . "\n");
+	die();
 	$failures++;
 }
 
@@ -379,7 +382,7 @@ while($row = mysql_fetch_assoc($courseResult)) {
 			$instructor = mysql_fetch_assoc($instResult);
 			if(!$instructor || $instructor['i'] == NULL) {
 				debug("            --- Instructor not found");
-				$instructor = NULL;
+				$instructor = "TBA";
 			} else {
 				$instructor = $instructor['i'];
 			}
