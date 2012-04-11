@@ -50,11 +50,10 @@ switch($quarter) {
 		?>
 		<script src='./js/browse.js' type='text/javascript'></script>
 		<h1 id='browseHeader'>Browse Courses &gt; <?= getQuarterType($quarter) ?> <?= substr($quarter, 0, 4) ?></h1>
-		<input id='quarter' type='hidden' value="<?= $quarter ?>" />
 
 		<div class='subContainer' id='browseQuarter'>
 			Select a Different Quarter:
-			<select name='quarterSelect' onChange='document.location=this.value'>
+			<select id='quarterSelect' name='quarterSelect' onChange='document.location=this.value'>
 			<?
 			$query = "SELECT quarter FROM quarters ORDER BY quarter DESC";
 			$quarterResult = mysql_query($query);

@@ -128,7 +128,7 @@ function departmentOnExpand(obj) {
 	// Get the parent and the input field
 	var p       = obj.parent();
 	var input   = obj.next();
-	var quarter = $("#quarter");
+	var quarter = $("#quarterSelect").val().match(/quarter=(\d{5})/)[1];
 
 	// If the courses already exist, then don't do the post request
 	if(p.children().last().hasClass("subDivision")) {
@@ -146,7 +146,7 @@ function departmentOnExpand(obj) {
 			.appendTo(p);
 
 	// Do an ajax call for the courses within the department
-	$.post("js/browseAjax.php", {"action": "getCourses", "department": input.val(), "quarter": quarter.val()}, function(data) {
+	$.post("js/browseAjax.php", {"action": "getCourses", "department": input.val(), "quarter": quarter}, function(data) {
 		try {
 			data = eval("(" + data + ")");
 		} catch(e) {
