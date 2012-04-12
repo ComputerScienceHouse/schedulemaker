@@ -297,13 +297,12 @@ if(!mysql_query($schoolQuery)) {
 
 // Select all the departments to add/update
 $departmentQuery = "INSERT INTO departments (id, code, school)";
-$departmentQuery .= " SELECT subject, acad_org, SUBSTR(subject,1,2) FROM classes GROUP BY acad_org";
+$departmentQuery .= " SELECT subject, acad_org, SUBSTR(subject,1,2) FROM classes GROUP BY acad_org ORDER BY subject";
 $departmentQuery .= " ON DUPLICATE KEY UPDATE code=(SELECT acad_org FROM classes WHERE id=subject LIMIT 1)";
 debug("... Updating departments");
 if(!mysql_query($departmentQuery)) {
 	echo("*** Error: Failed to update department listings\n");
 	echo("    " . mysql_error() . "\n");
-	die();
 	$failures++;
 }
 
