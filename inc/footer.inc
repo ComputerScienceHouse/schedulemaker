@@ -13,12 +13,12 @@
 	</div>
 	</div>
 	<? if(!isset($_COOKIE['hide_banner'])) { ?>
-	<!--<div id='bollocks' style='position:fixed; bottom:0px; right:0px; height:52px; width:800px; background-color:green'>
-		BOLLOCKS
-		<div id='hide' style='position:absolute; right:0px; top:-20px'>
+	<div id='bollocks' style='position:fixed; bottom:0px; right:0px; height:52px; width:740px;'>
+		<div id='hide' style='position:absolute; right:0px; top:0px; background-color:white; padding:2px;'>
 			<a href='#' onClick='return hideCookie(this);'>[ hide ]</a>
 		</div>
-	</div>-->
+		<img src='img/enrollment.png' />
+	</div>
 	<? } ?>
 	<script type='text/javascript'>
 		document.title = "<?= isset($TITLE) ? $TITLE : "ScheduleMaker" ?>";
