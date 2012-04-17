@@ -297,7 +297,7 @@ if(!mysql_query($schoolQuery)) {
 
 // Select all the departments to add/update
 $departmentQuery = "INSERT INTO departments (id, code, school)";
-$departmentQuery .= " SELECT subject, acad_org, SUBSTR(subject,1,2) FROM classes GROUP BY acad_org ORDER BY subject";
+$departmentQuery .= " SELECT subject, acad_org, SUBSTR(subject,1,2) FROM classes GROUP BY subject ORDER BY subject";
 $departmentQuery .= " ON DUPLICATE KEY UPDATE code=(SELECT acad_org FROM classes WHERE id=subject LIMIT 1)";
 debug("... Updating departments");
 if(!mysql_query($departmentQuery)) {
@@ -385,6 +385,7 @@ while($row = mysql_fetch_assoc($courseResult)) {
 			} else {
 				$instructor = $instructor['i'];
 			}
+
 			
 			// Process the information about the sesction
 			// Status --
@@ -414,10 +415,76 @@ while($row = mysql_fetch_assoc($courseResult)) {
 			$sectQuery .= " '{$status}', {$sRow['enrl_cap']}, {$sRow['enrl_tot']} )";
 			$sectQuery .= " ON DUPLICATE KEY UPDATE title='{$title}', instructor='{$instructor}', status='{$status}',";
 			$sectQuery .= " maxenroll={$sRow['enrl_cap']}, curenroll={$sRow['enrl_tot']}";
-			
+
 			if(!mysql_query($sectQuery)) {
 				echo("            *** Failed to insert section!\n");
 				echo("            " . mysql_error() . "\n");
+				continue;
+			}
+
+			// Select the section id
+			$sectSel = "SELECT id FROM sections WHERE course={$id} AND section={$sRow['class_section']}";
+			$sectSelResult = mysql_query($sectSel);
+			if(!$sectSelResult || mysql_num_rows($sectSelResult) != 1) {
+				echo("            *** Failed to lookup section!\n");
+				echo("            " . mysql_error() . "\n");
+				die();
+				continue;
+			}
+
+			$sectionId = mysql_fetch_assoc($sectSelResult);
+			$sectionId = $sectionId['id'];
+
+			// PROCESS MEETING TIMES ///////////////////////////////////////
+			// Remove the meeting times for the section
+			$delQuery = "DELETE FROM times WHERE section = {$sectionId}";
+			if(!mysql_query($delQuery)) {
+				echo("            *** Failed to remove section times\n");
+				echo("            " . mysql_error() . "\n");
+				die();
+				continue;
+			}
+
+			// Select all the meeting times of the section
+			$timeQuery = "SELECT bldg, room_nbr, meeting_time_start, meeting_time_end, mon, tues, wed, thurs, fri, sat, sun";
+			$timeQuery .= " FROM meeting WHERE crse_id={$row['crse_id']} AND crse_offer_nbr={$row['crse_offer_nbr']}";
+			$timeQuery .= " AND strm={$row['strm']} AND session_code={$row['session_code']}";
+			$timeQuery .= " AND class_section={$sRow['class_section']}";
+			$timeResult = mysql_query($timeQuery);
+			if(!$timeResult) {
+				echo("            *** Failed to query for meeting times\n");
+				echo("            " . mysql_error() . "\n");
+				die();
+				continue;
+			}
+
+			// Now iterate over them and insert
+			while($time = mysql_fetch_assoc($timeResult)) {
+				// Process the meeting pattern
+				// Meeting Time --
+				$matches;
+				preg_match('/(\d\d):(\d\d):\d\d/', $time['meeting_time_start'], $matches);
+				$startTime = ($matches[1] * 60) + $matches[2];
+				preg_match('/(\d\d):(\d\d):\d\d/', $time['meeting_time_end'], $matches);
+				$endTime = ($matches[1] * 60) + $matches[2];
+
+				// Escapables --
+				$time['bldg'] = mysql_real_escape_string($time['bldg']);
+				$time['room_nbr'] = mysql_real_escape_string($time['room_nbr']);
+
+				// Iterate over the and execute a query
+				$days = array($time['sun'], $time['mon'], $time['tues'], $time['wed'], $time['thurs'], $time['fri'], $time['sat']);
+				foreach($days as $i => $dayTruth) {
+					if($dayTruth == 'Y') {
+						$timeInsert = "INSERT INTO times (section, day, start, end, building, room)";
+						$timeInsert .= " VALUES({$sectionId}, {$i}, {$startTime}, {$endTime}, ";
+						$timeInsert .= "'{$time['bldg']}', '{$time['room_nbr']}')";
+						if(!mysql_query($timeInsert)) {
+							echo("            *** Failed to insert meeting time\n");
+							echo("                " . mysql_error() . "\n");
+						}
+					}
+				}
 			}
 		}
 	}
