@@ -140,6 +140,11 @@ input[type=text] {
 	padding:3px;
 }
 
+.notice {
+	background-color: darkorange;
+	padding:10px;
+}
+
 .bigButton {
 	border-radius: 5px;
 	color: white;
