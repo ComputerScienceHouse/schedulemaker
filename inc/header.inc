@@ -26,6 +26,15 @@ require_once('./inc/timeFunctions.php');
 	</head>
 
 	<body>
+		<?php if($SERVER_TYPE != 'production') { ?>
+			<div id='devNotice'>
+				<span style='bold'>Notice:</span>
+				This is the development server for ScheduleMaker.
+				All information available here is testing material and comes with no guarantee of accuracy.
+				The production server can be found at:
+				<a href='http://schedule.csh.rit.edu/'>http://schedule.csh.rit.edu</a>
+			</div>
+		<? } ?>
 		<div id='oldBadge'>
 			Report Issues: <a href='http://github.com/benrr101/schedulemaker'>Github</a><br />
 			<a href='http://oldschedule.csh.rit.edu/'>Old Schedule Maker</a>
