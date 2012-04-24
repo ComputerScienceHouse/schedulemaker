@@ -80,7 +80,7 @@ switch($quarter) {
 			<div class="item school">
 				<button>+</button>
 				<input type='hidden' value="<?= $school['id'] ?>" />
-				<?= $school['id'] ?> - <?= $school['title'] ?>
+				<?= $school['id'] ?> (<?= $school['code'] ?>) - <?= $school['title'] ?>
 			</div>
 			<?
 		}

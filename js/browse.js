@@ -239,8 +239,10 @@ function schoolOnExpand(obj) {
 
 		// No errors! Now we need to add a div for each department
 		for(i=0; i < data.departments.length; i++) {
+			var code = (data.departments[i].code.length) ? "(" + data.departments[i].code + ")" : "";
+
 			div = $("<div>").addClass("item")
-					.html(" " + data.departments[i].id + " - " + data.departments[i].title);
+					.html(" " + data.departments[i].id + " " + code + " - " + data.departments[i].title);
 			$("<input>").attr("type", "hidden")
 					.val(data.departments[i].id)
 					.prependTo(div);
