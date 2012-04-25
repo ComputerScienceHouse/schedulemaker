@@ -140,7 +140,7 @@ input[type=text] {
 	padding:3px;
 }
 
-.notice {
+.notice, .devNotice {
 	background-color: darkorange;
 	padding:10px;
 }
