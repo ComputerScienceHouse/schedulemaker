@@ -168,7 +168,6 @@ $meetSize  = filesize($DUMPMEETING);
 $notesSize = filesize($DUMPNOTES);
 
 // Build the temporary tables
-mysql_query("DROP TABLE classes");
 $tempQuery = <<<ENE
 CREATE TABLE IF NOT EXISTS `classes` (
   `crse_id` int(6) UNSIGNED NOT NULL,
@@ -255,13 +254,15 @@ if(mysql_query($tempQuery)) {
 // Process the meeting pattern file
 function procMeetArray($lineSplit) {
 	// Turn the start/end times from 03:45 PM to 154500
+	// Hours must be mod'd by 12 so 12:00 PM does not become
+	// 24:00 and 12 AM does not become 12:00
 	if(!preg_match("/(\d\d):(\d\d) ([A-Z]{2})/", $lineSplit[10], $start)) {
 		// Odds are the class is TBD (which means we can't represent it)
 		return false;
 	}
-	$lineSplit[10] = (($start[3] == 'PM') ? $start[1] + 12 : $start[1]) . $start[2] . "00";
+	$lineSplit[10] = (($start[3] == 'PM') ? ($start[1] % 12) + 12 : $start[1] % 12) . $start[2] . "00";
 	preg_match("/(\d\d):(\d\d) ([A-Z]{2})/", $lineSplit[11], $end);
-	$lineSplit[11] = (($end[3] == 'PM') ? $end[1] + 12 : $end[1]) . $end[2] . "00";
+	$lineSplit[11] = (($end[3] == 'PM') ? ($end[1] % 12) + 12 : $end[1] % 12) . $end[2] . "00";
 	return $lineSplit;
 }
 fileToTempTable("meeting", $meetFile, 19, $meetSize, 'procMeetArray');
