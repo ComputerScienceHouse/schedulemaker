@@ -27,7 +27,7 @@ require_once('./inc/timeFunctions.php');
 
 	<body>
 		<?php if($SERVER_TYPE != 'production') { ?>
-			<div id='devNotice'>
+			<div id='devNotice' class='devNotice'>
 				<span style='bold'>Notice:</span>
 				This is the development server for ScheduleMaker.
 				All information available here is testing material and comes with no guarantee of accuracy.
