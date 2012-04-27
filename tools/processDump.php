@@ -343,7 +343,7 @@ debug("...100%");
 // Update all the school
 $schoolQuery = "INSERT INTO schools (id, code)";
 $schoolQuery .= " SELECT SUBSTR( subject, 1, 2 ) AS school, acad_group FROM classes GROUP BY acad_group ORDER BY subject";
-$schoolQuery .= " ON DUPLICATE KEY UPDATE code=(SELECT acad_group FROM classes WHERE id=SUBSTR(subject,1,2) LIMIT 1)";
+$schoolQuery .= " ON DUPLICATE KEY UPDATE code=(SELECT GROUP_CONCAT(acad_group) FROM classes WHERE id=SUBSTR(subject,1,2) GROUP BY subject)";
 debug("... Updating schools");
 if(!mysql_query($schoolQuery)) {
 	echo("*** Error: Failed to update school listings\n");
