@@ -18,11 +18,6 @@ if(isset($_GET['s'])) {
 
 require "./inc/header.inc";
 ?>
-<div class='notice'>
-	<span style='font-weight:bold'>Notice:</span>
-	Course information for Fall 2012/2013 is not yet available. We are currently
-	working hard to get this information as soon as possible.
-</div>
 <div id="mainMenu">
 	<div class='navItem'>
 		<a href='generate.php'><img src='img/calendar.png' alt='Make a Schedule'></a>
