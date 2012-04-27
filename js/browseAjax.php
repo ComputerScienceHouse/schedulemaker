@@ -60,8 +60,15 @@ switch($_POST['action']) {
 			die(json_encode(array("error" => "argument", "msg" => "You must provide a school")));
 		}
 
+		// Verify that we have a quarter to make sure there are
+		// courses in the department.
+		if(empty($_POST['quarter']) || !is_numeric($_POST['quarter'])) {
+			die(json_encode(array("error" => "argument", "msg" => "You must provide a quarter")));
+		}
+
 		// Do the query
-		$query = "SELECT title, id, code FROM departments WHERE school = {$_POST['school']} ORDER BY id";
+		$query = "SELECT title, id, code FROM departments WHERE school = {$_POST['school']}";
+		$query .= " AND (SELECT COUNT(*) FROM courses WHERE department=departments.id AND quarter={$_POST['quarter']}) > 1 ORDER BY id";
 		$result = mysql_query($query);
 		if(!$result) {
 			die(json_encode(array("error" => "mysql", "msg" => mysql_error())));
