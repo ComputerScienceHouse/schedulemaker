@@ -80,7 +80,9 @@ switch($quarter) {
 			<div class="item school">
 				<button>+</button>
 				<input type='hidden' value="<?= $school['id'] ?>" />
-				<?= $school['id'] ?> - <?= $school['title'] ?>
+				<?= $school['id'] ?>
+				<?= ($quarter > 20130 ? "({$school['code']})" : "") ?>
+				 - <?= $school['title'] ?>
 			</div>
 			<?
 		}
