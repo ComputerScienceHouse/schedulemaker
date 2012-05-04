@@ -469,7 +469,7 @@ while($row = mysql_fetch_assoc($courseResult)) {
 			
 			// Process the information about the sesction
 			// Status --
-			if($sRow['class_stat'] == 'X' || $sRow['class_type'] == 'N' || $sRow['schedule_print'] == 'N') {
+			if($sRow['class_stat'] == 'X' || $sRow['schedule_print'] == 'N') {
 				// Cancelled class (Cancelled, Nonenrollment, Non-printing)
 				$status = 'X';
 			} else {
