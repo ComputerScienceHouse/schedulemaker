@@ -22,15 +22,12 @@ img {
 #container {
 	position: relative;
 	float: center;
-	min-width: 960px;
-	max-width: 1200px;
 	padding-top:20px;
 	padding-bottom:20px;
 	padding-left:20px;
 	padding-right:20px;				
 	margin-left: auto;
 	margin-right: auto;
-	/*background-color: #FAFAFA;*/
 	background-color:#2b4e69;
 }
 
