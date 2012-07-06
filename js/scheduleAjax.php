@@ -214,19 +214,12 @@ switch($_POST['action']) {
 			die(json_encode(array("error" => "argument", "msg" => "You must provide a quarter", "arg" => "course")));
 		}
 
-		// If it's not a number, we'll remove the dashes
-		if(!is_numeric($_POST['course'])) {
-			$course = str_replace("-", "", $_POST['course']);
-		} else {
-			$course = $_POST['course'];
-		}
+		// If it has dashes, then strip them out
+		$course = str_replace("-", "", $_POST['course']);
 
-		// If it's still not a number, then we can't process it
-		if(preg_match("/[a-zA-Z]+/", $course)) {
-			die(json_encode(array("error" => "argument", "msg" => "Your course must contain numbers", "arg" => "course")));
-		}		
-		if(!is_numeric($course)) {
-			die(json_encode(array("error" => "argument", "msg" => "Your course must be in the format XXXX-XXX-XX", "arg" => "course")));
+		// If it doesn't match the regexp for a course, then we cannot process it
+		if(preg_match("/(\d){9}L\d/", $course)) {
+			die(json_encode(array("error" => "argument", "msg" => "Your course must be in the format XXXX-XXX-XXLX", "arg" => "course")));
 		}
 
 		// Now we'll split the course into the various components
@@ -245,17 +238,12 @@ switch($_POST['action']) {
 		}
 
 		$section = substr($course, 7);
-		if(!$section || strlen($coursenum) != 2) {
-			// We got a partial section number. That's ok. Dumb, but OK (in the case of condition 2)
+		if(!$section || strlen($coursenum) != 4) {
+			// We got a partial section number. That's ok.
 			$partialSection = true;
 		} else {
 			$partialSection = false;
 		}
-
-		// Determine if we need to hide the full sections
-		if($_POST['ignoreFull'] == 'true') {
-			
-		} 
 
 		// Build a query and run it
 		$query = "SELECT c.department, c.course, s.section FROM courses AS c, sections AS s WHERE";
