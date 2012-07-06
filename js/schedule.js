@@ -63,7 +63,7 @@ function addCourse() {
 	newInput.setAttribute("id", 'courses' + courseNum);
 	newInput.setAttribute("type", 'text');
 	newInput.setAttribute("name", 'courses' + courseNum);
-	newInput.setAttribute("maxlength", '11');
+	newInput.setAttribute("maxlength", '13');
 	newInput.setAttribute('onFocus', 'courseOnFocus(this);');
 	newInput.setAttribute('onBlur', 'getCourseOptions(this);');
 	newInput.setAttribute('value', 'XXXX-XXX-XX');
@@ -554,7 +554,7 @@ function expandForm() {
 function getCourseOptions(field) {
 	// If it's blank, then set the value back to the default and do nothing
 	if($(field).val() == "") {
-		$(field).val("XXXX-XXX-XX");
+		$(field).val("XXXX-XXX-XXXX");
 		$(field).css("color", "grey");
 		$(field.parentNode.children[2]).slideUp();
 		$(field.parentNode.children[2]).html("");

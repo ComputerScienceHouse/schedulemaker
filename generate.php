@@ -30,25 +30,25 @@ require "./inc/header.inc";
 		<div id='courseRow1' class='courseRow'>
 			<div class='course'>
 				<h3>Course 1</h3>
-				<input id='courses1' type='text' name='courses1' maxlength='11' onFocus='courseOnFocus(this);' onBlur='getCourseOptions(this);' value='XXXX-XXX-XX' />
+				<input id='courses1' type='text' name='courses1' maxlength='13' onFocus='courseOnFocus(this);' onBlur='getCourseOptions(this);' value='XXXX-XXX-XXXX' />
 				<div class='courseOpts'>
 				</div>
 			</div>
 			<div class='course'>
 				<h3>Course 2</h3>
-				<input id='courses2' type='text' name='courses2' maxlength='11' onFocus='courseOnFocus(this);' onBlur='getCourseOptions(this);' value='XXXX-XXX-XX' />
+				<input id='courses2' type='text' name='courses2' maxlength='13' onFocus='courseOnFocus(this);' onBlur='getCourseOptions(this);' value='XXXX-XXX-XXXX' />
 				<div class='courseOpts'>
 				</div>
 			</div>
 			<div class='course'>
 				<h3>Course 3</h3>
-				<input id='courses3' type='text' name='courses3' maxlength='11' onFocus='courseOnFocus(this);' onBlur='getCourseOptions(this);' value='XXXX-XXX-XX' />
+				<input id='courses3' type='text' name='courses3' maxlength='13' onFocus='courseOnFocus(this);' onBlur='getCourseOptions(this);' value='XXXX-XXX-XXXX' />
 				<div class='courseOpts'>
 				</div>
 			</div>
 			<div class='course'>
 				<h3>Course 4</h3>
-				<input id='courses4' type='text' name='courses4' maxlength='11' onFocus='courseOnFocus(this);' onBlur='getCourseOptions(this);' value='XXXX-XXX-XX' />
+				<input id='courses4' type='text' name='courses4' maxlength='13' onFocus='courseOnFocus(this);' onBlur='getCourseOptions(this);' value='XXXX-XXX-XXXX' />
 				<div class='courseOpts'>
 				</div>
 			</div>

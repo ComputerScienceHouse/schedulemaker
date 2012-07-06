@@ -207,10 +207,16 @@ if(mysql_query($tempQuery)) {
 
 // Process the class file
 function procClassArray($lineSplit) {
-	$lineSplit[7]  = mysql_real_escape_string($lineSplit[7]);	// Class title
-	$lineSplit[22] = mysql_real_escape_string($lineSplit[22]);	// Class description
+	// Escape class title and description (respectively)
+	$lineSplit[7]  = mysql_real_escape_string($lineSplit[7]);
+	$lineSplit[22] = mysql_real_escape_string($lineSplit[22]);
+
+	// Grab the integer credit count (they give it to us as a decimal)
 	preg_match('/(\d)+\.\d\d/', $lineSplit[10], $match);
-	$lineSplit[14] = $match[1];
+	$lineSplit[10] = $match[1];
+
+	// Make the section number at least 2 digits
+	$lineSplit[4] = str_pad($lineSplit[4], 2, '0', STR_PAD_LEFT);
 	return $lineSplit;
 }
 fileToTempTable("classes", $classFile, 23, $classSize, "procClassArray");
@@ -263,6 +269,9 @@ function procMeetArray($lineSplit) {
 	$lineSplit[10] = (($start[3] == 'PM') ? ($start[1] % 12) + 12 : $start[1] % 12) . $start[2] . "00";
 	preg_match("/(\d\d):(\d\d) ([A-Z]{2})/", $lineSplit[11], $end);
 	$lineSplit[11] = (($end[3] == 'PM') ? ($end[1] % 12) + 12 : $end[1] % 12) . $end[2] . "00";
+
+	// Section number needs to be padded to at least 2 digits
+	$lineSplit[4] = str_pad($lineSplit[4], 2, '0', STR_PAD_LEFT);
 	return $lineSplit;
 }
 fileToTempTable("meeting", $meetFile, 19, $meetSize, 'procMeetArray');
@@ -295,6 +304,9 @@ function procInstrArray($lineSplit) {
 	// Escape the instructor names
 	$lineSplit[6] = mysql_real_escape_string($lineSplit[6]);
 	$lineSplit[7] = mysql_real_escape_string($lineSplit[7]);
+
+	// Section number needs to be padded to at lease 2 digits
+	$lineSplit[4] = str_pad($lineSplit[4], 2, '0', STR_PAD_LEFT);
 	return $lineSplit;
 }
 fileToTempTable("instructors", $instrFile, 8, $instrSize, 'procInstrArray');
@@ -343,11 +355,13 @@ debug("...100%");
 // Update all the school
 $schoolQuery = "INSERT INTO schools (id, code)";
 $schoolQuery .= " SELECT SUBSTR( subject, 1, 2 ) AS school, acad_group FROM classes GROUP BY acad_group ORDER BY subject";
-$schoolQuery .= " ON DUPLICATE KEY UPDATE code=(SELECT GROUP_CONCAT(acad_group) FROM classes WHERE id=SUBSTR(subject,1,2) GROUP BY subject)";
+$schoolQuery .= " ON DUPLICATE KEY UPDATE code=(";
+$schoolQuery .= " SELECT GROUP_CONCAT(DISTINCT(acad_group)) FROM classes WHERE id=SUBSTR(subject,1,2) GROUP BY SUBSTR(subject,1,2))";
 debug("... Updating schools");
 if(!mysql_query($schoolQuery)) {
 	echo("*** Error: Failed to update school listings\n");
 	echo("    " . mysql_error() . "\n");
+	echo("    " . $schoolQuery . "\n");
 	$failures++;
 }
 
@@ -455,7 +469,7 @@ while($row = mysql_fetch_assoc($courseResult)) {
 			
 			// Process the information about the sesction
 			// Status --
-			if($sRow['class_stat'] == 'X' || $sRow['class_type'] == 'N' || $sRow['schedule_print'] == 'N') {
+			if($sRow['class_stat'] == 'X' || $sRow['schedule_print'] == 'N') {
 				// Cancelled class (Cancelled, Nonenrollment, Non-printing)
 				$status = 'X';
 			} else {
@@ -535,6 +549,14 @@ while($row = mysql_fetch_assoc($courseResult)) {
 				$startTime = ($matches[1] * 60) + $matches[2];
 				preg_match('/(\d\d):(\d\d):\d\d/', $time['meeting_time_end'], $matches);
 				$endTime = ($matches[1] * 60) + $matches[2];
+
+				// TBD times --
+				if($time['bldg'] == 'UNKNOWN') {
+					$time['bldg'] = 'TBA';
+				}
+				if($time['room_nbr'] == 'UNKNOWN') {
+					$time['room_nbr'] = 'TBA';
+				}
 
 				// Escapables --
 				$time['bldg'] = mysql_real_escape_string($time['bldg']);
