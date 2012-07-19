@@ -21,6 +21,8 @@ var serialForm;			// The serialized form so we can tell if there has been
 var startday;			// The starting day for the schedule
 var starttime;			// The starting time for the schedule
 
+// CONSTANTS
+var COURSE_PLACEHOLDER = "XXXX-XXX-XXXX";
 
 // We NEED to make any ajax a synchronous call
 $.ajaxSetup({async: false});
@@ -66,7 +68,7 @@ function addCourse() {
 	newInput.setAttribute("maxlength", '13');
 	newInput.setAttribute('onFocus', 'courseOnFocus(this);');
 	newInput.setAttribute('onBlur', 'getCourseOptions(this);');
-	newInput.setAttribute('value', 'XXXX-XXX-XX');
+	newInput.setAttribute('value', COURSE_PLACEHOLDER);
 	newCourse.appendChild(newInput);
 	
 	newOptions = document.createElement("div");
@@ -219,7 +221,7 @@ function collapseForm() {
 
 function courseOnFocus(field) {
 	// Clear the value and change the text-color back to black
-	if($(field).val() == "XXXX-XXX-XX") {
+	if($(field).val() == COURSE_PLACEHOLDER) {
 		$(field).val("");
 	}
 	$(field).css("color", "black");
@@ -554,7 +556,7 @@ function expandForm() {
 function getCourseOptions(field) {
 	// If it's blank, then set the value back to the default and do nothing
 	if($(field).val() == "") {
-		$(field).val("XXXX-XXX-XXXX");
+		$(field).val(COURSE_PLACEHOLDER);
 		$(field).css("color", "grey");
 		$(field.parentNode.children[2]).slideUp();
 		$(field.parentNode.children[2]).html("");
@@ -779,7 +781,7 @@ function refreshCourses() {
 	// Iterate over the course slots and refresh each one
 	for(var i = 1; i <= $("#courseCount").val(); i++) {
 		// Only update if it's not the default value
-		if($("#courses" + i).val() != "XXXX-XXX-XX") {
+		if($("#courses" + i).val() != COURSE_PLACEHOLDER) {
 			getCourseOptions(document.getElementById("courses" + i));
 		}
 	}
