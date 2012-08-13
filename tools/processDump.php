@@ -19,23 +19,26 @@ require_once("../inc/databaseConn.php");
 require_once("../inc/timeFunctions.php");
 require_once("../inc/httphelper.php");
 
+$dbConn = mysqli_connect($DATABASE_SERVER, $DATABASE_USER, $DATABASE_PASS, $DATABASE_DB);
+
 // FUNCTIONS ///////////////////////////////////////////////////////////////
 function cleanup() {
+	global $dbConn;
 	// Emit a debug message
 	debug("... Cleaning up temporary tables");
 	
 	// Drop the temporary tables
-	if(!mysql_query("DROP TABLE classes")) {
+	if(!mysqli_query($dbConn, "DROP TABLE classes")) {
 		echo("*** Failed to drop table classes (ignored)\n");
-		echo("    " . mysql_error() ."\n");
+		echo("    " . mysqli_error($dbConn) ."\n");
 	}
-	if(!mysql_query("DROP TABLE meeting")) {
+	if(!mysqli_query($dbConn, "DROP TABLE meeting")) {
 		echo("*** Failed to drop table meeting (ignored)\n");
-		echo("    " . mysql_error() ."\n");
+		echo("    " . mysqli_error($dbConn) ."\n");
 	}
-	if(!mysql_query("DROP TABLE instructors")) {
+	if(!mysqli_query($dbConn, "DROP TABLE instructors")) {
 		echo("*** Failed to drop table instructor (ignored)\n");
-		echo("    " . mysql_error() . "\n");
+		echo("    " . mysqli_error($dbConn) . "\n");
 	}
 }
 
@@ -46,8 +49,109 @@ function debug($str, $nl = true) {
 	}
 }
 
+function cleanupExtraResults($dbConn) {
+	// While there are more results, free them
+	while(mysqli_next_result($dbConn)) {
+		$set = mysqli_use_result($dbConn);
+		if($set instanceof mysqli_results) {
+			mysqli_free_result($set);
+		}
+	}
+}
+
+function insertOrUpdateCourse($quarter, $department, $course, $credits, $title, $description) {
+	global $dbConn, $coursesUpdated, $coursesAdded;
+	// Call the stored proc
+	$query = "CALL InsertOrUpdateCourse({$quarter}, {$department}, {$course}, {$credits}, '{$title}', '{$description}')";
+	$success = mysqli_multi_query($dbConn, $query);
+
+	// Catch errors or return the id
+	if(!$success) {
+		return mysqli_error($dbConn);
+	}
+
+	// First result set is updated vs inserted
+	$actionSet = mysqli_store_result($dbConn);
+	$action = mysqli_fetch_assoc($actionSet);
+	if($action['action'] == "updated") { 
+		$coursesUpdated++; 
+	} else { 
+		$coursesAdded++;
+	}
+	mysqli_free_result($actionSet);
+
+	// Second set is the id of the course
+	mysqli_next_result($dbConn);
+	$idSet = mysqli_store_result($dbConn);
+	$id = mysqli_fetch_assoc($idSet);
+
+	// Free up the other calls
+	mysqli_free_result($idSet);
+	cleanupExtraResults($dbConn);
+
+	return $id['id'];
+}
+
+function insertOrUpdateSection($courseId, $section, $title, $instructor, $type, $status, $maxenroll, $curenroll) {
+	global $dbConn, $sectUpdated, $sectAdded;
+	
+	// Query to call the stored proc
+	$query = "CALL InsertOrUpdateSection({$courseId}, '{$section}', '{$title}', '{$instructor}', '{$type}', '{$status}',";
+	$query .= "{$maxenroll},{$curenroll})";
+	
+	// Error check
+	if(!mysqli_multi_query($dbConn, $query)) {
+		return mysqli_error($dbConn);
+	}
+
+	// First result is the action performed
+	$actionSet = mysqli_store_result($dbConn);
+	$action = mysqli_fetch_assoc($actionSet);
+	if($action['action'] == "updated") {
+		$sectUpdated++;
+	} else {
+		$sectAdded++;
+	}
+	mysqli_free_result($actionSet);
+
+	// Second result is the 
+	mysqli_next_result($dbConn);
+	$idSet = mysqli_store_result($dbConn);
+	$id = mysqli_fetch_assoc($idSet);
+
+	// Free up other results
+	mysqli_free_result($idSet);
+	cleanupExtraResults($dbConn);
+
+	return $id['id'];
+}
+
+function getTempSections($courseNum, $offerNum, $term, $sessionNum) {
+	global $dbConn;
+	
+	// Query for the sections of the course
+	$query = "SELECT class_section,descr,enrl_stat,class_stat,class_type,enrl_cap,enrl_tot,instruction_mode,schedule_print ";
+	$query .= "FROM classes WHERE crse_id={$courseNum} AND crse_offer_nbr={$offerNum} AND strm={$term} ";
+	$query .= "AND session_code={$sessionNum}";
+	$results = mysqli_query($dbConn, $query);
+
+	// Check for errors
+	if(!$results) {
+		return mysqli_error($dbConn);
+	}
+
+	// Turn the results into an array of results
+	// @TODO: Can we do this with fetch_all? Do we have mysql_nd?
+	$list = array();
+	while($row = mysqli_fetch_assoc($results)) {
+		$list[] = $row;
+	}
+	return $list;
+}
+	
+
 function fileToTempTable($tableName, $file, $fields, $fileSize, $procFunc=NULL) {
-	global $debugMode;
+	global $debugMode, $dbConn;
 
 	// Process the file
 	$procBytes = 0;
@@ -95,9 +199,9 @@ function fileToTempTable($tableName, $file, $fields, $fileSize, $procFunc=NULL) 
 
 		// Build a query
 		$insQuery = "INSERT INTO {$tableName} VALUES('" . implode("', '", $lineSplit) . "')";
-		if(!mysql_query($insQuery)) {
+		if(!mysqli_query($dbConn, $insQuery)) {
 			echo("*** Failed to insert {$tableName}\n");
-			echo("    " . mysql_error() . "\n");
+			echo("    " . mysqli_error($dbConn) . "\n");
 			continue;
 		}
 	}
@@ -119,7 +223,8 @@ if(in_array("-c", $arguments)) {
 $timeStarted     = time();
 $quartersProc    = 0;
 $departmentsProc = 0;
-$coursesProc     = 0;
+$coursesAdded    = 0;
+$coursesUpdated  = 0;
 $sectAdded       = 0;
 $sectUpdated     = 0;
 $failures        = 0;
@@ -196,11 +301,11 @@ CREATE TABLE IF NOT EXISTS `classes` (
   PRIMARY KEY (`crse_id`,`crse_offer_nbr`,`strm`,`session_code`,`class_section`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 ENE;
-if(mysql_query($tempQuery)) {
+if(mysqli_query($dbConn, $tempQuery)) {
 	debug("... Temporary class table created successfully");
 } else {
 	echo("*** Error: Failed to create temporary class table\n");
-	echo("    " . mysql_error() . "\n");
+	echo("    " . mysqli_error($dbConn) . "\n");
 	cleanup();
 	die();
 }
@@ -248,11 +353,11 @@ CREATE TABLE IF NOT EXISTS `meeting` (
   INDEX(`crse_id`, `crse_offer_nbr`, `strm`, `session_code`, `class_section`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 ENE;
-if(mysql_query($tempQuery)) {
+if(mysqli_query($dbConn, $tempQuery)) {
 	debug("... Temporary meeting pattern table created successfully");
 } else {
 	echo("*** Error: Failed to create temporary meeting pattern table\n");
-	echo("    " . mysql_error() . "\n");
+	echo("    " . mysqli_error($dbConn) . "\n");
 	cleanup();
 	die();
 }
@@ -291,19 +396,20 @@ CREATE TABLE IF NOT EXISTS `instructors` (
   INDEX (`crse_id`,`crse_offer_nbr`,`strm`,`session_code`,`class_section`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 ENE;
-if(mysql_query($tempQuery)) {
+if(mysqli_query($dbConn, $tempQuery)) {
 	debug("... Temporary instructor table created successfully");
 } else {
 	echo("*** Error: Failed to create temporary instructor table\n");
-	echo("    " . mysql_error() . "\n");
+	echo("    " . mysqli_error($dbConn) . "\n");
 	cleanup();
 	die();
 }
 
 function procInstrArray($lineSplit) {
+	global $dbConn;
 	// Escape the instructor names
-	$lineSplit[6] = mysql_real_escape_string($lineSplit[6]);
-	$lineSplit[7] = mysql_real_escape_string($lineSplit[7]);
+	$lineSplit[6] = mysqli_real_escape_string($dbConn, $lineSplit[6]);
+	$lineSplit[7] = mysqli_real_escape_string($dbConn, $lineSplit[7]);
 
 	// Section number needs to be padded to at lease 2 digits
 	$lineSplit[4] = str_pad($lineSplit[4], 2, '0', STR_PAD_LEFT);
@@ -316,11 +422,11 @@ fileToTempTable("instructors", $instrFile, 8, $instrSize, 'procInstrArray');
 // times for the quarter. Then insert into the quarters table
 $quarterQuery = "SELECT strm, start_dt, end_dt FROM meeting GROUP BY strm";
 debug("... Creating quarters\n0%", false);
-$quarterResult = mysql_query($quarterQuery);
+$quarterResult = mysqli_query($dbConn, $quarterQuery);
 $procQuart = 0;
-$totQuart = mysql_num_rows($quarterResult);
+$totQuart = mysqli_num_rows($quarterResult);
 $outPercent = array(0);
-while($row = mysql_fetch_assoc($quarterResult)) {
+while($row = mysqli_fetch_assoc($quarterResult)) {
 	// Progress bar
 	if($debugMode) {
 		$percent = floor(($procQuart / $totQuart) * 100);
@@ -340,13 +446,13 @@ while($row = mysql_fetch_assoc($quarterResult)) {
 	$query .= " ON DUPLICATE KEY UPDATE";
 	$query .= " start='{$row['start_dt']}', end='{$row['end_dt']}'";
 
-	if(mysql_query($query)) {
+	if(mysqli_query($dbConn, $query)) {
 		// Success! 2 rows are affected if it was a duplicate
 		$quartersProc++;
 	} else {
 		// Failure.
 		echo("    *** Error: Failed to insert/update quarter {$row['strm']}\n");
-		echo("        " . mysql_error() . "\n" . $query . "\n");
+		echo("        " . mysqli_error($dbConn) . "\n" . $query . "\n");
 		$failures++;
 	}
 }
@@ -358,9 +464,9 @@ $schoolQuery .= " SELECT SUBSTR( subject, 1, 2 ) AS school, acad_group FROM clas
 $schoolQuery .= " ON DUPLICATE KEY UPDATE code=(";
 $schoolQuery .= " SELECT GROUP_CONCAT(DISTINCT(acad_group)) FROM classes WHERE id=SUBSTR(subject,1,2) GROUP BY SUBSTR(subject,1,2))";
 debug("... Updating schools");
-if(!mysql_query($schoolQuery)) {
+if(!mysqli_query($dbConn, $schoolQuery)) {
 	echo("*** Error: Failed to update school listings\n");
-	echo("    " . mysql_error() . "\n");
+	echo("    " . mysqli_error($dbConn) . "\n");
 	echo("    " . $schoolQuery . "\n");
 	$failures++;
 }
@@ -371,23 +477,23 @@ $departmentQuery .= " SELECT subject, acad_org, SUBSTR(subject,1,2) FROM classes
 $departmentQuery .= " ON DUPLICATE KEY UPDATE code=(SELECT acad_org FROM classes WHERE id=subject LIMIT 1),";
 $departmentQuery .= " school=(SELECT SUBSTR(subject, 1,2) FROM classes WHERE id=subject LIMIT 1)";
 debug("... Updating departments");
-if(!mysql_query($departmentQuery)) {
+if(!mysqli_query($dbConn, $departmentQuery)) {
 	echo("*** Error: Failed to update department listings\n");
-	echo("    " . mysql_error() . "\n");
+	echo("    " . mysqli_error($dbConn) . "\n");
 	$failures++;
 }
-$departmentsProc = mysql_affected_rows();
+$departmentsProc = mysqli_affected_rows($dbConn);
 
 // Grab each COURSE from the classes table
 $courseQuery = "SELECT strm, subject, catalog_nbr, descr, course_descrlong,";
 $courseQuery .= " crse_id, crse_offer_nbr, session_code";
-$courseQuery .= " FROM classes GROUP BY crse_id";
+$courseQuery .= " FROM classes GROUP BY crse_id, strm";
 debug("... Updating courses\n0%", false);
-$courseResult = mysql_query($courseQuery);
+$courseResult = mysqli_query($dbConn, $courseQuery);
 $procCourses = 0;
-$totCourses = mysql_num_rows($courseResult);
+$totCourses = mysqli_num_rows($courseResult);
 $outPercent = array(0);
-while($row = mysql_fetch_assoc($courseResult)) {
+while($row = mysqli_fetch_assoc($courseResult)) {
 	// Progress Bar
 	if($debugMode) {
 		$percent = floor(($procCourses / $totCourses) * 100);
@@ -402,64 +508,42 @@ while($row = mysql_fetch_assoc($courseResult)) {
 	$row['qtr'] = $match[1] . 0 . $match[2];
 
 	// Escape the necessary fields
-	$row['descr'] = mysql_real_escape_string($row['descr']);
-	$row['course_descrlong'] = mysql_real_escape_string($row['course_descrlong']);
+	$row['descr'] = mysqli_real_escape_string($dbConn, $row['descr']);
+	$row['course_descrlong'] = mysqli_real_escape_string($dbConn, $row['course_descrlong']);
 
 	// Insert or update the course
-	$cUpdate = "INSERT INTO courses (quarter, department, course, title, description)";
-	$cUpdate .= " VALUES({$row['qtr']},{$row['subject']},{$row['catalog_nbr']},'{$row['descr']}','{$row['course_descrlong']}')";
-	$cUpdate .= " ON DUPLICATE KEY UPDATE title='{$row['descr']}', description='{$row['course_descrlong']}'";
-
-	if(!mysql_query($cUpdate)) {
+    $courseId = insertOrUpdateCourse($row['qtr'], $row['subject'], $row['catalog_nbr'],
+	                                 0, $row['descr'], $row['course_descrlong']);
+	if(!is_numeric($courseId)) {
 		echo("    *** Error: Failed to update {$row['qtr']} {$row['subject']}-{$row['catalog_nbr']}\n");
-		echo("    " . mysql_error() . "\n");
+		echo("    " . mysqli_error($dbConn) . "\n");
 		$failures++;
 	} else {
-		// Successfully updated/added the course
-		$coursesProc++;
-
 		// Process the sections that this course has
-		// Step 1) Get the id of the course from the permament tables
-		$idQuery = "SELECT id FROM courses";
-		$idQuery .= " WHERE quarter={$row['qtr']} AND department={$row['subject']} AND course={$row['catalog_nbr']}";
-		$idResult = mysql_query($idQuery);
-		if(!$idResult || !mysql_num_rows($idResult)) {
-			echo("*** Failed to lookup id for course\n");
-			echo("    " . mysql_error() . "\n");
-			continue;
-		}
-
-		// Fetch the id into a var
-		$id = mysql_fetch_assoc($idResult);
-		$id = $id['id'];
-
 		// Step 2) Grab the sections that this course has from temp tables
-		$sectSel = "SELECT class_section, descr, enrl_stat, class_stat, class_type, enrl_cap, enrl_tot, instruction_mode, schedule_print";
-		$sectSel .= " FROM classes WHERE crse_id={$row['crse_id']} AND crse_offer_nbr={$row['crse_offer_nbr']}";
-		$sectSel .= " AND strm={$row['strm']} AND session_code={$row['session_code']}";
-		$sectResult = mysql_query($sectSel);
-		if(!$sectResult || !mysql_num_rows($sectResult)) {
+		$sections = getTempSections($row['crse_id'], $row['crse_offer_nbr'], $row['strm'], $row['session_code']);
+		if(!is_array($sections) || count($sections) == 0) {
 			// We couldn't lookup the sections.
 			echo("*** Failed to lookup sections for course\n");
-			echo("    " . mysql_error() . "\n");
+			echo("    " . mysqli_error($dbConn) . "\n");
 			continue;
 		}
 
 		// Iterate over the sections of the course
-		while($sRow = mysql_fetch_assoc($sectResult)) {
+		foreach($sections as $sect) {
 			// Fetch the first instructor for the section
 			$instQuery = "SELECT CONCAT(first_name,' ',last_name) AS i FROM instructors";
 			$instQuery .= " WHERE crse_id={$row['crse_id']} AND crse_offer_nbr={$row['crse_offer_nbr']}";
 			$instQuery .= " AND strm={$row['strm']} AND session_code={$row['session_code']}";
-			$instQuery .= " AND class_section='{$sRow['class_section']}' LIMIT 1";
-			$instResult = mysql_query($instQuery);
+			$instQuery .= " AND class_section='{$sect['class_section']}' LIMIT 1";
+			$instResult = mysqli_query($dbConn, $instQuery);
 			if(!$instResult) {
-				echo(mysql_error() . "\n");
+				echo(mysqli_error($dbConn) . "\n");
 				echo($instQuery);
 				cleanup();
 				die();
 			}
-			$instructor = mysql_fetch_assoc($instResult);
+			$instructor = mysqli_fetch_assoc($instResult);
 			if(!$instructor || $instructor['i'] == NULL) {
 				$instructor = "TBA";
 			} else {
@@ -469,60 +553,42 @@ while($row = mysql_fetch_assoc($courseResult)) {
 			
 			// Process the information about the sesction
 			// Status --
-			if($sRow['class_stat'] == 'X' || $sRow['schedule_print'] == 'N') {
+			if($sect['class_stat'] == 'X' || $sect['schedule_print'] == 'N') {
 				// Cancelled class (Cancelled, Nonenrollment, Non-printing)
 				$status = 'X';
 			} else {
-				$status = $sRow['enrl_stat'];
+				$status = $sect['enrl_stat'];
 			}
 
 			// Type --
-			if($sRow['instruction_mode'] == 'P') {
+			if($sect['instruction_mode'] == 'P') {
 				// Regular mode
 				$type = 'R';
 			} else {
 				// Just listen to the mode
-				$type = $sRow['instruction_mode'];
+				$type = $sect['instruction_mode'];
 			}
 
 			// Escapables --
-			$title = mysql_real_escape_string($sRow['descr']);
-			$instructor = mysql_real_escape_string($instructor);
+			$title = mysqli_real_escape_string($dbConn, $sect['descr']);
+			$instructor = mysqli_real_escape_string($dbConn, $instructor);
 
 			// Insert into the sections table
-			$sectQuery = "INSERT INTO sections (course,section,title,instructor,type,status,maxenroll,curenroll)";
-			$sectQuery .= " VALUES({$id}, '{$sRow['class_section']}', '{$title}', '{$instructor}', '{$type}',";
-			$sectQuery .= " '{$status}', {$sRow['enrl_cap']}, {$sRow['enrl_tot']} )";
-			$sectQuery .= " ON DUPLICATE KEY UPDATE title='{$title}', instructor='{$instructor}', status='{$status}',";
-			$sectQuery .= " maxenroll={$sRow['enrl_cap']}, curenroll={$sRow['enrl_tot']}";
-
-			if(!mysql_query($sectQuery)) {
-				echo("*** Failed to insert section!\n");
-				echo("    " . mysql_error() . "\n");
+			$sectId = insertOrUpdateSection($courseId, $sect['class_section'], $title, $instructor, $type,
+			                                $status, $sect['enrl_cap'], $sect['enrl_tot']);
+			if(!is_numeric($sectId)) {
+				echo("*** Failed to insert/update section!\n");
+				echo("    " . mysqli_error($dbConn) . "\n");
 				$failures++;
 				continue;
 			}
-			$sectUpdated++;
-
-			// Select the section id
-			$sectSel = "SELECT id FROM sections WHERE course={$id} AND section='{$sRow['class_section']}'";
-			$sectSelResult = mysql_query($sectSel);
-			if(!$sectSelResult || mysql_num_rows($sectSelResult) != 1) {
-				echo("            *** Failed to lookup section!\n");
-				echo("            " . mysql_error() . "\n");
-				$failures++;
-				continue;
-			}
-
-			$sectionId = mysql_fetch_assoc($sectSelResult);
-			$sectionId = $sectionId['id'];
 
 			// PROCESS MEETING TIMES ///////////////////////////////////////
 			// Remove the meeting times for the section
-			$delQuery = "DELETE FROM times WHERE section = {$sectionId}";
-			if(!mysql_query($delQuery)) {
+			$delQuery = "DELETE FROM times WHERE section = {$sectId}";
+			if(!mysqli_query($dbConn, $delQuery)) {
 				echo("*** Failed to remove section times\n");
-				echo("    " . mysql_error() . "\n");
+				echo("    " . mysqli_error($dbConn) . "\n");
 				$failures++;
 				continue;
 			}
@@ -531,17 +597,17 @@ while($row = mysql_fetch_assoc($courseResult)) {
 			$timeQuery = "SELECT bldg, room_nbr, meeting_time_start, meeting_time_end, mon, tues, wed, thurs, fri, sat, sun";
 			$timeQuery .= " FROM meeting WHERE crse_id={$row['crse_id']} AND crse_offer_nbr={$row['crse_offer_nbr']}";
 			$timeQuery .= " AND strm={$row['strm']} AND session_code={$row['session_code']}";
-			$timeQuery .= " AND class_section='{$sRow['class_section']}'";
-			$timeResult = mysql_query($timeQuery);
+			$timeQuery .= " AND class_section='{$sect['class_section']}'";
+			$timeResult = mysqli_query($dbConn, $timeQuery);
 			if(!$timeResult) {
 				echo("*** Failed to query for meeting times\n");
-				echo("    " . mysql_error() . "\n");
+				echo("    " . mysqli_error($dbConn) . "\n");
 				$failures++;
 				continue;
 			}
 
 			// Now iterate over them and insert
-			while($time = mysql_fetch_assoc($timeResult)) {
+			while($time = mysqli_fetch_assoc($timeResult)) {
 				// Process the meeting pattern
 				// Meeting Time --
 				$matches;
@@ -559,19 +625,19 @@ while($row = mysql_fetch_assoc($courseResult)) {
 				}
 
 				// Escapables --
-				$time['bldg'] = mysql_real_escape_string($time['bldg']);
-				$time['room_nbr'] = mysql_real_escape_string($time['room_nbr']);
+				$time['bldg'] = mysqli_real_escape_string($dbConn, $time['bldg']);
+				$time['room_nbr'] = mysqli_real_escape_string($dbConn, $time['room_nbr']);
 
 				// Iterate over the and execute a query
 				$days = array($time['sun'], $time['mon'], $time['tues'], $time['wed'], $time['thurs'], $time['fri'], $time['sat']);
 				foreach($days as $i => $dayTruth) {
 					if($dayTruth == 'Y') {
 						$timeInsert = "INSERT INTO times (section, day, start, end, building, room)";
-						$timeInsert .= " VALUES({$sectionId}, {$i}, {$startTime}, {$endTime}, ";
+						$timeInsert .= " VALUES({$sectId}, {$i}, {$startTime}, {$endTime}, ";
 						$timeInsert .= "'{$time['bldg']}', '{$time['room_nbr']}')";
-						if(!mysql_query($timeInsert)) {
+						if(!mysqli_query($dbConn, $timeInsert)) {
 							echo("*** Failed to insert meeting time\n");
-							echo("    " . mysql_error() . "\n");
+							echo("    " . mysqli_error($dbConn) . "\n");
 							$failures++;
 						}
 					}
@@ -589,8 +655,8 @@ cleanup();
 
 // Insert processing statistics
 $query = "INSERT INTO scrapelog (timeStarted, timeEnded, quartersAdded, coursesAdded, coursesUpdated, sectionsAdded, sectionsUpdated, failures) ";
-$query .= "VALUES('{$timeStarted}', '".time()."', '{$quartersProc}', '{$coursesProc}', '{$coursesProc}', '{$sectAdded}', '0', '{$failures}')";
-if(!mysql_query($query)) {
+$query .= "VALUES('{$timeStarted}', '".time()."', '{$quartersProc}', '{$coursesAdded}', '{$coursesUpdated}', '{$sectAdded}', '{$sectUpdated}', '{$failures}')";
+if(!mysqli_query($dbConn, $query)) {
 	echo("*** Failed to update scrape log");
-	echo("    " . mysql_error());
+	echo("    " . mysqli_error($dbConn));
 }

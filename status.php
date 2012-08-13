@@ -69,6 +69,7 @@ require "inc/header.inc";
 			<th>Scrape Finished</th>
 			<th>Time Elapsed</th>
 			<th>Courses Added</th>
+			<th>Courses Updated</th>
 			<th>Sections Added</th>
 			<th>Sections Updated</th>
 			<th>Failures</th>
@@ -84,6 +85,7 @@ require "inc/header.inc";
 				<td><?= date('m/d/y h:ia', $log['timeEnded']) ?></td>
 				<td><?= timeElapsed($log['timeEnded'] - $log['timeStarted']) ?></td>
 				<td><?= $log['coursesAdded'] ?></td>
+				<td><?= $log['coursesUpdated'] ?></td>
 				<td><?= $log['sectionsAdded'] ?></td>
 				<td><?= $log['sectionsUpdated'] ?></td>
 				<? if($log['failures'] > 0) { ?>
