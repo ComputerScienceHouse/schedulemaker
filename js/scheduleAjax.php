@@ -28,22 +28,6 @@ function ajaxErrorHandler($errno, $errstr, $errfile, $errline) {
 }
 set_error_handler('ajaxErrorHandler');
 
-/**
- * Escapes all the data in the argument. HO SHITZ IT'S RECURSIVEZ YO!
- * @param	mixed	$data	The data to escape
- * @return	mixed	The escaped data
- */
-function escapeData($data) {
-	if(is_array($data)) {
-		foreach($data as $k => $d) {
-			$data[$k] = escapeData($d);
-		}
-		return $data;
-	} else {
-		return mysql_real_escape_string(trim($data));
-	}
-}
-
 ////////////////////////////////////////////////////////////////////////////
 // FUNCTIONS
 /**
@@ -195,7 +179,7 @@ function overlapNoCourse($noCourses, $course) {
 header('Content-type: application/json');
 
 // Escape the post data
-$_POST = escapeData($_POST);
+$_POST = sanitize($_POST);
 
 // What action are we performing today?
 if(empty($_POST['action'])) {
@@ -248,18 +232,18 @@ switch($_POST['action']) {
 		// Build a query and run it
 		$query = "SELECT c.department, c.course, s.section FROM courses AS c, sections AS s WHERE";
 		$query .= " s.course = c.id";
-		$query .= " AND c.quarter = {$_POST['quarter']}";
-		$query .= " AND c.department = {$department}";
+		$query .= " AND c.quarter = '{$_POST['quarter']}'";
+		$query .= " AND c.department = '{$department}'";
 		$query .= " AND s.status != 'X'";
 		if($partialCourse) {
 			$query .= " AND c.course LIKE '{$coursenum}%'";
 		} else {
-			$query .= " AND c.course = {$coursenum}";
+			$query .= " AND c.course = '{$coursenum}'";
 		}
 		if($partialSection) {
 			$query .= " AND s.section LIKE '{$section}%'";
 		} else {
-			$query .= " AND s.section = {$section}";
+			$query .= " AND s.section = '{$section}'";
 		}
 		if($_POST['ignoreFull'] == 'true') {
 			$query .= " AND s.curEnroll < s.maxEnroll";
@@ -403,7 +387,7 @@ switch($_POST['action']) {
 
 		// Start the storing process with storing the data about the schedule
 		$query = "INSERT INTO schedules (startday, endday, starttime, endtime)" .
-				" VALUES({$json['startday']}, {$json['endday']}, {$json['starttime']}, {$json['endtime']})";
+				" VALUES('{$json['startday']}', '{$json['endday']}', '{$json['starttime']}', '{$json['endtime']}')";
 		$result = mysql_query($query);
 		if(!$result) {
 			die(json_encode(array("error" => "mysql", "msg" => "Failed to store the schedule: " . mysql_error($dbConn))));
@@ -419,7 +403,7 @@ switch($_POST['action']) {
 				// Process each time as a seperate item
 				foreach($item['times'] as $time) {
 					$query = "INSERT INTO schedulenoncourses (title, day, start, end, schedule)" .
-							" VALUES('{$item['title']}', {$time['day']}, {$time['start']}, {$time['end']}, {$schedId})";
+							" VALUES('{$item['title']}', '{$time['day']}', '{$time['start']}', '{$time['end']}', '{$schedId}')";
 					$result = mysql_query($query);
 					if(!$result) {
 						die(json_encode(array("error" => "mysql", "msg" => "Storing non-course item '{$item['title']}' failed: " . mysql_error($dbConn))));
@@ -428,7 +412,7 @@ switch($_POST['action']) {
 			} else {
 				// Process each course. It's crazy simple now.
 				$query = "INSERT INTO schedulecourses (schedule, section)" .
-						" VALUES({$schedId}, {$item['sectionId']})";
+						" VALUES('{$schedId}', '{$item['sectionId']}')";
 				$result = mysql_query($query);
 				if(!$result) {
 					die(json_encode(array("error" => "mysql", "msg" => "Storing a course '{$item['courseNum']}' failed: " . mysql_error($dbConn))));

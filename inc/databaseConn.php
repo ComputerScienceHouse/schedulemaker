@@ -43,7 +43,8 @@ function getCourse($quarter, $deptNum, $courseNum, $sectNum) {
 	$query .= " (CASE WHEN (s.title IS NOT NULL) THEN s.title ELSE c.title END) AS title,";
 	$query .= " s.instructor, s.curenroll, s.maxenroll, s.type";
 	$query .= " FROM courses AS c, sections AS s";
-	$query .= " WHERE c.id = s.course AND c.quarter = {$quarter} AND c.department = {$deptNum} AND c.course = {$courseNum} AND s.section = '{$sectNum}'";
+	$query .= " WHERE c.id = s.course AND c.quarter = '{$quarter}' AND c.department = '{$deptNum}' ";
+	$query .= "AND c.course = '{$courseNum}' AND s.section = '{$sectNum}'";
 
 	// Execute the query and error check
 	$result = mysql_query($query);
@@ -193,6 +194,7 @@ function sanitize($item) {
 		return $item;
 	} else {
 		// Base case, return the sanitized item
+		$item = htmlentities($item, ENT_QUOTES);
 		return mysql_real_escape_string($item);
 	}
 }

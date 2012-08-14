@@ -96,11 +96,11 @@ switch($_POST['action']) {
 		// Build the query
 		$query = "SELECT c.department, c.course, s.section, c.title, s.instructor, s.id";
 		$query .= " FROM courses AS c, sections AS s";
-		$query .= " WHERE quarter = {$quarter}";
+		$query .= " WHERE quarter = '{$quarter}'";
 		$query .= " AND s.status != 'X'";
-		$query .= ($school)     ? " AND c.department > {$school} AND c.department < " . ($school+100) : "";
-		$query .= ($department) ? " AND c.department = {$department}" : "";
-		$query .= ($credits)    ? " AND c.credits = {$credits}" : "";
+		$query .= ($school)     ? " AND c.department > '{$school}' AND c.department < '" . ($school+100) . "'" : "";
+		$query .= ($department) ? " AND c.department = '{$department}'" : "";
+		$query .= ($credits)    ? " AND c.credits = '{$credits}'" : "";
 		$query .= ($professor)  ? " AND s.instructor LIKE '%{$professor}%'" : "";
 		if($level) { // Process the course level
 			if($level == 'beg') { $query .= " AND c.course < 300"; }
@@ -149,7 +149,7 @@ switch($_POST['action']) {
 		// Now pick a course at random, grab it's times,
 		$courseNum = rand(0, count($courses) - 1);
 		
-		$query = "SELECT day, start, end, building, room FROM times WHERE section={$courses[$courseNum]['id']}";
+		$query = "SELECT day, start, end, building, room FROM times WHERE section='{$courses[$courseNum]['id']}'";
 		$result = mysql_query($query);
 		if(!$result) {
 			echo json_encode(array("error" => "mysql", "msg" => mysql_error()));
