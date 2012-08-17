@@ -377,6 +377,7 @@ switch($_POST['action']) {
 		if(empty($_POST['data'])) {
 			die(json_encode(array("error" => "argument", "msg" => "No schedule was provided", "arg" => "schedule")));
 		}
+		$_POST['data'] = html_entity_decode($_POST['data'], ENT_QUOTES);
 		$json = stripslashes($_POST['data']);
 		
 		// Make sure the object was successfully decoded
