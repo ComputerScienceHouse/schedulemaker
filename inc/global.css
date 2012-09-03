@@ -158,19 +158,6 @@ input[type=text] {
 	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#353572', endColorstr='#13136b',GradientType=0 );
 }
 
-#oldBadge {
-	position: fixed;
-	bottom:0px;
-	left:0px;
-	z-index:9000;
-	border-top-right-radius: 5px;
-	background-color: white;
-	width:200px;
-	padding:10px;
-	box-shadow:0 0 3px black;
-	color:black;
-}
-
 /**************************************************************************/
 /* GLOBAL STYLES */
 /* Positioning - */
