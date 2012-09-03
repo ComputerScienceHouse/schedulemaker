@@ -35,10 +35,6 @@ require_once('./inc/timeFunctions.php');
 				<a href='http://schedule.csh.rit.edu/'>http://schedule.csh.rit.edu</a>
 			</div>
 		<? } ?>
-		<div id='oldBadge'>
-			Report Issues: <a href='http://github.com/benrr101/schedulemaker'>Github</a><br />
-			<a href='http://oldschedule.csh.rit.edu/'>Old Schedule Maker</a>
-		</div>
 		<div id='superContainer'>
 		<div id='header'>
 			<div class='logo'><a href='index.php'>ScheduleMaker</a></div>
