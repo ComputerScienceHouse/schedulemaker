@@ -487,9 +487,14 @@ $departmentsProc = mysqli_affected_rows($dbConn);
 // Grab each COURSE from the classes table
 $courseQuery = "SELECT strm, subject, catalog_nbr, descr, course_descrlong,";
 $courseQuery .= " crse_id, crse_offer_nbr, session_code";
-$courseQuery .= " FROM classes GROUP BY crse_id, strm";
+$courseQuery .= " FROM classes WHERE strm < 2131 GROUP BY crse_id, strm";
 debug("... Updating courses\n0%", false);
 $courseResult = mysqli_query($dbConn, $courseQuery);
+if(!$courseResult) {
+	echo("*** Error: Failed to get courses\n");
+	echo("    " . mysqli_error($dbConn) . "\n");
+	$failures++;
+}
 $procCourses = 0;
 $totCourses = mysqli_num_rows($courseResult);
 $outPercent = array(0);
