@@ -258,7 +258,6 @@ switch($_POST['action']) {
 			die(json_encode(array("error" => "mysql", "msg" => "There was a database error!", "arg" => "course")));
 		}
 		if(mysql_num_rows($result) == 0) {
-			echo $query;
 			die(json_encode(array("error" => "result", "msg" => "No courses match")));
 		}
 
