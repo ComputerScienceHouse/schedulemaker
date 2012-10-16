@@ -283,6 +283,7 @@ CREATE TABLE IF NOT EXISTS `classes` (
   `subject` int(4) UNSIGNED ZEROFILL NOT NULL,
   `catalog_nbr` int(3) UNSIGNED ZEROFILL NOT NULL,
   `descr` text NOT NULL,
+  `topic` text NOT NULL,
   `class_nbr` int(5) UNSIGNED NOT NULL,
   `ssr_component` varchar(3) NOT NULL,
   `units` int(1) UNSIGNED NOT NULL,
@@ -314,17 +315,18 @@ if(mysqli_query($dbConn, $tempQuery)) {
 function procClassArray($lineSplit) {
 	// Escape class title and description (respectively)
 	$lineSplit[7]  = mysql_real_escape_string($lineSplit[7]);
-	$lineSplit[22] = mysql_real_escape_string($lineSplit[22]);
+	$lineSplit[8]  = mysql_real_escape_string(trim($lineSplit[8]));
+	$lineSplit[23] = mysql_real_escape_string($lineSplit[23]);
 
 	// Grab the integer credit count (they give it to us as a decimal)
-	preg_match('/(\d)+\.\d\d/', $lineSplit[10], $match);
-	$lineSplit[10] = $match[1];
+	preg_match('/(\d)+\.\d\d/', $lineSplit[11], $match);
+	$lineSplit[11] = $match[1];
 
 	// Make the section number at least 2 digits
 	$lineSplit[4] = str_pad($lineSplit[4], 2, '0', STR_PAD_LEFT);
 	return $lineSplit;
 }
-fileToTempTable("classes", $classFile, 23, $classSize, "procClassArray");
+fileToTempTable("classes", $classFile, 24, $classSize, "procClassArray");
 fclose($classFile);
 
 // Build a temporary table for the meeting patterns
@@ -485,11 +487,16 @@ if(!mysqli_query($dbConn, $departmentQuery)) {
 $departmentsProc = mysqli_affected_rows($dbConn);
 
 // Grab each COURSE from the classes table
-$courseQuery = "SELECT strm, subject, catalog_nbr, descr, course_descrlong,";
+$courseQuery = "SELECT strm, subject, topic, catalog_nbr, descr, course_descrlong,";
 $courseQuery .= " crse_id, crse_offer_nbr, session_code";
-$courseQuery .= " FROM classes GROUP BY crse_id, strm";
+$courseQuery .= " FROM classes WHERE strm < 2131 GROUP BY crse_id, strm";
 debug("... Updating courses\n0%", false);
 $courseResult = mysqli_query($dbConn, $courseQuery);
+if(!$courseResult) {
+	echo("*** Error: Failed to get courses\n");
+	echo("    " . mysqli_error($dbConn) . "\n");
+	$failures++;
+}
 $procCourses = 0;
 $totCourses = mysqli_num_rows($courseResult);
 $outPercent = array(0);
@@ -570,7 +577,8 @@ while($row = mysqli_fetch_assoc($courseResult)) {
 			}
 
 			// Escapables --
-			$title = mysqli_real_escape_string($dbConn, $sect['descr']);
+			$title = (empty($row['topic'])) ? "" : $row['topic'];
+			$title = mysqli_real_escape_string($dbConn, $title);
 			$instructor = mysqli_real_escape_string($dbConn, $instructor);
 
 			// Insert into the sections table
