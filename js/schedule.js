@@ -821,7 +821,7 @@ function shareFacebook(button) {
 	var D=550, A=450, C=screen.height, B=screen.width, H=Math.round((B/2)-(D/2)),G=0;
 	window.faceb.shareWin=window.open(
 		'http://www.facebook.com/sharer.php?u=' + escape(url),
-		'',
+		'Share on Facebook',
 		'left='+H+',top='+G+',width='+D+',height='+A+',personalbar=0,toolbar=0,scrollbars=1,resizable=1'
 		);
 }
@@ -837,8 +837,8 @@ function shareGoogle(button) {
 	window.googl=window.googl||{};
 	var D=550, A=450, C=screen.height, B=screen.width, H=Math.round((B/2)-(D/2)),G=0;
 	window.googl.shareWin=window.open(
-		'https://m.google.com/app/plus/x/?v=compose&content=My%20Class%20Schedule%20' + escape(url),
-		'',
+		'https://plus.google.com/share?ur\l='+encodeURIComponent(url),
+		'Share on Google+',
 		'left='+H+',top='+G+',width='+D+',height='+A+',personalbar=0,toolbar=0,scrollbars=1,resizable=1'
 		);
 }
@@ -858,7 +858,7 @@ function shareTwitter(button) {
 	}
 	window.twttr.shareWin=window.open(
 		'http://twitter.com/share?url=' + escape(url) + "&text=My%20Class%20Schedule",
-		'',
+		'Share on Twitter',
 		'left='+H+',top='+G+',width='+D+',height='+A+',personalbar=0,toolbar=0,scrollbars=1,resizable=1'
 		);
 }
