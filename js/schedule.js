@@ -868,7 +868,7 @@ function showSchedules() {
 	collapseForm();
 
 	// Grab and set the number of schedules per page
-	SCHEDPERPAGE = $("#schedPerPage").val();
+	SCHEDPERPAGE = parseInt($("#schedPerPage").val());
 
 	// Serialize the form and store it if it changed
 	if(serialForm != $('#scheduleForm').serialize()) {
