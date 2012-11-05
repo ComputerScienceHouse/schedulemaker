@@ -95,7 +95,7 @@ switch($_POST['action']) {
 
 		// Build the query
 		$query = "SELECT c.department, c.course, s.section, c.title, s.instructor, s.id";
-		$query .= " FROM courses AS c, sections AS s";
+		$query .= " FROM courses AS c JOIN sections AS s ON s.course = c.id";
 		$query .= " WHERE quarter = '{$quarter}'";
 		$query .= " AND s.status != 'X'";
 		$query .= ($school)     ? " AND c.department > '{$school}' AND c.department < '" . ($school+100) . "'" : "";
@@ -113,7 +113,7 @@ switch($_POST['action']) {
 			if(in_array("morn", $times)) { $timequery[] = "(start >= 480 AND start < 720)"; }
 			if(in_array("aftn", $times)) { $timequery[] = "(start >= 720 AND start < 1020)"; }
 			if(in_array("even", $times)) { $timequery[] = "(start > 1020)"; }
-			$timeConstriants[] = "(" . implode(" OR ", $timequery) . ")"; // Make it a single string (condition OR condition ...)
+			$timeConstraints[] = "(" . implode(" OR ", $timequery) . ")"; // Make it a single string (condition OR condition ...)
 		}
 		if($days) { // Process the day constraints
 			$dayquery = array();
@@ -126,7 +126,6 @@ switch($_POST['action']) {
 			// Now cram the two together into one concise subquery
 			$query .= " AND s.id IN (SELECT section FROM times WHERE " . implode(" AND ", $timeConstraints) . ")";
 		}
-		$query .= " AND s.course = c.id";
 
 		// Run it!
 		$result = mysql_query($query);
