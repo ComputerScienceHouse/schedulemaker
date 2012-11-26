@@ -148,7 +148,7 @@ switch($_POST['action']) {
 		// Now pick a course at random, grab it's times,
 		$courseNum = rand(0, count($courses) - 1);
 		
-		$query = "SELECT day, start, end, building, room FROM times WHERE section='{$courses[$courseNum]['id']}'";
+		$query = "SELECT day, start, end, building, room FROM times WHERE section='{$courses[$courseNum]['id']}' ORDER BY day, start";
 		$result = mysql_query($query);
 		if(!$result) {
 			echo json_encode(array("error" => "mysql", "msg" => mysql_error()));
