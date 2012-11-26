@@ -867,9 +867,6 @@ function showSchedules() {
 	// Hide the form and show the expand bar
 	collapseForm();
 
-	// Grab and set the number of schedules per page
-	SCHEDPERPAGE = parseInt($("#schedPerPage").val());
-
 	// Serialize the form and store it if it changed
 	if(serialForm != $('#scheduleForm').serialize()) {
 		serialForm = $('#scheduleForm').serialize();
@@ -893,8 +890,10 @@ function showSchedules() {
 			schedules = data.schedules;
 
 			// If we're showing all schedules on one page, then do that
-			if(SCHEDPERPAGE == 'all') {
+			if($("#schedPerPage").val() == 'all') {
 				SCHEDPERPAGE = schedules.length;
+			} else {
+				SCHEDPERPAGE = parseInt($("#schedPerPage").val());
 			}
 			
 			// How many pages of schedules are there
