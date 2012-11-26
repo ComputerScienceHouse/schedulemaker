@@ -170,7 +170,7 @@ require "./inc/header.inc";
 				<label class='lbl'>Schedules per Page:</label>
 			</td>
 			<td>
-				<select id='schedPerPage'>
+				<select id='schedPerPage' name='schedPerPage'>
 					<option value='3' selected='selected'>3 per Page</option>
 					<option value='5'>5 per Page</option>
 					<option value='10'>10 per Page</option>
