@@ -408,9 +408,13 @@ END:VCALENDAR
 		} else {
 			echo generateScheduleFromCourses($schedule);
 		}
+
+		// Translate the schedule into json and escape '
+		$json = json_encode($schedule);
+		$json = htmlentities($json, ENT_COMPAT);
 		?>
 		<div id='savedControls'>
-			<input type='hidden' id='schedJson' value='<?= json_encode($schedule); ?>' name='schedJson' />
+			<input type='hidden' id='schedJson' value="<?= $json ?>" name='schedJson' />
 			<button type='button' id='forkButton'>Copy and Edit</button>
 			<button type='button' id='printButton'>Print Schedule</button>
 		</div>
