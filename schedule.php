@@ -201,46 +201,7 @@ function getScheduleFromId($id) {
 	$query = "SELECT section FROM schedulecourses WHERE schedule = {$id}";
 	$result = mysql_query($query);
 	while($course = mysql_fetch_assoc($result)) {
-		// Query for the section's information
-		$query = "SELECT * FROM sections WHERE id='{$course['section']}'";
-		$sectionResult = mysql_query($query);
-		$sectionInfo = mysql_fetch_assoc($sectionResult);
-
-		// Query for the course's information
-		$query = "SELECT * FROM courses WHERE id='{$sectionInfo['course']}'";
-		$courseResult = mysql_query($query);
-		$courseInfo = mysql_fetch_assoc($courseResult);
-
-		// Generate the information for the course
-		$course = array(
-			"title"      => $courseInfo['title'],
-			"instructor" => $sectionInfo['instructor'],
-			"curenroll"  => (int)$sectionInfo['curenroll'],
-			"maxenroll"  => (int)$sectionInfo['maxenroll'],
-			"courseNum"  => "{$courseInfo['department']}-{$courseInfo['course']}-{$sectionInfo['section']}",
-			"sectionId"  => $sectionInfo['id'],
-			"online"     => ($sectionInfo['type'] == 'O') ? true : false,
-			"times"      => array()
-			);
-		
-		// Query for the times that the course has
-		if(!$course['online']) {
-			$query = "SELECT * FROM times WHERE section = {$sectionInfo['id']}";
-			$timeResult = mysql_query($query);
-			while($timeInfo = mysql_fetch_assoc($timeResult)) {
-				// Add the course's times to the course information
-				$course['times'][] = array(
-					"bldg"  => $timeInfo['building'],
-					"room"  => $timeInfo['room'],
-					"day"   => (int)$timeInfo['day'],
-					"start" => (int)$timeInfo['start'], 
-					"end"   => (int)$timeInfo['end']
-					);
-			}
-		}
-
-		// Add the course to the schedule
-		$schedule[] = $course;
+		$schedule[] = getCourseBySectionId($course['section']);
 	}
 
 	// Grab all the non courses that exist for this schedule
@@ -408,9 +369,13 @@ END:VCALENDAR
 		} else {
 			echo generateScheduleFromCourses($schedule);
 		}
+
+		// Translate the schedule into json and escape '
+		$json = json_encode($schedule);
+		$json = htmlentities($json, ENT_COMPAT);
 		?>
 		<div id='savedControls'>
-			<input type='hidden' id='schedJson' value='<?= json_encode($schedule); ?>' name='schedJson' />
+			<input type='hidden' id='schedJson' value="<?= $json ?>" name='schedJson' />
 			<button type='button' id='forkButton'>Copy and Edit</button>
 			<button type='button' id='printButton'>Print Schedule</button>
 		</div>

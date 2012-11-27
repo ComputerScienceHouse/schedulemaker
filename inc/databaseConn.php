@@ -25,6 +25,68 @@ if(!$dbConn) {
 // FUNCTIONS
 
 /**
+ * Retrieves the meeting information for a section
+ * @param	$sectionData	array	Information about a section MUST HAVE:
+ *									title, instructor, curenroll, maxenroll,
+ *									department, course, section, section id,
+ *									type.
+ * @return	array	A course array with all the information about the course
+ */
+function getMeetingInfo($sectionData) {
+	// Store the course information
+    $course = array(
+        "title"      => $sectionData['title'],
+        "instructor" => $sectionData['instructor'],
+        "curenroll"  => $sectionData['curenroll'],
+        "maxenroll"  => $sectionData['maxenroll'],
+        "courseNum"  => "{$sectionData['department']}-{$sectionData['course']}-{$sectionData['section']}",
+        "sectionId"  => $sectionData['id'],
+        "online"     => $sectionData['type'] == "O"
+        );
+
+    // If the course is online, then don't even bother looking for it's times
+    if($course['online']) { return $course; }
+
+    // Now we query for the times of the section
+    $query = "SELECT * FROM times WHERE section = {$sectionData['id']}";
+    $result = mysql_query($query);
+    if(!$result) {
+        throw new Exception("mysql:" . mysql_error());
+    }
+    while($row = mysql_fetch_assoc($result)) {
+        $course["times"][] = array(
+            "bldg"  => $row['building'],
+            "room"  => $row['room'],
+            "day"   => $row['day'],
+            "start" => $row['start'],
+            "end"   => $row['end']
+            );
+    }
+
+	return $course;
+}
+
+/**
+ * Retrieves a course based on the id of a section
+ * @param	$id		int		The if of the section
+ * @return 	array	The information about the section
+ */
+function getCourseBySectionId($id) {
+	// Build the query to get section info
+	$query = "SELECT s.id,";
+    $query .= " (CASE WHEN (s.title != '') THEN s.title ELSE c.title END) AS title,";
+    $query .= " s.instructor, s.curenroll, s.maxenroll, s.type, c.course, s.section, c.department";
+    $query .= " FROM courses AS c, sections AS s";
+    $query .= " WHERE s.id = '{$id}'";
+
+	// Actually run the query
+	$result = mysql_query($query);
+	// @TODO: Error handling
+	$row = mysql_fetch_assoc($result);
+	return ($row) ? getMeetingInfo($row) : null;
+}
+
+/**
  * Retreives a course specified by very specific descriptors. The resulting
  * array will contain all the information needed for the course: title,
  * instructor, enrollment, times[building, room, day, start, end].
@@ -56,39 +118,7 @@ function getCourse($quarter, $deptNum, $courseNum, $sectNum) {
 		throw new Exception("objnotfound:{$quarter}-{$deptNum}-{$courseNum}-{$sectNum}");
 	}
 
-	// Store the course information
-	$row = mysql_fetch_assoc($result);
-	$course = array(
-		"title"      => $row['title'],
-		"instructor" => $row['instructor'],
-		"curenroll"  => $row['curenroll'],
-		"maxenroll"  => $row['maxenroll'],
-		"courseNum"  => "{$deptNum}-{$courseNum}-{$sectNum}",
-		"sectionId"  => $row['id'],
-		"online"     => $row['type'] == "O"
-		);
-	
-	// If the course is online, then don't even bother looking for it's times
-	if($course['online']) { return $course; }
-
-	// Now we query for the times of the section	
-	$query = "SELECT * FROM times WHERE section = {$row['id']}";
-	$result = mysql_query($query);
-	if(!$result) {
-		throw new Exception("mysql:" . mysql_error());
-	}
-	while($row = mysql_fetch_assoc($result)) {
-		$course["times"][] = array(
-			"bldg"  => $row['building'],
-			"room"  => $row['room'],
-			"day"   => $row['day'],
-			"start" => $row['start'],
-			"end"   => $row['end']
-			);
-	}
-	
-	// Return the course
-	return $course;
+	return getMeetingInfo(mysql_fetch_assoc($result));
 }
 
 /**
