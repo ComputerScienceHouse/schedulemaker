@@ -76,7 +76,7 @@ function getCourseBySectionId($id) {
 	$query = "SELECT s.id,";
     $query .= " (CASE WHEN (s.title != '') THEN s.title ELSE c.title END) AS title,";
     $query .= " s.instructor, s.curenroll, s.maxenroll, s.type, c.course, s.section, c.department";
-    $query .= " FROM courses AS c, sections AS s";
+    $query .= " FROM sections AS s JOIN courses AS c ON s.course = c.id";
     $query .= " WHERE s.id = '{$id}'";
 
 	// Actually run the query
@@ -103,9 +103,9 @@ function getCourse($quarter, $deptNum, $courseNum, $sectNum) {
 	// Build the query
 	$query = "SELECT s.id,";
 	$query .= " (CASE WHEN (s.title != '') THEN s.title ELSE c.title END) AS title,";
-	$query .= " s.instructor, s.curenroll, s.maxenroll, s.type";
-	$query .= " FROM courses AS c, sections AS s";
-	$query .= " WHERE c.id = s.course AND c.quarter = '{$quarter}' AND c.department = '{$deptNum}' ";
+	$query .= " s.instructor, s.curenroll, s.maxenroll, s.type, c.department, c.course, s.section";
+	$query .= " FROM sections AS s JOIN courses AS c ON c.id=s.course";
+	$query .= " WHERE c.quarter = '{$quarter}' AND c.department = '{$deptNum}' ";
 	$query .= "AND c.course = '{$courseNum}' AND s.section = '{$sectNum}'";
 
 	// Execute the query and error check
