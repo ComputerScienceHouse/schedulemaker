@@ -96,7 +96,9 @@ function courseOnExpand(obj) {
 			for(j=0; j < data.sections[i].times.length; j++) {
 				times.html(times.html() +
 					data.sections[i].times[j].day + " " + data.sections[i].times[j].start + " - " + data.sections[i].times[j].end
-					+ " " + data.sections[i].times[j].building + "-" + data.sections[i].times[j].room + "<br />");
+					+ " " + data.sections[i].times[j].building.code
+					+ "(" + data.sections[i].times[j].building.number + ")"
+					+ "-" + data.sections[i].times[j].room + "<br />");
 			}
 			times.appendTo(div);
 
