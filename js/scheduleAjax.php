@@ -390,8 +390,8 @@ switch($_POST['action']) {
 		}
 
 		// Start the storing process with storing the data about the schedule
-		$query = "INSERT INTO schedules (startday, endday, starttime, endtime)" .
-				" VALUES('{$json['startday']}', '{$json['endday']}', '{$json['starttime']}', '{$json['endtime']}')";
+		$query = "INSERT INTO schedules (startday, endday, starttime, endtime, building)" .
+				" VALUES('{$json['startday']}', '{$json['endday']}', '{$json['starttime']}', '{$json['endtime']}', '{$json['building']}')";
 		$result = mysql_query($query);
 		if(!$result) {
 			die(json_encode(array("error" => "mysql", "msg" => "Failed to store the schedule: " . mysql_error($dbConn))));
