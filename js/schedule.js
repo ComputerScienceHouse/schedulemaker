@@ -762,7 +762,8 @@ function printSchedule(button) {
 		startTime: starttime,
 		endTime: endtime,
 		startDay: startday,
-		endDay: endday
+		endDay: endday,
+		quarter: $("#quarter").val()
 		};
 
 	// Store the schedule in local storage
