@@ -93,6 +93,20 @@ function drawHeaders($startTime, $endTime, $startDay, $endDay) {
 	return $code;
 }
 
+function icalFormatTime($time) {
+	// Get the GMT difference
+	$gmtDiff = substr(date("O"), 0, 3);
+	
+	// Minutes->hrs mins
+	$hr = (int)($time / 60);
+	$min = $time % 60;
+	
+	// Subtract off the GMT difference
+	return str_pad(($hr - $gmtDiff) % 24, 2, '0', STR_PAD_LEFT) 
+		. str_pad($min, 2, '0', STR_PAD_LEFT)
+		. "00";
+}
+
 function generateIcal($schedule) {
 	// Globals
 	global $HTTPROOTADDRESS;
@@ -101,8 +115,8 @@ function generateIcal($schedule) {
 	$code = "";
 
 	// Header
-	$code .= "VERSION:2.0\r\n";
 	$code .= "BEGIN:VCALENDAR\r\n";
+	$code .= "VERSION:2.0\r\n";
 	$code .= "PRODID: -//CSH ScheduleMaker//iCal4j 1.0//EN\r\n";
 	$code .= "METHOD:PUBLISH\r\n";
 	$code .= "CALSCALE:GREGORIAN\r\n";
@@ -112,16 +126,12 @@ function generateIcal($schedule) {
 		// Iterate over all the times
 		foreach($course['times'] as $time) {
 			$code .= "BEGIN:VEVENT\r\n";
-			$code .= "UID:" . md5(uniqid(mt_rand(), true) . " @{$HTTPROOTADDRESS}\r\n");
+			$code .= "UID:" . md5(uniqid(mt_rand(), true) . " @{$HTTPROOTADDRESS}");
+			$code .= "\r\n";
 			$code .= "DTSTAMP:" . gmdate('Ymd') . "T" . gmdate("His") . "Z\r\n";
 
-			// Convert the times
-			$startTime = str_replace(":", "", translateTime($time['start'])) . "00";
-			$startTime = preg_replace("/ (am|pm)/", "", $startTime);
-			$startTime = str_pad($startTime, 6, '0', STR_PAD_LEFT);
-			$endTime   = str_replace(":", "", translateTime($time['end'])) . "00";
-			$endTime   = preg_replace("/ (am|pm)/", "", $endTime);
-			$endTime   = str_pad($endTime, 6, '0', STR_PAD_LEFT);
+			$startTime = icalFormatTime($time['start']);
+			$endTime = icalFormatTime($time['end']);
 
 			$code .= "DTSTART:" . gmdate('Ymd') . "T{$startTime}Z\r\n";
 			$code .= "DTEND:" . gmdate('Ymd') . "T{$endTime}Z\r\n";
