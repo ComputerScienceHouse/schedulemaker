@@ -124,7 +124,9 @@ switch($_POST['action']) {
 				continue;
 			}
 
-			$query = "SELECT day, start, end, building, room FROM times WHERE times.section = '{$section['id']}' ORDER BY day, start";
+			$query = "SELECT day, start, end, b.code, b.number, room ";
+			$query .= "FROM times AS t JOIN buildings AS b ON b.number=t.building ";
+			$query .= "WHERE t.section = '{$section['id']}' ORDER BY day, start";
 			$timeResult = mysql_query($query);
 			if(!$timeResult) {
 				die(json_encode(array("error" => "mysql", "msg" => mysql_error())));
@@ -134,6 +136,7 @@ switch($_POST['action']) {
 				$time['start'] = translateTime($time['start']);
 				$time['end']   = translateTime($time['end']);
 				$time['day']   = translateDay($time['day']);
+				$time['building'] = array("code"=>$time['code'], "number"=>$time['number']);
 				$section['times'][] = $time;
 			}	
 

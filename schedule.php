@@ -10,7 +10,7 @@
 
 // FUNCTIONS ///////////////////////////////////////////////////////////////
 
-function drawCourse($course, $startTime, $endTime, $startDay, $endDay, $color) {
+function drawCourse($course, $startTime, $endTime, $startDay, $endDay, $color, $bldg) {
 	$code = "";
 
 	// Iterate over the times that the couse has session
@@ -44,10 +44,8 @@ function drawCourse($course, $startTime, $endTime, $startDay, $endDay, $color) {
 			if($height > 40) {
 				$code .= $course['courseNum'] . "<br />";
 				$code .= $course['instructor'] . "<br />";
-				$code .= $time['bldg'] . "-" . $time['room'];
-			} else {
-				$code .= $time['bldg'] . "-" . $time['room'];
 			}
+			$code .= $time['bldg'][$bldg] . "-" . $time['room'];
 		}
 		$code .= "</div>";
 		
@@ -157,7 +155,7 @@ function generateScheduleFromCourses($courses) {
 		}
 
 		$color = $i % 4;
-		$code .= drawCourse($courseList[$i], $startTime, $endTime, $startDay, $endDay, $color);
+		$code .= drawCourse($courseList[$i], $startTime, $endTime, $startDay, $endDay, $color, $courses['building']);
 	}
 	$code .= "</div></div>";
 	
@@ -181,7 +179,7 @@ function getScheduleFromId($id) {
 	$query = "UPDATE schedules SET datelastaccessed = NOW() WHERE id={$id}";
 	$result = mysql_query($query);
 	
-	$query = "SELECT startday, endday, starttime, endtime FROM schedules WHERE id={$id}";
+	$query = "SELECT startday, endday, starttime, endtime, building FROM schedules WHERE id={$id}";
 	$result = mysql_query($query);
 	$scheduleInfo = mysql_fetch_assoc($result);
 	if(!$scheduleInfo) {
@@ -193,6 +191,7 @@ function getScheduleFromId($id) {
 	$endDay    = (int)$scheduleInfo['endday'];
 	$startTime = (int)$scheduleInfo['starttime'];
 	$endTime   = (int)$scheduleInfo['endtime'];
+	$building  = $scheduleInfo['building'];
 
 	// Create storage for the courses that will be returned
 	$schedule = array();
@@ -228,7 +227,8 @@ function getScheduleFromId($id) {
 			"startTime" => $startTime,
 			"endTime"   => $endTime,
 			"startDay"  => $startDay,
-			"endDay"    => $endDay
+			"endDay"    => $endDay,
+			"building"  => $building
 			);
 }
 

@@ -148,7 +148,9 @@ switch($_POST['action']) {
 		// Now pick a course at random, grab it's times,
 		$courseNum = rand(0, count($courses) - 1);
 		
-		$query = "SELECT day, start, end, building, room FROM times WHERE section='{$courses[$courseNum]['id']}' ORDER BY day, start";
+		$query = "SELECT day, start, end, b.code, b.number, room ";
+		$query .= "FROM times AS t JOIN buildings AS b ON b.number = t.building ";
+		$query .= "WHERE section='{$courses[$courseNum]['id']}' ORDER BY day, start";
 		$result = mysql_query($query);
 		if(!$result) {
 			echo json_encode(array("error" => "mysql", "msg" => mysql_error()));
@@ -160,7 +162,7 @@ switch($_POST['action']) {
 				'day' => translateDay($row['day']), 
 				'start' => translateTime($row['start']), 
 				'end' => translateTime($row['end']),
-				'bldg' => $row['building'],
+				'bldg' => array("code"=>$row['code'], "number"=>$row['number']),
 				'room' => $row['room']
 			);
 			$courses[$courseNum]['times'][] = $session;

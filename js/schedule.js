@@ -301,12 +301,11 @@ function drawCourse(parent, course, startDay, endDay, startTime, endTime, colorN
 				// > 1hour course, show all the info
 				courseInfo.html(course.courseNum + "<br />");
 				courseInfo.html(courseInfo.html() + course.instructor + "<br />");
-				courseInfo.html(courseInfo.html() + time.bldg + "-" + time.room);
 			} else {
 				header.addClass("shortHeader");
-				courseInfo.html(time.bldg + "-" + time.room);
 			}
-
+			var building = ($("#buildingStyle").val()=='code')?time.bldg.code:time.bldg.number;
+			courseInfo.html(courseInfo.html() + building + "-" + time.room);
 			courseInfo.appendTo(timeDiv);
 		}
 		if(time.shorten == "top") {
@@ -712,11 +711,12 @@ function getScheduleUrl(button) {
 		// Grab the field for the json
 		jsonObj = $(button.parent().children()[0]).val();
 		jsonModified = {
-				"startday":	 $("#scheduleStartDay").val(),
+				"startday":  $("#scheduleStartDay").val(),
 				"endday":    $("#scheduleEndDay").val(),
 				"starttime": $("#scheduleStart").val(),
 				"endtime":   $("#scheduleEnd").val(),
-				"schedule":  eval(jsonObj)
+				"schedule":  eval(jsonObj),
+				"building":  $("#buildingStyle").val()
 				};
 		// We don't have a url already, so get one!
 		$.post("./js/scheduleAjax.php", {action: "saveSchedule", data: JSON.stringify(jsonModified)}, function(data) {

@@ -48,14 +48,16 @@ function getMeetingInfo($sectionData) {
     if($course['online']) { return $course; }
 
     // Now we query for the times of the section
-    $query = "SELECT * FROM times WHERE section = {$sectionData['id']}";
+    $query = "SELECT b.code, b.number, t.room, t.day, t.start, t.end ";
+    $query .= "FROM times AS t JOIN buildings AS b ON b.number=t.building ";
+    $query .= "WHERE section = {$sectionData['id']}";
     $result = mysql_query($query);
     if(!$result) {
         throw new Exception("mysql:" . mysql_error());
     }
     while($row = mysql_fetch_assoc($result)) {
         $course["times"][] = array(
-            "bldg"  => $row['building'],
+            "bldg"  => array("code"=>$row['code'], "number"=>$row['number']),
             "room"  => $row['room'],
             "day"   => $row['day'],
             "start" => $row['start'],
