@@ -94,32 +94,48 @@ function drawHeaders($startTime, $endTime, $startDay, $endDay) {
 }
 
 function generateIcal($schedule) {
+	// Globals
+	global $HTTPROOTADDRESS;
+
 	// Start generating code
 	$code = "";
 
+	// Header
+	$code .= "VERSION:2.0\r\n";
+	$code .= "BEGIN:VCALENDAR\r\n";
+	$code .= "PRODID: -//CSH ScheduleMaker//iCal4j 1.0//EN\r\n";
+	$code .= "METHOD:PUBLISH\r\n";
+	$code .= "CALSCALE:GREGORIAN\r\n";
+
 	// Iterate over all the courses
-	foreach($schedule as $course) {
+	foreach($schedule['courses'][0] as $course) {
 		// Iterate over all the times
 		foreach($course['times'] as $time) {
-			$code .= "BEGIN:VEVENT\n";
-			$code .= "UID:" . md5(uniqueid(mt_rand(), true) . " @{$HTTPROOTADDRESS}\n");
-			$code .= "DTSTAMP:" . gmdate('Ymd') . "T" . gmdate("His") . "Z\n";
+			$code .= "BEGIN:VEVENT\r\n";
+			$code .= "UID:" . md5(uniqid(mt_rand(), true) . " @{$HTTPROOTADDRESS}\r\n");
+			$code .= "DTSTAMP:" . gmdate('Ymd') . "T" . gmdate("His") . "Z\r\n";
 
 			// Convert the times
 			$startTime = str_replace(":", "", translateTime($time['start'])) . "00";
+			$startTime = preg_replace("/ (am|pm)/", "", $startTime);
+			$startTime = str_pad($startTime, 6, '0', STR_PAD_LEFT);
 			$endTime   = str_replace(":", "", translateTime($time['end'])) . "00";
+			$endTime   = preg_replace("/ (am|pm)/", "", $endTime);
+			$endTime   = str_pad($endTime, 6, '0', STR_PAD_LEFT);
 
-			$code .= "DTSTART:{$DATE}T{$startTime}Z\n";
-			$code .= "DTEND:{$DATE}T{$endTime}Z\n";
-			$code .= "RRULE:Hot dickings\n";
-			$code .= "TZID:America/New_York\n";
-			$code .= "LOCATION:{$time['bldg']}-{$time['room']}\n";
-			$code .= "ORGANIZER:RIT";
-			$code .= "SUMMARY:{$course['title']} ({$course['courseNum']})";
+			$code .= "DTSTART:" . gmdate('Ymd') . "T{$startTime}Z\r\n";
+			$code .= "DTEND:" . gmdate('Ymd') . "T{$endTime}Z\r\n";
+			//$code .= "RRULE:Hot dickings\r\n";
+			$code .= "TZID:America/New_York\r\n";
+			$code .= "LOCATION:{$time['bldg']}-{$time['room']}\r\n";
+			$code .= "ORGANIZER:RIT\r\n";
+			$code .= "SUMMARY:{$course['title']} ({$course['courseNum']})\r\n";
 			
-			$code .= "END:VEVENT\n";
+			$code .= "END:VEVENT\r\n";
 		}
 	}
+
+	$code .= "END:VCALENDAR\r\n";
 
 	return $code;
 }
@@ -306,25 +322,22 @@ switch($mode) {
 	case "ical":
 		// iCAL FORMAT SCHEDULE ////////////////////////////////////////////
 		// If we don't have a schedule, die!
-		if(empty($_POST['schedule'])) {
+		if(empty($_GET['id'])) {
 			die("You must provide a schedule");
 		}
 
+		// Database connection is required
+		require_once("inc/databaseConn.php");
+		require_once("inc/timeFunctions.php");
+
 		// Decode the schedule
-		$schedule = json_decode(stripslashes($_POST['schedule']), true);		
+		$schedule = getScheduleFromId(hexdec($_GET['id']));		
 
 		// Set header for ical mime, output the xml
 		header("Content-Type: text/calendar");
-		header("Content-Disposition: attachment; filename='generated_schedule" . md5(serialize($schedule)) . ".ics'");
-		?>
-BEGIN:VCALENDAR
-PRODID: -//CSH ScheduleMaker//iCal4j 1.0//EN
-VERSION:2.0
-METHOD:PUBLISH
-CALSCALE:GREGORIAN
-<?= generateIcal($schedule) ?>
-END:VCALENDAR
-		<?
+		header("Content-Disposition: attachment; filename=generated_schedule" . md5(serialize($schedule)) . ".ics");
+		echo generateIcal($schedule);
+		
 		break;
 	
 	case "old":
