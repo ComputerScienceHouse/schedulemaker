@@ -716,7 +716,8 @@ function getScheduleUrl(button) {
 				"starttime": $("#scheduleStart").val(),
 				"endtime":   $("#scheduleEnd").val(),
 				"schedule":  eval(jsonObj),
-				"building":  $("#buildingStyle").val()
+				"building":  $("#buildingStyle").val(),
+				"quarter":   $("#quarter").val()	// This /could/ be incorrect... just sayin
 				};
 		// We don't have a url already, so get one!
 		$.post("./js/scheduleAjax.php", {action: "saveSchedule", data: JSON.stringify(jsonModified)}, function(data) {
