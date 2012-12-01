@@ -271,6 +271,7 @@ switch($mode) {
 			<script src='./js/schedule.js' type='text/javascript'></script>
 		</head>
 		<body>
+			<h1 id='header' style='text-align:center'></h1>
 			<div id='schedules'></div>
 			<? require "inc/footer_print.inc"; ?>
 		</body>
@@ -284,6 +285,22 @@ switch($mode) {
 			starttime   = data.startTime;
 			endtime     = data.endTime;
 			SCHEDPERPAGE= 1;
+
+			// Calculate the quarter for header purposes
+			if(data.quarter > 20130) {
+				// @TODO: Figure out what in the fuck to do for semesters
+			} else {
+				// Split it up and store it as the header
+				var year = data.quarter.substring(0,4);
+				var quarter = data.quarter.substring(4);
+				switch(quarter) {
+					case '1': quarter = "Fall"; break;
+					case '2': quarter = "Winter"; break;
+					case '3': quarter = "Spring"; break;
+					case '4': quarter = "Summer"; break;
+				}
+				$("#header").html("My " + quarter + " " + year + "-" + (parseInt(year)+1) + " Schedule");
+			}
 
 			// Calculate the schedule height and width
 			schedHeight = (Math.floor((endtime - starttime) / 30) * 20) + 20;
