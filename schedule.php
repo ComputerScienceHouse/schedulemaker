@@ -111,6 +111,13 @@ function generateIcal($schedule) {
 	// Globals
 	global $HTTPROOTADDRESS;
 
+	// We need to lookup the information about the quarter
+	$quarter = mysql_real_escape_string($schedule['quarter']);
+	$query = "SELECT start, end, breakstart, breakend FROM quarters WHERE quarter='{$quarter}'";
+	$result = mysql_query($query);
+	$quarter = mysql_fetch_assoc($result);
+	$qtrStart = $quarter['start'];
+
 	// Start generating code
 	$code = "";
 
@@ -132,12 +139,17 @@ function generateIcal($schedule) {
 
 			$startTime = icalFormatTime($time['start']);
 			$endTime = icalFormatTime($time['end']);
+			$bldg = $time['bldg'][$schedule['building']];
 
-			$code .= "DTSTART:" . gmdate('Ymd') . "T{$startTime}Z\r\n";
-			$code .= "DTEND:" . gmdate('Ymd') . "T{$endTime}Z\r\n";
-			//$code .= "RRULE:Hot dickings\r\n";
+			// The start day of the event MUST be offset by it's day
+			// the -1 is b/c quarter starts are on Monday(=1)
+			$day = date("Ymd", strtotime($qtrStart) + ((60*60*24)*($time['day']-1)));
+
+			$code .= "DTSTART:" . $day . "T{$startTime}Z\r\n";
+			$code .= "DTEND:" . $day . "T{$endTime}Z\r\n";
+			$code .= "RRULE:FREQ=WEEKLY;COUNT=10\r\n";
 			$code .= "TZID:America/New_York\r\n";
-			$code .= "LOCATION:{$time['bldg']}-{$time['room']}\r\n";
+			$code .= "LOCATION:{$bldg}-{$time['room']}\r\n";
 			$code .= "ORGANIZER:RIT\r\n";
 			$code .= "SUMMARY:{$course['title']} ({$course['courseNum']})\r\n";
 			
@@ -205,7 +217,7 @@ function getScheduleFromId($id) {
 	$query = "UPDATE schedules SET datelastaccessed = NOW() WHERE id={$id}";
 	$result = mysql_query($query);
 	
-	$query = "SELECT startday, endday, starttime, endtime, building FROM schedules WHERE id={$id}";
+	$query = "SELECT startday, endday, starttime, endtime, building, quarter FROM schedules WHERE id={$id}";
 	$result = mysql_query($query);
 	$scheduleInfo = mysql_fetch_assoc($result);
 	if(!$scheduleInfo) {
@@ -218,6 +230,7 @@ function getScheduleFromId($id) {
 	$startTime = (int)$scheduleInfo['starttime'];
 	$endTime   = (int)$scheduleInfo['endtime'];
 	$building  = $scheduleInfo['building'];
+	$quarter   = $scheduleInfo['quarter'];
 
 	// Create storage for the courses that will be returned
 	$schedule = array();
@@ -254,7 +267,8 @@ function getScheduleFromId($id) {
 			"endTime"   => $endTime,
 			"startDay"  => $startDay,
 			"endDay"    => $endDay,
-			"building"  => $building
+			"building"  => $building,
+			"quarter"   => $quarter
 			);
 }
 
