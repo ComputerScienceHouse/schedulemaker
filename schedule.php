@@ -102,7 +102,7 @@ function icalFormatTime($time) {
 	$min = $time % 60;
 	
 	// Subtract off the GMT difference
-	return str_pad(($hr - $gmtDiff) % 24, 2, '0', STR_PAD_LEFT) 
+	return str_pad(($hr/* - $gmtDiff*/) % 24, 2, '0', STR_PAD_LEFT) 
 		. str_pad($min, 2, '0', STR_PAD_LEFT)
 		. "00";
 }
@@ -130,28 +130,43 @@ function generateIcal($schedule) {
 
 	// Iterate over all the courses
 	foreach($schedule['courses'][0] as $course) {
+		// Skip classes that don't meet
+		if(empty($course['times'])) {
+			continue;
+		}
+		
 		// Iterate over all the times
 		foreach($course['times'] as $time) {
 			$code .= "BEGIN:VEVENT\r\n";
 			$code .= "UID:" . md5(uniqid(mt_rand(), true) . " @{$HTTPROOTADDRESS}");
 			$code .= "\r\n";
+			$code .= "TZID:America/New_York\r\n";
 			$code .= "DTSTAMP:" . gmdate('Ymd') . "T" . gmdate("His") . "Z\r\n";
 
 			$startTime = icalFormatTime($time['start']);
 			$endTime = icalFormatTime($time['end']);
-			$bldg = $time['bldg'][$schedule['building']];
 
 			// The start day of the event MUST be offset by it's day
 			// the -1 is b/c quarter starts are on Monday(=1)
 			$day = date("Ymd", strtotime($qtrStart) + ((60*60*24)*($time['day']-1)));
 
-			$code .= "DTSTART:" . $day . "T{$startTime}Z\r\n";
-			$code .= "DTEND:" . $day . "T{$endTime}Z\r\n";
+			$code .= "DTSTART:" . $day . "T{$startTime}\r\n";
+			$code .= "DTEND:" . $day . "T{$endTime}\r\n";
 			$code .= "RRULE:FREQ=WEEKLY;COUNT=10\r\n";
-			$code .= "TZID:America/New_York\r\n";
-			$code .= "LOCATION:{$bldg}-{$time['room']}\r\n";
 			$code .= "ORGANIZER:RIT\r\n";
-			$code .= "SUMMARY:{$course['title']} ({$course['courseNum']})\r\n";
+			
+			// Course name
+			$code .= "SUMMARY:{$course['title']}";
+			if($course['courseNum'] != 'non') {
+				$code .= " ({$course['courseNum']})";
+			}
+			$code .= "\r\n";
+
+			// Meeting location
+			if($course['courseNum'] != 'non') {
+				$bldg = $time['bldg'][$schedule['building']];
+				$code .= "LOCATION:{$bldg}-{$time['room']}\r\n";
+			}
 			
 			$code .= "END:VEVENT\r\n";
 		}
