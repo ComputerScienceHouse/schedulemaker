@@ -458,19 +458,29 @@ switch($mode) {
 		
 	case "json":
 		// JSON DATA STRUCTURE /////////////////////////////////////////////
+		// We're outputting json, so use that 
+		header('Content-type: application/json');
+
+		// Required parameters
+		if(empty($_GET['id'])) {
+            die(json_encode(array("error"=>true, "msg"=>"You must provide a schedule")));
+        }
+
+        // Database connection is required
+        require_once("inc/databaseConn.php");
+        require_once("inc/timeFunctions.php");
+
+		// Pull the schedule and output it as json
 		$schedule = getScheduleFromId(hexdec($_GET['id']));
-		header('Content-type: text/javascript');
-		if ( $schedule == NULL )
-		{
+		if ( $schedule == NULL ) {
 			echo json_encode(array(
-					'result' => 'error',
-					'error' => 'Schedule not found'
+					'error' => true,
+					'msg' => 'Schedule not found'
 				));
-		}
-		else
-		{
+		} else {
 			echo json_encode($schedule);
 		}
+
 		break;
 
 	default:
