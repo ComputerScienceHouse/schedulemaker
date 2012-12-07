@@ -101,8 +101,7 @@ function icalFormatTime($time) {
 	$hr = (int)($time / 60);
 	$min = $time % 60;
 	
-	// Subtract off the GMT difference
-	return str_pad(($hr/* - $gmtDiff*/) % 24, 2, '0', STR_PAD_LEFT) 
+	return str_pad($hr % 24, 2, '0', STR_PAD_LEFT) 
 		. str_pad($min, 2, '0', STR_PAD_LEFT)
 		. "00";
 }
@@ -116,7 +115,8 @@ function generateIcal($schedule) {
 	$query = "SELECT start, end, breakstart, breakend FROM quarters WHERE quarter='{$quarter}'";
 	$result = mysql_query($query);
 	$quarter = mysql_fetch_assoc($result);
-	$qtrStart = $quarter['start'];
+	$qtrStart = strtotime($quarter['start']);
+	$qtrEnd = date("Ymd", strtotime($quarter['end']));
 
 	// Start generating code
 	$code = "";
@@ -148,11 +148,13 @@ function generateIcal($schedule) {
 
 			// The start day of the event MUST be offset by it's day
 			// the -1 is b/c quarter starts are on Monday(=1)
-			$day = date("Ymd", strtotime($qtrStart) + ((60*60*24)*($time['day']-1)));
+			// This /could/ be done via the RRULE WKST param, but that means
+			// translating days from numbers to some other esoteric format.
+			$day = date("Ymd", $qtrStart + ((60*60*24)*($time['day']-1)));
 
 			$code .= "DTSTART:" . $day . "T{$startTime}\r\n";
 			$code .= "DTEND:" . $day . "T{$endTime}\r\n";
-			$code .= "RRULE:FREQ=WEEKLY;COUNT=10\r\n";
+			$code .= "RRULE:FREQ=WEEKLY;UNTIL={$qtrEnd}\r\n";
 			$code .= "ORGANIZER:RIT\r\n";
 			
 			// Course name
