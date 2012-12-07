@@ -39,16 +39,17 @@ function spinRoulette() {
 			if(jsonResult.times.length > 0) {
 				table = $("<table>").attr("id", "rouletteCourseTimes");
 				for(i = 0; i < jsonResult.times.length; i++) {
+					var t = jsonResult.times[i];
 					row = $("<tr>");
-					$("<td>").html(jsonResult.times[i].day)
+					$("<td>").html(t.day)
 							.appendTo(row);
-					$("<td>").html(jsonResult.times[i].start)
+					$("<td>").html(t.start)
 							.appendTo(row);
 					$("<td>").html("-")
 							.appendTo(row);
-					$("<td>").html(jsonResult.times[i].end)
+					$("<td>").html(t.end)
 							.appendTo(row);
-					$("<td>").html(jsonResult.times[i].bldg + "-" + jsonResult.times[i].room)
+					$("<td>").html(t.bldg.code + "(" + t.bldg.number + ")" + "-" + t.room)
 							.appendTo(row);
 					row.appendTo(table);
 				}

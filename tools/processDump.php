@@ -632,6 +632,13 @@ while($row = mysqli_fetch_assoc($courseResult)) {
 					$time['room_nbr'] = 'TBA';
 				}
 
+				// Lop off a leading 0
+				if(!is_numeric($time['bldg']) && strlen($time['bldg']) > 3) {
+					$time['bldg'] = substr($time['bldg'], -3);
+				} elseif(is_numeric($time['bldg']) && $time['bldg'] < 100) {
+					$time['bldg'] = substr($time['bldg'], -2);
+				}
+
 				// Escapables --
 				$time['bldg'] = mysqli_real_escape_string($dbConn, $time['bldg']);
 				$time['room_nbr'] = mysqli_real_escape_string($dbConn, $time['room_nbr']);

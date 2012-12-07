@@ -179,8 +179,23 @@ require "./inc/header.inc";
 					<option value='all'>All Schedules</option>
 				</select>
 			</td>
-			<td class='lbl'><input id='verbose' type='checkbox' name='verbose' value='true' /></td>
-			<td><label for='verbose'>Show Error Messages/Course Conflicts</label></td>
+			<td>
+				<label for='buildingStyle'>Buildings:</label>
+			</td>
+			<td>
+				<select id='buildingStyle' name='buildingStyle'>
+					<option value='code'>Codes (eg. GOL)</option>
+					<option value='number'>Number (eg. 70)</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td style='text-align:right'>
+				<input id='verbose' type='checkbox' name='verbose' value='true' />
+			</td>
+			<td>
+				<label for='verbose'>Show Error Messages/Course Conflicts</label>
+			</td>
 		</tr>
 	</table>
 </div>

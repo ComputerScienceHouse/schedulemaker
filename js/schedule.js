@@ -301,12 +301,11 @@ function drawCourse(parent, course, startDay, endDay, startTime, endTime, colorN
 				// > 1hour course, show all the info
 				courseInfo.html(course.courseNum + "<br />");
 				courseInfo.html(courseInfo.html() + course.instructor + "<br />");
-				courseInfo.html(courseInfo.html() + time.bldg + "-" + time.room);
 			} else {
 				header.addClass("shortHeader");
-				courseInfo.html(time.bldg + "-" + time.room);
 			}
-
+			var building = ($("#buildingStyle").val()=='code')?time.bldg.code:time.bldg.number;
+			courseInfo.html(courseInfo.html() + building + "-" + time.room);
 			courseInfo.appendTo(timeDiv);
 		}
 		if(time.shorten == "top") {
@@ -433,10 +432,9 @@ function drawPage(pageNum, print) {
 		saveButton = $("<input type='button' value='Save Schedule'>")
 						.click(function(obj) { saveSchedule($(this)); })
 						.appendTo(saveForm);
-		//downButton = $("<input type='button' value='Download iCal'>")
-		//				.click(function(obj) { icalSchedule($(this)); })
-		//				.attr("disabled", "disabled")
-		//				.appendTo(saveForm);
+		downButton = $("<input type='button' value='Download iCal'>")
+						.click(function(obj) { icalSchedule($(this)); })
+						.appendTo(saveForm);
 		faceButton = $("<button type='button'>")
 						.html("<img src='img/share_facebook.png' /> Share Facebook")
 						.click(function(obj) { shareFacebook($(this)); })
@@ -712,11 +710,13 @@ function getScheduleUrl(button) {
 		// Grab the field for the json
 		jsonObj = $(button.parent().children()[0]).val();
 		jsonModified = {
-				"startday":	 $("#scheduleStartDay").val(),
+				"startday":  $("#scheduleStartDay").val(),
 				"endday":    $("#scheduleEndDay").val(),
 				"starttime": $("#scheduleStart").val(),
 				"endtime":   $("#scheduleEnd").val(),
-				"schedule":  eval(jsonObj)
+				"schedule":  eval(jsonObj),
+				"building":  $("#buildingStyle").val(),
+				"quarter":   $("#quarter").val()	// This /could/ be incorrect... just sayin
 				};
 		// We don't have a url already, so get one!
 		$.post("./js/scheduleAjax.php", {action: "saveSchedule", data: JSON.stringify(jsonModified)}, function(data) {
@@ -743,14 +743,12 @@ function getScheduleUrl(button) {
 }
 
 function icalSchedule(button) {
-	// Grab the schedule's form
-	form = button.parent();
+	// Get a schedule url
+	var url = getScheduleUrl(button);
 	
-	// Add an input field for the mode
-	$("<input type='hidden' name='mode' value='ical'/>").appendTo(form);
-	
-	// Submit it!
-	form.submit();
+	// Add the magic sauce and redirect
+	url += "&mode=ical";
+	window.location = url;
 }
 
 function printSchedule(button) {
@@ -761,7 +759,8 @@ function printSchedule(button) {
 		startTime: starttime,
 		endTime: endtime,
 		startDay: startday,
-		endDay: endday
+		endDay: endday,
+		quarter: $("#quarter").val()
 		};
 
 	// Store the schedule in local storage

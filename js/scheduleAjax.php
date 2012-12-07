@@ -388,13 +388,15 @@ switch($_POST['action']) {
 		if($json == null) {
 			die(json_encode(array("error" => "argument", "msg" => "The schedule could not be decoded", "arg" => "schedule")));
 		}
+		// @TODO: THERE SHOULD BE SOME REQUIRED PARAMETER CHECKS
 
 		// Start the storing process with storing the data about the schedule
-		$query = "INSERT INTO schedules (startday, endday, starttime, endtime)" .
-				" VALUES('{$json['startday']}', '{$json['endday']}', '{$json['starttime']}', '{$json['endtime']}')";
+		$query = "INSERT INTO schedules (startday, endday, starttime, endtime, building, quarter)" .
+				" VALUES('{$json['startday']}', '{$json['endday']}', '{$json['starttime']}', '{$json['endtime']}', '{$json['building']}', " .
+				" '{$json['quarter']}')";
 		$result = mysql_query($query);
 		if(!$result) {
-			die(json_encode(array("error" => "mysql", "msg" => "Failed to store the schedule: " . mysql_error($dbConn))));
+			die(json_encode(array("error" => "mysql", "msg" => "Failed to store the schedule: " . mysql_error($dbConn), "query"=>$query)));
 		}
 		
 		// Grab the latest id for the schedule
