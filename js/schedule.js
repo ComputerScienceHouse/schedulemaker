@@ -432,10 +432,9 @@ function drawPage(pageNum, print) {
 		saveButton = $("<input type='button' value='Save Schedule'>")
 						.click(function(obj) { saveSchedule($(this)); })
 						.appendTo(saveForm);
-		//downButton = $("<input type='button' value='Download iCal'>")
-		//				.click(function(obj) { icalSchedule($(this)); })
-		//				.attr("disabled", "disabled")
-		//				.appendTo(saveForm);
+		downButton = $("<input type='button' value='Download iCal'>")
+						.click(function(obj) { icalSchedule($(this)); })
+						.appendTo(saveForm);
 		faceButton = $("<button type='button'>")
 						.html("<img src='img/share_facebook.png' /> Share Facebook")
 						.click(function(obj) { shareFacebook($(this)); })
@@ -744,14 +743,12 @@ function getScheduleUrl(button) {
 }
 
 function icalSchedule(button) {
-	// Grab the schedule's form
-	form = button.parent();
+	// Get a schedule url
+	var url = getScheduleUrl(button);
 	
-	// Add an input field for the mode
-	$("<input type='hidden' name='mode' value='ical'/>").appendTo(form);
-	
-	// Submit it!
-	form.submit();
+	// Add the magic sauce and redirect
+	url += "&mode=ical";
+	window.location = url;
 }
 
 function printSchedule(button) {

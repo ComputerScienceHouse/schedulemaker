@@ -93,33 +93,88 @@ function drawHeaders($startTime, $endTime, $startDay, $endDay) {
 	return $code;
 }
 
+function icalFormatTime($time) {
+	// Get the GMT difference
+	$gmtDiff = substr(date("O"), 0, 3);
+	
+	// Minutes->hrs mins
+	$hr = (int)($time / 60);
+	$min = $time % 60;
+	
+	return str_pad($hr % 24, 2, '0', STR_PAD_LEFT) 
+		. str_pad($min, 2, '0', STR_PAD_LEFT)
+		. "00";
+}
+
 function generateIcal($schedule) {
+	// Globals
+	global $HTTPROOTADDRESS;
+
+	// We need to lookup the information about the quarter
+	$quarter = mysql_real_escape_string($schedule['quarter']);
+	$query = "SELECT start, end, breakstart, breakend FROM quarters WHERE quarter='{$quarter}'";
+	$result = mysql_query($query);
+	$quarter = mysql_fetch_assoc($result);
+	$qtrStart = strtotime($quarter['start']);
+	$qtrEnd = date("Ymd", strtotime($quarter['end']));
+
 	// Start generating code
 	$code = "";
 
+	// Header
+	$code .= "BEGIN:VCALENDAR\r\n";
+	$code .= "VERSION:2.0\r\n";
+	$code .= "PRODID: -//CSH ScheduleMaker//iCal4j 1.0//EN\r\n";
+	$code .= "METHOD:PUBLISH\r\n";
+	$code .= "CALSCALE:GREGORIAN\r\n";
+
 	// Iterate over all the courses
-	foreach($schedule as $course) {
+	foreach($schedule['courses'][0] as $course) {
+		// Skip classes that don't meet
+		if(empty($course['times'])) {
+			continue;
+		}
+		
 		// Iterate over all the times
 		foreach($course['times'] as $time) {
-			$code .= "BEGIN:VEVENT\n";
-			$code .= "UID:" . md5(uniqueid(mt_rand(), true) . " @{$HTTPROOTADDRESS}\n");
-			$code .= "DTSTAMP:" . gmdate('Ymd') . "T" . gmdate("His") . "Z\n";
+			$code .= "BEGIN:VEVENT\r\n";
+			$code .= "UID:" . md5(uniqid(mt_rand(), true) . " @{$HTTPROOTADDRESS}");
+			$code .= "\r\n";
+			$code .= "TZID:America/New_York\r\n";
+			$code .= "DTSTAMP:" . gmdate('Ymd') . "T" . gmdate("His") . "Z\r\n";
 
-			// Convert the times
-			$startTime = str_replace(":", "", translateTime($time['start'])) . "00";
-			$endTime   = str_replace(":", "", translateTime($time['end'])) . "00";
+			$startTime = icalFormatTime($time['start']);
+			$endTime = icalFormatTime($time['end']);
 
-			$code .= "DTSTART:{$DATE}T{$startTime}Z\n";
-			$code .= "DTEND:{$DATE}T{$endTime}Z\n";
-			$code .= "RRULE:Hot dickings\n";
-			$code .= "TZID:America/New_York\n";
-			$code .= "LOCATION:{$time['bldg']}-{$time['room']}\n";
-			$code .= "ORGANIZER:RIT";
-			$code .= "SUMMARY:{$course['title']} ({$course['courseNum']})";
+			// The start day of the event MUST be offset by it's day
+			// the -1 is b/c quarter starts are on Monday(=1)
+			// This /could/ be done via the RRULE WKST param, but that means
+			// translating days from numbers to some other esoteric format.
+			$day = date("Ymd", $qtrStart + ((60*60*24)*($time['day']-1)));
+
+			$code .= "DTSTART:" . $day . "T{$startTime}\r\n";
+			$code .= "DTEND:" . $day . "T{$endTime}\r\n";
+			$code .= "RRULE:FREQ=WEEKLY;UNTIL={$qtrEnd}\r\n";
+			$code .= "ORGANIZER:RIT\r\n";
 			
-			$code .= "END:VEVENT\n";
+			// Course name
+			$code .= "SUMMARY:{$course['title']}";
+			if($course['courseNum'] != 'non') {
+				$code .= " ({$course['courseNum']})";
+			}
+			$code .= "\r\n";
+
+			// Meeting location
+			if($course['courseNum'] != 'non') {
+				$bldg = $time['bldg'][$schedule['building']];
+				$code .= "LOCATION:{$bldg}-{$time['room']}\r\n";
+			}
+			
+			$code .= "END:VEVENT\r\n";
 		}
 	}
+
+	$code .= "END:VCALENDAR\r\n";
 
 	return $code;
 }
@@ -179,7 +234,7 @@ function getScheduleFromId($id) {
 	$query = "UPDATE schedules SET datelastaccessed = NOW() WHERE id={$id}";
 	$result = mysql_query($query);
 	
-	$query = "SELECT startday, endday, starttime, endtime, building FROM schedules WHERE id={$id}";
+	$query = "SELECT startday, endday, starttime, endtime, building, quarter FROM schedules WHERE id={$id}";
 	$result = mysql_query($query);
 	$scheduleInfo = mysql_fetch_assoc($result);
 	if(!$scheduleInfo) {
@@ -192,6 +247,7 @@ function getScheduleFromId($id) {
 	$startTime = (int)$scheduleInfo['starttime'];
 	$endTime   = (int)$scheduleInfo['endtime'];
 	$building  = $scheduleInfo['building'];
+	$quarter   = $scheduleInfo['quarter'];
 
 	// Create storage for the courses that will be returned
 	$schedule = array();
@@ -228,7 +284,8 @@ function getScheduleFromId($id) {
 			"endTime"   => $endTime,
 			"startDay"  => $startDay,
 			"endDay"    => $endDay,
-			"building"  => $building
+			"building"  => $building,
+			"quarter"   => $quarter
 			);
 }
 
@@ -323,25 +380,22 @@ switch($mode) {
 	case "ical":
 		// iCAL FORMAT SCHEDULE ////////////////////////////////////////////
 		// If we don't have a schedule, die!
-		if(empty($_POST['schedule'])) {
+		if(empty($_GET['id'])) {
 			die("You must provide a schedule");
 		}
 
+		// Database connection is required
+		require_once("inc/databaseConn.php");
+		require_once("inc/timeFunctions.php");
+
 		// Decode the schedule
-		$schedule = json_decode(stripslashes($_POST['schedule']), true);		
+		$schedule = getScheduleFromId(hexdec($_GET['id']));		
 
 		// Set header for ical mime, output the xml
 		header("Content-Type: text/calendar");
-		header("Content-Disposition: attachment; filename='generated_schedule" . md5(serialize($schedule)) . ".ics'");
-		?>
-BEGIN:VCALENDAR
-PRODID: -//CSH ScheduleMaker//iCal4j 1.0//EN
-VERSION:2.0
-METHOD:PUBLISH
-CALSCALE:GREGORIAN
-<?= generateIcal($schedule) ?>
-END:VCALENDAR
-		<?
+		header("Content-Disposition: attachment; filename=generated_schedule" . md5(serialize($schedule)) . ".ics");
+		echo generateIcal($schedule);
+		
 		break;
 	
 	case "old":
