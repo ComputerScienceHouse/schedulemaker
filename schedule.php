@@ -455,6 +455,23 @@ switch($mode) {
 
 		require "./inc/footer.inc";
 		break;
+		
+	case "json":
+		// JSON DATA STRUCTURE /////////////////////////////////////////////
+		$schedule = getScheduleFromId(hexdec($_GET['id']));
+		header('Content-type: text/javascript');
+		if ( $schedule == NULL )
+		{
+			echo json_encode(array(
+					'result' => 'error',
+					'error' => 'Schedule not found'
+				));
+		}
+		else
+		{
+			echo json_encode($schedule);
+		}
+		break;
 
 	default:
 		// INVALID OPTION //////////////////////////////////////////////////
