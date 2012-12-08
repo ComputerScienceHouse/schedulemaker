@@ -199,7 +199,7 @@ switch($_POST['action']) {
 		}
 
 		// If it has dashes, then strip them out
-		$course = str_replace("-", "", $_POST['course']);
+		$course = preg_replace("/[-\s]/", "", $_POST['course']);
 
 		// If the course has enough characters for a lab section but
 		// but doesn't match OR there are <= 9 characters but it isn't
