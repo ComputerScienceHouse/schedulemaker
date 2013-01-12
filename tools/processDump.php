@@ -633,11 +633,10 @@ while($row = mysqli_fetch_assoc($courseResult)) {
 				}
 
 				// Lop off a leading 0
-				if(!is_numeric($time['bldg']) && strlen($time['bldg']) > 3) {
-					$time['bldg'] = substr($time['bldg'], -3);
-				} elseif(is_numeric($time['bldg']) && $time['bldg'] < 100) {
-					$time['bldg'] = substr($time['bldg'], -2);
-				}
+                // Specifically this is to fix situations for bldg 7
+                if(strlen($time) > 3) {
+                    $time['bldg'] = substr($time['bldg'], -3);
+                }
 
 				// Escapables --
 				$time['bldg'] = mysqli_real_escape_string($dbConn, $time['bldg']);
