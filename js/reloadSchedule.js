@@ -14,6 +14,10 @@ function reloadSchedule() {
 	// @TODO: WHY O WHY DO WE NEED THIS NESTED ARRAYYYYYYYYYY?????!!!
 	schedule.courses = schedule.courses[0];
 	
+	// Grab and set the schedule's quarter
+	var quarter = schedule.quarter;
+	$("#quarter").val(quarter);
+	
 	// Create enough course fields to fit all the COURSES
 	var courseId = 1;
 	var nonCourseId = 1;
