@@ -103,12 +103,15 @@ function getCourseBySectionId($id) {
  */
 function getCourse($quarter, $deptNum, $courseNum, $sectNum) {
 	// Build the query
-	$query = "SELECT s.id,";
-	$query .= " (CASE WHEN (s.title != '') THEN s.title ELSE c.title END) AS title,";
-	$query .= " s.instructor, s.curenroll, s.maxenroll, s.type, c.department, c.course, s.section";
-	$query .= " FROM sections AS s JOIN courses AS c ON c.id=s.course";
-	$query .= " WHERE c.quarter = '{$quarter}' AND c.department = '{$deptNum}' ";
-	$query .= "AND c.course = '{$courseNum}' AND s.section = '{$sectNum}'";
+	$query = "SELECT s.id,
+	            (CASE WHEN (s.title != '') THEN s.title ELSE c.title END) AS title,
+	            s.instructor, s.curenroll, s.maxenroll, s.type, d.number AS department, c.course, s.section
+	          FROM sections AS s
+                JOIN courses AS c ON c.id=s.course
+                JOIN departments AS d ON d.id=c.department
+	          WHERE c.quarter = '{$quarter}'
+	            AND d.number = '{$deptNum}'
+                AND c.course = '{$courseNum}' AND s.section = '{$sectNum}'";
 
 	// Execute the query and error check
 	$result = mysql_query($query);

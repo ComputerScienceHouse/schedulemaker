@@ -293,7 +293,7 @@ switch($_POST['action']) {
 	// GET MATCHING SCHEDULES
 	case "getMatchingSchedules":
 		// Process the list of courses that were selected
-		$couseSet = array();
+		$courseSet = array();
 		for($i = 1; $i <= $_POST['courseCount']; $i++) {		// It's 1-indexed... :[
 			// Iterate over the courses in that course slot
 			if(!isset($_POST["courses{$i}Opt"])) { continue; }
@@ -398,7 +398,7 @@ switch($_POST['action']) {
 				" '{$json['quarter']}')";
 		$result = mysql_query($query);
 		if(!$result) {
-			die(json_encode(array("error" => "mysql", "msg" => "Failed to store the schedule: " . mysql_error($dbConn), "query"=>$query)));
+			die(json_encode(array("error" => "mysql", "msg" => "Failed to store the schedule: " . mysql_error($dbConn))));
 		}
 		
 		// Grab the latest id for the schedule
