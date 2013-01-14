@@ -202,12 +202,12 @@ function getDepartmentField($fieldname = "department", $selected = null, $any = 
 	$return .= ($any) ? "<option value='any'>Any Department</option>" : "";
 	
 	// Query the database for the departments
-	$query = "SELECT * FROM departments ORDER BY id";
+	$query = "SELECT number, title FROM departments ORDER BY number";
 	$result = mysql_query($query);
 	
 	// Output the departments as options
 	while($row = mysql_fetch_assoc($result)) {
-		$deptNum = $row['id'];
+		$deptNum = $row['number'];
 		$deptTitle = $row['title'];
 		$return .= "<option value='{$deptNum}'" . (($selected == $deptNum) ? " selected='selected'" : "") . ">{$deptNum} {$deptTitle}</option>";
 	}
