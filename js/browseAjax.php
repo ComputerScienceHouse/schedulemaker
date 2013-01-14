@@ -36,8 +36,12 @@ switch($_POST['action']) {
 		}
 
 		// Do the query
-		$query = "SELECT title, department, course, description, id FROM courses ";
-		$query .= "WHERE department = '{$_POST['department']}' AND quarter = '{$_POST['quarter']}' ORDER BY course";
+		$query = "SELECT c.title, d.number AS department, c.course, c.description, c.id
+                  FROM courses AS c
+                  JOIN departments AS d ON d.id = c.department
+		          WHERE d.number = '{$_POST['department']}'
+		            AND quarter = '{$_POST['quarter']}'
+		          ORDER BY course";
 		$result = mysql_query($query);
 		if(!$result) {
 			die(json_encode(array("error" => "mysql", "msg" => mysql_error())));
@@ -68,8 +72,16 @@ switch($_POST['action']) {
 		}
 
 		// Do the query
-		$query = "SELECT title, id, code FROM departments WHERE school = '{$_POST['school']}'";
-		$query .= " AND (SELECT COUNT(*) FROM courses WHERE department=departments.id AND quarter='{$_POST['quarter']}') > 1 ORDER BY id";
+		$query = "SELECT title, number AS id, code
+                  FROM departments AS d
+                  WHERE school = '{$_POST['school']}'
+		            AND (
+		              SELECT COUNT(*)
+		              FROM courses AS c
+		              WHERE c.department=d.id
+		                AND quarter='{$_POST['quarter']}'
+		              ) > 1
+                  ORDER BY id";
 		$result = mysql_query($query);
 		if(!$result) {
 			die(json_encode(array("error" => "mysql", "msg" => mysql_error())));
@@ -94,10 +106,14 @@ switch($_POST['action']) {
 		}
 
 		// Do the query
-		$query = "SELECT c.title AS coursetitle, c.course, c.department, s.section, ";
-		$query .= "s.instructor, s.id, s.type, s.maxenroll, s.curenroll, s.title AS sectiontitle ";
-		$query .= "FROM sections AS s, courses AS c ";
-		$query .= "WHERE s.course = c.id AND s.course = '{$_POST['course']}' AND s.status != 'X' ORDER BY c.course, s.section";
+		$query = "SELECT c.title AS coursetitle, c.course, d.number AS department, s.section,
+		            s.instructor, s.id, s.type, s.maxenroll, s.curenroll, s.title AS sectiontitle
+		          FROM sections AS s
+		            JOIN courses AS c ON s.course = c.id
+		            JOIN departments AS d ON d.id = c.department
+                  WHERE s.course = '{$_POST['course']}'
+                    AND s.status != 'X'
+                  ORDER BY c.course, s.section";
 		$sectionResult = mysql_query($query);
 		if(!$sectionResult) {
 			die(json_encode(array("error" => "mysql", "msg" => mysql_error())));
@@ -124,9 +140,11 @@ switch($_POST['action']) {
 				continue;
 			}
 
-			$query = "SELECT day, start, end, b.code, b.number, room ";
-			$query .= "FROM times AS t JOIN buildings AS b ON b.number=t.building ";
-			$query .= "WHERE t.section = '{$section['id']}' ORDER BY day, start";
+			$query = "SELECT day, start, end, b.code, b.number, room
+			          FROM times AS t
+			            JOIN buildings AS b ON b.number=t.building
+			          WHERE t.section = '{$section['id']}'
+			          ORDER BY day, start";
 			$timeResult = mysql_query($query);
 			if(!$timeResult) {
 				die(json_encode(array("error" => "mysql", "msg" => mysql_error())));
