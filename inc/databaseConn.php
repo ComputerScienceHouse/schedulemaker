@@ -75,11 +75,13 @@ function getMeetingInfo($sectionData) {
  */
 function getCourseBySectionId($id) {
 	// Build the query to get section info
-	$query = "SELECT s.id,";
-    $query .= " (CASE WHEN (s.title != '') THEN s.title ELSE c.title END) AS title,";
-    $query .= " s.instructor, s.curenroll, s.maxenroll, s.type, c.course, s.section, c.department";
-    $query .= " FROM sections AS s JOIN courses AS c ON s.course = c.id";
-    $query .= " WHERE s.id = '{$id}'";
+	$query = "SELECT s.id,
+                (CASE WHEN (s.title != '') THEN s.title ELSE c.title END) AS title,
+                s.instructor, s.curenroll, s.maxenroll, s.type, c.course, s.section, d.number AS department
+                FROM sections AS s
+                  JOIN courses AS c ON s.course = c.id
+                  JOIN departments AS d ON d.id = c.department
+                WHERE s.id = '{$id}'";
 
 	// Actually run the query
 	$result = mysql_query($query);
