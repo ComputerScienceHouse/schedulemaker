@@ -198,7 +198,7 @@ switch($_POST['action']) {
 			die(json_encode(array("error" => "argument", "msg" => "You must provide a quarter", "arg" => "course")));
 		}
 
-		// If it has dashes, then strip them out
+		// If it has dashes or whitespace, then strip them out
 		$course = preg_replace("/[-\s]/", "", $_POST['course']);
 
 		// If the course has enough characters for a lab section but
@@ -213,7 +213,7 @@ switch($_POST['action']) {
 		$department = substr($course, 0, 4);
 		if(strlen($department) != 4) {
 			// We didn't get an entire department. We won't proceed
-			die(json_encode(array("error" => "argument", "msg" => "You must provide at least a complete department number", "arg" => "course")));
+			die(json_encode(array("error" => "argument", "msg" => "You must provide at least a complete department", "arg" => "course")));
 		}
 
 		$coursenum = substr($course, 4, 3);
@@ -233,11 +233,13 @@ switch($_POST['action']) {
 		}
 
 		// Build a query and run it
-		$query = "SELECT c.department, c.course, s.section FROM courses AS c, sections AS s WHERE";
-		$query .= " s.course = c.id";
-		$query .= " AND c.quarter = '{$_POST['quarter']}'";
-		$query .= " AND c.department = '{$department}'";
-		$query .= " AND s.status != 'X'";
+		$query = "SELECT d.number, c.course, s.section
+		          FROM courses AS c
+		            JOIN sections AS s ON s.course = c.id
+		            JOIN departments AS d ON c.department = d.id
+		          WHERE c.quarter = '{$_POST['quarter']}'
+                    AND d.number = '{$department}'
+                    AND s.status != 'X'";
 		if($partialCourse) {
 			$query .= " AND c.course LIKE '{$coursenum}%'";
 		} else {
@@ -258,7 +260,7 @@ switch($_POST['action']) {
 			die(json_encode(array("error" => "mysql", "msg" => "There was a database error!", "arg" => "course")));
 		}
 		if(mysql_num_rows($result) == 0) {
-			die(json_encode(array("error" => "result", "msg" => "No courses match")));
+			die(json_encode(array("error" => "result", "msg" => "No courses match", "query"=>$query)));
 		}
 
 		// Now we can process it into a list of courses. It's pretty simple from here
