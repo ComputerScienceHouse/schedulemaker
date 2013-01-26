@@ -472,10 +472,16 @@ if(!mysqli_query($dbConn, $schoolQuery)) {
 }
 
 // Select all the departments to add/update
-$departmentQuery = "INSERT INTO departments (id, code, school)";
-$departmentQuery .= " SELECT subject, acad_org, SUBSTR(subject,1,2) FROM classes GROUP BY subject ORDER BY subject";
-$departmentQuery .= " ON DUPLICATE KEY UPDATE code=(SELECT acad_org FROM classes WHERE id=subject LIMIT 1),";
-$departmentQuery .= " school=(SELECT SUBSTR(subject, 1,2) FROM classes WHERE id=subject LIMIT 1)";
+// NOTE: Again, we're not going to pay attention to numeric schools any longer
+// NOTE: This looks weird b/c UNIQUE we cannot have a unique key constraint on
+//       code and number (NULLs are distinct), nor can we have a unique key
+//       constraint on just codes (some duplicates are legit). We're kinda
+//       gambling that departments won't switch schools anytime soon.
+// NOTE: This query takes a few seconds and PROBABLY won't do anything.
+$departmentQuery = "INSERT INTO departments (`code`, `school`)
+                    SELECT c.acad_org, s.id FROM classes AS c JOIN schools AS s ON s.code = c.acad_group
+                      WHERE c.acad_org NOT IN(SELECT code FROM departments)
+                      GROUP BY c.acad_org";
 debug("... Updating departments");
 if(!mysqli_query($dbConn, $departmentQuery)) {
 	echo("*** Error: Failed to update department listings\n");
