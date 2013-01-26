@@ -1,4 +1,5 @@
 -- Switch all the tables to innodb
+SELECT 'Changing db Engines' AS 'status';
 ALTER TABLE `buildings` ENGINE = InnoDB;
 ALTER TABLE `courses` ENGINE = InnoDB;
 ALTER TABLE `departments` ENGINE = InnoDB;
@@ -12,6 +13,7 @@ ALTER TABLE `sections` ENGINE = InnoDB;
 ALTER TABLE `times` ENGINE = InnoDB;
 
 -- Buildings ---------------------------------------------------------------
+SELECT 'Fixing Building Table' AS 'status';
 ALTER TABLE `times` ADD INDEX ( `building` );
 ALTER TABLE `times`
   CHANGE `building` `building` VARCHAR( 4 ) CHARACTER SET latin1
@@ -60,17 +62,20 @@ ALTER TABLE `times` ADD FOREIGN KEY ( `building` )
   ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- Time to section
+SELECT 'Times->Sections' AS 'status';
 ALTER TABLE `times` ADD FOREIGN KEY ( `section` )
   REFERENCES `sections` (`id`)
   ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- Section to courses
+SELECT 'Sections->Courses' AS 'status';
 DELETE FROM sections WHERE course NOT IN(SELECT id FROM courses);
 ALTER TABLE `sections` ADD FOREIGN KEY ( `course` )
   REFERENCES `courses` (`id`)
   ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- Schools -----------------------------------------------------------------
+SELECT 'Fixing Schools' AS 'status';
 ALTER TABLE `schools` CHANGE `id` `number` VARCHAR( 2 ) NULL DEFAULT NULL;
 ALTER TABLE `schools` CHANGE `code` `code` VARCHAR( 8 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL;
 UPDATE schools SET code = NULL;
@@ -79,7 +84,8 @@ ALTER TABLE `schools` ADD `id` INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY 
 ALTER TABLE `schools` ADD UNIQUE `UNI_id-number` ( `number` , `code` );
 
 -- Fix the departments table
-ALTER TABLE `departments` CHANGE `number` `number` SMALLINT( 4 ) UNSIGNED ZEROFILL NULL DEFAULT NULL;
+SELECT 'Fixing Departments' AS 'status';
+ALTER TABLE `departments` CHANGE `id` `number` SMALLINT( 4 ) UNSIGNED ZEROFILL NULL DEFAULT NULL;
 ALTER TABLE `departments` CHANGE `code` `code` VARCHAR( 5 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL;
 ALTER TABLE `departments` DROP PRIMARY KEY;
 ALTER TABLE `departments` ADD `id` INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST;
@@ -89,7 +95,6 @@ UPDATE departments SET code=NULL WHERE code='0';
 -- Correct the department->school stuff
 UPDATE departments AS d SET school = (SELECT id FROM schools AS s WHERE SUBSTRING(CONVERT(d.number, CHAR(4)), 1, 2) = s.number);
 ALTER TABLE `departments` CHANGE `school` `school` INT( 10 ) UNSIGNED NULL DEFAULT NULL;
-
 
 -- Correct the course department number
 ALTER TABLE `courses` ADD `departmentid` INT UNSIGNED NOT NULL AFTER `id`;
@@ -106,37 +111,40 @@ ALTER TABLE `courses` ADD FOREIGN KEY ( `department` )
   ON DELETE CASCADE ON UPDATE CASCADE ;
 
 -- Department to School
+SELECT 'Departments->Schools' AS 'status';
 ALTER TABLE `departments` ADD INDEX `school` ( `school` );
-ALTER TABLE `departments` CHANGE `school` `school` TINYINT( 2 ) UNSIGNED ZEROFILL NULL DEFAULT NULL;
 UPDATE departments SET school=NULL WHERE school="00";
 ALTER TABLE `departments` ADD FOREIGN KEY ( `school` )
   REFERENCES `schools` (`id`)
   ON DELETE CASCADE ON UPDATE CASCADE ;
 
 -- Course to Quarter
+SELECT 'Course->Quarter' AS 'status';
 ALTER TABLE `courses` ADD INDEX `quarter` ( `quarter` );
 ALTER TABLE `courses` ADD FOREIGN KEY ( `quarter` )
   REFERENCES `quarters` (`quarter`)
   ON DELETE CASCADE ON UPDATE CASCADE ;
 
 -- Schedulecourses to schedule
+SELECT 'ScheduleCourses->Schedules' AS 'status';
 ALTER TABLE `schedulecourses` ADD FOREIGN KEY ( `schedule` )
   REFERENCES `schedules` (`id`)
   ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- Schedulecourses to Sections
+SELECT 'ScheduleCourses->Sections' AS 'status';
 ALTER TABLE `schedulecourses` ADD INDEX `FK_schedulecourses-sections` ( `section` );
 DELETE FROM schedulecourses WHERE section NOT IN(SELECT id FROM sections);
 ALTER TABLE `schedulecourses` ADD FOREIGN KEY ( `section` )
   REFERENCES `sections` (`id`)
   ON DELETE CASCADE ON UPDATE CASCADE ; -- Not sure why, but this one takes decades to run
 
-
 -- Schedulenoncourses to schedule
+SELECT 'ScheduleNonCourses->Schedules' AS 'status';
 DELETE FROM schedulenoncourses
   WHERE schedule NOT IN (SELECT id FROM schedules );
 ALTER TABLE `schedulenoncourses` ADD FOREIGN KEY ( `schedule` )
   REFERENCES `schedules` (`id`)
   ON DELETE CASCADE ON UPDATE CASCADE ;
 
--- Add foreign keys
+-- Update the procedures

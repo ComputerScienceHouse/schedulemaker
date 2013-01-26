@@ -77,10 +77,10 @@ function halt($messages) {
     die();
 }
 
-function insertOrUpdateCourse($quarter, $department, $course, $credits, $title, $description) {
+function insertOrUpdateCourse($quarter, $departNum, $departCode, $course, $credits, $title, $description) {
 	global $dbConn, $coursesUpdated, $coursesAdded;
 	// Call the stored proc
-	$query = "CALL InsertOrUpdateCourse({$quarter}, {$department}, {$course}, {$credits}, '{$title}', '{$description}')";
+	$query = "CALL InsertOrUpdateCourse({$quarter}, {$departNum}, '{$departCode}', {$course}, {$credits}, '{$title}', '{$description}')";
 	$success = mysqli_multi_query($dbConn, $query);
 
 	// Catch errors or return the id
@@ -491,7 +491,7 @@ if(!mysqli_query($dbConn, $departmentQuery)) {
 $departmentsProc = mysqli_affected_rows($dbConn);
 
 // Grab each COURSE from the classes table
-$courseQuery = "SELECT strm, subject, topic, catalog_nbr, descr, course_descrlong,";
+$courseQuery = "SELECT strm, subject, acad_org, topic, catalog_nbr, descr, course_descrlong,";
 $courseQuery .= " crse_id, crse_offer_nbr, session_code";
 $courseQuery .= " FROM classes WHERE strm < 2131 GROUP BY crse_id, strm";
 debug("... Updating courses\n0%", false);
@@ -523,7 +523,7 @@ while($row = mysqli_fetch_assoc($courseResult)) {
 	$row['course_descrlong'] = mysqli_real_escape_string($dbConn, $row['course_descrlong']);
 
 	// Insert or update the course
-    $courseId = insertOrUpdateCourse($row['qtr'], $row['subject'], $row['catalog_nbr'],
+    $courseId = insertOrUpdateCourse($row['qtr'], $row['subject'], $row['acad_org'], $row['catalog_nbr'],
 	                                 0, $row['descr'], $row['course_descrlong']);
 	if(!is_numeric($courseId)) {
 		echo("    *** Error: Failed to update {$row['qtr']} {$row['subject']}-{$row['catalog_nbr']}\n");
