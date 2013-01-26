@@ -59,6 +59,24 @@ function cleanupExtraResults($dbConn) {
 	}
 }
 
+/**
+ * Outputs error messages, cleans up temporaray tables, then dies
+ * NOTE: Halts execution via die();
+ * @param $messages mixed   Array of messages to output
+ */
+function halt($messages) {
+    // Iterate over the messages, cleanup and die
+    if(is_array($messages)) {
+        foreach($messages as $message) {
+            echo "*** {$message}\n";
+        }
+    } else {
+        echo "*** {$messages}\n";
+    }
+    cleanup();
+    die();
+}
+
 function insertOrUpdateCourse($quarter, $department, $course, $credits, $title, $description) {
 	global $dbConn, $coursesUpdated, $coursesAdded;
 	// Call the stored proc
@@ -148,7 +166,6 @@ function getTempSections($courseNum, $offerNum, $term, $sessionNum) {
 	}
 	return $list;
 }
-	
 
 function fileToTempTable($tableName, $file, $fields, $fileSize, $procFunc=NULL) {
 	global $debugMode, $dbConn;
@@ -232,29 +249,19 @@ $failures        = 0;
 // FILE EXIST? /////////////////////////////////////////////////////////////
 // Verify that all the file locations are defined and they exist
 if(empty($DUMPCLASSES) || !file_exists($DUMPCLASSES)) {
-	echo "*** Fatal Error: Class dump file does not exist!\n";
-	cleanup();
-	die();
+	halt("Fatal Error: Class dump file does not exist!");
 }
 if(empty($DUMPCLASSATTR) || !file_exists($DUMPCLASSATTR)) {
-	echo "*** Fatal Error: Class attribute dump file does not exist!\n";
-	cleanup();
-	die();
+	halt("Fatal Error: Class attribute dump file does not exist!");
 }
 if(empty($DUMPINSTRUCT) || !file_exists($DUMPINSTRUCT)) {
-	echo "*** Fatal Error: Instructor dump file does not exist!\n";
-	cleanup();
-	die();
+	halt("Fatal Error: Instructor dump file does not exist!");
 }
 if(empty($DUMPMEETING) || !file_exists($DUMPMEETING)) {
-	echo "*** Fatal Error: Class meeting pattern dump file does not exist!\n";
-	cleanup();
-	die();
+	halt("Fatal Error: Class meeting pattern dump file does not exist!");
 }
 if(empty($DUMPNOTES) || !file_exists($DUMPNOTES)) {
-	echo "*** Fatal Error: Class notes dump file does not exist!\n";
-	cleanup();
-	die();
+	halt("Fatal Error: Class notes dump file does not exist!");
 }
 
 // FILE PARSING ////////////////////////////////////////////////////////////
@@ -305,10 +312,7 @@ ENE;
 if(mysqli_query($dbConn, $tempQuery)) {
 	debug("... Temporary class table created successfully");
 } else {
-	echo("*** Error: Failed to create temporary class table\n");
-	echo("    " . mysqli_error($dbConn) . "\n");
-	cleanup();
-	die();
+    halt(array("Error: Failed to create temporary class table", mysqli_error($dbConn)));
 }
 
 // Process the class file
@@ -358,10 +362,7 @@ ENE;
 if(mysqli_query($dbConn, $tempQuery)) {
 	debug("... Temporary meeting pattern table created successfully");
 } else {
-	echo("*** Error: Failed to create temporary meeting pattern table\n");
-	echo("    " . mysqli_error($dbConn) . "\n");
-	cleanup();
-	die();
+    halt(array("Error: Failed to create temporary meeting pattern table", mysqli_error($dbConn)));
 }
 
 // Process the meeting pattern file
@@ -401,10 +402,7 @@ ENE;
 if(mysqli_query($dbConn, $tempQuery)) {
 	debug("... Temporary instructor table created successfully");
 } else {
-	echo("*** Error: Failed to create temporary instructor table\n");
-	echo("    " . mysqli_error($dbConn) . "\n");
-	cleanup();
-	die();
+    halt(array("Error: Failed to create temporary instructor table", mysqli_error($dbConn)));
 }
 
 function procInstrArray($lineSplit) {
@@ -461,10 +459,10 @@ while($row = mysqli_fetch_assoc($quarterResult)) {
 debug("...100%");
 
 // Update all the school
-$schoolQuery = "INSERT INTO schools (id, code)";
-$schoolQuery .= " SELECT SUBSTR( subject, 1, 2 ) AS school, acad_group FROM classes GROUP BY acad_group ORDER BY subject";
-$schoolQuery .= " ON DUPLICATE KEY UPDATE code=(";
-$schoolQuery .= " SELECT GROUP_CONCAT(DISTINCT(acad_group)) FROM classes WHERE id=SUBSTR(subject,1,2) GROUP BY SUBSTR(subject,1,2))";
+// NOTE: After semesters start, we can no longer use the subject as a lookup
+// for the schools. Subjects are not provided with semester data, and the schools
+// for quarters are well defined. We shall no longer update numeric schools.
+$schoolQuery = "INSERT INTO schools (code) SELECT acad_group FROM classes ON DUPLICATE KEY UPDATE code=acad_group";
 debug("... Updating schools");
 if(!mysqli_query($dbConn, $schoolQuery)) {
 	echo("*** Error: Failed to update school listings\n");
@@ -545,10 +543,7 @@ while($row = mysqli_fetch_assoc($courseResult)) {
 			$instQuery .= " AND class_section='{$sect['class_section']}' LIMIT 1";
 			$instResult = mysqli_query($dbConn, $instQuery);
 			if(!$instResult) {
-				echo(mysqli_error($dbConn) . "\n");
-				echo($instQuery);
-				cleanup();
-				die();
+                halt(array("Failed to find an instructor for course", mysqli_error($dbConn)));
 			}
 			$instructor = mysqli_fetch_assoc($instResult);
 			if(!$instructor || $instructor['i'] == NULL) {
