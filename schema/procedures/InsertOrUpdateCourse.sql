@@ -21,12 +21,11 @@ BEGIN
               AND c.course = p_course
               AND c.quarter = p_quarter
             );
-  SET v_department = (
-            SELECT d.id
-            FROM departments AS d
-            WHERE d.code = p_department_code
-              OR d.number = p_department_num
-            );
+  IF p_quarter > 20130 THEN
+    SET v_department = (SELECT d.id FROM departments AS d WHERE d.code = p_department_code);
+  ELSE
+    SET v_department = (SELECT d.id FROM departments AS d WHERE d.number = p_department_num);
+  END IF;
 
   IF recordFound > 0 THEN
       -- Course exists, so update it

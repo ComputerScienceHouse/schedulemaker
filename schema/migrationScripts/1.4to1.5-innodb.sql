@@ -36,6 +36,7 @@ UPDATE `scheduleprod`.`buildings`
 UPDATE `buildings` SET `name` = 'Online' WHERE `buildings`.`number` = 'ONL';
 INSERT INTO `buildings` (`number`, `code`, `name`) VALUES ('OFFC', 'OFFC', 'UNKNOWN');
 INSERT INTO `buildings` (`number`, `code`, `name`) VALUES ('07', '07', 'Gannet/Booth Hall');
+INSERT INTO `buildings` (`number`, `code`, `name`) VALUES ('73', 'INS', 'Institute Hall');
 
 -- Prune bad times from olden days
 DELETE FROM times WHERE day=0 AND start=0 AND end=0;  -- Prune bad times from old days

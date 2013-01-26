@@ -628,14 +628,26 @@ while($row = mysqli_fetch_assoc($courseResult)) {
 				// TBD times --
 				if($time['bldg'] == 'UNKNOWN') {
 					$time['bldg'] = 'TBA';
-				}
-				if($time['room_nbr'] == 'UNKNOWN') {
 					$time['room_nbr'] = 'TBA';
 				}
+                if($time['bldg'] == 'TBD') {
+                    $time['bldg'] = 'TBA';
+                    $time['room_nbr'] = 'TBA';
+                }
+
+                // Silly OFFC for off campus
+                if($time['bldg'] == 'OFFC') {
+                    $time['bldg'] = 'OFF';
+                    $time['room_nbr'] = 'SITE';
+                }
 
 				// Lop off a leading 0
-                // Specifically this is to fix situations for bldg 7
-                if(is_numeric($time['bldg']) && strlen($time['bldg']) > 3) {
+                if(is_numeric($time['bldg']) && strlen($time['bldg']) >= 3 && $time['bldg'] < 100) {
+                    $time['bldg'] = substr($time['bldg'], -2);
+                }
+
+                // Building 7/Institute Hall Situations
+                if(preg_match("/[0-9]{3}[A-Za-z]/", $time['bldg'])) {
                     $time['bldg'] = substr($time['bldg'], -3);
                 }
 
