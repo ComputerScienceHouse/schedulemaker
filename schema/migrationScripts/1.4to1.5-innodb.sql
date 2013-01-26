@@ -71,7 +71,7 @@ ALTER TABLE `sections` ADD FOREIGN KEY ( `course` )
   ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- Schools -----------------------------------------------------------------
-ALTER TABLE `schools` CHANGE `id` `number` TINYINT( 2 ) UNSIGNED ZEROFILL NULL DEFAULT NULL;
+ALTER TABLE `schools` CHANGE `id` `number` VARCHAR( 2 ) NULL DEFAULT NULL;
 ALTER TABLE `schools` CHANGE `code` `code` VARCHAR( 8 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL;
 UPDATE schools SET code = NULL;
 ALTER TABLE schools DROP PRIMARY KEY;
@@ -87,7 +87,7 @@ ALTER TABLE `departments` CHANGE `number` `number` SMALLINT( 4 ) UNSIGNED ZEROFI
 UPDATE departments SET code=NULL WHERE code='0';
 
 -- Correct the department->school stuff
-UPDATE departments AS d SET school = (SELECT id FROM schools AS s WHERE s.number = d.school);
+UPDATE departments AS d SET school = (SELECT id FROM schools AS s WHERE SUBSTRING(CONVERT(d.number, CHAR(4)), 1, 2) = s.number);
 ALTER TABLE `departments` CHANGE `school` `school` INT( 10 ) UNSIGNED NULL DEFAULT NULL;
 
 
