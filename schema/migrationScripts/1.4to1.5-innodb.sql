@@ -70,6 +70,14 @@ ALTER TABLE `sections` ADD FOREIGN KEY ( `course` )
   REFERENCES `courses` (`id`)
   ON DELETE CASCADE ON UPDATE CASCADE;
 
+-- Schools -----------------------------------------------------------------
+ALTER TABLE `schools` CHANGE `id` `number` TINYINT( 2 ) UNSIGNED ZEROFILL NULL DEFAULT NULL;
+ALTER TABLE `schools` CHANGE `code` `code` VARCHAR( 8 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL;
+UPDATE schools SET code = NULL;
+ALTER TABLE schools DROP PRIMARY KEY;
+ALTER TABLE `schools` ADD `id` INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST;
+ALTER TABLE `schools` ADD UNIQUE `UNI_id-number` ( `number` , `code` );
+
 -- Fix the departments table
 ALTER TABLE `departments` CHANGE `number` `number` SMALLINT( 4 ) UNSIGNED ZEROFILL NULL DEFAULT NULL;
 ALTER TABLE `departments` CHANGE `code` `code` VARCHAR( 5 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL;
@@ -77,6 +85,11 @@ ALTER TABLE `departments` DROP PRIMARY KEY;
 ALTER TABLE `departments` ADD `id` INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST;
 ALTER TABLE `departments` CHANGE `number` `number` SMALLINT( 4 ) UNSIGNED ZEROFILL NULL DEFAULT NULL;
 UPDATE departments SET code=NULL WHERE code='0';
+
+-- Correct the department->school stuff
+UPDATE departments AS d SET school = (SELECT id FROM schools AS s WHERE s.number = d.school);
+ALTER TABLE `departments` CHANGE `school` `school` INT( 10 ) UNSIGNED NULL DEFAULT NULL;
+
 
 -- Correct the course department number
 ALTER TABLE `courses` ADD `departmentid` INT UNSIGNED NOT NULL AFTER `id`;
@@ -98,7 +111,7 @@ ALTER TABLE `departments` CHANGE `school` `school` TINYINT( 2 ) UNSIGNED ZEROFIL
 UPDATE departments SET school=NULL WHERE school="00";
 ALTER TABLE `departments` ADD FOREIGN KEY ( `school` )
   REFERENCES `schools` (`id`)
-  ON DELETE SET NULL ON UPDATE CASCADE ;
+  ON DELETE CASCADE ON UPDATE CASCADE ;
 
 -- Course to Quarter
 ALTER TABLE `courses` ADD INDEX `quarter` ( `quarter` );
