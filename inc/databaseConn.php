@@ -184,12 +184,12 @@ function getCollegeField($fieldname = "school", $selected = null, $any = false) 
 	$return .= ($any) ? "<option value='any'>Any College</option>" : "";
 	
 	// Query for the schools
-	$query = "SELECT * FROM schools ORDER BY id";
+	$query = "SELECT id, number, title FROM schools WHERE number IS NOT NULL ORDER BY id";
 	$result = mysql_query($query);
 
 	// Output the schools as options
 	while($row = mysql_fetch_assoc($result)) {
-		$return .= "<option value='{$row['id']}'" . (($selected == $row['id']) ? " selected='selected'" : "") . ">{$row['id']} {$row['title']}</option>";
+		$return .= "<option value='{$row['id']}'" . (($selected == $row['id']) ? " selected='selected'" : "") . ">{$row['number']} {$row['title']}</option>";
 	}
 
 	// Close it up and return it
