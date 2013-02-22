@@ -94,12 +94,14 @@ switch($_POST['action']) {
 		}
 
 		// Build the query
-		$query = "SELECT c.department, c.course, s.section, c.title, s.instructor, s.id";
-		$query .= " FROM courses AS c JOIN sections AS s ON s.course = c.id";
+		$query = "SELECT d.number AS department, c.course, s.section, c.title, s.instructor, s.id";
+		$query .= " FROM courses AS c ";
+        $query .= " JOIN sections AS s ON s.course = c.id";
+        $query .= " JOIN departments AS d ON d.id = c.department";
 		$query .= " WHERE quarter = '{$quarter}'";
 		$query .= " AND s.status != 'X'";
-		$query .= ($school)     ? " AND c.department > '{$school}' AND c.department < '" . ($school+100) . "'" : "";
-		$query .= ($department) ? " AND c.department = '{$department}'" : "";
+		$query .= ($school)     ? " AND d.number > '{$school}' AND d.number < '" . ($school+100) . "'" : "";
+		$query .= ($department) ? " AND d.number = '{$department}'" : "";
 		$query .= ($credits)    ? " AND c.credits = '{$credits}'" : "";
 		$query .= ($professor)  ? " AND s.instructor LIKE '%{$professor}%'" : "";
 		if($level) { // Process the course level

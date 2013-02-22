@@ -59,10 +59,28 @@ function cleanupExtraResults($dbConn) {
 	}
 }
 
-function insertOrUpdateCourse($quarter, $department, $course, $credits, $title, $description) {
+/**
+ * Outputs error messages, cleans up temporaray tables, then dies
+ * NOTE: Halts execution via die();
+ * @param $messages mixed   Array of messages to output
+ */
+function halt($messages) {
+    // Iterate over the messages, cleanup and die
+    if(is_array($messages)) {
+        foreach($messages as $message) {
+            echo "*** {$message}\n";
+        }
+    } else {
+        echo "*** {$messages}\n";
+    }
+    cleanup();
+    die();
+}
+
+function insertOrUpdateCourse($quarter, $departNum, $departCode, $course, $credits, $title, $description) {
 	global $dbConn, $coursesUpdated, $coursesAdded;
 	// Call the stored proc
-	$query = "CALL InsertOrUpdateCourse({$quarter}, {$department}, {$course}, {$credits}, '{$title}', '{$description}')";
+	$query = "CALL InsertOrUpdateCourse({$quarter}, {$departNum}, '{$departCode}', {$course}, {$credits}, '{$title}', '{$description}')";
 	$success = mysqli_multi_query($dbConn, $query);
 
 	// Catch errors or return the id
@@ -148,7 +166,6 @@ function getTempSections($courseNum, $offerNum, $term, $sessionNum) {
 	}
 	return $list;
 }
-	
 
 function fileToTempTable($tableName, $file, $fields, $fileSize, $procFunc=NULL) {
 	global $debugMode, $dbConn;
@@ -232,29 +249,19 @@ $failures        = 0;
 // FILE EXIST? /////////////////////////////////////////////////////////////
 // Verify that all the file locations are defined and they exist
 if(empty($DUMPCLASSES) || !file_exists($DUMPCLASSES)) {
-	echo "*** Fatal Error: Class dump file does not exist!\n";
-	cleanup();
-	die();
+	halt("Fatal Error: Class dump file does not exist!");
 }
 if(empty($DUMPCLASSATTR) || !file_exists($DUMPCLASSATTR)) {
-	echo "*** Fatal Error: Class attribute dump file does not exist!\n";
-	cleanup();
-	die();
+	halt("Fatal Error: Class attribute dump file does not exist!");
 }
 if(empty($DUMPINSTRUCT) || !file_exists($DUMPINSTRUCT)) {
-	echo "*** Fatal Error: Instructor dump file does not exist!\n";
-	cleanup();
-	die();
+	halt("Fatal Error: Instructor dump file does not exist!");
 }
 if(empty($DUMPMEETING) || !file_exists($DUMPMEETING)) {
-	echo "*** Fatal Error: Class meeting pattern dump file does not exist!\n";
-	cleanup();
-	die();
+	halt("Fatal Error: Class meeting pattern dump file does not exist!");
 }
 if(empty($DUMPNOTES) || !file_exists($DUMPNOTES)) {
-	echo "*** Fatal Error: Class notes dump file does not exist!\n";
-	cleanup();
-	die();
+	halt("Fatal Error: Class notes dump file does not exist!");
 }
 
 // FILE PARSING ////////////////////////////////////////////////////////////
@@ -305,10 +312,7 @@ ENE;
 if(mysqli_query($dbConn, $tempQuery)) {
 	debug("... Temporary class table created successfully");
 } else {
-	echo("*** Error: Failed to create temporary class table\n");
-	echo("    " . mysqli_error($dbConn) . "\n");
-	cleanup();
-	die();
+    halt(array("Error: Failed to create temporary class table", mysqli_error($dbConn)));
 }
 
 // Process the class file
@@ -358,10 +362,7 @@ ENE;
 if(mysqli_query($dbConn, $tempQuery)) {
 	debug("... Temporary meeting pattern table created successfully");
 } else {
-	echo("*** Error: Failed to create temporary meeting pattern table\n");
-	echo("    " . mysqli_error($dbConn) . "\n");
-	cleanup();
-	die();
+    halt(array("Error: Failed to create temporary meeting pattern table", mysqli_error($dbConn)));
 }
 
 // Process the meeting pattern file
@@ -369,12 +370,12 @@ function procMeetArray($lineSplit) {
 	// Turn the start/end times from 03:45 PM to 154500
 	// Hours must be mod'd by 12 so 12:00 PM does not become
 	// 24:00 and 12 AM does not become 12:00
-	if(!preg_match("/(\d\d):(\d\d) ([A-Z]{2})/", $lineSplit[10], $start)) {
+    $timePreg = "/(\d\d):(\d\d) ([A-Z]{2})/";
+	if(!preg_match($timePreg, $lineSplit[10], $start) || !preg_match($timePreg, $lineSplit[11], $end)) {
 		// Odds are the class is TBD (which means we can't represent it)
 		return false;
 	}
 	$lineSplit[10] = (($start[3] == 'PM') ? ($start[1] % 12) + 12 : $start[1] % 12) . $start[2] . "00";
-	preg_match("/(\d\d):(\d\d) ([A-Z]{2})/", $lineSplit[11], $end);
 	$lineSplit[11] = (($end[3] == 'PM') ? ($end[1] % 12) + 12 : $end[1] % 12) . $end[2] . "00";
 
 	// Section number needs to be padded to at least 2 digits
@@ -401,10 +402,7 @@ ENE;
 if(mysqli_query($dbConn, $tempQuery)) {
 	debug("... Temporary instructor table created successfully");
 } else {
-	echo("*** Error: Failed to create temporary instructor table\n");
-	echo("    " . mysqli_error($dbConn) . "\n");
-	cleanup();
-	die();
+    halt(array("Error: Failed to create temporary instructor table", mysqli_error($dbConn)));
 }
 
 function procInstrArray($lineSplit) {
@@ -461,10 +459,10 @@ while($row = mysqli_fetch_assoc($quarterResult)) {
 debug("...100%");
 
 // Update all the school
-$schoolQuery = "INSERT INTO schools (id, code)";
-$schoolQuery .= " SELECT SUBSTR( subject, 1, 2 ) AS school, acad_group FROM classes GROUP BY acad_group ORDER BY subject";
-$schoolQuery .= " ON DUPLICATE KEY UPDATE code=(";
-$schoolQuery .= " SELECT GROUP_CONCAT(DISTINCT(acad_group)) FROM classes WHERE id=SUBSTR(subject,1,2) GROUP BY SUBSTR(subject,1,2))";
+// NOTE: After semesters start, we can no longer use the subject as a lookup
+// for the schools. Subjects are not provided with semester data, and the schools
+// for quarters are well defined. We shall no longer update numeric schools.
+$schoolQuery = "INSERT INTO schools (code) SELECT acad_group FROM classes ON DUPLICATE KEY UPDATE code=acad_group";
 debug("... Updating schools");
 if(!mysqli_query($dbConn, $schoolQuery)) {
 	echo("*** Error: Failed to update school listings\n");
@@ -474,10 +472,18 @@ if(!mysqli_query($dbConn, $schoolQuery)) {
 }
 
 // Select all the departments to add/update
-$departmentQuery = "INSERT INTO departments (id, code, school)";
-$departmentQuery .= " SELECT subject, acad_org, SUBSTR(subject,1,2) FROM classes GROUP BY subject ORDER BY subject";
-$departmentQuery .= " ON DUPLICATE KEY UPDATE code=(SELECT acad_org FROM classes WHERE id=subject LIMIT 1),";
-$departmentQuery .= " school=(SELECT SUBSTR(subject, 1,2) FROM classes WHERE id=subject LIMIT 1)";
+// NOTE: Again, we're not going to pay attention to numeric schools any longer
+// NOTE: This looks weird b/c UNIQUE we cannot have a unique key constraint on
+//       code and number (NULLs are distinct), nor can we have a unique key
+//       constraint on just codes (some duplicates are legit). We're kinda
+//       gambling that departments won't switch schools anytime soon.
+// NOTE: This query takes a few seconds and PROBABLY won't do anything.
+// NOTE: The IS NOT NULL in the subquery is essential b/c IN does not work correctly
+//       with NULL values (bit.ly/cDQ5hF)
+$departmentQuery = "INSERT INTO departments (`code`, `school`)
+                    SELECT c.acad_org, s.id FROM classes AS c JOIN schools AS s ON s.code = c.acad_group
+                      WHERE c.acad_org NOT IN(SELECT code FROM departments WHERE code IS NOT NULL)
+                      GROUP BY c.acad_org";
 debug("... Updating departments");
 if(!mysqli_query($dbConn, $departmentQuery)) {
 	echo("*** Error: Failed to update department listings\n");
@@ -487,9 +493,9 @@ if(!mysqli_query($dbConn, $departmentQuery)) {
 $departmentsProc = mysqli_affected_rows($dbConn);
 
 // Grab each COURSE from the classes table
-$courseQuery = "SELECT strm, subject, topic, catalog_nbr, descr, course_descrlong,";
+$courseQuery = "SELECT strm, subject, acad_org, topic, catalog_nbr, descr, course_descrlong,";
 $courseQuery .= " crse_id, crse_offer_nbr, session_code";
-$courseQuery .= " FROM classes WHERE strm < 2131 GROUP BY crse_id, strm";
+$courseQuery .= " FROM classes WHERE strm < 20130 GROUP BY crse_id, strm";
 debug("... Updating courses\n0%", false);
 $courseResult = mysqli_query($dbConn, $courseQuery);
 if(!$courseResult) {
@@ -519,11 +525,16 @@ while($row = mysqli_fetch_assoc($courseResult)) {
 	$row['course_descrlong'] = mysqli_real_escape_string($dbConn, $row['course_descrlong']);
 
 	// Insert or update the course
-    $courseId = insertOrUpdateCourse($row['qtr'], $row['subject'], $row['catalog_nbr'],
+    $courseId = insertOrUpdateCourse($row['qtr'], $row['subject'], $row['acad_org'], $row['catalog_nbr'],
 	                                 0, $row['descr'], $row['course_descrlong']);
 	if(!is_numeric($courseId)) {
-		echo("    *** Error: Failed to update {$row['qtr']} {$row['subject']}-{$row['catalog_nbr']}\n");
-		echo("    " . mysqli_error($dbConn) . "\n");
+		echo("    *** Error: Failed to update {$row['qtr']} {$row['subject']}{$row['acad_org']}-{$row['catalog_nbr']}\n");
+		echo("    ");
+        var_dump($courseId);
+        echo("\n");
+        echo("    ");
+        var_dump($row);
+        echo("\n");
 		$failures++;
 	} else {
 		// Process the sections that this course has
@@ -545,10 +556,7 @@ while($row = mysqli_fetch_assoc($courseResult)) {
 			$instQuery .= " AND class_section='{$sect['class_section']}' LIMIT 1";
 			$instResult = mysqli_query($dbConn, $instQuery);
 			if(!$instResult) {
-				echo(mysqli_error($dbConn) . "\n");
-				echo($instQuery);
-				cleanup();
-				die();
+                halt(array("Failed to find an instructor for course", mysqli_error($dbConn)));
 			}
 			$instructor = mysqli_fetch_assoc($instResult);
 			if(!$instructor || $instructor['i'] == NULL) {
@@ -616,6 +624,7 @@ while($row = mysqli_fetch_assoc($courseResult)) {
 
 			// Now iterate over them and insert
 			while($time = mysqli_fetch_assoc($timeResult)) {
+                $origBldg = $time['bldg'];
 				// Process the meeting pattern
 				// Meeting Time --
 				$matches;
@@ -624,20 +633,34 @@ while($row = mysqli_fetch_assoc($courseResult)) {
 				preg_match('/(\d\d):(\d\d):\d\d/', $time['meeting_time_end'], $matches);
 				$endTime = ($matches[1] * 60) + $matches[2];
 
-				// TBD times --
-				if($time['bldg'] == 'UNKNOWN') {
-					$time['bldg'] = 'TBA';
-				}
-				if($time['room_nbr'] == 'UNKNOWN') {
-					$time['room_nbr'] = 'TBA';
-				}
+				// Special Buildings
+                switch($time['bldg']) {
+                    case "UNKNOWN":
+                    case "TBD":
+                        $time['bldg'] = 'TBA';
+                        $time['room_nbr'] = 'TBA';
+                        break;
 
-				// Lop off a leading 0
-				if(!is_numeric($time['bldg']) && strlen($time['bldg']) > 3) {
-					$time['bldg'] = substr($time['bldg'], -3);
-				} elseif(is_numeric($time['bldg']) && $time['bldg'] < 100) {
-					$time['bldg'] = substr($time['bldg'], -2);
-				}
+                    case "OFFC":
+                        $time['bldg'] = 'OFF';
+                        $time['room_nbr'] = 'SITE';
+                        break;
+
+                    case "ONLINE":
+                        $time['bldg'] = 'ON';
+                        $time['room_nbr'] = 'LINE';
+                        break;
+                }
+
+				// Lop off a leading 0 (if < 100)
+                if(is_numeric($time['bldg']) && strlen($time['bldg']) >= 3 && $time['bldg'] < 100) {
+                    $time['bldg'] = substr($time['bldg'], -2);
+                }
+
+                // Building 7/Institute Hall Situations
+                if(preg_match("/[0-9]{3}[A-Za-z]/", $time['bldg'])) {
+                    $time['bldg'] = substr($time['bldg'], -3);
+                }
 
 				// Escapables --
 				$time['bldg'] = mysqli_real_escape_string($dbConn, $time['bldg']);
@@ -653,6 +676,7 @@ while($row = mysqli_fetch_assoc($courseResult)) {
 						if(!mysqli_query($dbConn, $timeInsert)) {
 							echo("*** Failed to insert meeting time\n");
 							echo("    " . mysqli_error($dbConn) . "\n");
+                            echo("    {$origBldg}=>{$time['bldg']}");
 							$failures++;
 						}
 					}

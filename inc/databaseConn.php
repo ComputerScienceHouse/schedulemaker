@@ -75,11 +75,13 @@ function getMeetingInfo($sectionData) {
  */
 function getCourseBySectionId($id) {
 	// Build the query to get section info
-	$query = "SELECT s.id,";
-    $query .= " (CASE WHEN (s.title != '') THEN s.title ELSE c.title END) AS title,";
-    $query .= " s.instructor, s.curenroll, s.maxenroll, s.type, c.course, s.section, c.department";
-    $query .= " FROM sections AS s JOIN courses AS c ON s.course = c.id";
-    $query .= " WHERE s.id = '{$id}'";
+	$query = "SELECT s.id,
+                (CASE WHEN (s.title != '') THEN s.title ELSE c.title END) AS title,
+                s.instructor, s.curenroll, s.maxenroll, s.type, c.course, s.section, d.number AS department
+                FROM sections AS s
+                  JOIN courses AS c ON s.course = c.id
+                  JOIN departments AS d ON d.id = c.department
+                WHERE s.id = '{$id}'";
 
 	// Actually run the query
 	$result = mysql_query($query);
@@ -103,12 +105,15 @@ function getCourseBySectionId($id) {
  */
 function getCourse($quarter, $deptNum, $courseNum, $sectNum) {
 	// Build the query
-	$query = "SELECT s.id,";
-	$query .= " (CASE WHEN (s.title != '') THEN s.title ELSE c.title END) AS title,";
-	$query .= " s.instructor, s.curenroll, s.maxenroll, s.type, c.department, c.course, s.section";
-	$query .= " FROM sections AS s JOIN courses AS c ON c.id=s.course";
-	$query .= " WHERE c.quarter = '{$quarter}' AND c.department = '{$deptNum}' ";
-	$query .= "AND c.course = '{$courseNum}' AND s.section = '{$sectNum}'";
+	$query = "SELECT s.id,
+	            (CASE WHEN (s.title != '') THEN s.title ELSE c.title END) AS title,
+	            s.instructor, s.curenroll, s.maxenroll, s.type, d.number AS department, c.course, s.section
+	          FROM sections AS s
+                JOIN courses AS c ON c.id=s.course
+                JOIN departments AS d ON d.id=c.department
+	          WHERE c.quarter = '{$quarter}'
+	            AND d.number = '{$deptNum}'
+                AND c.course = '{$courseNum}' AND s.section = '{$sectNum}'";
 
 	// Execute the query and error check
 	$result = mysql_query($query);
@@ -179,12 +184,12 @@ function getCollegeField($fieldname = "school", $selected = null, $any = false) 
 	$return .= ($any) ? "<option value='any'>Any College</option>" : "";
 	
 	// Query for the schools
-	$query = "SELECT * FROM schools ORDER BY id";
+	$query = "SELECT id, number, title FROM schools WHERE number IS NOT NULL ORDER BY id";
 	$result = mysql_query($query);
 
 	// Output the schools as options
 	while($row = mysql_fetch_assoc($result)) {
-		$return .= "<option value='{$row['id']}'" . (($selected == $row['id']) ? " selected='selected'" : "") . ">{$row['id']} {$row['title']}</option>";
+		$return .= "<option value='{$row['id']}'" . (($selected == $row['id']) ? " selected='selected'" : "") . ">{$row['number']} {$row['title']}</option>";
 	}
 
 	// Close it up and return it
@@ -197,12 +202,12 @@ function getDepartmentField($fieldname = "department", $selected = null, $any = 
 	$return .= ($any) ? "<option value='any'>Any Department</option>" : "";
 	
 	// Query the database for the departments
-	$query = "SELECT * FROM departments ORDER BY id";
+	$query = "SELECT number, title FROM departments ORDER BY number";
 	$result = mysql_query($query);
 	
 	// Output the departments as options
 	while($row = mysql_fetch_assoc($result)) {
-		$deptNum = $row['id'];
+		$deptNum = $row['number'];
 		$deptTitle = $row['title'];
 		$return .= "<option value='{$deptNum}'" . (($selected == $deptNum) ? " selected='selected'" : "") . ">{$deptNum} {$deptTitle}</option>";
 	}
