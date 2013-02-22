@@ -11,4 +11,4 @@ CREATE TABLE buildings (
     `number` VARCHAR(3) PRIMARY KEY,
     `code` VARCHAR(3) UNIQUE,
     `name` VARCHAR(100)
-) Engine=MyISAM;
+) Engine=InnoDb;

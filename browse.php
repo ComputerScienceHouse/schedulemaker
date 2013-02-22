@@ -70,7 +70,13 @@ switch($quarter) {
 
 		<?
 		// Display the list of departments
-		$query = "SELECT * FROM schools ORDER BY id";
+        if($quarter > 20130) {
+            // School codes
+            $query = "SELECT id, code AS code, title FROM schools WHERE code IS NOT NULL ORDER BY code";
+        } else {
+            // School numbers
+            $query = "SELECT id, number AS code, title FROM schools WHERE number IS NOT NULL ORDER BY number";
+        }
 		$schoolResult = mysql_query($query);
 		if(!$schoolResult) {
 			die("An error occurred!");
@@ -80,9 +86,7 @@ switch($quarter) {
 			<div class="item school">
 				<button>+</button>
 				<input type='hidden' value="<?= $school['id'] ?>" />
-				<?= $school['id'] ?>
-				<?= ($quarter > 20130 ? "({$school['code']})" : "") ?>
-				 - <?= $school['title'] ?>
+				<?= $school['code'] ?> - <?= $school['title'] ?>
 			</div>
 			<?
 		}
