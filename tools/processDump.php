@@ -478,9 +478,11 @@ if(!mysqli_query($dbConn, $schoolQuery)) {
 //       constraint on just codes (some duplicates are legit). We're kinda
 //       gambling that departments won't switch schools anytime soon.
 // NOTE: This query takes a few seconds and PROBABLY won't do anything.
+// NOTE: The IS NOT NULL in the subquery is essential b/c IN does not work correctly
+//       with NULL values (bit.ly/cDQ5hF)
 $departmentQuery = "INSERT INTO departments (`code`, `school`)
                     SELECT c.acad_org, s.id FROM classes AS c JOIN schools AS s ON s.code = c.acad_group
-                      WHERE c.acad_org NOT IN(SELECT code FROM departments)
+                      WHERE c.acad_org NOT IN(SELECT code FROM departments WHERE code IS NOT NULL)
                       GROUP BY c.acad_org";
 debug("... Updating departments");
 if(!mysqli_query($dbConn, $departmentQuery)) {
@@ -493,7 +495,7 @@ $departmentsProc = mysqli_affected_rows($dbConn);
 // Grab each COURSE from the classes table
 $courseQuery = "SELECT strm, subject, acad_org, topic, catalog_nbr, descr, course_descrlong,";
 $courseQuery .= " crse_id, crse_offer_nbr, session_code";
-$courseQuery .= " FROM classes WHERE strm < 2131 GROUP BY crse_id, strm";
+$courseQuery .= " FROM classes WHERE strm < 20130 GROUP BY crse_id, strm";
 debug("... Updating courses\n0%", false);
 $courseResult = mysqli_query($dbConn, $courseQuery);
 if(!$courseResult) {
@@ -526,8 +528,13 @@ while($row = mysqli_fetch_assoc($courseResult)) {
     $courseId = insertOrUpdateCourse($row['qtr'], $row['subject'], $row['acad_org'], $row['catalog_nbr'],
 	                                 0, $row['descr'], $row['course_descrlong']);
 	if(!is_numeric($courseId)) {
-		echo("    *** Error: Failed to update {$row['qtr']} {$row['subject']}-{$row['catalog_nbr']}\n");
-		echo("    " . print_r($courseId, true) . "\n");
+		echo("    *** Error: Failed to update {$row['qtr']} {$row['subject']}{$row['acad_org']}-{$row['catalog_nbr']}\n");
+		echo("    ");
+        var_dump($courseId);
+        echo("\n");
+        echo("    ");
+        var_dump($row);
+        echo("\n");
 		$failures++;
 	} else {
 		// Process the sections that this course has
