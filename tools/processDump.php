@@ -370,12 +370,12 @@ function procMeetArray($lineSplit) {
 	// Turn the start/end times from 03:45 PM to 154500
 	// Hours must be mod'd by 12 so 12:00 PM does not become
 	// 24:00 and 12 AM does not become 12:00
-	if(!preg_match("/(\d\d):(\d\d) ([A-Z]{2})/", $lineSplit[10], $start)) {
+    $timePreg = "/(\d\d):(\d\d) ([A-Z]{2})/";
+	if(!preg_match($timePreg, $lineSplit[10], $start) || !preg_match($timePreg, $lineSplit[11], $end)) {
 		// Odds are the class is TBD (which means we can't represent it)
 		return false;
 	}
 	$lineSplit[10] = (($start[3] == 'PM') ? ($start[1] % 12) + 12 : $start[1] % 12) . $start[2] . "00";
-	preg_match("/(\d\d):(\d\d) ([A-Z]{2})/", $lineSplit[11], $end);
 	$lineSplit[11] = (($end[3] == 'PM') ? ($end[1] % 12) + 12 : $end[1] % 12) . $end[2] . "00";
 
 	// Section number needs to be padded to at least 2 digits
@@ -527,7 +527,7 @@ while($row = mysqli_fetch_assoc($courseResult)) {
 	                                 0, $row['descr'], $row['course_descrlong']);
 	if(!is_numeric($courseId)) {
 		echo("    *** Error: Failed to update {$row['qtr']} {$row['subject']}-{$row['catalog_nbr']}\n");
-		echo("    " . mysqli_error($dbConn) . "\n");
+		echo("    " . print_r($courseId, true) . "\n");
 		$failures++;
 	} else {
 		// Process the sections that this course has
@@ -617,6 +617,7 @@ while($row = mysqli_fetch_assoc($courseResult)) {
 
 			// Now iterate over them and insert
 			while($time = mysqli_fetch_assoc($timeResult)) {
+                $origBldg = $time['bldg'];
 				// Process the meeting pattern
 				// Meeting Time --
 				$matches;
@@ -625,23 +626,26 @@ while($row = mysqli_fetch_assoc($courseResult)) {
 				preg_match('/(\d\d):(\d\d):\d\d/', $time['meeting_time_end'], $matches);
 				$endTime = ($matches[1] * 60) + $matches[2];
 
-				// TBD times --
-				if($time['bldg'] == 'UNKNOWN') {
-					$time['bldg'] = 'TBA';
-					$time['room_nbr'] = 'TBA';
-				}
-                if($time['bldg'] == 'TBD') {
-                    $time['bldg'] = 'TBA';
-                    $time['room_nbr'] = 'TBA';
+				// Special Buildings
+                switch($time['bldg']) {
+                    case "UNKNOWN":
+                    case "TBD":
+                        $time['bldg'] = 'TBA';
+                        $time['room_nbr'] = 'TBA';
+                        break;
+
+                    case "OFFC":
+                        $time['bldg'] = 'OFF';
+                        $time['room_nbr'] = 'SITE';
+                        break;
+
+                    case "ONLINE":
+                        $time['bldg'] = 'ON';
+                        $time['room_nbr'] = 'LINE';
+                        break;
                 }
 
-                // Silly OFFC for off campus
-                if($time['bldg'] == 'OFFC') {
-                    $time['bldg'] = 'OFF';
-                    $time['room_nbr'] = 'SITE';
-                }
-
-				// Lop off a leading 0
+				// Lop off a leading 0 (if < 100)
                 if(is_numeric($time['bldg']) && strlen($time['bldg']) >= 3 && $time['bldg'] < 100) {
                     $time['bldg'] = substr($time['bldg'], -2);
                 }
@@ -665,6 +669,7 @@ while($row = mysqli_fetch_assoc($courseResult)) {
 						if(!mysqli_query($dbConn, $timeInsert)) {
 							echo("*** Failed to insert meeting time\n");
 							echo("    " . mysqli_error($dbConn) . "\n");
+                            echo("    {$origBldg}=>{$time['bldg']}");
 							$failures++;
 						}
 					}

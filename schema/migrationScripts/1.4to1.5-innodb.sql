@@ -28,12 +28,9 @@ ALTER TABLE `buildings`
 UPDATE times SET building = NULL WHERE building = "";
 
 -- Update broken building codes
-UPDATE `scheduleprod`.`buildings`
-  SET `number` = 'ACMT',
-        `code` = 'ACMT',
-        `name` = 'American College of Management and Technology'
-  WHERE `buildings`.`number` = 'ACM';
-UPDATE `buildings` SET `name` = 'Online' WHERE `buildings`.`number` = 'ONL';
+UPDATE `buildings` SET `name` = 'American College of Management and Technology', number="ACMT", code="ACMT" WHERE `buildings`.`number` = 'ACM';
+UPDATE `buildings` SET `name` = 'American University in Kosovo' WHERE `buildings`.`number` = 'AUK';
+UPDATE `buildings` SET `name` = 'Online', number='ON', code="ON" WHERE `buildings`.`number` = 'ONL';
 INSERT INTO `buildings` (`number`, `code`, `name`) VALUES ('OFFC', 'OFFC', 'UNKNOWN');
 INSERT INTO `buildings` (`number`, `code`, `name`) VALUES ('07', '07', 'Gannet/Booth Hall');
 INSERT INTO `buildings` (`number`, `code`, `name`) VALUES ('73', 'INS', 'Institute Hall');
@@ -53,7 +50,7 @@ UPDATE times SET building='TBA' WHERE building='TBD';
 UPDATE times SET building='ACMT' WHERE building='CMT';
 UPDATE times SET building='OFF' WHERE building='FF';
 UPDATE times SET building='DUB' WHERE building='NA';
-UPDATE times SET building='ONL' WHERE building='INE';
+UPDATE times SET building='ON' WHERE building='INE';
 UPDATE times SET building='OFFC' WHERE building='FFC';
 UPDATE times SET building='ACMT' WHERE building='ACM';
 UPDATE times SET building=NULL WHERE building IN("115", "12A", "15A", "1A", "550", "78A", "83", "8A", "950", "00", "1A");
