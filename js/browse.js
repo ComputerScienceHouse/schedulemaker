@@ -209,7 +209,7 @@ function schoolOnExpand(obj) {
 
 	// Snag the quarter for use in the query and determining whether to show
 	// department codes
-	var quarter = $("#quarterSelect").val().match(/=(\d{5})/)[1];
+	var term = $("#termSelect").val().match(/=(\d{5})/)[1];
 
 	// If the department already exists, then don't do the post resquest
 	if(p.children().last().hasClass("subDivision")) {
@@ -227,7 +227,7 @@ function schoolOnExpand(obj) {
 			.appendTo(p);
 
 	// Do an ajax call for the departments within this school
-	$.post("js/browseAjax.php", {'action': 'getDepartments', 'school': input.val(), 'quarter':quarter }, function(data) {
+	$.post("js/browseAjax.php", {action: 'getDepartments', school: input.val(), term:term }, function(data) {
 		try {		
 			data = eval("(" + data + ")");
 		} catch(e) {
@@ -246,14 +246,15 @@ function schoolOnExpand(obj) {
 		// No errors! Now we need to add a div for each department
 		for(i=0; i < data.departments.length; i++) {
 			var code;
-			if(quarter > 20130) {
-				code = (data.departments[i].code.length) ? " (" + data.departments[i].code + ")" : "";
+			if(term > 20130) {
+                code = data.departments[i].code;
+				code += (data.departments[i].number) ? " (" + data.departments[i].number + ")" : "";
 			} else {
-				code = "";
+				code = data.departments[i].number;
 			}
 
 			div = $("<div>").addClass("item")
-					.html(" " + data.departments[i].id + code + " - " + data.departments[i].title);
+					.html(" " + code + " - " + data.departments[i].title);
 			$("<input>").attr("type", "hidden")
 					.val(data.departments[i].id)
 					.prependTo(div);

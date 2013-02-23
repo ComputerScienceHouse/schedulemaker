@@ -5,7 +5,7 @@
 // @author	Ben Russell (benrr101@csh.rit.edu)
 //
 // @file	js/browseAjax.php
-// @descrip	Provides standalone JSON object retreival for the course 
+// @descrip	Provides standalone JSON object retrieval for the course
 //			browsing page
 ////////////////////////////////////////////////////////////////////////////
 
@@ -31,8 +31,8 @@ switch($_POST['action']) {
 		// Verify that we have department to get courses for and a quarter
 		if(empty($_POST['department']) || !is_numeric($_POST['department'])) {
 			die(json_encode(array("error" => "argument", "msg" => "You must provide a valid department")));
-		} elseif(empty($_POST['quarter']) || !is_numeric($_POST['quarter'])) {
-			die(json_encode(array("error" => "argument", "msg" => "You must provide a valid quarter")));
+		} elseif(empty($_POST['term']) || !is_numeric($_POST['term'])) {
+			die(json_encode(array("error" => "argument", "msg" => "You must provide a valid term")));
 		}
 
 		// Do the query
@@ -40,7 +40,7 @@ switch($_POST['action']) {
                   FROM courses AS c
                   JOIN departments AS d ON d.id = c.department
 		          WHERE d.number = '{$_POST['department']}'
-		            AND quarter = '{$_POST['quarter']}'
+		            AND quarter = '{$_POST['term']}'
 		          ORDER BY course";
 		$result = mysql_query($query);
 		if(!$result) {
@@ -67,21 +67,28 @@ switch($_POST['action']) {
 
 		// Verify that we have a quarter to make sure there are
 		// courses in the department.
-		if(empty($_POST['quarter']) || !is_numeric($_POST['quarter'])) {
-			die(json_encode(array("error" => "argument", "msg" => "You must provide a quarter")));
+		if(empty($_POST['term']) || !is_numeric($_POST['term'])) {
+			die(json_encode(array("error" => "argument", "msg" => "You must provide a term")));
 		}
 
 		// Do the query
-		$query = "SELECT title, number AS id, code
+        if($_POST['term'] > 2013) {
+            // Get the department code and concat the numbers
+            $query = "SELECT id, title, code, GROUP_CONCAT(number, ', ') AS number
+                      FROM departments AS d
+                      WHERE school = '{$_POST['school']}'
+                        AND (SELECT COUNT(*) FROM courses AS c WHERE c.department=d.id AND quarter='{$_POST['term']}') > 1
+                        AND code IS NOT NULL
+                      GROUP BY code
+                      ORDER BY code";
+        } else {
+            $query = "SELECT id, title, number
                   FROM departments AS d
                   WHERE school = '{$_POST['school']}'
-		            AND (
-		              SELECT COUNT(*)
-		              FROM courses AS c
-		              WHERE c.department=d.id
-		                AND quarter='{$_POST['quarter']}'
-		              ) > 1
+		            AND (SELECT COUNT(*) FROM courses AS c WHERE c.department=d.id AND quarter='{$_POST['term']}' ) > 1
+		            AND number IS NOT NULL
                   ORDER BY id";
+        }
 		$result = mysql_query($query);
 		if(!$result) {
 			die(json_encode(array("error" => "mysql", "msg" => mysql_error())));
@@ -90,7 +97,12 @@ switch($_POST['action']) {
 		// Collect the departments and turn it into a json
 		$departments = array();
 		while($department = mysql_fetch_assoc($result)) {
-			$departments[] = $department;
+            $departments[] = array(
+                "id" => $department['id'],
+                "title" => $department['title'],
+                "code" => isset($department['code']) ? $department['code'] : NULL,
+                "number" => trim($department['number'], " ,")
+            );
 		}
 
 		echo json_encode(array("departments" => $departments));
