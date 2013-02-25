@@ -77,6 +77,19 @@ function halt($messages) {
     die();
 }
 
+/**
+ * Inserts or updates a course. This function calls the stored procedure for
+ * inserting or updating a course.
+ * @param $quarter      int     The term that the course is in
+ * @param $departNum    int     The number of the department
+ * @param $departCode   int     The code for the department
+ * @param $course       int     The number of the course
+ * @param $credits      int     The credits the course offers
+ * @param $title        String  The title of the course
+ * @param $description  String  The description for the course
+ * @return  mixed   String of error message returned on failure.
+ *                  Integer of course ID returned on success
+ */
 function insertOrUpdateCourse($quarter, $departNum, $departCode, $course, $credits, $title, $description) {
 	global $dbConn, $coursesUpdated, $coursesAdded;
 	// Call the stored proc
@@ -462,7 +475,9 @@ debug("...100%");
 // NOTE: After semesters start, we can no longer use the subject as a lookup
 // for the schools. Subjects are not provided with semester data, and the schools
 // for quarters are well defined. We shall no longer update numeric schools.
-$schoolQuery = "INSERT INTO schools (code) SELECT acad_group FROM classes ON DUPLICATE KEY UPDATE code=acad_group";
+$schoolQuery = "INSERT INTO schools (code)
+                SELECT acad_group FROM classes
+                  WHERE acad_group NOT IN(SELECT code FROM schools WHERE code IS NOT NULL)";
 debug("... Updating schools");
 if(!mysqli_query($dbConn, $schoolQuery)) {
 	echo("*** Error: Failed to update school listings\n");
