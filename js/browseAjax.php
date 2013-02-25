@@ -36,10 +36,10 @@ switch($_POST['action']) {
 		}
 
 		// Do the query
-		$query = "SELECT c.title, d.number AS department, c.course, c.description, c.id
+		$query = "SELECT c.title, c.course, c.description, c.id, d.number, d.code
                   FROM courses AS c
                   JOIN departments AS d ON d.id = c.department
-		          WHERE d.number = '{$_POST['department']}'
+		          WHERE c.department = '{$_POST['department']}'
 		            AND quarter = '{$_POST['term']}'
 		          ORDER BY course";
 		$result = mysql_query($query);
@@ -50,7 +50,13 @@ switch($_POST['action']) {
 		// Collect the courses and turn it into a json
 		$courses = array();
 		while($course = mysql_fetch_assoc($result)) {
-			$courses[] = $course;
+            $courses[] = array(
+                "id" => $course['id'],
+                "course" => $course['course'],
+                "department" => array("code" => $course['code'], "number" =>$course['number']),
+                "title" => $course['title'],
+                "description" => $course['description']
+            );
 		}
 
 		echo json_encode(array("courses" => $courses));

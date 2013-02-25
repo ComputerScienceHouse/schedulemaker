@@ -130,7 +130,7 @@ function departmentOnExpand(obj) {
 	// Get the parent and the input field
 	var p       = obj.parent();
 	var input   = obj.next();
-	var quarter = $("#quarterSelect").val().match(/quarter=(\d{5})/)[1];
+	var term = $("#termSelect").val().match(/=(\d{5})/)[1];
 
 	// If the courses already exist, then don't do the post request
 	if(p.children().last().hasClass("subDivision")) {
@@ -148,7 +148,7 @@ function departmentOnExpand(obj) {
 			.appendTo(p);
 
 	// Do an ajax call for the courses within the department
-	$.post("js/browseAjax.php", {"action": "getCourses", "department": input.val(), "quarter": quarter}, function(data) {
+	$.post("js/browseAjax.php", {"action": "getCourses", "department": input.val(), "term": term}, function(data) {
 		try {
 			data = eval("(" + data + ")");
 		} catch(e) {
@@ -162,12 +162,30 @@ function departmentOnExpand(obj) {
 				.html("Sorry! An error occurred!<br />" + data.msg);
 			box.slideDown();
 			return;
-		}
+		} else if(data.courses.length == 0) {
+            // There were no matching courses
+            box.addClass("error");
+            box.html("Sorry! There are no courses in this department for this term.");
+            box.slideDown();
+            return;
+        }
 
 		// No errors! Now we need to add a div for each course
 		for(i=0; i < data.courses.length; i++) {
-			div = $("<div>").addClass("item")
-						.html(" " + data.courses[i].department + "-" + data.courses[i].course + " - " + data.courses[i].title);
+            var course = data.courses[i];
+
+            // Create a dive for the course
+            var div = $("<div>");
+            div.addClass("item");
+
+            // The base text for the div is the course number and the title
+            if(term > 20130) {
+                div.html(course.department.code + "-" + course.course + " - " + course.title);
+            } else {
+                div.html(course.department.number + "-" + course.course + " - " + course.title);
+            }
+
+            // Add description information
 			$("<p>").html(data.courses[i].description)
 						.addClass("courseDescription")
 						.appendTo(div);
