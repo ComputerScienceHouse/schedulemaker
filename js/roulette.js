@@ -20,16 +20,16 @@ $(document).ready(function() {
     });
 
     // Add handler to the term selector
-    $("#term").change(function(e) {
-        e.preventDefault();
-        termOnChange();
-    });
+    $("#term").change(function() { termOnChange(); });
 
     // Add handler to the school selector
-    $("#college").change(function(e) {
-        e.preventDefault();
-        collegeOnChange();
-    });
+    $("#college").change(function() { collegeOnChange(); });
+
+    // Add handler to the any time checkbox
+    $("#timesAny").change(function() { toggleTimesAny(this); });
+
+    // Add handler to the any day checkbox
+    $("#daysAny").change(function() { toggleDaysAny(this); });
 
     // Load the initial school list
     termOnChange();
@@ -237,6 +237,11 @@ function spinRoulette() {
 	});
 }
 
+/**
+ * Called when the anyDays checkbox is checked/unchecked. Toggles the enabled
+ * status of the specific day checkboxes
+ * @param field     (hopefully) the anyDays checkbox
+ */
 function toggleDaysAny(field) {
     // Grab the days checkboxes
     var days = $(".days");
@@ -247,21 +252,24 @@ function toggleDaysAny(field) {
         days.attr("disabled", "disabled");
 	} else {
 		// Show them all!
-		days.attr("disabled", "");
+		days.removeAttr("disabled");
 	}
 }
 
+/**
+ * Called when the anyTimes checkbox is checked/unchecked. Toggles the enabled
+ * status of the specific time checkboxes
+ * @param field     (hopefully) the anyTimes checkbox
+ */
 function toggleTimesAny(field) {
+    var times = $(".times");
+
 	// Are we hiding or showing?
 	if(field.checked) {
 		// Hide them all!
-		document.getElementById('morn').setAttribute('disabled', 'disabled');
-		document.getElementById('aftn').setAttribute('disabled', 'disabled');
-		document.getElementById('even').setAttribute('disabled', 'disabled');
+        times.attr("disabled", "disabled");
 	} else {
 		// Show them all!
-		document.getElementById('morn').removeAttribute('disabled');
-		document.getElementById('aftn').removeAttribute('disabled');
-		document.getElementById('even').removeAttribute('disabled');
+        times.removeAttr("disabled");
 	}
 }
