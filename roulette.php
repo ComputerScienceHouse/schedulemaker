@@ -29,7 +29,7 @@ require "./inc/header.inc";
 		<div class='rouletteLabel'><label for='college'>College:</label></div>
 		<div class='rouletteField'>
             <select id='college' name='college'>
-                <option>All Colleges</option>
+                <option value='any'>Any Colleges</option>
             </select>
         </div>
 	</div>
@@ -37,7 +37,7 @@ require "./inc/header.inc";
 		<div class='rouletteLabel'><label for='department'>Department:</label></div>
 		<div class='rouletteField'>
             <select id='department' name='department'>
-                <option>Select a College From Above</option>
+                <option value='any'>Select a College From Above</option>
             </select>
 		</div>
 	</div>

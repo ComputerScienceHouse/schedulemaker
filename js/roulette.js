@@ -47,7 +47,7 @@ function collegeOnChange() {
     var term = $("#term").children(":selected").val();
 
     // If the school selected is 'all', then back out
-    if(school == 'all') {
+    if(school == 'any') {
         $("<option>Select a College From Above</option>").appendTo(departments);
         return;
     }
@@ -85,7 +85,7 @@ function collegeOnChange() {
     });
 
     // Prepend a all option and select it
-    $("<option value='all' selected='selected'>All Departments</option>").prependTo(departments);
+    $("<option value='any' selected='selected'>Any Department</option>").prependTo(departments);
 }
 
 /**
@@ -116,7 +116,7 @@ function termOnChange() {
     // Clear out the list of departments
     var departments = $("#department");
     departments.children().remove();
-    $("<option>Select a College From Above</option>").appendTo(departments);
+    $("<option value='any'>Select a College From Above</option>").appendTo(departments);
 
     // Sort the list of schools based on code or number
     var term = $("#term").children(":selected").val();
@@ -150,7 +150,7 @@ function termOnChange() {
     }
 
     // Add the all option to the front of the list
-    $("<option value='all'>All Colleges</option>").prependTo(schools);
+    $("<option value='any'>Any College</option>").prependTo(schools);
     schools.children().first().attr("selected", "selected");
 }
 
@@ -167,70 +167,72 @@ function sortSchools(prop) {
 
 function spinRoulette() {
 	// Serialize the data from the restrictions form and send it in a POST request
-	$.post("./js/rouletteAjax.php", $('#parameters').serialize(), function(data) {
+	$.post("./js/rouletteAjax.php", $('#parameters').serialize(), function(d) {
         // Store the roulette course div for future use
         var courseDiv = $('#rouletteCourse');
 
-		// Process the resulting code
-		try {		
-			jsonResult = eval(data);
-		} catch(e) {
-			courseDiv.html("<h2>Sorry! An Error Occurred!</h2>");
-			courseDiv.slideDown();
-			return;
-		}
-
 		// Was there an error?
-		if(jsonResult.error != undefined && jsonResult.error != null) {
+		if(d.error != undefined && d.error != null) {
 			// Display the error in the result box
-			courseDiv.html("<h2>Sorry! An Error Occurred!</h2>" + jsonResult.msg + "");
+			courseDiv.html("<h2>Sorry! An Error Occurred!</h2>" + d.msg + "");
 			courseDiv.removeClass();
 			courseDiv.addClass('rouletteError');
-		} else {
-			courseDiv.empty();
-			$("<h2>").html("Your Random Course")
-					.appendTo(courseDiv);
-			var title = jsonResult.department + "-" + jsonResult.course + "-" + jsonResult.section
-					+ " " + jsonResult.title + " with " + jsonResult.instructor;
-			$("<p>").css("font-weight", "bold")
-					.html(title)
-					.appendTo(courseDiv);
-			if(jsonResult.times.length > 0) {
-				table = $("<table>").attr("id", "rouletteCourseTimes");
-				for(i = 0; i < jsonResult.times.length; i++) {
-					var t = jsonResult.times[i];
-					row = $("<tr>");
-					$("<td>").html(t.day)
-							.appendTo(row);
-					$("<td>").html(t.start)
-							.appendTo(row);
-					$("<td>").html("-")
-							.appendTo(row);
-					$("<td>").html(t.end)
-							.appendTo(row);
-					$("<td>").html(t.bldg.code + "(" + t.bldg.number + ")" + "-" + t.room)
-							.appendTo(row);
-					row.appendTo(table);
-				}
-				table.appendTo(courseDiv);
-			}
-
-			// @TODO:	Link to course in SIS
-			
-			// Make a button that stores the course info in session data
-			$("<input>").attr("type", "button")
-						.attr("value", "Build Schedule with this Course")
-						.click(function() {	
-							sessionStorage.setItem("rouletteCourse", jsonResult.department + "-" + jsonResult.course + "-" + jsonResult.section); 
-							window.location = "generate.php";
-							})
-						.appendTo(courseDiv);
-
-			courseDiv.removeClass();
+            courseDiv.slideDown();
+            return;
 		}
 
-		// Make it visible and change the button text
-		courseDiv.slideDown();
+        // Clear out existing random courses and display the header
+        courseDiv.empty();
+        $("<h2>Your Random Course</h2>").appendTo(courseDiv);
+
+        // Display the department based on the term
+        var term = $("#term").children(":selected").val();
+        var title = (term > 20130) ? d.department.code : d.department.number;
+        title += "-" + d.course + "-" + d.section;
+        title += " " + d.title + " with " + d.instructor;
+
+        // Append the title
+        $("<p>").css("font-weight", "bold")
+                .html(title)
+                .appendTo(courseDiv);
+
+        // Append a table for the meeting times of the course
+        if(d.times.length > 0) {
+            var table = $("<table>").attr("id", "rouletteCourseTimes");
+            for(var i = 0; i < d.times.length; i++) {
+                var time = d.times[i];
+
+                // Generate a row
+                var row = $("<tr>");
+                $("<td>" + time.day + "</td>").appendTo(row);
+                $("<td>" + time.start + "</td>").appendTo(row);
+                $("<td>-</td>").appendTo(row);
+                $("<td>" + time.end + "</td>").appendTo(row);
+
+                // Building number/code is a bit more complex
+                var bldg = time.bldg.code + "(" + time.bldg.number + ")";
+                bldg += "-" + time.room;
+                $("<td>" + bldg + "</td>").appendTo(row);
+
+                // Add the row
+                row.appendTo(table);
+            }
+            table.appendTo(courseDiv);
+        }
+
+        // @TODO:	Link to course in the browse page
+
+        // Make a button that stores the course info in session data
+        $("<input>").attr("type", "button")
+                    .attr("value", "Build Schedule with this Course")
+                    .click(function() {
+                        sessionStorage.setItem("rouletteCourse", d.department + "-" + d.course + "-" + d.section);
+                        window.location = "generate.php";
+                        })
+                    .appendTo(courseDiv);
+
+        courseDiv.removeClass();
+        courseDiv.slideDown();
 		$('#spinButton').val("I Want a Different Course!");
 	});
 }
