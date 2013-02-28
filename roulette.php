@@ -22,17 +22,24 @@ require "./inc/header.inc";
 	</div>
 	<div id='rouletteParamFields'>
 	<div class='rouletteParamField'>
-		<div class='rouletteLabel'><label for='quarter'>Quarter*:</label></div>
-		<div class='rouletteField'><?= getQuarterField('quarter', $CURRENT_QUARTER) ?></div>
+		<div class='rouletteLabel'><label for='term'>Term*:</label></div>
+		<div class='rouletteField'><?= getTermField('term', $CURRENT_QUARTER) ?></div>
 	</div>
-	<div class='rouletteParamField' style='margin-bottom:0'>
+	<div class='rouletteParamField'>
 		<div class='rouletteLabel'><label for='college'>College:</label></div>
-		<div class='rouletteField'><?= getCollegeField('college', null, true) ?></div>
+		<div class='rouletteField'>
+            <select id='college' name='college'>
+                <option>All Colleges</option>
+            </select>
+        </div>
 	</div>
-	<div class='rouletteParamField rouletteOR'>OR</div>
 	<div class='rouletteParamField'>
 		<div class='rouletteLabel'><label for='department'>Department:</label></div>
-		<div class='rouletteField'><?= getDepartmentField('department', null, true) ?></div>
+		<div class='rouletteField'>
+            <select id='department' name='department'>
+                <option>Select a College From Above</option>
+            </select>
+		</div>
 	</div>
 	<div class='rouletteParamField'>
 		<div class='rouletteLabel'><label for='level'>Level:</label></div>
@@ -59,14 +66,14 @@ require "./inc/header.inc";
 			<table>
 				<tr class='separated'><td><input type='checkbox' name='daysAny' value='any' onChange='toggleDaysAny(this)' /></td><td colspan='3'>Any Day</td></tr>
 				<tr>
-					<td><input id='mon' type='checkbox' name='days[]' value='Mon' /></td><td>Monday</td>
-					<td><input id='tue' type='checkbox' name='days[]' value='Tue' /></td><td>Tuesday</td>
+					<td><input id='mon' class='days' type='checkbox' name='days[]' value='Mon' /></td><td>Monday</td>
+					<td><input id='tue' class='days' type='checkbox' name='days[]' value='Tue' /></td><td>Tuesday</td>
 				</tr><tr>
-					<td><input id='wed' type='checkbox' name='days[]' value='Wed' /></td><td>Wednesday</td>
-					<td><input id='hur' type='checkbox' name='days[]' value='Thur' /></td><td>Thursday</td>
+					<td><input id='wed' class='days' type='checkbox' name='days[]' value='Wed' /></td><td>Wednesday</td>
+					<td><input id='hur' class='days' type='checkbox' name='days[]' value='Thur' /></td><td>Thursday</td>
 				</tr><tr>
-					<td><input id='fri' type='checkbox' name='days[]' value='Fri' /></td><td>Friday</td>
-					<td><input id='sat' type='checkbox' name='days[]' value='Sat' /></td><td>Saturday</td>
+					<td><input id='fri' class='days' type='checkbox' name='days[]' value='Fri' /></td><td>Friday</td>
+					<td><input id='sat' class='days' type='checkbox' name='days[]' value='Sat' /></td><td>Saturday</td>
 				</tr>
 			</table>
 		</div>
@@ -96,7 +103,7 @@ require "./inc/header.inc";
 
 <div id='rouletteCourse'></div>
 <div id='rouletteSpin'>
-	<input id='spinButton' class='bigButton' type='button' value="Give Me a Random Course!" onClick="spinRoulette();" />
+	<input id='spinButton' class='bigButton' type='button' value="Give Me a Random Course!" />
 </div>
 
 </form>
