@@ -78,7 +78,7 @@ switch($_POST['action']) {
 		}
 
 		// Do the query
-        if($_POST['term'] > 2013) {
+        if($_POST['term'] > 20130) {
             // Get the department code and concat the numbers
             $query = "SELECT id, title, code, GROUP_CONCAT(number, ', ') AS number
                       FROM departments AS d
