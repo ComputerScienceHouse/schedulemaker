@@ -61,13 +61,6 @@ function courseOnExpand(obj) {
 
 	// Do an ajax call for the sections of the course
 	$.post("js/browseAjax.php", {"action": "getSections", "course": input.val()}, function(data) {
-		try {
-			data = eval("(" + data + ")");
-		} catch(e) {
-			alert("An error occurred: the jSON is malformed");
-			return;
-		}
-
 		// Check for errors
 		if(data.error != null && data.error != undefined) {
 			box.addClass("error")
@@ -149,13 +142,6 @@ function departmentOnExpand(obj) {
 
 	// Do an ajax call for the courses within the department
 	$.post("js/browseAjax.php", {"action": "getCourses", "department": input.val(), "term": term}, function(data) {
-		try {
-			data = eval("(" + data + ")");
-		} catch(e) {
-			alert("An error occurred: the resulting jSON is malformed.");
-			return;
-		}
-		
 		// Check for errors
 		if(data.error != null && data.error != undefined) {
 			box.addClass("error")
@@ -246,13 +232,6 @@ function schoolOnExpand(obj) {
 
 	// Do an ajax call for the departments within this school
 	$.post("js/browseAjax.php", {action: 'getDepartments', school: input.val(), term:term }, function(data) {
-		try {		
-			data = eval("(" + data + ")");
-		} catch(e) {
-			alert("An error occurred: the resulting jSON is malformed.");
-			return;
-		}
-
 		// Check for errors
 		if(data.error != null && data.error != undefined) {
 			box.addClass("error")

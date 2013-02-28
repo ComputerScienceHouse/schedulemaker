@@ -15,6 +15,9 @@ require_once "../inc/databaseConn.php";
 require_once "../inc/timeFunctions.php";
 require_once "../inc/ajaxError.php";
 
+// HEADERS /////////////////////////////////////////////////////////////////
+header("Content-type: application/json");
+
 // POST PROCESSING /////////////////////////////////////////////////////////
 $_POST = sanitize($_POST);
 
@@ -126,7 +129,7 @@ switch($_POST['action']) {
 
         // Build an array of schools
         $schools = array();
-        while($school = mysql_fetch_assoc($school)) {
+        while($school = mysql_fetch_assoc($result)) {
             $schools[] = $school;
         }
 
