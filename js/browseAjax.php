@@ -115,6 +115,25 @@ switch($_POST['action']) {
 
 		break;
 
+    case "getSchools":
+        // REQUEST FOR LIST OF SCHOOLS /////////////////////////////////////
+        // Query for the schools
+        $query = "SELECT `id`, `number`, `code`, `title` FROM schools";
+        $result = mysql_query($query);
+        if(!$result) {
+            die(json_encode(array("error" => "database", "msg" => "The list of schools could not be retrieved at this time.")));
+        }
+
+        // Build an array of schools
+        $schools = array();
+        while($school = mysql_fetch_assoc($school)) {
+            $schools[] = $school;
+        }
+
+        // Return it to the user
+        echo(json_encode($schools));
+        break;
+
 	case "getSections":
 		// Query for the sections and times of a given course
 		
@@ -182,4 +201,8 @@ switch($_POST['action']) {
 		// Spit out the json
 		echo json_encode(array("sections" => $sections));
 		break;
+
+    default:
+        die(json_encode(array("error" => "argument", "msg" => "You must provide a valid action.")));
+
 }
