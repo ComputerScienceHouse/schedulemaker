@@ -439,14 +439,18 @@ switch($mode) {
 		
 		$schedule = getScheduleFromId(hexdec($_GET['id']));
 		if($schedule == NULL) {
+            // Schedule does not exist. Error out and die.
 			?>
 			<div class='schedUrl error'>
 				<p><span style='font-weight:bold'>Fatal Error:</span> The requested schedule does not exist!</p>
 			</div>
 			<?
-		} else {
-			echo generateScheduleFromCourses($schedule);
+            require "./inc/footer.inc";
+            die();
 		}
+
+        // Schedule exists! Output it.
+        echo generateScheduleFromCourses($schedule);
 
 		// Translate the schedule into json and escape '
 		$json = json_encode($schedule);
