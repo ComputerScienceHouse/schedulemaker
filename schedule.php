@@ -26,7 +26,7 @@ function drawCourse($course, $startTime, $endTime, $startDay, $endDay, $color, $
 		}
 
 		// Add a div for the time
-		$code .= "<div class='day" . ($time['day'] - $startDay) . " color{$color}' style = '";
+		$code .= "<div class='day" . ($time['day'] - $startDay) . " color{$color} timeContainer' style = '";
 
 		$height    = (ceil(($time['end'] - $time['start']) / 30) * 20) - 1;
 		$topOffset = (floor(($time['start'] - $startTime) / 30) * 20) + 20;
@@ -41,10 +41,8 @@ function drawCourse($course, $startTime, $endTime, $startDay, $endDay, $color, $
 		}
 		$code .= ">{$course['title']}</h4><div>";
 		if($course['courseNum'] != "non") {
-			if($height > 40) {
-				$code .= $course['courseNum'] . "<br />";
-				$code .= $course['instructor'] . "<br />";
-			}
+		    $code .= $course['courseNum'] . "<br />";
+			$code .= $course['instructor'] . "<br />";
 			$code .= $time['bldg'][$bldg] . "-" . $time['room'];
 		}
 		$code .= "</div>";
