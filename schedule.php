@@ -456,6 +456,7 @@ switch($mode) {
 			<input type='hidden' id='schedJson' value="<?= $json ?>" name='schedJson' />
 			<button type='button' id='forkButton'>Copy and Edit</button>
 			<button type='button' id='printButton'>Print Schedule</button>
+            <button type='button' id='iCalButton'>Download iCal</button>
 		</div>
 		<script src='js/savedSchedule.js' type='text/javascript'></script>
 		<?

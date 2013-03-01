@@ -8,7 +8,7 @@
 ////////////////////////////////////////////////////////////////////////////
 
 $(document).ready(function() {
-	// Associate a handler with the print and fork buttons
+	// Associate a handler with the print/fork/ical buttons
 	$("#printButton").click(function() {
 		printSchedule();
 	});
@@ -16,6 +16,11 @@ $(document).ready(function() {
 	$("#forkButton").click(function() {
 		forkSchedule();
 	});
+
+    $("#iCalButton").click(function(e) {
+        e.preventDefault();
+        window.location = window.location + "&mode=ical";
+    });
 });
 
 function forkSchedule() {
