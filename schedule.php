@@ -111,12 +111,12 @@ function generateIcal($schedule) {
 	global $HTTPROOTADDRESS;
 
 	// We need to lookup the information about the quarter
-	$quarter = mysql_real_escape_string($schedule['quarter']);
-	$query = "SELECT start, end, breakstart, breakend FROM quarters WHERE quarter='{$quarter}'";
+	$term = mysql_real_escape_string($schedule['term']);
+	$query = "SELECT start, end, breakstart, breakend FROM quarters WHERE quarter='{$term}'";
 	$result = mysql_query($query);
-	$quarter = mysql_fetch_assoc($result);
-	$qtrStart = strtotime($quarter['start']);
-	$qtrEnd = date("Ymd", strtotime($quarter['end']));
+	$term = mysql_fetch_assoc($result);
+	$termStart = strtotime($term['start']);
+	$termEnd = date("Ymd", strtotime($term['end']));
 
 	// Start generating code
 	$code = "";
@@ -150,11 +150,11 @@ function generateIcal($schedule) {
 			// the -1 is b/c quarter starts are on Monday(=1)
 			// This /could/ be done via the RRULE WKST param, but that means
 			// translating days from numbers to some other esoteric format.
-			$day = date("Ymd", $qtrStart + ((60*60*24)*($time['day']-1)));
+			$day = date("Ymd", $termStart + ((60*60*24)*($time['day']-1)));
 
 			$code .= "DTSTART:" . $day . "T{$startTime}\r\n";
 			$code .= "DTEND:" . $day . "T{$endTime}\r\n";
-			$code .= "RRULE:FREQ=WEEKLY;UNTIL={$qtrEnd}\r\n";
+			$code .= "RRULE:FREQ=WEEKLY;UNTIL={$termEnd}\r\n";
 			$code .= "ORGANIZER:RIT\r\n";
 			
 			// Course name
@@ -247,7 +247,7 @@ function getScheduleFromId($id) {
 	$startTime = (int)$scheduleInfo['starttime'];
 	$endTime   = (int)$scheduleInfo['endtime'];
 	$building  = $scheduleInfo['building'];
-	$quarter   = $scheduleInfo['quarter'];
+	$term      = $scheduleInfo['quarter'];
 
 	// Create storage for the courses that will be returned
 	$schedule = array();
@@ -285,7 +285,7 @@ function getScheduleFromId($id) {
 			"startDay"  => $startDay,
 			"endDay"    => $endDay,
 			"building"  => $building,
-			"quarter"   => $quarter
+			"term"      => $term
 			);
 }
 
@@ -343,21 +343,28 @@ switch($mode) {
 			endtime     = data.endTime;
 			SCHEDPERPAGE= 1;
 
-			// Calculate the quarter for header purposes
-			if(data.quarter > 20130) {
-				// @TODO: Figure out what in the fuck to do for semesters
-			} else {
-				// Split it up and store it as the header
-				var year = data.quarter.substring(0,4);
-				var quarter = data.quarter.substring(4);
-				switch(quarter) {
-					case '1': quarter = "Fall"; break;
-					case '2': quarter = "Winter"; break;
-					case '3': quarter = "Spring"; break;
-					case '4': quarter = "Summer"; break;
-				}
-				$("#header").html("My " + quarter + " " + year + "-" + (parseInt(year)+1) + " Schedule");
-			}
+			// Calculate the term for header purposes
+            // Split it up and store it as the header
+            var year = parseInt(data.term.substring(0,4));
+            var term = data.term.substring(4);
+            if(year > 2013) {
+                switch(term) {
+                    case '1': term = "Fall"; break;
+                    case '3': term = "Winter Intersession"; break;
+                    case '5': term = "Spring"; break;
+                    case '8': term = "Summer"; break;
+                    default:  term = "Unknown";
+                }
+            } else {
+                switch(term) {
+                    case '1': term = "Fall"; break;
+                    case '2': term = "Winter"; break;
+                    case '3': term = "Spring"; break;
+                    case '4': term = "Summer"; break;
+                    default:  term = "Unknown";
+                }
+            }
+            $("#header").html("My " + year + "-" + (year+1) + " " + term  + " Schedule");
 
 			// Calculate the schedule height and width
 			schedHeight = (Math.floor((endtime - starttime) / 30) * 20) + 20;
