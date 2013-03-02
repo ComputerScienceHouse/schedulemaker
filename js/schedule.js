@@ -330,14 +330,29 @@ function drawCourse(parent, course, startDay, endDay, startTime, endTime, colorN
 				header.addClass("shortHeader");
 			}
 
-            // Add course number/instructor info
-            courseInfo.html(course.courseNum + "<br />");
-            courseInfo.html(courseInfo.html() + course.instructor + "<br />");
-
-            // Add building info
+            // Pre generate the building info for easy insertion
             var building = ($("#buildingStyle").val()=='code') ? time.bldg.code : time.bldg.number;
-			courseInfo.html(courseInfo.html() + building + "-" + time.room);
-			courseInfo.appendTo(timeDiv);
+            courseInfo.html(courseInfo.html() + building + "-" + time.room);
+            courseInfo.appendTo(timeDiv);
+
+            // Special case for what to print in short times (ie, all of semester classes)
+            if(print) {
+                courseInfo.html(building + "-" + time.room + "<br/>");
+                if(timeHeight >= 40) {
+                    courseInfo.html(courseInfo.html() + course.courseNum + "<br/>");
+                }
+                if(timeHeight >= 60) {
+                    courseInfo.html(courseInfo.html() + course.instructor + "<br/>");
+                }
+            } else {
+                // Add all course number/instructor info (it will be hidden if it overflows)
+                courseInfo.html(course.courseNum + "<br />");
+                courseInfo.html(courseInfo.html() + course.instructor + "<br />");
+
+                // Add building info
+			    courseInfo.html(courseInfo.html() + building + "-" + time.room);
+			    courseInfo.appendTo(timeDiv);
+            }
 		}
 		if(time.shorten == "top") {
 			var curHeight = timeDiv.css("height");
