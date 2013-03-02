@@ -146,7 +146,7 @@ switch($_POST['action']) {
 		}
 
 		// Do the query
-		$query = "SELECT c.title AS coursetitle, c.course, d.number AS department, s.section,
+		$query = "SELECT c.title AS coursetitle, c.course, d.number, d.code, s.section,
 		            s.instructor, s.id, s.type, s.maxenroll, s.curenroll, s.title AS sectiontitle
 		          FROM sections AS s
 		            JOIN courses AS c ON s.course = c.id
@@ -165,6 +165,7 @@ switch($_POST['action']) {
 			$section['times'] = array();
 
 			// Set the course title depending on its section title
+            // @TODO: Replace this with a conditional column in the query
 			if($section['sectiontitle'] != NULL) {
 				$section['title'] = $section['sectiontitle'];
 			} else {
@@ -176,29 +177,40 @@ switch($_POST['action']) {
 			// If it's online, don't bother looking up the times
 			if($section['type'] == "O") {
 				$section['online'] = true;
-				$sections[] = $section;
-				continue;
-			}
+			} else {
+                // Look up the times the section meets
+                $query = "SELECT day, start, end, b.code, b.number, room
+                          FROM times AS t
+                            JOIN buildings AS b ON b.number=t.building
+                          WHERE t.section = '{$section['id']}'
+                          ORDER BY day, start";
+                $timeResult = mysql_query($query);
+                if(!$timeResult) {
+                    die(json_encode(array("error" => "mysql", "msg" => mysql_error())));
+                }
 
-			$query = "SELECT day, start, end, b.code, b.number, room
-			          FROM times AS t
-			            JOIN buildings AS b ON b.number=t.building
-			          WHERE t.section = '{$section['id']}'
-			          ORDER BY day, start";
-			$timeResult = mysql_query($query);
-			if(!$timeResult) {
-				die(json_encode(array("error" => "mysql", "msg" => mysql_error())));
-			}
+                while($time = mysql_fetch_assoc($timeResult)) {
+                    $time['start'] = translateTime($time['start']);
+                    $time['end']   = translateTime($time['end']);
+                    $time['day']   = translateDay($time['day']);
+                    $time['building'] = array("code"=>$time['code'], "number"=>$time['number']);
+                    $section['times'][] = $time;
+                }
+            }
 
-			while($time = mysql_fetch_assoc($timeResult)) {
-				$time['start'] = translateTime($time['start']);
-				$time['end']   = translateTime($time['end']);
-				$time['day']   = translateDay($time['day']);
-				$time['building'] = array("code"=>$time['code'], "number"=>$time['number']);
-				$section['times'][] = $time;
-			}	
-
-			$sections[] = $section;
+            // Add the section to the result set
+            $sections[] = array(
+                "id"         => $section['id'],
+                "department" => array("code" => $section['code'], "number" => $section['number']),
+                "course"     => $section['course'],
+                "section"    => $section['section'],
+                "title"      => $section['title'],
+                "instructor" => $section['instructor'],
+                "type"       => $section['type'],
+                "maxenroll"  => $section['maxenroll'],
+                "curenroll"  => $section['curenroll'],
+                "times"      => $section['times']
+            );
 		}
 
 		// Spit out the json

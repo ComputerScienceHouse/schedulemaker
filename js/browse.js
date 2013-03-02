@@ -70,9 +70,13 @@ function courseOnExpand(obj) {
 		}
 		
 		// No Errors!! No we need to add a div for each section
-		for(i=0; i < data.sections.length; i++) {
-			div = $("<div>").addClass("item")
-					.html("<b>" + data.sections[i].department + "-" + data.sections[i].course + "-" + data.sections[i].section + "</b>"
+		for(var i=0; i < data.sections.length; i++) {
+            // Department code for semesters, department number for quarters
+            var term = $("#termSelect").val().match(/=(\d{5})/)[1];
+            var dept = (term > 20130) ? data.sections[i].department.code : data.sections[i].department.number;
+
+			var div = $("<div>").addClass("item")
+					.html("<b>" + dept + "-" + data.sections[i].course + "-" + data.sections[i].section + "</b>"
 						+ " : " + data.sections[i].title + " with " + data.sections[i].instructor + " ");
 			
 			// If the section is online, mark it as such
