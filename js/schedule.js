@@ -64,6 +64,10 @@ $(document).ready(function() {
         container.css("box-shadow", "");
         infoDiv.css("background-color", "");
     });
+
+    // Add handler to reset the course selections when terms change or when ignore full is clicked
+    $("#ignoreFull").click(function() { refreshCourses(); });
+    $("#term").click(function() { refreshCourses(); });
 });
 
 // @TODO: save the schedule data between page loads?
