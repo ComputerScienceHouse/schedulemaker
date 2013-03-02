@@ -806,7 +806,8 @@ function printSchedule(button) {
 		endTime: endtime,
 		startDay: startday,
 		endDay: endday,
-		term: $("#term").val()
+		term: $("#term").val(),
+        bldgStyle: $("#buildingStyle").val()
 		};
 
 	// Store the schedule in local storage

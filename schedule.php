@@ -364,6 +364,13 @@ switch($mode) {
             }
             $("#header").html("My " + year + "-" + (year+1) + " " + term  + " Schedule");
 
+            // Add a super-jank building style hidden element so the buildings
+            // will always be what the user requested, not the default
+            // @TODO: This is SUPER JANK. And really, I don't like the print/schedule javascript.
+            var bldgHidden = $("<input type='hidden' id='buildingStyle'/>");
+            bldgHidden.val(data.bldgStyle);
+            bldgHidden.appendTo($("body"));
+
 			// Calculate the schedule height and width
 			schedHeight = (Math.floor((endtime - starttime) / 30) * 20) + 20;
 			schedWidth  = ((endday - startday) * 100) + 200;
