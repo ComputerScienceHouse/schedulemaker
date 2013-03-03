@@ -164,7 +164,7 @@ function generateIcal($schedule) {
 
 			// Meeting location
 			if($course['courseNum'] != 'non') {
-				$bldg = $time['bldg'][$schedule['building']];
+				$bldg = $time['bldg'][$schedule['bldgStyle']];
 				$code .= "LOCATION:{$bldg}-{$time['room']}\r\n";
 			}
 			
@@ -208,7 +208,7 @@ function generateScheduleFromCourses($courses) {
 		}
 
 		$color = $i % 4;
-		$code .= drawCourse($courseList[$i], $startTime, $endTime, $startDay, $endDay, $color, $courses['building']);
+		$code .= drawCourse($courseList[$i], $startTime, $endTime, $startDay, $endDay, $color, $courses['bldgStyle']);
 	}
 	$code .= "</div></div>";
 	
@@ -277,13 +277,13 @@ function getScheduleFromId($id) {
 
 	return array(
 			//@TODO: Fix this hackish error below
-			"courses"   => array($schedule),
-			"startTime" => $startTime,
-			"endTime"   => $endTime,
-			"startDay"  => $startDay,
-			"endDay"    => $endDay,
-			"building"  => $building,
-			"term"      => $term
+			"courses"    => array($schedule),
+			"startTime"  => $startTime,
+			"endTime"    => $endTime,
+			"startDay"   => $startDay,
+			"endDay"     => $endDay,
+			"bldgStyle"  => $building,
+			"term"       => $term
 			);
 }
 

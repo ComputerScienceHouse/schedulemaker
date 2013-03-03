@@ -499,6 +499,7 @@ li {
 #schedules {
 	display:none;
 }
+
 .scheduleError {
 	position:relative;
 	float:center;
@@ -720,13 +721,14 @@ li {
 	margin-bottom:20px;
 	color:white;
 }
-.schedUrl {
+.schedUrl, .schedUrlError {
 	background-color:#A3773C;
 	position:relative;
 	padding-top:2px;
 	padding-bottom:2px;
 	margin-left:auto;
 	margin-right:auto;
+    text-align:center;
 }
 .schedNotes {
 	background-color:#A3773C;
@@ -737,9 +739,9 @@ li {
 	margin-right:auto;
 	margin-bottom:10px;	
 }
-.schedUrl, .schedNotes p {
-	/*margin:2px;*/
-	text-align:center;
+.schedUrlError {
+    background-color:#CC3129;
+    color:white;
 }
 .schedUrl p.disclaimer {
 	font-style:italic;
