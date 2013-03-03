@@ -14,7 +14,7 @@ var endtime;			// The ending time for the schedule
 var pages;				// The number of pages 
 var schedHeight;		// Height of the schedule
 var SCHEDPERPAGE;		// The number of schedules per page
-var schedules;			// jSON object of schedules that was retreived via AJAX
+var schedules;			// jSON object of schedules that was retrieved via AJAX
 var schedWidth;			// Width of the schedule
 var serialForm;			// The serialized form so we can tell if there has been 
 						// any changes to the form
@@ -42,7 +42,33 @@ $(document).ready(function() {
 	if(sessionStorage.getItem("scheduleJson") != null && window.location.search != "?mode=print") {
 		reloadSchedule();
 	}
-	});
+
+    // Add live handlers to the timeContainers that will show/hide things
+    var timeContainers = $(".timeContainer");
+    timeContainers.live("mouseover", function() {
+        var container = $(this);
+        var infoDiv   = container.children("div");
+
+        // Make things visible, add glow to the container
+        container.css("overflow", "visible");
+        container.css("box-shadow", "0px 0px 5px yellow");
+        infoDiv.css("background-color", container.css("background-color"));
+    });
+
+    timeContainers.live("mouseout", function() {
+        var container = $(this);
+        var infoDiv   = container.children("div");
+
+        // Hide things
+        container.css("overflow", "hidden");
+        container.css("box-shadow", "");
+        infoDiv.css("background-color", "");
+    });
+
+    // Add handler to reset the course selections when terms change or when ignore full is clicked
+    $("#ignoreFull").click(function() { refreshCourses(); });
+    $("#term").click(function() { refreshCourses(); });
+});
 
 // @TODO: save the schedule data between page loads?
 
@@ -266,7 +292,9 @@ function drawCourse(parent, course, startDay, endDay, startTime, endTime, colorN
 		}
 
 		// Add a div for the time
-		timeDiv = $("<div>").addClass("day" + (time.day - startDay));
+		var timeDiv = $("<div>");
+        timeDiv.addClass("day" + (time.day - startDay));
+        timeDiv.addClass("timeContainer");
 
 		// Shade the time slot if it's a printout
 		if(print) {
@@ -297,16 +325,34 @@ function drawCourse(parent, course, startDay, endDay, startTime, endTime, colorN
 
 		if(course.courseNum != "non") {
 			var courseInfo = $("<div>");
-			if(timeHeight > 40) { 
-				// > 1hour course, show all the info
-				courseInfo.html(course.courseNum + "<br />");
-				courseInfo.html(courseInfo.html() + course.instructor + "<br />");
-			} else {
+			if(timeHeight < 40) {
+                // Shorten the header for < 2 hr courses
 				header.addClass("shortHeader");
 			}
-			var building = ($("#buildingStyle").val()=='code')?time.bldg.code:time.bldg.number;
-			courseInfo.html(courseInfo.html() + building + "-" + time.room);
-			courseInfo.appendTo(timeDiv);
+
+            // Pre generate the building info for easy insertion
+            var building = ($("#buildingStyle").val()=='code') ? time.bldg.code : time.bldg.number;
+            courseInfo.html(courseInfo.html() + building + "-" + time.room);
+            courseInfo.appendTo(timeDiv);
+
+            // Special case for what to print in short times (ie, all of semester classes)
+            if(print) {
+                courseInfo.html(building + "-" + time.room + "<br/>");
+                if(timeHeight >= 40) {
+                    courseInfo.html(courseInfo.html() + course.courseNum + "<br/>");
+                }
+                if(timeHeight >= 60) {
+                    courseInfo.html(courseInfo.html() + course.instructor + "<br/>");
+                }
+            } else {
+                // Add all course number/instructor info (it will be hidden if it overflows)
+                courseInfo.html(course.courseNum + "<br />");
+                courseInfo.html(courseInfo.html() + course.instructor + "<br />");
+
+                // Add building info
+			    courseInfo.html(courseInfo.html() + building + "-" + time.room);
+			    courseInfo.appendTo(timeDiv);
+            }
 		}
 		if(time.shorten == "top") {
 			var curHeight = timeDiv.css("height");
@@ -566,7 +612,7 @@ function getCourseOptions(field) {
 		{
 			'action'     : 'getCourseOpts', 
 			'course'     : $(field).val(), 
-			'quarter'    : $('#quarter').val(),
+			'term'       : $('#term').children(":selected").val(),
 			'ignoreFull' : $('#ignoreFull').prop('checked')
 		} , 
 		function(data) {		
@@ -760,7 +806,8 @@ function printSchedule(button) {
 		endTime: endtime,
 		startDay: startday,
 		endDay: endday,
-		quarter: $("#quarter").val()
+		term: $("#term").val(),
+        bldgStyle: $("#buildingStyle").val()
 		};
 
 	// Store the schedule in local storage

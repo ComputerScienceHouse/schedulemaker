@@ -8,7 +8,7 @@
 ////////////////////////////////////////////////////////////////////////////
 
 $(document).ready(function() {
-	// Associate a handler with the print and fork buttons
+	// Associate a handler with the print/fork/ical buttons
 	$("#printButton").click(function() {
 		printSchedule();
 	});
@@ -16,6 +16,33 @@ $(document).ready(function() {
 	$("#forkButton").click(function() {
 		forkSchedule();
 	});
+
+    $("#iCalButton").click(function(e) {
+        e.preventDefault();
+        window.location = window.location + "&mode=ical";
+    });
+
+    // Add hover handlers for the timeContainers (just like on the generated schedule)
+    var timeContainers = $(".timeContainer");
+    timeContainers.on("mouseover", function() {
+        var container = $(this);
+        var infoDiv   = container.children("div");
+
+        // Make things visible, add glow to the container
+        container.css("overflow", "visible");
+        container.css("box-shadow", "0px 0px 5px yellow");
+        infoDiv.css("background-color", container.css("background-color"));
+    });
+
+    timeContainers.on("mouseout", function() {
+        var container = $(this);
+        var infoDiv   = container.children("div");
+
+        // Hide things
+        container.css("overflow", "hidden");
+        container.css("box-shadow", "");
+        infoDiv.css("background-color", "");
+    });
 });
 
 function forkSchedule() {

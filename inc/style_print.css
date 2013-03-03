@@ -2,6 +2,10 @@ body {
 	font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
 }
 
+.timeContainer {
+    overflow: hidden;
+}
+
 .schedule {
 	overflow:hidden;
 	font-size:10px;
