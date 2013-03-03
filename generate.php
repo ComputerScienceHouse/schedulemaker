@@ -20,10 +20,10 @@ require "./inc/header.inc";
 		<input type='button' value="Add Course" onClick='addCourse();' />
 	</div>
 	<div class='courseRow'>
-		<label for='quarter'>Quarter:</label> <?= getQuarterField('quarter', $CURRENT_QUARTER) ?>
+		<label for='term'>Term:</label> <?= getTermField('term', $CURRENT_QUARTER) ?>
 		<input id='courseCount' type='hidden' name='courseCount' value='4' />
 		
-		<input id='ignoreFull' type='checkbox' name='ignoreFull' value='true' onClick='refreshCourses();' />
+		<input id='ignoreFull' type='checkbox' name='ignoreFull' value='true' />
 		<label for='ignoreFull'>Ignore full courses</label>
 	</div>
 	<div id='scheduleCourses'>

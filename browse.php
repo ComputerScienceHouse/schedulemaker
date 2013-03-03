@@ -16,30 +16,48 @@ require_once "./inc/timeFunctions.php";
 
 // FUNCTIONS ///////////////////////////////////////////////////////////////
 
-function getQuarterType($quarter) {
-	// Based on the last number of the quarter, return a title
-	switch(substr($quarter, -1)) {
-		case 1:
-			return "Fall";
-		case 2:
-			return "Winter";
-		case 3:
-			return "Spring";
-		case 4:
-			return "Summer";
-		default:
-			return "Unknown";
-	}
+function getTermType($term) {
+    // Determine the term based on the year
+    $termType = substr($term, -1);
+    if($term > 20130) {
+        // Semesters
+        switch($termType) {
+            case 1:
+                return "Fall";
+            case 3:
+                return "Winter Intersession";
+            case 5:
+                return "Spring";
+            case 8:
+                return "Summer";
+            default:
+                return "Unknown";
+        }
+    } else {
+        // Based on the last number of the quarter, return a title
+        switch($termType) {
+            case 1:
+                return "Fall";
+            case 2:
+                return "Winter";
+            case 3:
+                return "Spring";
+            case 4:
+                return "Summer";
+            default:
+                return "Unknown";
+        }
+    }
 }
 
-// Do we have a quarter specified?
-$quarter = (empty($_GET['quarter']) || !is_numeric($_GET['quarter'])) ? null : mysql_real_escape_string($_GET['quarter']);
+// Do we have a term specified?
+$term = (empty($_GET['term']) || !is_numeric($_GET['term'])) ? null : mysql_real_escape_string($_GET['term']);
 
 // MAIN EXECUTION //////////////////////////////////////////////////////////
-switch($quarter) {
+switch($term) {
 	case null:
 		// No quarter was specified, so load the current quarter
-		$quarter = $CURRENT_QUARTER;
+		$term = $CURRENT_QUARTER;
 		// Now fall into the standard printout of courses
 
 	default:
@@ -49,20 +67,21 @@ switch($quarter) {
 		
 		?>
 		<script src='./js/browse.js' type='text/javascript'></script>
-		<h1 id='browseHeader'>Browse Courses &gt; <?= getQuarterType($quarter) ?> <?= substr($quarter, 0, 4) ?></h1>
+		<h1 id='browseHeader'>Browse Courses &gt; <?= getTermType($term) ?> <?= substr($term, 0, 4) ?></h1>
 
 		<div class='subContainer' id='browseQuarter'>
-			Select a Different Quarter:
-			<select id='quarterSelect' name='quarterSelect' onChange='document.location=this.value'>
+			<label for='termSelect'>Select a Different Term:</label>
+			<select id='termSelect' onChange='document.location=this.value'>
 			<?
-			$query = "SELECT quarter FROM quarters ORDER BY quarter DESC";
-			$quarterResult = mysql_query($query);
-			if(!$quarterResult) {
+			$query = "SELECT quarter AS term FROM quarters ORDER BY quarter DESC";
+			$termResult = mysql_query($query);
+			if(!$termResult) {
+                trigger_error("Failed to retrieve terms from the database: " . mysql_error());
 				die("An error occurred!");
 			}
-			while($qtr = mysql_fetch_assoc($quarterResult)) { ?>
-				<option value='browse.php?quarter=<?= $qtr['quarter'] ?>' <?= ($qtr['quarter'] == $quarter) ? "selected='selected'" : "" ?>>
-					<?= substr($qtr['quarter'], 0, 4) ?> <?= getQuarterType($qtr['quarter']) ?>
+			while($trm = mysql_fetch_assoc($termResult)) { ?>
+				<option value='browse.php?term=<?= $trm['term'] ?>' <?= ($trm['term'] == $term) ? "selected='selected'" : "" ?>>
+					<?= substr($trm['term'], 0, 4) ?> <?= getTermType($trm['term']) ?>
 				</option>
 			<? } ?>
 			</select>
@@ -70,7 +89,7 @@ switch($quarter) {
 
 		<?
 		// Display the list of departments
-        if($quarter > 20130) {
+        if($term > 20130) {
             // School codes
             $query = "SELECT id, code AS code, title FROM schools WHERE code IS NOT NULL ORDER BY code";
         } else {
