@@ -456,40 +456,40 @@ function drawPage(pageNum, print) {
 		}
 		if(!print) {
 		// Create a control box
-		schedControl = $("<div>").addClass("scheduleControl");
-		saveForm = $("<form>").attr("action", "schedule.php")
+		var schedControl = $("<div>").addClass("scheduleControl");
+		var saveForm = $("<form>").attr("action", "schedule.php")
 						.attr("method", "POST")
 						.appendTo(schedControl);
-		saveInput = $("<input>").attr("type", "hidden")
+		var saveInput = $("<input>").attr("type", "hidden")
 						.attr("name", "schedule")
 						.val(JSON.stringify(schedSubset[s]))
 						.appendTo(saveForm);
-		urlInput = $("<input>").attr("type", "hidden")
+		var urlInput = $("<input>").attr("type", "hidden")
 						.attr("name", "url")
 						.val("none")
 						.appendTo(saveForm);
-		schedInput = $("<input>").attr("type", "hidden")
-						.attr("name", "scheduleif")
+		var schedInput = $("<input>").attr("type", "hidden")
+						.attr("name", "scheduleId")
 						.val("sched" + schedId)
 						.appendTo(saveForm); 
-		printButton = $("<input type='button' value='Print Schedule'>")
+		var printButton = $("<input type='button' value='Print Schedule'>")
 						.click(function(obj) { printSchedule($(this)); })
 						.appendTo(saveForm);
-		saveButton = $("<input type='button' value='Save Schedule'>")
+		var saveButton = $("<input type='button' value='Save Schedule'>")
 						.click(function(obj) { saveSchedule($(this)); })
 						.appendTo(saveForm);
-		downButton = $("<input type='button' value='Download iCal'>")
+		var downButton = $("<input type='button' value='Download iCal'>")
 						.click(function(obj) { icalSchedule($(this)); })
 						.appendTo(saveForm);
-		faceButton = $("<button type='button'>")
+		var faceButton = $("<button type='button'>")
 						.html("<img src='img/share_facebook.png' /> Share Facebook")
 						.click(function(obj) { shareFacebook($(this)); })
 						.appendTo(saveForm);
-		googButton = $("<button type='button'>")
+		var googButton = $("<button type='button'>")
 						.html("<img src='img/share_google.png' /> Share Google+")
 						.click(function(obj) { shareGoogle($(this)); })
 						.appendTo(saveForm);
-		twitButton = $("<button type='button'>")
+		var twitButton = $("<button type='button'>")
 						.html("<img src='img/share_twitter.png' /> Share Twitter")
 						.click(function() { shareTwitter($(this)); })
 						.appendTo(saveForm);
@@ -751,8 +751,11 @@ function getPrevPage() {
 
 function getScheduleUrl(button) {
 	// Do we already have a url stored?
-	urlInput = $(button.parent().children()[1]);
+	var urlInput = $(button.parent().children()[1]);
 	if(urlInput.val() == "none") {
+        // Grab the id of the schedule
+        var scheduleId = $(button.parent().children()[2]).val();
+
 		// Grab the field for the json
 		jsonObj = $(button.parent().children()[0]).val();
 		jsonModified = {
@@ -762,22 +765,42 @@ function getScheduleUrl(button) {
 				"endtime":   $("#scheduleEnd").val(),
 				"schedule":  eval(jsonObj),
 				"building":  $("#buildingStyle").val(),
-				"quarter":   $("#quarter").val()	// This /could/ be incorrect... just sayin
+				"term":      $("#term").val()	// This /could/ be incorrect... just sayin
 				};
 		// We don't have a url already, so get one!
 		$.post("./js/scheduleAjax.php", {action: "saveSchedule", data: JSON.stringify(jsonModified)}, function(data) {
-			// Error checking
+			// Error checking. Display a error. URL will remain NONE on error.
 			if(data.error != null && data.error != undefined) {
-				errorDiv = $("<div class='saveError'>").html("<b>Fatal Error: </b>" + data.msg);
-				$('#schedules').insertBefore($(scheduleId));
+                // Get the URL div
+                var scheduleId = $(button.parent().children()[2]).val();
+                var urlDiv = $("#" + scheduleId + "Url");
+                if(urlDiv.length) {
+                    // URL Div exists, so empty it
+                    urlDiv.empty();
+                    urlDiv.removeClass();
+                } else {
+                    urlDiv = $("<div>");
+                    urlDiv.attr("id", scheduleId + "Url");
+                    urlDiv.css("width", $(button.parent().parent().parent()).css("width"));
+                }
+
+                // Add the appropriate class to the error div
+                urlDiv.addClass("schedUrlError");
+
+                // Add the error message
+                urlDiv.append("<p style='font-weight:bold;'>An Error Occurred</p>");
+                urlDiv.append("<p>We are unable to store your schedule at this time.</p>");
+
+                // Add it to the schedule
+                var schedule = $("#" + scheduleId);
+                urlDiv.prependTo(schedule);
+
 				return false;
 			}
 			
 			// Store the url
-			savedUrl = data.url;
+			var savedUrl = data.url;
 			urlInput.val(savedUrl);
-
-			return urlInput;
 		});
 		
 		// Should be asynch. So this SHOULD be ok.
@@ -791,6 +814,11 @@ function getScheduleUrl(button) {
 function icalSchedule(button) {
 	// Get a schedule url
 	var url = getScheduleUrl(button);
+
+    // Error checking
+    if(!url || url == 'none') {
+        return;
+    }
 	
 	// Add the magic sauce and redirect
 	url += "&mode=ical";
@@ -836,31 +864,37 @@ function refreshCourses() {
 function saveSchedule(button) {
 	// We need a schedule url
 	url = getScheduleUrl(button);
-	$(button).attr("disabled", "disabled");
 
 	// Error checking
-	if(!url) { 
-		$(button).attr("disabled", "");
-		alert("SHIT BROKE SON.");
+	if(!url || url == 'none') {
+        return;
 	}
 
-	// Grab the schedule we're adding this to
-	var schedule = $("#" + $(button.parent().children()[2]).val());
+    // Grab the schedule we're adding this to
+    var scheduleId = $(button.parent().children()[2]).val();
+    var schedule = $("#" + scheduleId);
 
-	var urldiv = $("<div>").addClass("schedUrl");
-	urldiv.html("<p>This schedule can be accessed at: <a href='" + url + "'>" + url + "</a></p>"
-				+ "<p class='disclaimer'>This schedule will be removed after 3 months of inactivity</p>");
-	urldiv.css("width", $(schedule.children()[0]).css("width"));
-	urldiv.prependTo(schedule);
-	urldiv.slideDown();
+    // Disable the button
+    $(button).attr("disabled", "disabled");
+
+    // Draw the url div
+    var urlDiv = $("<div>");
+    urlDiv.addClass("schedUrl");
+    urlDiv.css("width", $(button.parent().parent().parent()).css("width"));
+    urlDiv.append("<p>This schedule can be accessed at: <a href='" + url + "'>" + url + "</a></p>");
+    urlDiv.append("<p class='disclaimer'>This schedule will be removed after 3 months of inactivity</p>");
+	urlDiv.prependTo(schedule);
+	urlDiv.slideDown();
 }
 	
 function shareFacebook(button) {
 	// We need a schedule url
 	url = getScheduleUrl(button);
-	
-	// Error checking
-	if(!url) { alert("SHIT BROKE FACEBOOK SON."); }
+
+    // Error checking
+    if(!url || url == 'none') {
+        return;
+    }
 
 	// Run the code.
 	window.faceb=window.faceb||{};
@@ -875,9 +909,11 @@ function shareFacebook(button) {
 function shareGoogle(button) {
 	// We need a schedule url
 	url = getScheduleUrl(button);
-	
-	// Error checking
-	if(!url) { alert("SHIT BROKE GOOGLE+ SON."); }
+
+    // Error checking
+    if(!url || url == 'none') {
+        return;
+    }
 
 	// Run the code.
 	window.googl=window.googl||{};
@@ -892,9 +928,11 @@ function shareGoogle(button) {
 function shareTwitter(button) {
 	// We need a schedule url
 	url = getScheduleUrl(button);
-	
-	// Error checking
-	if(!url) { alert("SHIT BROKE TWITTER SON."); }
+
+    // Error checking
+    if(!url || url == 'none') {
+        return;
+    }
 
 	// Run the code
 	window.twttr=window.twttr||{};
