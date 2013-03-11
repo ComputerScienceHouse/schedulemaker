@@ -52,6 +52,7 @@ $(document).ready(function() {
         // Make things visible, add glow to the container
         container.css("overflow", "visible");
         container.css("box-shadow", "0px 0px 5px yellow");
+        container.css("z-index", "9001");
         infoDiv.css("background-color", container.css("background-color"));
     });
 
@@ -62,6 +63,7 @@ $(document).ready(function() {
         // Hide things
         container.css("overflow", "hidden");
         container.css("box-shadow", "");
+        container.css("z-index", "");
         infoDiv.css("background-color", "");
     });
 
