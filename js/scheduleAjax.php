@@ -194,8 +194,8 @@ switch($_POST['action']) {
 		if(empty($_POST['course'])) {
 			die(json_encode(array("error" => "argument", "msg" => "You must provide at least a department number", "arg" => "course")));
 		}
-		if(empty($_POST['quarter'])) {
-			die(json_encode(array("error" => "argument", "msg" => "You must provide a quarter", "arg" => "course")));
+		if(empty($_POST['term'])) {
+			die(json_encode(array("error" => "argument", "msg" => "You must provide a term", "arg" => "term")));
 		}
 
 		// If it has dashes or whitespace, then strip them out
@@ -233,13 +233,23 @@ switch($_POST['action']) {
 		}
 
 		// Build a query and run it
-		$query = "SELECT d.number, c.course, s.section
-		          FROM courses AS c
-		            JOIN sections AS s ON s.course = c.id
-		            JOIN departments AS d ON c.department = d.id
-		          WHERE c.quarter = '{$_POST['quarter']}'
-                    AND d.number = '{$department}'
-                    AND s.status != 'X'";
+        if($_POST['term'] > 20130) {
+            $query = "SELECT d.code AS dept, c.course, s.section
+                      FROM courses AS c
+                        JOIN sections AS s ON s.course = c.id
+                        JOIN departments AS d ON c.department = d.id
+                      WHERE c.quarter = '{$_POST['term']}'
+                        AND d.code = '{$department}'
+                        AND s.status != 'X'";
+        } else {
+            $query = "SELECT d.number AS dept, c.course, s.section
+                      FROM courses AS c
+                        JOIN sections AS s ON s.course = c.id
+                        JOIN departments AS d ON c.department = d.id
+                      WHERE c.quarter = '{$_POST['term']}'
+                        AND d.number = '{$department}'
+                        AND s.status != 'X'";
+        }
 		if($partialCourse) {
 			$query .= " AND c.course LIKE '{$coursenum}%'";
 		} else {
@@ -303,7 +313,7 @@ switch($_POST['action']) {
 				$courseSplit = explode('-', $course);
 				
 				// Do a query to get the course specified
-				$courseSubSet[] = getCourse($_POST['quarter'], $courseSplit[0], $courseSplit[1], $courseSplit[2]);
+				$courseSubSet[] = getCourse($_POST['term'], $courseSplit[0], $courseSplit[1], $courseSplit[2]);
 			}
 			$courseSet[] = $courseSubSet;
 		}
@@ -395,7 +405,7 @@ switch($_POST['action']) {
 		// Start the storing process with storing the data about the schedule
 		$query = "INSERT INTO schedules (startday, endday, starttime, endtime, building, quarter)" .
 				" VALUES('{$json['startday']}', '{$json['endday']}', '{$json['starttime']}', '{$json['endtime']}', '{$json['building']}', " .
-				" '{$json['quarter']}')";
+				" '{$json['term']}')";
 		$result = mysql_query($query);
 		if(!$result) {
 			die(json_encode(array("error" => "mysql", "msg" => "Failed to store the schedule: " . mysql_error($dbConn))));
