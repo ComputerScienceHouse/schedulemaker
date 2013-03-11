@@ -34,6 +34,7 @@ if(!$dbConn) {
  */
 function getMeetingInfo($sectionData) {
 	// Store the course information
+
     $course = array(
         "title"      => $sectionData['title'],
         "instructor" => $sectionData['instructor'],
@@ -77,7 +78,7 @@ function getCourseBySectionId($id) {
 	// Build the query to get section info
 	$query = "SELECT s.id,
                 (CASE WHEN (s.title != '') THEN s.title ELSE c.title END) AS title,
-                s.instructor, s.curenroll, s.maxenroll, s.type, c.course, s.section, d.number AS department
+                s.instructor, s.curenroll, s.maxenroll, s.type, c.quarter, c.course, s.section, d.number, d.code
                 FROM sections AS s
                   JOIN courses AS c ON s.course = c.id
                   JOIN departments AS d ON d.id = c.department
@@ -87,49 +88,67 @@ function getCourseBySectionId($id) {
 	$result = mysql_query($query);
 	// @TODO: Error handling
 	$row = mysql_fetch_assoc($result);
+    if($row['quarter'] > 20130) {
+        $row['department'] = $row['code'];
+    } else {
+        $row['department'] = $row['number'];
+    }
+
 	return ($row) ? getMeetingInfo($row) : null;
 }
 
 /**
- * Retreives a course specified by very specific descriptors. The resulting
+ * Retrieves a course specified by very specific descriptors. The resulting
  * array will contain all the information needed for the course: title,
  * instructor, enrollment, times[building, room, day, start, end].
- * @param	int		$quarter	The quarter that the course is in
- * @param	int		$deptNum	The department the course is in
+ * @param	int		$term	    The quarter that the course is in
+ * @param	int		$dept	    The department the course is in
  * @param	int		$courseNum	The course number
  * @param	int		$sectNum	The section number of the course
  * @throws	Exception			Thrown if a database error occurs, the course
  *								could not reliably be determined, or the course
  *								does not exist "type:msg"
- * @returns	array				Course formatted into array as described above
+ * @return	array				Course formatted into array as described above
  */
-function getCourse($quarter, $deptNum, $courseNum, $sectNum) {
+function getCourse($term, $dept, $courseNum, $sectNum) {
 	// Build the query
-	$query = "SELECT s.id,
-	            (CASE WHEN (s.title != '') THEN s.title ELSE c.title END) AS title,
-	            s.instructor, s.curenroll, s.maxenroll, s.type, d.number AS department, c.course, s.section
-	          FROM sections AS s
-                JOIN courses AS c ON c.id=s.course
-                JOIN departments AS d ON d.id=c.department
-	          WHERE c.quarter = '{$quarter}'
-	            AND d.number = '{$deptNum}'
-                AND c.course = '{$courseNum}' AND s.section = '{$sectNum}'";
+    if($term > 20130) {
+        $query = "SELECT s.id,
+                    (CASE WHEN (s.title != '') THEN s.title ELSE c.title END) AS title,
+                    s.instructor, s.curenroll, s.maxenroll, s.type, d.code AS department, c.course, s.section
+                  FROM sections AS s
+                    JOIN courses AS c ON c.id=s.course
+                    JOIN departments AS d ON d.id=c.department
+                  WHERE c.quarter = '{$term}'
+                    AND d.code = '{$dept}'
+                    AND c.course = '{$courseNum}' AND s.section = '{$sectNum}'";
+    } else {
+        $query = "SELECT s.id,
+                    (CASE WHEN (s.title != '') THEN s.title ELSE c.title END) AS title,
+                    s.instructor, s.curenroll, s.maxenroll, s.type, d.number AS department, c.course, s.section
+                  FROM sections AS s
+                    JOIN courses AS c ON c.id=s.course
+                    JOIN departments AS d ON d.id=c.department
+                  WHERE c.quarter = '{$term}'
+                    AND d.number = '{$dept}'
+                    AND c.course = '{$courseNum}' AND s.section = '{$sectNum}'";
+    }
 
 	// Execute the query and error check
 	$result = mysql_query($query);
 	if(!$result) {
 		throw new Exception("mysql:" . mysql_error());
 	} elseif(mysql_num_rows($result) > 1) {
-		throw new Exception("ambiguous:{$quarter}-{$deptNum}-{$courseNum}-{$sectNum}");
+		throw new Exception("ambiguous:{$term}-{$dept}-{$courseNum}-{$sectNum}");
 	} elseif(mysql_num_rows($result) == 0) {
-		throw new Exception("objnotfound:{$quarter}-{$deptNum}-{$courseNum}-{$sectNum}");
+		throw new Exception("objnotfound:{$term}-{$dept}-{$courseNum}-{$sectNum}");
 	}
 
 	return getMeetingInfo(mysql_fetch_assoc($result));
 }
 
 /**
- * Does a query for all the quarters in the database and then dumps them to
+ * Does a query for all the terms in the database and then dumps them to
  * a handy drop down field. Parses them like 'Spring ####' for display val.
  * The option value will be the 5 digit number
  * @param	string	$fieldname	The name of the field (useful for multiple 
@@ -137,41 +156,42 @@ function getCourse($quarter, $deptNum, $courseNum, $sectNum) {
  * @param	string	$selected	The selected value to add to the field
  * @return	string	A dropdown field as described
  */
-function getQuarterField($fieldname = "quarter", $selected = null) {
+function getTermField($fieldname = "term", $selected = null) {
 	// Build the start of the field
 	$return = "<select id='{$fieldname}' name='{$fieldname}'>";
 	
 	// Query the database for the quarters
-	$query = "SELECT quarter FROM quarters ORDER BY quarter";
+	$query = "SELECT quarter FROM quarters ORDER BY quarter DESC";
 	$result = mysql_query($query);
 	
 	// Output the quarters as options
 	while($row = mysql_fetch_assoc($result)) {
-		$quarter = $row['quarter'];
+		$term = $row['quarter'];
 
 		// Parse it into a year-quarter thingy
-		$year = substr(strval($quarter), 0, 4);
-		$quarternum = substr(strval($quarter), -1);
-		switch($quarternum) {
-			case 1:
-				$quarterName = "Fall";
-				break;
-			case 2:
-				$quarterName = "Winter";
-				break;
-			case 3:
-				$quarterName = "Spring";
-				break;
-			case 4:
-				$quarterName = "Summer";
-				break;
-			default:
-				$quarterName = "Unknown";
-				break;
-		}
+		$year = substr(strval($term), 0, 4);
+        $termNum = substr(strval($term), -1);
+        if($year > 2013) {
+            switch($termNum) {
+                case 1: $termName = "Fall"; break;
+                case 3: $termName = "Winter Intersession"; break;
+                case 5: $termName = "Spring"; break;
+                case 8: $termName = "Summer"; break;
+                default: $termName = "Unknown";
+            }
+        } else {
+            switch($termNum) {
+                case 1: $termName = "Fall"; break;
+                case 2: $termName = "Winter"; break;
+                case 3: $termName = "Spring"; break;
+                case 4: $termName = "Summer"; break;
+                default: $termName = "Unknown";
+            }
+        }
+
 
 		// Now output it
-		$return .= "<option value='{$quarter}'" . (($selected == $quarter) ? " selected='selected'" : "") . ">{$year} {$quarterName}</option>";
+		$return .= "<option value='{$term}'" . (($selected == $term) ? " selected='selected'" : "") . ">{$year} {$termName}</option>";
 	}
 
 	// Close it up and return it
