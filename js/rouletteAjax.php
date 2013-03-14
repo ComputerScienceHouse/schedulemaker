@@ -30,6 +30,9 @@ require_once "../inc/databaseConn.php";
 require_once "../inc/timeFunctions.php";
 require_once "../inc/ajaxError.php";
 
+// HEADERS /////////////////////////////////////////////////////////////////
+header("Content-type: application/json");
+
 // POST PROCESSING /////////////////////////////////////////////////////////
 $_POST = sanitize($_POST);
 
@@ -41,19 +44,15 @@ header('Content-type: application/json');
 switch($_POST['action']) {
 	case "rouletteSpin":
 		// Check that the required fields are provided
-		if(empty($_POST['quarter'])) {
+        $term = $_POST['term'];
+		if(empty($term)) {
 			// We cannot continue!
-			echo json_encode(array(
-					"error" => "argument", 
-					"msg" => "You must provide a quarter for random course selection", 
-					"arg" => "quarter"
-				));
+			echo json_encode(array("error" => "argument", "msg" => "You must provide a term", "arg" => "term"));
 		}
 
-		// Quarter, school, department, credits, times-any, times, professor
+		// Term, school, department, credits, times-any, times, professor
 		// School and department will be empty strings if any OR not selected
-		$quarter    = $_POST['quarter'];
-		$school     = (!empty($_POST['college']) && $_POST['college'] != 'any') ? $_POST['college'] * 100 : null;
+		$school     = (!empty($_POST['college']) && $_POST['college'] != 'any') ? $_POST['college'] : null;
 		$credits    = (!empty($_POST['credits'])) ? $_POST['credits'] : null;
 		$professor  = (!empty($_POST['professor'])) ? $_POST['professor'] : null;
 		$level      = (!empty($_POST['level']) && $_POST['level'] != 'any') ? $_POST['level'] : null;
@@ -65,10 +64,9 @@ switch($_POST['action']) {
 		}
 
 		// Validate the numerical arguments we got
-		assertNumeric($quarter, "quarter");
+		assertNumeric($term, "term");
 		assertNumeric($school, "school");
 		assertNumeric($credits, "number of credits");
-		assertNumeric($department, "department");
 
 		// Times (Search for any if any is selected, search for the specified times, OR don't specify any time data)
 		if(!empty($_POST['timesAny']) && $_POST['timesAny'] == 'any') {
@@ -94,14 +92,15 @@ switch($_POST['action']) {
 		}
 
 		// Build the query
-		$query = "SELECT d.number AS department, c.course, s.section, c.title, s.instructor, s.id";
+		$query = "SELECT d.number AS deptNum, d.code AS deptCode, c.course, s.section, c.title, s.instructor, s.id";
 		$query .= " FROM courses AS c ";
         $query .= " JOIN sections AS s ON s.course = c.id";
         $query .= " JOIN departments AS d ON d.id = c.department";
-		$query .= " WHERE quarter = '{$quarter}'";
+		$query .= " WHERE quarter = '{$term}'";
 		$query .= " AND s.status != 'X'";
-		$query .= ($school)     ? " AND d.number > '{$school}' AND d.number < '" . ($school+100) . "'" : "";
-		$query .= ($department) ? " AND d.number = '{$department}'" : "";
+		//$query .= ($school)     ? " AND d.number > '{$school}' AND d.number < '" . ($school+100) . "'" : "";
+        $query .= ($school)     ? " AND d.school = '{$school}'" : "";
+		$query .= ($department) ? " AND c.department = '{$department}'" : "";
 		$query .= ($credits)    ? " AND c.credits = '{$credits}'" : "";
 		$query .= ($professor)  ? " AND s.instructor LIKE '%{$professor}%'" : "";
 		if($level) { // Process the course level
@@ -136,19 +135,28 @@ switch($_POST['action']) {
 			break;
 		}
 		if(mysql_num_rows($result) == 0) {
-			echo json_encode(array("error" => "result", "msg" => "No courses matched your criteria"));
+			echo json_encode(array("error" => "result", "msg" => "No courses matched your criteria", "query" => $query));
 			break;
 		} 
 
 		// Now we build an array of the results
 		$courses = array();
 		while($row = mysql_fetch_assoc($result)) {
-			$courses[] = $row;
+			$courses[] = array(
+                "id"         => $row['id'],
+                "department" => array("number" => $row['deptNum'], "code" => $row['deptCode']),
+                "course"     => $row['course'],
+                "section"    => $row['section'],
+                "title"      => $row['title'],
+                "instructor" => $row['instructor'],
+            );
 		}
 		// @todo: store this in session to avoid lengthy and costly queries
+        // @TODO: Use the getMeetingInfo function in databaseConn instead of this
 
 		// Now pick a course at random, grab it's times,
 		$courseNum = rand(0, count($courses) - 1);
+
 		
 		$query = "SELECT day, start, end, b.code, b.number, room ";
 		$query .= "FROM times AS t JOIN buildings AS b ON b.number = t.building ";

@@ -25,7 +25,7 @@ img {
 	padding-top:20px;
 	padding-bottom:20px;
 	padding-left:20px;
-	padding-right:20px;				
+	padding-right:20px;
 	margin-left: auto;
 	margin-right: auto;
 	background-color:#2b4e69;
@@ -499,6 +499,7 @@ li {
 #schedules {
 	display:none;
 }
+
 .scheduleError {
 	position:relative;
 	float:center;
@@ -629,6 +630,10 @@ li {
 	left:700px;
 }
 
+.timeContainer {
+    overflow: hidden;
+}
+
 /* In case you're wondering: http://colorschemedesigner.com/#0K61Tw0w0w0w0 */
 .color0 { /* Blue */
 	background-color:#054C8E;
@@ -716,13 +721,14 @@ li {
 	margin-bottom:20px;
 	color:white;
 }
-.schedUrl {
+.schedUrl, .schedUrlError {
 	background-color:#A3773C;
 	position:relative;
 	padding-top:2px;
 	padding-bottom:2px;
 	margin-left:auto;
 	margin-right:auto;
+    text-align:center;
 }
 .schedNotes {
 	background-color:#A3773C;
@@ -733,9 +739,9 @@ li {
 	margin-right:auto;
 	margin-bottom:10px;	
 }
-.schedUrl, .schedNotes p {
-	/*margin:2px;*/
-	text-align:center;
+.schedUrlError {
+    background-color:#CC3129;
+    color:white;
 }
 .schedUrl p.disclaimer {
 	font-style:italic;

@@ -61,13 +61,6 @@ function courseOnExpand(obj) {
 
 	// Do an ajax call for the sections of the course
 	$.post("js/browseAjax.php", {"action": "getSections", "course": input.val()}, function(data) {
-		try {
-			data = eval("(" + data + ")");
-		} catch(e) {
-			alert("An error occurred: the jSON is malformed");
-			return;
-		}
-
 		// Check for errors
 		if(data.error != null && data.error != undefined) {
 			box.addClass("error")
@@ -77,9 +70,13 @@ function courseOnExpand(obj) {
 		}
 		
 		// No Errors!! No we need to add a div for each section
-		for(i=0; i < data.sections.length; i++) {
-			div = $("<div>").addClass("item")
-					.html("<b>" + data.sections[i].department + "-" + data.sections[i].course + "-" + data.sections[i].section + "</b>"
+		for(var i=0; i < data.sections.length; i++) {
+            // Department code for semesters, department number for quarters
+            var term = $("#termSelect").val().match(/=(\d{5})/)[1];
+            var dept = (term > 20130) ? data.sections[i].department.code : data.sections[i].department.number;
+
+			var div = $("<div>").addClass("item")
+					.html("<b>" + dept + "-" + data.sections[i].course + "-" + data.sections[i].section + "</b>"
 						+ " : " + data.sections[i].title + " with " + data.sections[i].instructor + " ");
 			
 			// If the section is online, mark it as such
@@ -130,7 +127,7 @@ function departmentOnExpand(obj) {
 	// Get the parent and the input field
 	var p       = obj.parent();
 	var input   = obj.next();
-	var quarter = $("#quarterSelect").val().match(/quarter=(\d{5})/)[1];
+	var term = $("#termSelect").val().match(/=(\d{5})/)[1];
 
 	// If the courses already exist, then don't do the post request
 	if(p.children().last().hasClass("subDivision")) {
@@ -148,26 +145,37 @@ function departmentOnExpand(obj) {
 			.appendTo(p);
 
 	// Do an ajax call for the courses within the department
-	$.post("js/browseAjax.php", {"action": "getCourses", "department": input.val(), "quarter": quarter}, function(data) {
-		try {
-			data = eval("(" + data + ")");
-		} catch(e) {
-			alert("An error occurred: the resulting jSON is malformed.");
-			return;
-		}
-		
+	$.post("js/browseAjax.php", {"action": "getCourses", "department": input.val(), "term": term}, function(data) {
 		// Check for errors
 		if(data.error != null && data.error != undefined) {
 			box.addClass("error")
 				.html("Sorry! An error occurred!<br />" + data.msg);
 			box.slideDown();
 			return;
-		}
+		} else if(data.courses.length == 0) {
+            // There were no matching courses
+            box.addClass("error");
+            box.html("Sorry! There are no courses in this department for this term.");
+            box.slideDown();
+            return;
+        }
 
 		// No errors! Now we need to add a div for each course
 		for(i=0; i < data.courses.length; i++) {
-			div = $("<div>").addClass("item")
-						.html(" " + data.courses[i].department + "-" + data.courses[i].course + " - " + data.courses[i].title);
+            var course = data.courses[i];
+
+            // Create a dive for the course
+            var div = $("<div>");
+            div.addClass("item");
+
+            // The base text for the div is the course number and the title
+            if(term > 20130) {
+                div.html(course.department.code + "-" + course.course + " - " + course.title);
+            } else {
+                div.html(course.department.number + "-" + course.course + " - " + course.title);
+            }
+
+            // Add description information
 			$("<p>").html(data.courses[i].description)
 						.addClass("courseDescription")
 						.appendTo(div);
@@ -209,7 +217,7 @@ function schoolOnExpand(obj) {
 
 	// Snag the quarter for use in the query and determining whether to show
 	// department codes
-	var quarter = $("#quarterSelect").val().match(/=(\d{5})/)[1];
+	var term = $("#termSelect").val().match(/=(\d{5})/)[1];
 
 	// If the department already exists, then don't do the post resquest
 	if(p.children().last().hasClass("subDivision")) {
@@ -227,14 +235,7 @@ function schoolOnExpand(obj) {
 			.appendTo(p);
 
 	// Do an ajax call for the departments within this school
-	$.post("js/browseAjax.php", {'action': 'getDepartments', 'school': input.val(), 'quarter':quarter }, function(data) {
-		try {		
-			data = eval("(" + data + ")");
-		} catch(e) {
-			alert("An error occurred: the resulting jSON is malformed.");
-			return;
-		}
-
+	$.post("js/browseAjax.php", {action: 'getDepartments', school: input.val(), term:term }, function(data) {
 		// Check for errors
 		if(data.error != null && data.error != undefined) {
 			box.addClass("error")
@@ -246,14 +247,15 @@ function schoolOnExpand(obj) {
 		// No errors! Now we need to add a div for each department
 		for(i=0; i < data.departments.length; i++) {
 			var code;
-			if(quarter > 20130) {
-				code = (data.departments[i].code.length) ? " (" + data.departments[i].code + ")" : "";
+			if(term > 20130) {
+                code = data.departments[i].code;
+				code += (data.departments[i].number) ? " (" + data.departments[i].number + ")" : "";
 			} else {
-				code = "";
+				code = data.departments[i].number;
 			}
 
 			div = $("<div>").addClass("item")
-					.html(" " + data.departments[i].id + code + " - " + data.departments[i].title);
+					.html(" " + code + " - " + data.departments[i].title);
 			$("<input>").attr("type", "hidden")
 					.val(data.departments[i].id)
 					.prependTo(div);
