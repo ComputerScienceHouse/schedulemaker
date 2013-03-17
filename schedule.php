@@ -148,10 +148,11 @@ function generateIcal($schedule) {
 			// the -1 is b/c quarter starts are on Monday(=1)
 			// This /could/ be done via the RRULE WKST param, but that means
 			// translating days from numbers to some other esoteric format.
+            // @TODO: Retrieve the timezone from php or the config file
 			$day = date("Ymd", $termStart + ((60*60*24)*($time['day']-1)));
 
-			$code .= "DTSTART:" . $day . "T{$startTime}\r\n";
-			$code .= "DTEND:" . $day . "T{$endTime}\r\n";
+            $code .= "DTSTART;TZID=America/New_York:{$day}T{$startTime}\r\n";
+            $code .= "DTEND;TZID=America/New_York:{$day}T{$endTime}\r\n";
 			$code .= "RRULE:FREQ=WEEKLY;UNTIL={$termEnd}\r\n";
 			$code .= "ORGANIZER:RIT\r\n";
 			

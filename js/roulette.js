@@ -48,7 +48,7 @@ function collegeOnChange() {
 
     // If the school selected is 'all', then back out
     if(school == 'any') {
-        $("<option>Select a College From Above</option>").appendTo(departments);
+        $("<option value='any'>Select a College From Above</option>").appendTo(departments);
         return;
     }
 
