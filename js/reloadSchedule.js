@@ -37,7 +37,7 @@ function reloadSchedule() {
 		} else {
 			// Add another nonCourse slot if we don't have enough
 			if($("#nonCourseCount").val() < nonCourseId) {
-				addItem();
+				addNonCourseItem($("#addNonCourseButton"));
 			}
 			
 			// Fill in the title

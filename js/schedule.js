@@ -70,6 +70,25 @@ $(document).ready(function() {
     // Add handler to reset the course selections when terms change or when ignore full is clicked
     $("#ignoreFull").click(function() { refreshCourses(); });
     $("#term").click(function() { refreshCourses(); });
+
+    // Add time pickers to the start time pickers
+    var startTimePickers = $(".startTimePicker");
+    startTimePickers.timepicker({scrollDefaultTime: "08:00" });
+    startTimePickers.live("change", function() {
+        // Add a time picker to the neighboring endTimePicker
+        var endPicker = $(this).parent().parent().find(".endTimePicker");
+        endPicker.timepicker("remove");
+        if($(this).val() != "") {
+            endPicker.timepicker({
+                showDuration: true,
+                durationTime: $(this).val(),
+                minTime: $(this).val()
+            });
+        }
+    });
+
+    // Add handlers for the add item buttons
+    $(".addItemButton").click(function(e) { e.preventDefault(); addNonCourseItem($(this)); });
 });
 
 // @TODO: save the schedule data between page loads?
@@ -119,94 +138,53 @@ function addCourse() {
 	document.getElementById("courseCount").value = courseNum;
 }
 
-function addItem() {
-	// First things first. Grab the table to add the row to
-	nonCourses = document.getElementById('nonCourses');
+/**
+ * Called when a the Add Item button is clicked to add an additional row for
+ * a non-course item or no course time. This works via cloning the last row
+ * of the table.
+ * @param   button  jQuery  A jQuery object for the button that was clicked
+ */
+function addNonCourseItem(button) {
+    var parent = button.parent();
 
-	// Which nonCourse item will this be?
-	nonCourseCount = parseInt(document.getElementById('nonCourseCount').value) + 1;
-	document.getElementById('nonCourseCount').value = nonCourseCount;
-	
-	// Get the times from the ajax. I don't really like this, but it's 
-	// better than umpteen million lines of code.
-	var timeDropDownStart;
-	var timeDropDownEnd;
-	$.post("./js/scheduleAjax.php", {'action': 'getTimeField', 'name': 'nonCourseStartTime' + nonCourseCount, 'default': 720}, function(data) {
-		// Parse the data, error check, then dump to the vars
-		try {		
-			jsonResult = eval(data);
-		} catch(e) {
-			alert("An error occurred: the resulting jSON is malformed.");
-			return;
-		}
+    // Increment the non course count
+    var countInput = parent.find(".itemCount");
+    var count = parseInt(countInput.val()) + 1;
+    countInput.val(count);
 
-		if(jsonResult.error != undefined && jsonResult.error != null) {
-			alert("An error occurred: " + jsonResult.msg);
-		} else {
-			timeDropDownStart = jsonResult.code;
-		}
-	});
-	timeDropDownEnd = timeDropDownStart.replace(/nonCourseStartTime/g, "nonCourseEndTime");	// Replace the field name
+    // Grab the last row from the table of non-course items
+    var table   = parent.next();
+    var lastRow = table.find("tr").last();
 
-	// Build the new row
-	newRow = document.createElement("tr");
-	newRow.innerHTML = "<td><input name='nonCourseTitle" + nonCourseCount + "' type='text' id='nonCourseTitle" + nonCourseCount + "'></td>";
-	newRow.innerHTML += "<td>" + timeDropDownStart + "</td>";
-	newRow.innerHTML += "<td>" + timeDropDownEnd + "</td>";
-	newRow.innerHTML += "<td><input name='nonCourseDays" + nonCourseCount + "[]' value='Sun' type='checkbox'></td>";
-	newRow.innerHTML += "<td><input name='nonCourseDays" + nonCourseCount + "[]' value='Mon' type='checkbox'></td>";
-	newRow.innerHTML += "<td><input name='nonCourseDays" + nonCourseCount + "[]' value='Tue' type='checkbox'></td>";
-	newRow.innerHTML += "<td><input name='nonCourseDays" + nonCourseCount + "[]' value='Wed' type='checkbox'></td>";
-	newRow.innerHTML += "<td><input name='nonCourseDays" + nonCourseCount + "[]' value='Thu' type='checkbox'></td>";
-	newRow.innerHTML += "<td><input name='nonCourseDays" + nonCourseCount + "[]' value='Fri' type='checkbox'></td>";
-	newRow.innerHTML += "<td><input name='nonCourseDays" + nonCourseCount + "[]' value='Sat' type='checkbox'></td>";
+    // Clone it
+    var newRow = lastRow.clone();
 
-	// Add the new row
-	nonCourses.appendChild(newRow);
-}
+    // Add a time picker
+    newRow.find(".startTimePicker").timepicker({scrollDefaultTime: "08:00"});
 
-function addTime() {
-	// Grab the table to add the new row to
-	noCourses = document.getElementById('noCourses');
+    // Increment the id/name fields for each input, reset them while we're at it
+    newRow.find("input").each(function() {
+        var element = $(this);
 
-	// Grab the next index for the noCourse times
-	noCourseCount = parseInt(document.getElementById('noCourseCount').value) + 1;
-	document.getElementById('noCourseCount').value = noCourseCount;
-	
-	// Get times from the ajax.
-	var timeDropDownStart;
-	var timeDropDownEnd;
-	$.post("./js/scheduleAjax.php", {'action': 'getTimeField', 'name': 'noCourseStartTime' + noCourseCount, 'default': 720}, function(data) {
-		// Parse the data, error check, then dump to the vars
-		try {		
-			jsonResult = eval(data);
-		} catch(e) {
-			alert("An error occurred: the resulting jSON is malformed.");
-			return;
-		}
+        // Grab the name, split it, increment the numerical portion
+        // parts[3] is the [] for sun-sat checkboxes.
+        var parts = element.attr("name").match(/(\D+)(\d+)(\[\])?$/);
+        element.attr("name", parts[1] + count + ((parts[3]) ? parts[3] : ""));
 
-		if(jsonResult.error != undefined && jsonResult.error != null) {
-			alert("An error occurred: " + jsonResult.msg);
-		} else {
-			timeDropDownStart = jsonResult.code;
-		}
-	});
-	timeDropDownEnd = timeDropDownStart.replace(/noCourseStartTime/g, "noCourseEndTime");	// Replace the field name
+        // Repeat for the id
+        parts = element.attr("id").match(/(\D+)(\d+)$/);
+        element.attr("id", parts[1] + count);
 
-	// Build the new Row
-	newRow = document.createElement("tr");
-	newRow.innerHTML = "<td>" + timeDropDownStart + "</td>";
-	newRow.innerHTML += "<td>" + timeDropDownEnd + "</td>";
-	newRow.innerHTML += "<td><input name='noCourseDays" + noCourseCount + "[]' value='Sun' type='checkbox'></td>";
-	newRow.innerHTML += "<td><input name='noCourseDays" + noCourseCount + "[]' value='Mon' type='checkbox'></td>";
-	newRow.innerHTML += "<td><input name='noCourseDays" + noCourseCount + "[]' value='Tue' type='checkbox'></td>";
-	newRow.innerHTML += "<td><input name='noCourseDays" + noCourseCount + "[]' value='Wed' type='checkbox'></td>";
-	newRow.innerHTML += "<td><input name='noCourseDays" + noCourseCount + "[]' value='Thu' type='checkbox'></td>";
-	newRow.innerHTML += "<td><input name='noCourseDays" + noCourseCount + "[]' value='Fri' type='checkbox'></td>";
-	newRow.innerHTML += "<td><input name='noCourseDays" + noCourseCount + "[]' value='Sat' type='checkbox'></td>";
+        // Depending on the type, reset the value or selected value
+        if(element.attr("type") == "checkbox") {
+            element.attr("checked", false);
+        } else {
+            element.val("");
+        }
+    });
 
-	// Add the new row
-	noCourses.appendChild(newRow);
+    // Insert the row into the table
+    table.append(newRow);
 }
 
 function collapseErrors() {

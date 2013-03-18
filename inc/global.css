@@ -397,11 +397,21 @@ li {
 	background-color:#799AA5;
 	overflow:auto;
 }
+
+.startTimePicker, .endTimePicker {
+    width: 75px;
+}
+
 .subheader {
 	position:relative;
 	border-bottom: solid 1px #799AA5;
 	padding-bottom:5px;
 	margin-bottom:15px;
+}
+
+.subheader button {
+    position:relative;
+    float:right;
 }
 
 .scheduleForm .subheader {
@@ -432,7 +442,6 @@ li {
 #scheduleCourses
 {
 	position:relative;
-	float:center;
 	margin-left:auto;
 	margin-right:auto;
 	margin-bottom:20px;
@@ -444,7 +453,6 @@ li {
 #advancedOptions
 {
 	position:relative;
-	float:center;
 	margin-left:auto;
 	margin-right:auto;
 	margin-bottom:20px;
@@ -462,7 +470,6 @@ li {
 	float:left;
 	margin:10px;
 	width:205px;
-	/*width:230px;*/
 }
 .course h3 {
 	margin:0 0 0 5px;
@@ -502,10 +509,7 @@ li {
 
 .scheduleError {
 	position:relative;
-	float:center;
-	margin-top:20px;
-	margin-left:auto;
-	margin-right:auto;
+	margin:20px auto;
 	padding:20px;
 	background-color:#CC3129;
 	color:white;
@@ -513,12 +517,8 @@ li {
 }
 .scheduleWarning {
 	position:relative;
-	float:center;
-	margin-top:20px;
-	margin-bottom:20px;
-	margin-left:auto;
-	margin-right:auto;
-	padding:20px;
+    margin: 20px auto;
+    padding:20px;
 	background-color:darkorange;
 	overflow:auto;
 }
@@ -545,7 +545,6 @@ li {
 
 .scheduleWrapper {
 	position:relative;
-	float:center;
 	margin-left:auto;
 	margin-right:auto;
 	background-color:#799AA5;
@@ -573,7 +572,7 @@ li {
 	background-image:linear-gradient(top, #333, #111);
         filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#333333', endColorstr='#111111',GradientType=0 );
 }
-.scheduleControl input,button {
+.scheduleControl input, .scheduleControl button {
 	margin-top:5px;
 	width:140px;
 	font-size:12px;
@@ -732,7 +731,7 @@ li {
 }
 .schedNotes {
 	background-color:#A3773C;
-	sosition:relative;
+	position:relative;
 	padding-top:2px;
 	padding-bottom:2px;
 	margin-left:auto;
