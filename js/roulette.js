@@ -223,10 +223,13 @@ function spinRoulette() {
         // @TODO:	Link to course in the browse page
 
         // Make a button that stores the course info in session data
+        // @TODO: Just store the object and have the schedule js figure it out
+        // @TODO: ALSO SEND THE TERM NUMBER WITH THE COURSE INFO!!!
         $("<input>").attr("type", "button")
                     .attr("value", "Build Schedule with this Course")
                     .click(function() {
-                        sessionStorage.setItem("rouletteCourse", d.department + "-" + d.course + "-" + d.section);
+                        var department = ($("#term").children(":selected").val() > 20130) ? d.department.code : d.department.number;
+                        sessionStorage.setItem("rouletteCourse", department + "-" + d.course + "-" + d.section);
                         window.location = "generate.php";
                         })
                     .appendTo(courseDiv);

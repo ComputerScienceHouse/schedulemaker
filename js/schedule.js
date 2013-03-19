@@ -27,14 +27,14 @@ $.ajaxSetup({async: false});
 
 // If session data for a roulette course was stored, load it and delete it
 $(document).ready(function() {
-	if(sessionStorage.getItem("rouletteCourse") != null) {
+	// Load course roulette items from session storage
+    if(sessionStorage.getItem("rouletteCourse") != null) {
 		// Show the course in the list
-		courseOnFocus(document.getElementById("courses1"));
 		$("#courses1").val(sessionStorage.getItem("rouletteCourse"));
-		getCourseOptions(document.getElementById("courses1"));
+		getCourseOptions($("courses1"));
 
 		// Delete the data from the session data
-		sessionStorage.removeItem("rouletteCourse");
+		//sessionStorage.removeItem("rouletteCourse");
 	}
 
 	if(sessionStorage.getItem("scheduleJson") != null && window.location.search != "?mode=print") {
