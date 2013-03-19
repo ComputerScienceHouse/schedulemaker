@@ -21,11 +21,9 @@ var serialForm;			// The serialized form so we can tell if there has been
 var startday;			// The starting day for the schedule
 var starttime;			// The starting time for the schedule
 
-// CONSTANTS
-var COURSE_PLACEHOLDER = "XXXX-XXX-XXXX";
-
 // We NEED to make any ajax a synchronous call
 $.ajaxSetup({async: false});
+// @TODO: No we don't. This is making things slow as balls.
 
 // If session data for a roulette course was stored, load it and delete it
 $(document).ready(function() {
@@ -89,6 +87,9 @@ $(document).ready(function() {
 
     // Add handlers for the add item buttons
     $(".addItemButton").click(function(e) { e.preventDefault(); addNonCourseItem($(this)); });
+
+    // Add change handlers for the course fields
+    $(".courseField").live("blur", function() { getCourseOptions($(this)); });
 });
 
 // @TODO: save the schedule data between page loads?
@@ -223,14 +224,6 @@ function collapseForm() {
 	control.append(button);
 
 	control.insertBefore(".scheduleForm:first");
-}
-
-function courseOnFocus(field) {
-	// Clear the value and change the text-color back to black
-	if($(field).val() == COURSE_PLACEHOLDER) {
-		$(field).val("");
-	}
-	$(field).css("color", "black");
 }
 
 function drawCourse(parent, course, startDay, endDay, startTime, endTime, colorNum, print, hiddenCourses) {
@@ -578,12 +571,13 @@ function expandForm() {
 }
 
 function getCourseOptions(field) {
-	// If it's blank, then set the value back to the default and do nothing
+    // Store some handy points in the DOM relative to the field
+    var courseOptions = field.next();
+
+	// If no course number was provided, remove the options
 	if($(field).val() == "") {
-		$(field).val(COURSE_PLACEHOLDER);
-		$(field).css("color", "grey");
-		$(field.parentNode.children[2]).slideUp();
-		$(field.parentNode.children[2]).html("");
+		courseOptions.slideUp();
+		courseOptions.html("");
 		return;
 	}
 
@@ -595,77 +589,62 @@ function getCourseOptions(field) {
 			'term'       : $('#term').children(":selected").val(),
 			'ignoreFull' : $('#ignoreFull').prop('checked')
 		} , 
-		function(data) {		
-		try {		
-		// Grab the course options (results) div
-		courseOpts = field.parentNode.children[2];
+		function(d) {
+            if(d.error != null && d.error != undefined) {
+                // Bomb out on an error
+                courseOptions.html("<span>" + d.msg + "</span>");
+                courseOptions.addClass("courseOptsError");
+                courseOptions.slideDown();
+            } else {
+                // Empty out any currently showing courses
+                courseOptions.empty();
+                courseOptions.removeClass();
+                courseOptions.addClass("courseOpts");
 
-		// Process the resulting code
-		jsonResult = eval(data);
-		} catch(e) {
-			$(courseOpts).html("<span>An Error Occurred!</span>");
-			$(courseOpts).addClass("courseOptsError");
-			$(courseOpts).slideDown();
-			return;
-		}
+                // Create a header that will show the number of courses matched
+                // and provide a link to expand them
+                var listInfo = $("<span>").html(d.length + " Course Matches ");
+                var expandLink = $("<a href='#'>[ Show Matches ]</a>")
 
-		if(jsonResult.error != null && jsonResult.error != undefined) {
-			// Bomb out on an error
-			$(courseOpts).html("<span>" + jsonResult.msg + "</span>");
-			$(courseOpts).addClass("courseOptsError");
-			$(courseOpts).slideDown();
-			return;
-		} else {
-			// Empty out any currently showing courses
-			$(courseOpts).empty();
-			$(courseOpts).removeClass();
-			$(courseOpts).addClass("courseOpts");
-			
-			// Create a header that will show the number of courses matched
-			// and provide a link to expand them
-			var listInfo = $("<span>").html(jsonResult.length + " Course Matches ");
-			var expandLink = $("<a>").html("[ Show Matches ]");
-			expandLink.attr("href", "#");
+                // Create a list of courses (hidden at first)
+                var listTable = $("<table>").addClass("courseOptsTable");
+                for(var i = 0; i < d.length; i++) {
+                    // Add the row
+                    var row = $("<tr>");
+                    row.append(
+                        $("<td>").html(
+                            "<input type='checkbox' name='" + field.id + "Opt[]' value='"
+                            + d[i] + "' checked='checked'>")
+                    );
+                    row.append(
+                        $("<td>").html(d[i])
+                    );
+                    listTable.append(row);
+                }
 
-			// Create a list of courses (hidden at first)
-			var listTable = $("<table>").addClass("courseOptsTable");
-			for(var i = 0; i < jsonResult.length; i++) {
-				// Add the row
-				var row = $("<tr>");
-				row.append(
-					$("<td>").html(
-						"<input type='checkbox' name='" + field.id + "Opt[]' value='" 
-						+ jsonResult[i] + "' checked='checked'>")
-				);
-				row.append(
-					$("<td>").html(jsonResult[i])
-				);
-				listTable.append(row);
-			}
+                // Append everything as it should be
+                listInfo.append(expandLink);
+                courseOptions.append(listInfo);
+                courseOptions.append(listTable);
+                courseOptions.slideDown();
 
-			// Append everything as it should be
-			listInfo.append(expandLink);
-			$(courseOpts).append(listInfo);
-			$(courseOpts).append(listTable);
-			$(courseOpts).slideDown();
+                // Add click handler to the expand link that will show the list
+                // of matching courses
+                expandLink.click(function(event) {
+                    // Don't follow the link
+                    event.preventDefault();
 
-			// Add click handler to the expand link that will show the list
-			// of matching courses
-			expandLink.click(function(event) {
-				// Don't follow the link
-				event.preventDefault();
+                    // Show the table (or hide it)
+                    $(this).parent().next().toggle();
 
-				// Show the table (or hide it)
-				$(this).parent().next().toggle();
-
-				// Change the text
-				if($(this).html() == "[ Show Matches ]") {
-					$(this).html("[ Hide Matches ]");
-				} else {
-					$(this).html("[ Show Matches ]");
-				}
-			});
-		}
+                    // Change the text
+                    if($(this).html() == "[ Show Matches ]") {
+                        $(this).html("[ Hide Matches ]");
+                    } else {
+                        $(this).html("[ Show Matches ]");
+                    }
+			    });
+		    }
 	});
 }
 

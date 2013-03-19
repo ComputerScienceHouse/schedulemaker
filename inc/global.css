@@ -491,9 +491,8 @@ li {
 	width:100%;
 	font-size:12px;
 }
-.course input[type='text'] {
+.courseField {
 	width:193px;
-	color:grey;
 }
 #nonCourses,
 #noCourses td {
