@@ -31,18 +31,16 @@ global $CURRENT_QUARTER;
 		<label for='ignoreFull'>Ignore full courses</label>
 	</div>
 	<div id='scheduleCourses'>
-		<div id='courseRow1' class='courseRow'>
+		<div class='courseRow'>
 			<div class='course'>
 				<h3>Course 1</h3>
 				<input id='courses1' type='text' name='courses1' class='courseField' maxlength='17' placeholder='XXXX-XXX-XXXX' />
-				<div class='courseOpts'>
-				</div>
+				<div class='courseOpts'></div>
 			</div>
 			<div class='course'>
 				<h3>Course 2</h3>
 				<input id='courses2' type='text' name='courses2' class='courseField' maxlength='17' placeholder='XXXX-XXX-XXXX' />
-				<div class='courseOpts'>
-				</div>
+				<div class='courseOpts'></div>
 			</div>
 			<div class='course'>
 				<h3>Course 3</h3>

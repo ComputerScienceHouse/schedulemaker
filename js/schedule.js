@@ -94,49 +94,45 @@ $(document).ready(function() {
 
 // @TODO: save the schedule data between page loads?
 
+/**
+ * Called when the Add Course button is clicked to add an additional slot for
+ * a course item. This works by cloning the last course options field
+ */
 function addCourse() {
-	// First things first. Grab the schedulCourses div and the last row
-	scheduleCourses = document.getElementById('scheduleCourses');
-	lastRow = document.getElementById('courseRow' + scheduleCourses.children.length);
+    // First things first. Clone the last courseField
+    var lastCourse = $(".course").last();
+    var newCourse = lastCourse.clone();
 
-	// Build a new course
-	courseNum = document.getElementsByClassName('course').length + 1;
+    // Increment the count of courses
+    var courseCount = $("#courseCount");
+    var count = parseInt(courseCount.val()) + 1;
+    courseCount.val(count);
 
-	newCourse = document.createElement("div");
-	newCourse.className = "course";
-	
-	newHeader = document.createElement("h3");
-	newHeader.innerHTML = "Course " + courseNum;
-	newCourse.appendChild(newHeader);
-	
-	newInput = document.createElement("input");
-	newInput.setAttribute("id", 'courses' + courseNum);
-	newInput.setAttribute("type", 'text');
-	newInput.setAttribute("name", 'courses' + courseNum);
-	newInput.setAttribute("maxlength", '13');
-	newInput.setAttribute('onFocus', 'courseOnFocus(this);');
-	newInput.setAttribute('onBlur', 'getCourseOptions(this);');
-	newInput.setAttribute('value', COURSE_PLACEHOLDER);
-	newCourse.appendChild(newInput);
-	
-	newOptions = document.createElement("div");
-	newOptions.className = "courseOpts";
-	newCourse.appendChild(newOptions);
+    // Change the name of the new course to reflect the incremented number
+    var newInput = newCourse.find("input");
+    newInput.attr("name", "courses" + count);
+    newInput.attr("id", "courses" + count);
+    newInput.val("");
 
-	// If there are less than 4 children in this row, we can just add
-	if(lastRow.children.length < 4) {
-		lastRow.appendChild(newCourse);
-	} else {
-		// Well shit. We've gotta add a new row.
-		newRow = document.createElement("div");
-		newRow.id = 'courseRow' + (scheduleCourses.children.length + 1);
-		newRow.className = "courseRow";
-		newRow.appendChild(newCourse);
-		scheduleCourses.appendChild(newRow);
-	}
+    newCourse.find("h3").html("Course " + count);
 
-	// Increment our hidden field of number of courses
-	document.getElementById("courseCount").value = courseNum;
+    var newCourseOpts = newCourse.find(".courseOpts");
+    newCourseOpts.empty();
+    newCourseOpts.removeClass("courseOptsError");
+
+    // Grab the last row
+    var lastRow = $(".courseRow").last();
+
+    // If there are less than 4 fields in this row, we can just add the new one
+    if(lastRow.children().length < 4) {
+        lastRow.append(newCourse);
+    } else {
+        // Well shit. We've gotta add a new row.
+        var newRow = $("<div>");
+        newRow.addClass("courseRow");
+        newRow.appendTo(lastRow.parent());
+        newRow.append(newCourse);
+    }
 }
 
 /**
@@ -570,81 +566,85 @@ function expandForm() {
 	});
 }
 
+/**
+ * Retrieves the course options that match the input's value.
+ * @param field jQuery  The field to retrieve course options for
+ */
 function getCourseOptions(field) {
     // Store some handy points in the DOM relative to the field
     var courseOptions = field.next();
 
 	// If no course number was provided, remove the options
-	if($(field).val() == "") {
+	if(field.val() == "") {
 		courseOptions.slideUp();
 		courseOptions.html("");
 		return;
 	}
 
 	// It wasn't blank! Let's send it to the ajaxHandler
-	$.post("./js/scheduleAjax.php", 
-		{
-			'action'     : 'getCourseOpts', 
-			'course'     : $(field).val(), 
-			'term'       : $('#term').children(":selected").val(),
-			'ignoreFull' : $('#ignoreFull').prop('checked')
-		} , 
-		function(d) {
-            if(d.error != null && d.error != undefined) {
-                // Bomb out on an error
-                courseOptions.html("<span>" + d.msg + "</span>");
-                courseOptions.addClass("courseOptsError");
-                courseOptions.slideDown();
-            } else {
-                // Empty out any currently showing courses
-                courseOptions.empty();
-                courseOptions.removeClass();
-                courseOptions.addClass("courseOpts");
+    var options = {
+        'action'     : 'getCourseOpts',
+        'course'     : field.val(),
+        'term'       : $('#term').children(":selected").val(),
+        'ignoreFull' : $('#ignoreFull').prop('checked')
+    };
+	$.post("./js/scheduleAjax.php", options, function(d) {
+        if(d.error != null && d.error != undefined) {
+            // Bomb out on an error
+            courseOptions.html("<span>" + d.msg + "</span>");
+            courseOptions.addClass("courseOptsError");
+            courseOptions.slideDown();
+        } else {
+            // Empty out any currently showing courses
+            courseOptions.empty();
+            courseOptions.removeClass();
+            courseOptions.addClass("courseOpts");
 
-                // Create a header that will show the number of courses matched
-                // and provide a link to expand them
-                var listInfo = $("<span>").html(d.length + " Course Matches ");
-                var expandLink = $("<a href='#'>[ Show Matches ]</a>")
+            // Create a header that will show the number of courses matched
+            // and provide a link to expand them
+            var listInfo = $("<span>").html(d.length + " Course Matches ");
+            var expandLink = $("<a href='#'>[ Show Matches ]</a>")
 
-                // Create a list of courses (hidden at first)
-                var listTable = $("<table>").addClass("courseOptsTable");
-                for(var i = 0; i < d.length; i++) {
-                    // Add the row
-                    var row = $("<tr>");
-                    row.append(
-                        $("<td>").html(
-                            "<input type='checkbox' name='" + field.id + "Opt[]' value='"
-                            + d[i] + "' checked='checked'>")
-                    );
-                    row.append(
-                        $("<td>").html(d[i])
-                    );
-                    listTable.append(row);
+            // Create a list of courses (hidden at first)
+            var listTable = $("<table>").addClass("courseOptsTable");
+            for(var i = 0; i < d.length; i++) {
+                // Add the row
+                // @TODO: Replace with divs and margin'd checkboxes
+                var row = $("<tr>");
+                row.append(
+                    $("<td>").html(
+                        "<input type='checkbox' name='" + field.attr("id") + "Opt[]' value='"
+                        + d[i] + "' checked='checked'>")
+                );
+                row.append(
+                    $("<td>").html(d[i])
+                );
+                listTable.append(row);
+            }
+
+            // Append everything as it should be
+            listInfo.append(expandLink);
+            courseOptions.append(listInfo);
+            courseOptions.append(listTable);
+            courseOptions.slideDown();
+
+            // Add click handler to the expand link that will show the list
+            // of matching courses
+            expandLink.click(function(event) {
+                // Don't follow the link
+                event.preventDefault();
+
+                // Show the table (or hide it)
+                $(this).parent().next().toggle();
+
+                // Change the text
+                if($(this).html() == "[ Show Matches ]") {
+                    $(this).html("[ Hide Matches ]");
+                } else {
+                    $(this).html("[ Show Matches ]");
                 }
-
-                // Append everything as it should be
-                listInfo.append(expandLink);
-                courseOptions.append(listInfo);
-                courseOptions.append(listTable);
-                courseOptions.slideDown();
-
-                // Add click handler to the expand link that will show the list
-                // of matching courses
-                expandLink.click(function(event) {
-                    // Don't follow the link
-                    event.preventDefault();
-
-                    // Show the table (or hide it)
-                    $(this).parent().next().toggle();
-
-                    // Change the text
-                    if($(this).html() == "[ Show Matches ]") {
-                        $(this).html("[ Hide Matches ]");
-                    } else {
-                        $(this).html("[ Show Matches ]");
-                    }
-			    });
-		    }
+            });
+        }
 	});
 }
 
@@ -810,14 +810,17 @@ function printSchedule(button) {
 		);
 }
 
+/**
+ * Called when the course options need to all be refreshed. The best example
+ * of when this needs to happen is when the term is changed.
+ */
 function refreshCourses() {
 	// Iterate over the course slots and refresh each one
-	for(var i = 1; i <= $("#courseCount").val(); i++) {
-		// Only update if it's not the default value
-		if($("#courses" + i).val() != COURSE_PLACEHOLDER) {
-			getCourseOptions(document.getElementById("courses" + i));
-		}
-	}
+    $(".courseField").each(function() {
+       if($(this).val() != "") {
+           getCourseOptions($(this));
+       }
+    });
 }
 
 function saveSchedule(button) {
