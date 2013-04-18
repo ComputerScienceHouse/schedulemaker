@@ -34,7 +34,7 @@ $(document).ready(function() {
 		getCourseOptions($("courses1"));
 
 		// Delete the data from the session data
-		//sessionStorage.removeItem("rouletteCourse");
+		sessionStorage.removeItem("rouletteCourse");
 	}
 
 	if(sessionStorage.getItem("scheduleJson") != null && window.location.search != "?mode=print") {
@@ -43,27 +43,8 @@ $(document).ready(function() {
 
     // Add live handlers to the timeContainers that will show/hide things
     var timeContainers = $(".timeContainer");
-    timeContainers.live("mouseover", function() {
-        var container = $(this);
-        var infoDiv   = container.children("div");
-
-        // Make things visible, add glow to the container
-        container.css("overflow", "visible");
-        container.css("box-shadow", "0px 0px 5px yellow");
-        container.css("z-index", "9001");
-        infoDiv.css("background-color", container.css("background-color"));
-    });
-
-    timeContainers.live("mouseout", function() {
-        var container = $(this);
-        var infoDiv   = container.children("div");
-
-        // Hide things
-        container.css("overflow", "hidden");
-        container.css("box-shadow", "");
-        container.css("z-index", "");
-        infoDiv.css("background-color", "");
-    });
+    timeContainers.live("mouseover", function() { $(this).addClass("timeContainerHover"); });
+    timeContainers.live("mouseout", function() { $(this).removeClass("timeContainerHover"); });
 
     // Add handler to reset the course selections when terms change or when ignore full is clicked
     $("#ignoreFull").click(function() { refreshCourses(); });

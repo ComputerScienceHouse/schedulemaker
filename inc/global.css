@@ -632,6 +632,16 @@ li {
     overflow: hidden;
 }
 
+.timeContainerHover {
+    overflow: visible;
+    box-shadow: 0 0 5px yellow;
+    z-index: 9001;
+}
+
+.timeContainerHover div {
+    background-color: inherit;
+}
+
 /* In case you're wondering: http://colorschemedesigner.com/#0K61Tw0w0w0w0 */
 .color0 { /* Blue */
 	background-color:#054C8E;

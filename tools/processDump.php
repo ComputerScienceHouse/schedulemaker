@@ -161,7 +161,7 @@ function getTempSections($courseNum, $offerNum, $term, $sessionNum) {
 	global $dbConn;
 	
 	// Query for the sections of the course
-	$query = "SELECT class_section,descr,enrl_stat,class_stat,class_type,enrl_cap,enrl_tot,instruction_mode,schedule_print ";
+	$query = "SELECT class_section,descr,topic,enrl_stat,class_stat,class_type,enrl_cap,enrl_tot,instruction_mode,schedule_print ";
 	$query .= "FROM classes WHERE crse_id={$courseNum} AND crse_offer_nbr={$offerNum} AND strm={$term} ";
 	$query .= "AND session_code={$sessionNum}";
 	$results = mysqli_query($dbConn, $query);
@@ -504,7 +504,7 @@ if(!mysqli_query($dbConn, $departmentQuery)) {
 $departmentsProc = mysqli_affected_rows($dbConn);
 
 // Grab each COURSE from the classes table
-$courseQuery = "SELECT strm, subject, acad_org, topic, catalog_nbr, descr, course_descrlong,";
+$courseQuery = "SELECT strm, subject, acad_org, catalog_nbr, descr, course_descrlong,";
 $courseQuery .= " crse_id, crse_offer_nbr, session_code";
 $courseQuery .= " FROM classes WHERE strm < 20130 GROUP BY crse_id, strm";
 debug("... Updating courses\n0%", false);
@@ -596,7 +596,7 @@ while($row = mysqli_fetch_assoc($courseResult)) {
 			}
 
 			// Escapables --
-			$title = (empty($row['topic'])) ? "" : $row['topic'];
+			$title = (empty($sect['topic'])) ? "" : $sect['topic'];
 			$title = mysqli_real_escape_string($dbConn, $title);
 			$instructor = mysqli_real_escape_string($dbConn, $instructor);
 
