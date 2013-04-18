@@ -66,11 +66,21 @@ $(document).ready(function() {
         }
     });
 
+    // Don't do anything on enter being pressed
+    $(document).on("keypress", "input", function(e) { if(e.keyCode == 13) { e.preventDefault(); } });
+
     // Add handlers for the add item buttons
+    $("#addCourseButton").click(function(e) { e.preventDefault(); addCourse(); });
     $(".addItemButton").click(function(e) { e.preventDefault(); addNonCourseItem($(this)); });
 
     // Add change handlers for the course fields
-    $(".courseField").live("blur", function() { getCourseOptions($(this)); });
+    $(document).on("blur", ".courseField", function() { getCourseOptions($(this)); });
+    $(document).on("keypress", ".courseField", function(e) {
+       if(e.keyCode == 13) { getCourseOptions($(this)); }
+    });
+
+    // Add handler to the show schedules button
+    $("#showSchedulesButton").click(function(e) { e.preventDefault(); showSchedules(); });
 });
 
 // @TODO: save the schedule data between page loads?

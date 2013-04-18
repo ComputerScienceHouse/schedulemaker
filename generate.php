@@ -17,11 +17,11 @@ global $CURRENT_QUARTER;
 <script type='text/javascript' src='./js/schedule.js'></script>
 <script type='text/javascript' src='./js/jquery.timepicker.min.js'></script>
 <link href='inc/jquery.timepicker.css' rel='stylesheet' type='text/css' />
-<form id='scheduleForm' name='schedule' action='buildSchedule.php' method='POST'>
+<form id='scheduleForm' name='schedule' method='POST'>
 <div class='scheduleForm'>
 	<div class='subheader'>
 		<h2>Courses</h2>
-		<input type='button' value="Add Course" onClick='addCourse();' />
+		<button id='addCourseButton'>Add Course</button>
 	</div>
 	<div class='courseRow'>
 		<label for='term'>Term:</label> <?= getTermField('term', $CURRENT_QUARTER) ?>
@@ -201,7 +201,9 @@ global $CURRENT_QUARTER;
 	</table>
 </div>
 <input type='hidden' name='action' value='getMatchingSchedules' />
-<div id='formSubmit' class='scheduleForm'><input type='button' class='bigButton' value="Show Matching Schedules" onClick="showSchedules();" /></div>
+<div id='formSubmit' class='scheduleForm'>
+    <button class='bigButton' id='showSchedulesButton'>Show Matching Schedules</button>
+</div>
 </form>
 <div id='schedules'>
 	<div id='matchingSchedules' class='subheader'>
