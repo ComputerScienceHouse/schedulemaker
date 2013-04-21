@@ -171,6 +171,18 @@ function overlapNoCourse($noCourses, $course) {
 	return false;
 }
 
+/**
+ * Converts a time string into the number of minutes the time is past midnight
+ * @param $str  string  A string time format (eg: "8:00am")
+ * @return  int The number of minutes past midnight the time is
+ */
+function timeStringToMinutes($str) {
+    $time = strtotime($str);
+    $hour = (int)date("G", $time);
+    $minute = (int)date("i", $time);
+    return $hour * 60 + $minute;
+}
+
 
 ////////////////////////////////////////////////////////////////////////////
 // MAIN EXECUTION
@@ -329,11 +341,13 @@ switch($_POST['action']) {
 			$nonCourse['title'] = $_POST["nonCourseTitle{$i}"];
 			$nonCourse['courseNum'] = "non";
 			$nonCourse['times'] = array();
+
+            // Create a time entry for each
 			foreach($_POST["nonCourseDays{$i}"] as $day) {
 				$nonCourse['times'][] = array(
 					"day"   => translateDay($day),
-					"start" => $_POST["nonCourseStartTime{$i}"],
-					"end"   => $_POST["nonCourseEndTime{$i}"]
+					"start" => timeStringToMinutes($_POST["nonCourseStartTime{$i}"]),
+					"end"   => timeStringToMinutes($_POST["nonCourseEndTime{$i}"])
 					);
 			}
 			$nonCourseSet[] = $nonCourse;
@@ -356,8 +370,8 @@ switch($_POST['action']) {
 			foreach($_POST["noCourseDays{$i}"] as $day) {
 				$noCourse['times'][] = array(
 					"day"   => translateDay($day),
-					"start" => $_POST["noCourseStartTime{$i}"],
-					"end"   => $_POST["noCourseEndTime{$i}"]
+					"start" => timeStringToMinutes($_POST["noCourseStartTime{$i}"]),
+					"end"   => timeStringToMinutes($_POST["noCourseEndTime{$i}"])
 					);
 			}
 			$noCourseSet[] = $noCourse;

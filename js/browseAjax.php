@@ -86,7 +86,7 @@ switch($_POST['action']) {
             $query = "SELECT id, title, code, GROUP_CONCAT(number, ', ') AS number
                       FROM departments AS d
                       WHERE school = '{$_POST['school']}'
-                        AND (SELECT COUNT(*) FROM courses AS c WHERE c.department=d.id AND quarter='{$_POST['term']}') > 1
+                        AND (SELECT COUNT(*) FROM courses AS c WHERE c.department=d.id AND quarter='{$_POST['term']}') >= 1
                         AND code IS NOT NULL
                       GROUP BY code
                       ORDER BY code";
@@ -94,7 +94,7 @@ switch($_POST['action']) {
             $query = "SELECT id, title, number
                   FROM departments AS d
                   WHERE school = '{$_POST['school']}'
-		            AND (SELECT COUNT(*) FROM courses AS c WHERE c.department=d.id AND quarter='{$_POST['term']}' ) > 1
+		            AND (SELECT COUNT(*) FROM courses AS c WHERE c.department=d.id AND quarter='{$_POST['term']}' ) >= 1
 		            AND number IS NOT NULL
                   ORDER BY id";
         }

@@ -21,19 +21,17 @@ var serialForm;			// The serialized form so we can tell if there has been
 var startday;			// The starting day for the schedule
 var starttime;			// The starting time for the schedule
 
-// CONSTANTS
-var COURSE_PLACEHOLDER = "XXXX-XXX-XXXX";
-
 // We NEED to make any ajax a synchronous call
 $.ajaxSetup({async: false});
+// @TODO: No we don't. This is making things slow as balls.
 
 // If session data for a roulette course was stored, load it and delete it
 $(document).ready(function() {
-	if(sessionStorage.getItem("rouletteCourse") != null) {
+	// Load course roulette items from session storage
+    if(sessionStorage.getItem("rouletteCourse") != null) {
 		// Show the course in the list
-		courseOnFocus(document.getElementById("courses1"));
 		$("#courses1").val(sessionStorage.getItem("rouletteCourse"));
-		getCourseOptions(document.getElementById("courses1"));
+		getCourseOptions($("courses1"));
 
 		// Delete the data from the session data
 		sessionStorage.removeItem("rouletteCourse");
@@ -45,168 +43,136 @@ $(document).ready(function() {
 
     // Add live handlers to the timeContainers that will show/hide things
     var timeContainers = $(".timeContainer");
-    timeContainers.live("mouseover", function() {
-        var container = $(this);
-        var infoDiv   = container.children("div");
-
-        // Make things visible, add glow to the container
-        container.css("overflow", "visible");
-        container.css("box-shadow", "0px 0px 5px yellow");
-        container.css("z-index", "9001");
-        infoDiv.css("background-color", container.css("background-color"));
-    });
-
-    timeContainers.live("mouseout", function() {
-        var container = $(this);
-        var infoDiv   = container.children("div");
-
-        // Hide things
-        container.css("overflow", "hidden");
-        container.css("box-shadow", "");
-        container.css("z-index", "");
-        infoDiv.css("background-color", "");
-    });
+    timeContainers.live("mouseover", function() { $(this).addClass("timeContainerHover"); });
+    timeContainers.live("mouseout", function() { $(this).removeClass("timeContainerHover"); });
 
     // Add handler to reset the course selections when terms change or when ignore full is clicked
     $("#ignoreFull").click(function() { refreshCourses(); });
     $("#term").click(function() { refreshCourses(); });
+
+    // Add time pickers to the start time pickers
+    var startTimePickers = $(".startTimePicker");
+    startTimePickers.timepicker({scrollDefaultTime: "08:00" });
+    startTimePickers.live("change", function() {
+        // Add a time picker to the neighboring endTimePicker
+        var endPicker = $(this).parent().parent().find(".endTimePicker");
+        endPicker.timepicker("remove");
+        if($(this).val() != "") {
+            endPicker.timepicker({
+                showDuration: true,
+                durationTime: $(this).val(),
+                minTime: $(this).val()
+            });
+        }
+    });
+
+    // Don't do anything on enter being pressed
+    $(document).on("keypress", "input", function(e) { if(e.keyCode == 13) { e.preventDefault(); } });
+
+    // Add handlers for the add item buttons
+    $("#addCourseButton").click(function(e) { e.preventDefault(); addCourse(); });
+    $(".addItemButton").click(function(e) { e.preventDefault(); addNonCourseItem($(this)); });
+
+    // Add change handlers for the course fields
+    $(document).on("blur", ".courseField", function() { getCourseOptions($(this)); });
+    $(document).on("keypress", ".courseField", function(e) {
+       if(e.keyCode == 13) { getCourseOptions($(this)); }
+    });
+
+    // Add handler to the show schedules button
+    $("#showSchedulesButton").click(function(e) { e.preventDefault(); showSchedules(); });
 });
 
 // @TODO: save the schedule data between page loads?
 
+/**
+ * Called when the Add Course button is clicked to add an additional slot for
+ * a course item. This works by cloning the last course options field
+ */
 function addCourse() {
-	// First things first. Grab the schedulCourses div and the last row
-	scheduleCourses = document.getElementById('scheduleCourses');
-	lastRow = document.getElementById('courseRow' + scheduleCourses.children.length);
+    // First things first. Clone the last courseField
+    var lastCourse = $(".course").last();
+    var newCourse = lastCourse.clone();
 
-	// Build a new course
-	courseNum = document.getElementsByClassName('course').length + 1;
+    // Increment the count of courses
+    var courseCount = $("#courseCount");
+    var count = parseInt(courseCount.val()) + 1;
+    courseCount.val(count);
 
-	newCourse = document.createElement("div");
-	newCourse.className = "course";
-	
-	newHeader = document.createElement("h3");
-	newHeader.innerHTML = "Course " + courseNum;
-	newCourse.appendChild(newHeader);
-	
-	newInput = document.createElement("input");
-	newInput.setAttribute("id", 'courses' + courseNum);
-	newInput.setAttribute("type", 'text');
-	newInput.setAttribute("name", 'courses' + courseNum);
-	newInput.setAttribute("maxlength", '13');
-	newInput.setAttribute('onFocus', 'courseOnFocus(this);');
-	newInput.setAttribute('onBlur', 'getCourseOptions(this);');
-	newInput.setAttribute('value', COURSE_PLACEHOLDER);
-	newCourse.appendChild(newInput);
-	
-	newOptions = document.createElement("div");
-	newOptions.className = "courseOpts";
-	newCourse.appendChild(newOptions);
+    // Change the name of the new course to reflect the incremented number
+    var newInput = newCourse.find("input");
+    newInput.attr("name", "courses" + count);
+    newInput.attr("id", "courses" + count);
+    newInput.val("");
 
-	// If there are less than 4 children in this row, we can just add
-	if(lastRow.children.length < 4) {
-		lastRow.appendChild(newCourse);
-	} else {
-		// Well shit. We've gotta add a new row.
-		newRow = document.createElement("div");
-		newRow.id = 'courseRow' + (scheduleCourses.children.length + 1);
-		newRow.className = "courseRow";
-		newRow.appendChild(newCourse);
-		scheduleCourses.appendChild(newRow);
-	}
+    newCourse.find("h3").html("Course " + count);
 
-	// Increment our hidden field of number of courses
-	document.getElementById("courseCount").value = courseNum;
+    var newCourseOpts = newCourse.find(".courseOpts");
+    newCourseOpts.empty();
+    newCourseOpts.removeClass("courseOptsError");
+
+    // Grab the last row
+    var lastRow = $(".courseRow").last();
+
+    // If there are less than 4 fields in this row, we can just add the new one
+    if(lastRow.children().length < 4) {
+        lastRow.append(newCourse);
+    } else {
+        // Well shit. We've gotta add a new row.
+        var newRow = $("<div>");
+        newRow.addClass("courseRow");
+        newRow.appendTo(lastRow.parent());
+        newRow.append(newCourse);
+    }
 }
 
-function addItem() {
-	// First things first. Grab the table to add the row to
-	nonCourses = document.getElementById('nonCourses');
+/**
+ * Called when a the Add Item button is clicked to add an additional row for
+ * a non-course item or no course time. This works via cloning the last row
+ * of the table.
+ * @param   button  jQuery  A jQuery object for the button that was clicked
+ */
+function addNonCourseItem(button) {
+    var parent = button.parent();
 
-	// Which nonCourse item will this be?
-	nonCourseCount = parseInt(document.getElementById('nonCourseCount').value) + 1;
-	document.getElementById('nonCourseCount').value = nonCourseCount;
-	
-	// Get the times from the ajax. I don't really like this, but it's 
-	// better than umpteen million lines of code.
-	var timeDropDownStart;
-	var timeDropDownEnd;
-	$.post("./js/scheduleAjax.php", {'action': 'getTimeField', 'name': 'nonCourseStartTime' + nonCourseCount, 'default': 720}, function(data) {
-		// Parse the data, error check, then dump to the vars
-		try {		
-			jsonResult = eval(data);
-		} catch(e) {
-			alert("An error occurred: the resulting jSON is malformed.");
-			return;
-		}
+    // Increment the non course count
+    var countInput = parent.find(".itemCount");
+    var count = parseInt(countInput.val()) + 1;
+    countInput.val(count);
 
-		if(jsonResult.error != undefined && jsonResult.error != null) {
-			alert("An error occurred: " + jsonResult.msg);
-		} else {
-			timeDropDownStart = jsonResult.code;
-		}
-	});
-	timeDropDownEnd = timeDropDownStart.replace(/nonCourseStartTime/g, "nonCourseEndTime");	// Replace the field name
+    // Grab the last row from the table of non-course items
+    var table   = parent.next();
+    var lastRow = table.find("tr").last();
 
-	// Build the new row
-	newRow = document.createElement("tr");
-	newRow.innerHTML = "<td><input name='nonCourseTitle" + nonCourseCount + "' type='text' id='nonCourseTitle" + nonCourseCount + "'></td>";
-	newRow.innerHTML += "<td>" + timeDropDownStart + "</td>";
-	newRow.innerHTML += "<td>" + timeDropDownEnd + "</td>";
-	newRow.innerHTML += "<td><input name='nonCourseDays" + nonCourseCount + "[]' value='Sun' type='checkbox'></td>";
-	newRow.innerHTML += "<td><input name='nonCourseDays" + nonCourseCount + "[]' value='Mon' type='checkbox'></td>";
-	newRow.innerHTML += "<td><input name='nonCourseDays" + nonCourseCount + "[]' value='Tue' type='checkbox'></td>";
-	newRow.innerHTML += "<td><input name='nonCourseDays" + nonCourseCount + "[]' value='Wed' type='checkbox'></td>";
-	newRow.innerHTML += "<td><input name='nonCourseDays" + nonCourseCount + "[]' value='Thu' type='checkbox'></td>";
-	newRow.innerHTML += "<td><input name='nonCourseDays" + nonCourseCount + "[]' value='Fri' type='checkbox'></td>";
-	newRow.innerHTML += "<td><input name='nonCourseDays" + nonCourseCount + "[]' value='Sat' type='checkbox'></td>";
+    // Clone it
+    var newRow = lastRow.clone();
 
-	// Add the new row
-	nonCourses.appendChild(newRow);
-}
+    // Add a time picker
+    newRow.find(".startTimePicker").timepicker({scrollDefaultTime: "08:00"});
 
-function addTime() {
-	// Grab the table to add the new row to
-	noCourses = document.getElementById('noCourses');
+    // Increment the id/name fields for each input, reset them while we're at it
+    newRow.find("input").each(function() {
+        var element = $(this);
 
-	// Grab the next index for the noCourse times
-	noCourseCount = parseInt(document.getElementById('noCourseCount').value) + 1;
-	document.getElementById('noCourseCount').value = noCourseCount;
-	
-	// Get times from the ajax.
-	var timeDropDownStart;
-	var timeDropDownEnd;
-	$.post("./js/scheduleAjax.php", {'action': 'getTimeField', 'name': 'noCourseStartTime' + noCourseCount, 'default': 720}, function(data) {
-		// Parse the data, error check, then dump to the vars
-		try {		
-			jsonResult = eval(data);
-		} catch(e) {
-			alert("An error occurred: the resulting jSON is malformed.");
-			return;
-		}
+        // Grab the name, split it, increment the numerical portion
+        // parts[3] is the [] for sun-sat checkboxes.
+        var parts = element.attr("name").match(/(\D+)(\d+)(\[\])?$/);
+        element.attr("name", parts[1] + count + ((parts[3]) ? parts[3] : ""));
 
-		if(jsonResult.error != undefined && jsonResult.error != null) {
-			alert("An error occurred: " + jsonResult.msg);
-		} else {
-			timeDropDownStart = jsonResult.code;
-		}
-	});
-	timeDropDownEnd = timeDropDownStart.replace(/noCourseStartTime/g, "noCourseEndTime");	// Replace the field name
+        // Repeat for the id
+        parts = element.attr("id").match(/(\D+)(\d+)$/);
+        element.attr("id", parts[1] + count);
 
-	// Build the new Row
-	newRow = document.createElement("tr");
-	newRow.innerHTML = "<td>" + timeDropDownStart + "</td>";
-	newRow.innerHTML += "<td>" + timeDropDownEnd + "</td>";
-	newRow.innerHTML += "<td><input name='noCourseDays" + noCourseCount + "[]' value='Sun' type='checkbox'></td>";
-	newRow.innerHTML += "<td><input name='noCourseDays" + noCourseCount + "[]' value='Mon' type='checkbox'></td>";
-	newRow.innerHTML += "<td><input name='noCourseDays" + noCourseCount + "[]' value='Tue' type='checkbox'></td>";
-	newRow.innerHTML += "<td><input name='noCourseDays" + noCourseCount + "[]' value='Wed' type='checkbox'></td>";
-	newRow.innerHTML += "<td><input name='noCourseDays" + noCourseCount + "[]' value='Thu' type='checkbox'></td>";
-	newRow.innerHTML += "<td><input name='noCourseDays" + noCourseCount + "[]' value='Fri' type='checkbox'></td>";
-	newRow.innerHTML += "<td><input name='noCourseDays" + noCourseCount + "[]' value='Sat' type='checkbox'></td>";
+        // Depending on the type, reset the value or selected value
+        if(element.attr("type") == "checkbox") {
+            element.attr("checked", false);
+        } else {
+            element.val("");
+        }
+    });
 
-	// Add the new row
-	noCourses.appendChild(newRow);
+    // Insert the row into the table
+    table.append(newRow);
 }
 
 function collapseErrors() {
@@ -214,8 +180,9 @@ function collapseErrors() {
 	$('#errorContents').slideUp('slow');
 	
 	// Edit the control for hiding/showing
-	$('#errorControl').val("Expand");
-	$('#errorControl').attr("onClick", "expandErrors();");
+    var errorControl = $("#errorControl");
+	errorControl.val("Expand");
+	errorControl.attr("onClick", "expandErrors();");
 }
 
 function collapseForm() {
@@ -229,30 +196,22 @@ function collapseForm() {
 	});
 
 	// Add a control for expanding re-expanding the form
-	control = $("<div>");
+	var control = $("<div>");
 	control.attr("id", "formControl");
 	control.addClass("scheduleForm");
 	control.addClass("subheader");
 	
-	header = $("<h2>");
+	var header = $("<h2>");
 	header.html("Schedule Parameters");
 	control.append(header);
 	
-	button = $("<input>");
+	var button = $("<input>");
 	button.attr("type", "button");
 	button.attr("value", "Expand");
 	button.attr("onClick", "expandForm();");
 	control.append(button);
 
 	control.insertBefore(".scheduleForm:first");
-}
-
-function courseOnFocus(field) {
-	// Clear the value and change the text-color back to black
-	if($(field).val() == COURSE_PLACEHOLDER) {
-		$(field).val("");
-	}
-	$(field).css("color", "black");
 }
 
 function drawCourse(parent, course, startDay, endDay, startTime, endTime, colorNum, print, hiddenCourses) {
@@ -304,13 +263,13 @@ function drawCourse(parent, course, startDay, endDay, startTime, endTime, colorN
 		}
 		
 		// Calculate the height
-		timeHeight = parseInt(time.end) - parseInt(time.start);
+		var timeHeight = parseInt(time.end) - parseInt(time.start);
 		timeHeight = timeHeight / 30;
 		timeHeight = Math.ceil(timeHeight);
 		timeHeight = (timeHeight * 20) - 1;
 
 		// Calculate the top offset
-		timeTop = parseInt(time.start) - startTime;
+		var timeTop = parseInt(time.start) - startTime;
 		timeTop = timeTop / 30;
 		timeTop = Math.floor(timeTop);
 		timeTop = timeTop * 20;
@@ -378,21 +337,18 @@ function drawCourse(parent, course, startDay, endDay, startTime, endTime, colorN
 
 function drawPage(pageNum, print) {
 	// Clear out the currently displayed schedules
-	$(".schedSupaWrapper").each(function(k,v) {
-		$(v).remove();
-		});
+	$(".schedSupaWrapper").remove();
 
 	// Calculate the subset of schedules to display
-	startIndex = pageNum * SCHEDPERPAGE;
-	endIndex   = startIndex + SCHEDPERPAGE;
+	var startIndex = pageNum * SCHEDPERPAGE;
+	var endIndex   = startIndex + SCHEDPERPAGE;
 	if(endIndex >= schedules.length) { endIndex = schedules.length; }
-
-	schedSubset = schedules.slice(startIndex, endIndex);
+	var schedSubset = schedules.slice(startIndex, endIndex);
 
 	// Draw the new schedules
-	for(s = 0; s < schedSubset.length; s++) {
+	for(var s = 0; s < schedSubset.length; s++) {
 		// Set the unique index of the schedule
-		schedId = s + startIndex;
+		var schedId = s + startIndex;
 
 		// Create a 'super wrapper' for containing the URL div, schedule, and
 		// notes divs
@@ -416,8 +372,8 @@ function drawPage(pageNum, print) {
 		drawScheduleHeaders(sched, startday, endday, starttime, endtime);
 
 		// Iterate over each course and draw them
-		var onlineCourses = new Array();
-		var hiddenCourses = new Array();
+		var onlineCourses = [];
+		var hiddenCourses = [];
 		for(c = 0; c < schedSubset[s].length; c++) {
 			var colorNum = c % 4;
 
@@ -428,79 +384,96 @@ function drawPage(pageNum, print) {
 				drawCourse(sched, schedSubset[s][c], startday, endday, starttime, endtime, colorNum, print, hiddenCourses);
 			}
 		}
-		
-		// If we have onlineCourses then show a little notice
-		if(onlineCourses.length) {
-			var onlineWarning = $("<div>").addClass("schedNotes");
-			onlineWarning.css("width", schedWidth + "px");
 
-			var notes = $("<p>").html("Notice: This schedule contains online courses ");
-			for(ol = 0; ol < onlineCourses.length; ol++) {
-				notes.html(notes.html() + " " + onlineCourses[ol]);
-			}
-			notes.appendTo(onlineWarning);
-			onlineWarning.appendTo(schedSupa);
-		}
+        // Do we need a notes box?
+        if(onlineCourses.length || hiddenCourses.length) {
+            // Create a notes div
+            var notesDiv = $("<div>");
+            notesDiv.addClass("schedNotes");
+            notesDiv.css("width", schedWidth + "px");
 
-		// If we have hidden courses then show a little notice
-		if(hiddenCourses.length) {
-			// Create a box for it
-			var hiddenWarning = $("<div>").addClass("schedNotes");
-			hiddenWarning.css("width", schedWidth + "px");
-		
-			// Create a notice for the box
-			var notes = $("<p>").html("Notice: This schedule does not show ");
-			for(ol = 0; ol < hiddenCourses.length; ol++) {
-				notes.html(notes.html() + " " + hiddenCourses[ol]);
-			}
-			notes.appendTo(hiddenWarning);
-			hiddenWarning.appendTo(schedSupa);
-		}
+            // Do we have online courses?
+            if(onlineCourses.length) {
+                // Create the beginning of the notice
+                var onlineNotes = $("<p>");
+                onlineNotes.html("This schedule contains online courses");
+                onlineNotes.prepend($("<span style='font-weight:bold'>Notice: </span>"));
+
+                // Add each course number to the notice
+                for(var ol = 0; ol < onlineCourses.length; ol++) {
+                    onlineNotes.html(onlineNotes.html() + " " + onlineCourses[ol]);
+                }
+
+                // Add it to the notes div
+                onlineNotes.appendTo(notesDiv);
+            }
+
+            // Do we have courses that are obscured?
+            if(hiddenCourses.length) {
+                // Create the beginning of the notice
+                var hiddenNotes = $("<p>");
+                hiddenNotes.html("This schedule does not show");
+                hiddenNotes.prepend($("<span style='font-weight:bold'>Notice: </span>"));
+
+                // Add each item to the notice
+                for(var hi = 0; hi < hiddenCourses.length; hi++) {
+                    hiddenNotes.html(hiddenNotes.html() + " " + hiddenCourses[ol]);
+                }
+
+                // Add it to the notes div
+                hiddenNotes.appendTo(notesDiv);
+            }
+
+            // Put the notes div in the schedule wrapper
+            notesDiv.appendTo(schedSupa);
+        }
+
 		if(!print) {
 		// Create a control box
 		var schedControl = $("<div>").addClass("scheduleControl");
 		var saveForm = $("<form>").attr("action", "schedule.php")
 						.attr("method", "POST")
 						.appendTo(schedControl);
-		var saveInput = $("<input>").attr("type", "hidden")
-						.attr("name", "schedule")
-						.val(JSON.stringify(schedSubset[s]))
-						.appendTo(saveForm);
-		var urlInput = $("<input>").attr("type", "hidden")
-						.attr("name", "url")
-						.val("none")
-						.appendTo(saveForm);
-		var schedInput = $("<input>").attr("type", "hidden")
-						.attr("name", "scheduleId")
-						.val("sched" + schedId)
-						.appendTo(saveForm); 
-		var printButton = $("<input type='button' value='Print Schedule'>")
-						.click(function(obj) { printSchedule($(this)); })
-						.appendTo(saveForm);
-		var saveButton = $("<input type='button' value='Save Schedule'>")
-						.click(function(obj) { saveSchedule($(this)); })
-						.appendTo(saveForm);
-		var downButton = $("<input type='button' value='Download iCal'>")
-						.click(function(obj) { icalSchedule($(this)); })
-						.appendTo(saveForm);
-		var faceButton = $("<button type='button'>")
-						.html("<img src='img/share_facebook.png' /> Share Facebook")
-						.click(function(obj) { shareFacebook($(this)); })
-						.appendTo(saveForm);
-		var googButton = $("<button type='button'>")
-						.html("<img src='img/share_google.png' /> Share Google+")
-						.click(function(obj) { shareGoogle($(this)); })
-						.appendTo(saveForm);
-		var twitButton = $("<button type='button'>")
-						.html("<img src='img/share_twitter.png' /> Share Twitter")
-						.click(function() { shareTwitter($(this)); })
-						.appendTo(saveForm);
+		$("<input>").attr("type", "hidden")
+			.attr("name", "schedule")
+			.val(JSON.stringify(schedSubset[s]))
+			.appendTo(saveForm);
+		$("<input>").attr("type", "hidden")
+			.attr("name", "url")
+			.val("none")
+			.appendTo(saveForm);
+		$("<input>").attr("type", "hidden")
+			.attr("name", "scheduleId")
+			.val("sched" + schedId)
+			.appendTo(saveForm);
+		$("<input type='button' value='Print Schedule'>")
+			.click(function() { printSchedule($(this)); })
+			.appendTo(saveForm);
+		$("<input type='button' value='Save Schedule'>")
+			.click(function() { saveSchedule($(this)); })
+			.appendTo(saveForm);
+		$("<input type='button' value='Download iCal'>")
+			.click(function() { icalSchedule($(this)); })
+			.appendTo(saveForm);
+		$("<button type='button'>")
+			.html("<img src='img/share_facebook.png' /> Share Facebook")
+			.click(function() { shareFacebook($(this)); })
+			.appendTo(saveForm);
+		$("<button type='button'>")
+			.html("<img src='img/share_google.png' /> Share Google+")
+			.click(function() { shareGoogle($(this)); })
+			.appendTo(saveForm);
+		$("<button type='button'>")
+			.html("<img src='img/share_twitter.png' /> Share Twitter")
+			.click(function() { shareTwitter($(this)); })
+			.appendTo(saveForm);
 		schedControl.appendTo(schedWrap);
 		}
 
 		// Add the schedule to the schedules
-		if($(".schedulePagination").length) {
-			schedSupa.insertBefore($(".schedulePagination").last());
+        var schedulePagination = $(".schedulePagination");
+		if(schedulePagination.length) {
+			schedSupa.insertBefore(schedulePagination.last());
 		} else {
 			$('#schedules').append(schedSupa);
 		}
@@ -512,70 +485,70 @@ function drawScheduleHeaders(parent, startDay, endDay, startTime, endTime) {
 	// It falls through the cases until the end day is reached. Pretty snazzy!
 	switch(startDay) {
 		case 0:
-			day = $("<div>").addClass("weekday")
-							.addClass("day0")	// Will be skipped if start day > 0
-							.html("Sunday")
-							.appendTo(parent);
+			$("<div>").addClass("weekday")
+			    .addClass("day0")	// Will be skipped if start day > 0
+				.html("Sunday")
+				.appendTo(parent);
 			if(endDay == 0) { break; }
 		case 1:
-			day = $("<div>").addClass("weekday")
-							.addClass("day" + String(1 - startDay))
-							.html("Monday")
-							.appendTo(parent);
+			$("<div>").addClass("weekday")
+				.addClass("day" + String(1 - startDay))
+				.html("Monday")
+				.appendTo(parent);
 			if(endDay == 1) { break; }
 		case 2:
-			day = $("<div>").addClass("weekday")
-							.addClass("day" + String(2 - startDay))
-							.html("Tuesday")
-							.appendTo(parent);
+			$("<div>").addClass("weekday")
+				.addClass("day" + String(2 - startDay))
+				.html("Tuesday")
+				.appendTo(parent);
 			if(endDay == 2) { break; }
 		case 3:
-			day = $("<div>").addClass("weekday")
-							.addClass("day" + String(3 - startDay))
-							.html("Wednesday")
-							.appendTo(parent);
+			$("<div>").addClass("weekday")
+				.addClass("day" + String(3 - startDay))
+				.html("Wednesday")
+				.appendTo(parent);
 			if(endDay == 3) { break; }
 		case 4:
-			day = $("<div>").addClass("weekday")
-							.addClass("day" + String(4 - startDay))
-							.html("Thursday")
-							.appendTo(parent);
+			$("<div>").addClass("weekday")
+				.addClass("day" + String(4 - startDay))
+				.html("Thursday")
+				.appendTo(parent);
 			if(endDay == 4) { break; }
 		case 5:
-			day = $("<div>").addClass("weekday")
-							.addClass("day" + String(5 - startDay))
-							.html("Friday")
-							.appendTo(parent);
+			$("<div>").addClass("weekday")
+				.addClass("day" + String(5 - startDay))
+				.html("Friday")
+				.appendTo(parent);
 			if(endDay == 5) { break; }
 		case 6:
-			day = $("<div>").addClass("weekday")
-							.addClass("day" + String(6 - startDay))
-							.html("Saturday")
-							.appendTo(parent);
+			$("<div>").addClass("weekday")
+				.addClass("day" + String(6 - startDay))
+				.html("Saturday")
+				.appendTo(parent);
 			if(endDay == 6) { break; }
-		break;
+		    break;
 	}
 
 	// Draw all the times of the day
 	// We do this with a for loop
-	for(time = startTime; time < endTime; time += 30) {
+	for(var time = startTime; time < endTime; time += 30) {
 		// Calculate the label
-		hourLabel = Math.floor(time / 60);
+		var hourLabel = Math.floor(time / 60);
 		if(hourLabel > 12) { hourLabel -= 12; }
 		else if(hourLabel == 0) { hourLabel = 12; }
 
-		minuteLabel = time % 60;
+		var minuteLabel = time % 60;
 		if(minuteLabel == 0) { minuteLabel = "00"; }
 
 		if(time >= 720) { ap = "pm"; } else { ap = "am"; }
 
-		timeLabel = String(hourLabel) + ':' + String(minuteLabel) + " " + ap;
+		var timeLabel = String(hourLabel) + ':' + String(minuteLabel) + " " + ap;
 		
 		// Draw the time Div
-		timediv = $("<div>").addClass("daytime")
-							.css("top", ((Math.floor((time - startTime) / 30) * 20) + 20) + "px")
-							.html(timeLabel)
-							.appendTo(parent);
+		$("<div>").addClass("daytime")
+			.css("top", ((Math.floor((time - startTime) / 30) * 20) + 20) + "px")
+			.html(timeLabel)
+			.appendTo(parent);
 	}
 }
 
@@ -584,13 +557,13 @@ function expandErrors() {
 	$('#errorContents').slideDown('slow');
 
 	// Change the control for hiding/showing
-	$('#errorControl').val("Collapse");
-	$('#errorControl').attr("onClick", "collapseErrors();");
+    var errorControl = $("#errorControl");
+	errorControl.val("Collapse");
+	errorControl.attr("onClick", "collapseErrors();");
 }
 
 function expandForm() {
 	// Hide and delete the control
-	$('#formControl').fadeOut();
 	$('#formControl').remove();
 
 	// Unhide all the form divs
@@ -599,95 +572,85 @@ function expandForm() {
 	});
 }
 
+/**
+ * Retrieves the course options that match the input's value.
+ * @param field jQuery  The field to retrieve course options for
+ */
 function getCourseOptions(field) {
-	// If it's blank, then set the value back to the default and do nothing
-	if($(field).val() == "") {
-		$(field).val(COURSE_PLACEHOLDER);
-		$(field).css("color", "grey");
-		$(field.parentNode.children[2]).slideUp();
-		$(field.parentNode.children[2]).html("");
+    // Store some handy points in the DOM relative to the field
+    var courseOptions = field.next();
+
+	// If no course number was provided, remove the options
+	if(field.val() == "") {
+		courseOptions.slideUp();
+		courseOptions.html("");
 		return;
 	}
 
 	// It wasn't blank! Let's send it to the ajaxHandler
-	$.post("./js/scheduleAjax.php", 
-		{
-			'action'     : 'getCourseOpts', 
-			'course'     : $(field).val(), 
-			'term'       : $('#term').children(":selected").val(),
-			'ignoreFull' : $('#ignoreFull').prop('checked')
-		} , 
-		function(data) {		
-		try {		
-		// Grab the course options (results) div
-		courseOpts = field.parentNode.children[2];
+    var options = {
+        'action'     : 'getCourseOpts',
+        'course'     : field.val(),
+        'term'       : $('#term').children(":selected").val(),
+        'ignoreFull' : $('#ignoreFull').prop('checked')
+    };
+	$.post("./js/scheduleAjax.php", options, function(d) {
+        if(d.error != null && d.error != undefined) {
+            // Bomb out on an error
+            courseOptions.html("<span>" + d.msg + "</span>");
+            courseOptions.addClass("courseOptsError");
+            courseOptions.slideDown();
+        } else {
+            // Empty out any currently showing courses
+            courseOptions.empty();
+            courseOptions.removeClass();
+            courseOptions.addClass("courseOpts");
 
-		// Process the resulting code
-		jsonResult = eval(data);
-		} catch(e) {
-			$(courseOpts).html("<span>An Error Occurred!</span>");
-			$(courseOpts).addClass("courseOptsError");
-			$(courseOpts).slideDown();
-			return;
-		}
+            // Create a header that will show the number of courses matched
+            // and provide a link to expand them
+            var listInfo = $("<span>").html(d.length + " Course Matches ");
+            var expandLink = $("<a href='#'>[ Show Matches ]</a>")
 
-		if(jsonResult.error != null && jsonResult.error != undefined) {
-			// Bomb out on an error
-			$(courseOpts).html("<span>" + jsonResult.msg + "</span>");
-			$(courseOpts).addClass("courseOptsError");
-			$(courseOpts).slideDown();
-			return;
-		} else {
-			// Empty out any currently showing courses
-			$(courseOpts).empty();
-			$(courseOpts).removeClass();
-			$(courseOpts).addClass("courseOpts");
-			
-			// Create a header that will show the number of courses matched
-			// and provide a link to expand them
-			var listInfo = $("<span>").html(jsonResult.length + " Course Matches ");
-			var expandLink = $("<a>").html("[ Show Matches ]");
-			expandLink.attr("href", "#");
+            // Create a list of courses (hidden at first)
+            var listTable = $("<table>").addClass("courseOptsTable");
+            for(var i = 0; i < d.length; i++) {
+                // Add the row
+                // @TODO: Replace with divs and margin'd checkboxes
+                var row = $("<tr>");
+                row.append(
+                    $("<td>").html(
+                        "<input type='checkbox' name='" + field.attr("id") + "Opt[]' value='"
+                        + d[i] + "' checked='checked'>")
+                );
+                row.append(
+                    $("<td>").html(d[i])
+                );
+                listTable.append(row);
+            }
 
-			// Create a list of courses (hidden at first)
-			var listTable = $("<table>").addClass("courseOptsTable");
-			for(var i = 0; i < jsonResult.length; i++) {
-				// Add the row
-				var row = $("<tr>");
-				row.append(
-					$("<td>").html(
-						"<input type='checkbox' name='" + field.id + "Opt[]' value='" 
-						+ jsonResult[i] + "' checked='checked'>")
-				);
-				row.append(
-					$("<td>").html(jsonResult[i])
-				);
-				listTable.append(row);
-			}
+            // Append everything as it should be
+            listInfo.append(expandLink);
+            courseOptions.append(listInfo);
+            courseOptions.append(listTable);
+            courseOptions.slideDown();
 
-			// Append everything as it should be
-			listInfo.append(expandLink);
-			$(courseOpts).append(listInfo);
-			$(courseOpts).append(listTable);
-			$(courseOpts).slideDown();
+            // Add click handler to the expand link that will show the list
+            // of matching courses
+            expandLink.click(function(event) {
+                // Don't follow the link
+                event.preventDefault();
 
-			// Add click handler to the expand link that will show the list
-			// of matching courses
-			expandLink.click(function(event) {
-				// Don't follow the link
-				event.preventDefault();
+                // Show the table (or hide it)
+                $(this).parent().next().toggle();
 
-				// Show the table (or hide it)
-				$(this).parent().next().toggle();
-
-				// Change the text
-				if($(this).html() == "[ Show Matches ]") {
-					$(this).html("[ Hide Matches ]");
-				} else {
-					$(this).html("[ Show Matches ]");
-				}
-			});
-		}
+                // Change the text
+                if($(this).html() == "[ Show Matches ]") {
+                    $(this).html("[ Hide Matches ]");
+                } else {
+                    $(this).html("[ Show Matches ]");
+                }
+            });
+        }
 	});
 }
 
@@ -759,8 +722,8 @@ function getScheduleUrl(button) {
         var scheduleId = $(button.parent().children()[2]).val();
 
 		// Grab the field for the json
-		jsonObj = $(button.parent().children()[0]).val();
-		jsonModified = {
+		var jsonObj = $(button.parent().children()[0]).val();
+		var jsonModified = {
 				"startday":  $("#scheduleStartDay").val(),
 				"endday":    $("#scheduleEndDay").val(),
 				"starttime": $("#scheduleStart").val(),
@@ -829,8 +792,8 @@ function icalSchedule(button) {
 
 function printSchedule(button) {
 	// We need a schedule json object
-	jsonobj = eval($(button.parent().children()[0]).val());
-	json = {
+	var jsonobj = eval($(button.parent().children()[0]).val());
+	var json = {
 		courses: [jsonobj],
 		startTime: starttime,
 		endTime: endtime,
@@ -853,14 +816,17 @@ function printSchedule(button) {
 		);
 }
 
+/**
+ * Called when the course options need to all be refreshed. The best example
+ * of when this needs to happen is when the term is changed.
+ */
 function refreshCourses() {
 	// Iterate over the course slots and refresh each one
-	for(var i = 1; i <= $("#courseCount").val(); i++) {
-		// Only update if it's not the default value
-		if($("#courses" + i).val() != COURSE_PLACEHOLDER) {
-			getCourseOptions(document.getElementById("courses" + i));
-		}
-	}
+    $(".courseField").each(function() {
+       if($(this).val() != "") {
+           getCourseOptions($(this));
+       }
+    });
 }
 
 function saveSchedule(button) {
@@ -891,7 +857,7 @@ function saveSchedule(button) {
 	
 function shareFacebook(button) {
 	// We need a schedule url
-	url = getScheduleUrl(button);
+	var url = getScheduleUrl(button);
 
     // Error checking
     if(!url || url == 'none') {
@@ -910,7 +876,7 @@ function shareFacebook(button) {
 
 function shareGoogle(button) {
 	// We need a schedule url
-	url = getScheduleUrl(button);
+	var url = getScheduleUrl(button);
 
     // Error checking
     if(!url || url == 'none') {
@@ -929,7 +895,7 @@ function shareGoogle(button) {
 
 function shareTwitter(button) {
 	// We need a schedule url
-	url = getScheduleUrl(button);
+	var url = getScheduleUrl(button);
 
     // Error checking
     if(!url || url == 'none') {
@@ -954,21 +920,24 @@ function showSchedules() {
 	collapseForm();
 
 	// Serialize the form and store it if it changed
-	if(serialForm != $('#scheduleForm').serialize()) {
-		serialForm = $('#scheduleForm').serialize();
+    var form = $("#scheduleForm");
+	if(serialForm != form.serialize()) {
+		serialForm = form.serialize();
 		
 		// Clear out the schedules and errors
-		$("#schedules > :not(:first-child)").remove();
+		$("#schedules").find("> :not(:first-child)").remove();
 
 		// Now we need to submit all the data to the ajax caller
 		$.post("./js/scheduleAjax.php", $('#scheduleForm').serialize(), function(data) {
+            var scheduleDiv = $("#schedules");
+
 			// If there was a single, non-recoverable error, show it and die
 			if(data.error != null && data.error != undefined) {
 				$("<div>").attr("id", "errorDiv")
 						.addClass("scheduleError")
 						.html("<b>Fatal Error: </b>" + data.msg)
-						.appendTo($("#schedules"));
-				$("#schedules").slideDown();
+						.appendTo(scheduleDiv);
+				scheduleDiv.slideDown();
 				return;
 			}
 
@@ -976,10 +945,11 @@ function showSchedules() {
 			schedules = data.schedules;
 
 			// If we're showing all schedules on one page, then do that
-			if($("#schedPerPage").val() == 'all') {
+            var schedPerPage = $("#schedPerPage");
+			if(schedPerPage.val() == 'all') {
 				SCHEDPERPAGE = schedules.length;
 			} else {
-				SCHEDPERPAGE = parseInt($("#schedPerPage").val());
+				SCHEDPERPAGE = parseInt(schedPerPage.val());
 			}
 			
 			// How many pages of schedules are there
@@ -991,9 +961,9 @@ function showSchedules() {
 
 			// If there are no matching schedules, display an error
 			if(data.schedules == undefined || data.schedules == null || data.schedules.length == 0) {
-				errorDiv = $("<div id='errorDiv' class='scheduleError'>").html("There are no matching schedules!");
-				$('#schedules').append(errorDiv);
-				$('#schedules').slideDown();
+				var errorDiv = $("<div id='errorDiv' class='scheduleError'>").html("There are no matching schedules!");
+				scheduleDiv.append(errorDiv);
+				scheduleDiv.slideDown();
 				return;
 			}
 
@@ -1001,7 +971,7 @@ function showSchedules() {
 			// NOTE: the php side determines whether to send errors based on verbose value
 			if(data.errors != null && data.errors != undefined) {
 				errorDiv = $("<div id='errorDiv' class='scheduleWarning'>");
-				errorHTML = "<div class='subheader'><h3>Schedule Generator Warnings</h3><input id='errorControl' type='button' value='Collapse' onClick='collapseErrors();' /></div>";
+				var errorHTML = "<div class='subheader'><h3>Schedule Generator Warnings</h3><input id='errorControl' type='button' value='Collapse' onClick='collapseErrors();' /></div>";
 				errorHTML = "<div class='subheader'><h3>Schedule Generator Warnings</h3><input id='errorControl' type='button' value='Collapse' onClick='collapseErrors();' /></div>";
 				errorHTML += "<div id='errorContents'>";
 				for(i = 0; i < data.errors.length; i++) {
@@ -1026,16 +996,16 @@ function showSchedules() {
 			drawPage(0, false);
 
 			// Add next/previous page controls
-			pagination = $("<div>").addClass("schedulePagination");
-			pageinfo = schedules.length + " Schedules Generated (Page <span class='curpage'>" + (curPage + 1) + "</span> of " + pages + ")";
+			var pagination = $("<div>").addClass("schedulePagination");
+			var pageinfo = schedules.length + " Schedules Generated (Page <span class='curpage'>" + (curPage + 1) + "</span> of " + pages + ")";
 			pagination.html(pageinfo);
 			if(pages > 1) {
-				prev = $("<input>").attr("type", "button")
+				var prev = $("<input>").attr("type", "button")
 							.attr("value", "<- Previous")
 							.attr("onClick", "getPrevPage();")
 							.addClass("prevbutton")
 							.css("display", "none");
-				next = $("<input>").attr("type", "button")
+				var next = $("<input>").attr("type", "button")
 							.attr("value", "Next ->")
 							.attr("onClick", "getNextPage();")
 							.addClass("nextbutton");
@@ -1047,14 +1017,15 @@ function showSchedules() {
 			pagination2.appendTo('#schedules');
 
 			// Unhide the schedules page
-			$('#schedules').slideDown();
+			scheduleDiv.slideDown();
 		}).error( function() {
+            var scheduleDiv = $("#schedules");
 			var errorDiv = $("<div>");
 			errorDiv.attr("id", "errorDiv");
 			errorDiv.addClass("scheduleError");
 			errorDiv.html("Fatal Error: An internal server error occurred");
-			errorDiv.appendTo($("#schedules"));
-			$("#schedules").slideDown();
+			errorDiv.appendTo(scheduleDiv);
+			scheduleDiv.slideDown();
 		});
 	}
 }
