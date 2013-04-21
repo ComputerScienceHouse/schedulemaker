@@ -180,8 +180,9 @@ function collapseErrors() {
 	$('#errorContents').slideUp('slow');
 	
 	// Edit the control for hiding/showing
-	$('#errorControl').val("Expand");
-	$('#errorControl').attr("onClick", "expandErrors();");
+    var errorControl = $("#errorControl");
+	errorControl.val("Expand");
+	errorControl.attr("onClick", "expandErrors();");
 }
 
 function collapseForm() {
@@ -195,16 +196,16 @@ function collapseForm() {
 	});
 
 	// Add a control for expanding re-expanding the form
-	control = $("<div>");
+	var control = $("<div>");
 	control.attr("id", "formControl");
 	control.addClass("scheduleForm");
 	control.addClass("subheader");
 	
-	header = $("<h2>");
+	var header = $("<h2>");
 	header.html("Schedule Parameters");
 	control.append(header);
 	
-	button = $("<input>");
+	var button = $("<input>");
 	button.attr("type", "button");
 	button.attr("value", "Expand");
 	button.attr("onClick", "expandForm();");
@@ -262,13 +263,13 @@ function drawCourse(parent, course, startDay, endDay, startTime, endTime, colorN
 		}
 		
 		// Calculate the height
-		timeHeight = parseInt(time.end) - parseInt(time.start);
+		var timeHeight = parseInt(time.end) - parseInt(time.start);
 		timeHeight = timeHeight / 30;
 		timeHeight = Math.ceil(timeHeight);
 		timeHeight = (timeHeight * 20) - 1;
 
 		// Calculate the top offset
-		timeTop = parseInt(time.start) - startTime;
+		var timeTop = parseInt(time.start) - startTime;
 		timeTop = timeTop / 30;
 		timeTop = Math.floor(timeTop);
 		timeTop = timeTop * 20;
@@ -336,21 +337,18 @@ function drawCourse(parent, course, startDay, endDay, startTime, endTime, colorN
 
 function drawPage(pageNum, print) {
 	// Clear out the currently displayed schedules
-	$(".schedSupaWrapper").each(function(k,v) {
-		$(v).remove();
-		});
+	$(".schedSupaWrapper").remove();
 
 	// Calculate the subset of schedules to display
-	startIndex = pageNum * SCHEDPERPAGE;
-	endIndex   = startIndex + SCHEDPERPAGE;
+	var startIndex = pageNum * SCHEDPERPAGE;
+	var endIndex   = startIndex + SCHEDPERPAGE;
 	if(endIndex >= schedules.length) { endIndex = schedules.length; }
-
-	schedSubset = schedules.slice(startIndex, endIndex);
+	var schedSubset = schedules.slice(startIndex, endIndex);
 
 	// Draw the new schedules
-	for(s = 0; s < schedSubset.length; s++) {
+	for(var s = 0; s < schedSubset.length; s++) {
 		// Set the unique index of the schedule
-		schedId = s + startIndex;
+		var schedId = s + startIndex;
 
 		// Create a 'super wrapper' for containing the URL div, schedule, and
 		// notes divs
@@ -374,8 +372,8 @@ function drawPage(pageNum, print) {
 		drawScheduleHeaders(sched, startday, endday, starttime, endtime);
 
 		// Iterate over each course and draw them
-		var onlineCourses = new Array();
-		var hiddenCourses = new Array();
+		var onlineCourses = [];
+		var hiddenCourses = [];
 		for(c = 0; c < schedSubset[s].length; c++) {
 			var colorNum = c % 4;
 
@@ -386,79 +384,96 @@ function drawPage(pageNum, print) {
 				drawCourse(sched, schedSubset[s][c], startday, endday, starttime, endtime, colorNum, print, hiddenCourses);
 			}
 		}
-		
-		// If we have onlineCourses then show a little notice
-		if(onlineCourses.length) {
-			var onlineWarning = $("<div>").addClass("schedNotes");
-			onlineWarning.css("width", schedWidth + "px");
 
-			var notes = $("<p>").html("Notice: This schedule contains online courses ");
-			for(ol = 0; ol < onlineCourses.length; ol++) {
-				notes.html(notes.html() + " " + onlineCourses[ol]);
-			}
-			notes.appendTo(onlineWarning);
-			onlineWarning.appendTo(schedSupa);
-		}
+        // Do we need a notes box?
+        if(onlineCourses.length || hiddenCourses.length) {
+            // Create a notes div
+            var notesDiv = $("<div>");
+            notesDiv.addClass("schedNotes");
+            notesDiv.css("width", schedWidth + "px");
 
-		// If we have hidden courses then show a little notice
-		if(hiddenCourses.length) {
-			// Create a box for it
-			var hiddenWarning = $("<div>").addClass("schedNotes");
-			hiddenWarning.css("width", schedWidth + "px");
-		
-			// Create a notice for the box
-			var notes = $("<p>").html("Notice: This schedule does not show ");
-			for(ol = 0; ol < hiddenCourses.length; ol++) {
-				notes.html(notes.html() + " " + hiddenCourses[ol]);
-			}
-			notes.appendTo(hiddenWarning);
-			hiddenWarning.appendTo(schedSupa);
-		}
+            // Do we have online courses?
+            if(onlineCourses.length) {
+                // Create the beginning of the notice
+                var onlineNotes = $("<p>");
+                onlineNotes.html("This schedule contains online courses");
+                onlineNotes.prepend($("<span style='font-weight:bold'>Notice: </span>"));
+
+                // Add each course number to the notice
+                for(var ol = 0; ol < onlineCourses.length; ol++) {
+                    onlineNotes.html(onlineNotes.html() + " " + onlineCourses[ol]);
+                }
+
+                // Add it to the notes div
+                onlineNotes.appendTo(notesDiv);
+            }
+
+            // Do we have courses that are obscured?
+            if(hiddenCourses.length) {
+                // Create the beginning of the notice
+                var hiddenNotes = $("<p>");
+                hiddenNotes.html("This schedule does not show");
+                hiddenNotes.prepend($("<span style='font-weight:bold'>Notice: </span>"));
+
+                // Add each item to the notice
+                for(var hi = 0; hi < hiddenCourses.length; hi++) {
+                    hiddenNotes.html(hiddenNotes.html() + " " + hiddenCourses[ol]);
+                }
+
+                // Add it to the notes div
+                hiddenNotes.appendTo(notesDiv);
+            }
+
+            // Put the notes div in the schedule wrapper
+            notesDiv.appendTo(schedSupa);
+        }
+
 		if(!print) {
 		// Create a control box
 		var schedControl = $("<div>").addClass("scheduleControl");
 		var saveForm = $("<form>").attr("action", "schedule.php")
 						.attr("method", "POST")
 						.appendTo(schedControl);
-		var saveInput = $("<input>").attr("type", "hidden")
-						.attr("name", "schedule")
-						.val(JSON.stringify(schedSubset[s]))
-						.appendTo(saveForm);
-		var urlInput = $("<input>").attr("type", "hidden")
-						.attr("name", "url")
-						.val("none")
-						.appendTo(saveForm);
-		var schedInput = $("<input>").attr("type", "hidden")
-						.attr("name", "scheduleId")
-						.val("sched" + schedId)
-						.appendTo(saveForm); 
-		var printButton = $("<input type='button' value='Print Schedule'>")
-						.click(function(obj) { printSchedule($(this)); })
-						.appendTo(saveForm);
-		var saveButton = $("<input type='button' value='Save Schedule'>")
-						.click(function(obj) { saveSchedule($(this)); })
-						.appendTo(saveForm);
-		var downButton = $("<input type='button' value='Download iCal'>")
-						.click(function(obj) { icalSchedule($(this)); })
-						.appendTo(saveForm);
-		var faceButton = $("<button type='button'>")
-						.html("<img src='img/share_facebook.png' /> Share Facebook")
-						.click(function(obj) { shareFacebook($(this)); })
-						.appendTo(saveForm);
-		var googButton = $("<button type='button'>")
-						.html("<img src='img/share_google.png' /> Share Google+")
-						.click(function(obj) { shareGoogle($(this)); })
-						.appendTo(saveForm);
-		var twitButton = $("<button type='button'>")
-						.html("<img src='img/share_twitter.png' /> Share Twitter")
-						.click(function() { shareTwitter($(this)); })
-						.appendTo(saveForm);
+		$("<input>").attr("type", "hidden")
+			.attr("name", "schedule")
+			.val(JSON.stringify(schedSubset[s]))
+			.appendTo(saveForm);
+		$("<input>").attr("type", "hidden")
+			.attr("name", "url")
+			.val("none")
+			.appendTo(saveForm);
+		$("<input>").attr("type", "hidden")
+			.attr("name", "scheduleId")
+			.val("sched" + schedId)
+			.appendTo(saveForm);
+		$("<input type='button' value='Print Schedule'>")
+			.click(function() { printSchedule($(this)); })
+			.appendTo(saveForm);
+		$("<input type='button' value='Save Schedule'>")
+			.click(function() { saveSchedule($(this)); })
+			.appendTo(saveForm);
+		$("<input type='button' value='Download iCal'>")
+			.click(function() { icalSchedule($(this)); })
+			.appendTo(saveForm);
+		$("<button type='button'>")
+			.html("<img src='img/share_facebook.png' /> Share Facebook")
+			.click(function() { shareFacebook($(this)); })
+			.appendTo(saveForm);
+		$("<button type='button'>")
+			.html("<img src='img/share_google.png' /> Share Google+")
+			.click(function() { shareGoogle($(this)); })
+			.appendTo(saveForm);
+		$("<button type='button'>")
+			.html("<img src='img/share_twitter.png' /> Share Twitter")
+			.click(function() { shareTwitter($(this)); })
+			.appendTo(saveForm);
 		schedControl.appendTo(schedWrap);
 		}
 
 		// Add the schedule to the schedules
-		if($(".schedulePagination").length) {
-			schedSupa.insertBefore($(".schedulePagination").last());
+        var schedulePagination = $(".schedulePagination");
+		if(schedulePagination.length) {
+			schedSupa.insertBefore(schedulePagination.last());
 		} else {
 			$('#schedules').append(schedSupa);
 		}
@@ -470,70 +485,70 @@ function drawScheduleHeaders(parent, startDay, endDay, startTime, endTime) {
 	// It falls through the cases until the end day is reached. Pretty snazzy!
 	switch(startDay) {
 		case 0:
-			day = $("<div>").addClass("weekday")
-							.addClass("day0")	// Will be skipped if start day > 0
-							.html("Sunday")
-							.appendTo(parent);
+			$("<div>").addClass("weekday")
+			    .addClass("day0")	// Will be skipped if start day > 0
+				.html("Sunday")
+				.appendTo(parent);
 			if(endDay == 0) { break; }
 		case 1:
-			day = $("<div>").addClass("weekday")
-							.addClass("day" + String(1 - startDay))
-							.html("Monday")
-							.appendTo(parent);
+			$("<div>").addClass("weekday")
+				.addClass("day" + String(1 - startDay))
+				.html("Monday")
+				.appendTo(parent);
 			if(endDay == 1) { break; }
 		case 2:
-			day = $("<div>").addClass("weekday")
-							.addClass("day" + String(2 - startDay))
-							.html("Tuesday")
-							.appendTo(parent);
+			$("<div>").addClass("weekday")
+				.addClass("day" + String(2 - startDay))
+				.html("Tuesday")
+				.appendTo(parent);
 			if(endDay == 2) { break; }
 		case 3:
-			day = $("<div>").addClass("weekday")
-							.addClass("day" + String(3 - startDay))
-							.html("Wednesday")
-							.appendTo(parent);
+			$("<div>").addClass("weekday")
+				.addClass("day" + String(3 - startDay))
+				.html("Wednesday")
+				.appendTo(parent);
 			if(endDay == 3) { break; }
 		case 4:
-			day = $("<div>").addClass("weekday")
-							.addClass("day" + String(4 - startDay))
-							.html("Thursday")
-							.appendTo(parent);
+			$("<div>").addClass("weekday")
+				.addClass("day" + String(4 - startDay))
+				.html("Thursday")
+				.appendTo(parent);
 			if(endDay == 4) { break; }
 		case 5:
-			day = $("<div>").addClass("weekday")
-							.addClass("day" + String(5 - startDay))
-							.html("Friday")
-							.appendTo(parent);
+			$("<div>").addClass("weekday")
+				.addClass("day" + String(5 - startDay))
+				.html("Friday")
+				.appendTo(parent);
 			if(endDay == 5) { break; }
 		case 6:
-			day = $("<div>").addClass("weekday")
-							.addClass("day" + String(6 - startDay))
-							.html("Saturday")
-							.appendTo(parent);
+			$("<div>").addClass("weekday")
+				.addClass("day" + String(6 - startDay))
+				.html("Saturday")
+				.appendTo(parent);
 			if(endDay == 6) { break; }
-		break;
+		    break;
 	}
 
 	// Draw all the times of the day
 	// We do this with a for loop
-	for(time = startTime; time < endTime; time += 30) {
+	for(var time = startTime; time < endTime; time += 30) {
 		// Calculate the label
-		hourLabel = Math.floor(time / 60);
+		var hourLabel = Math.floor(time / 60);
 		if(hourLabel > 12) { hourLabel -= 12; }
 		else if(hourLabel == 0) { hourLabel = 12; }
 
-		minuteLabel = time % 60;
+		var minuteLabel = time % 60;
 		if(minuteLabel == 0) { minuteLabel = "00"; }
 
 		if(time >= 720) { ap = "pm"; } else { ap = "am"; }
 
-		timeLabel = String(hourLabel) + ':' + String(minuteLabel) + " " + ap;
+		var timeLabel = String(hourLabel) + ':' + String(minuteLabel) + " " + ap;
 		
 		// Draw the time Div
-		timediv = $("<div>").addClass("daytime")
-							.css("top", ((Math.floor((time - startTime) / 30) * 20) + 20) + "px")
-							.html(timeLabel)
-							.appendTo(parent);
+		$("<div>").addClass("daytime")
+			.css("top", ((Math.floor((time - startTime) / 30) * 20) + 20) + "px")
+			.html(timeLabel)
+			.appendTo(parent);
 	}
 }
 
@@ -542,13 +557,13 @@ function expandErrors() {
 	$('#errorContents').slideDown('slow');
 
 	// Change the control for hiding/showing
-	$('#errorControl').val("Collapse");
-	$('#errorControl').attr("onClick", "collapseErrors();");
+    var errorControl = $("#errorControl");
+	errorControl.val("Collapse");
+	errorControl.attr("onClick", "collapseErrors();");
 }
 
 function expandForm() {
 	// Hide and delete the control
-	$('#formControl').fadeOut();
 	$('#formControl').remove();
 
 	// Unhide all the form divs
@@ -707,8 +722,8 @@ function getScheduleUrl(button) {
         var scheduleId = $(button.parent().children()[2]).val();
 
 		// Grab the field for the json
-		jsonObj = $(button.parent().children()[0]).val();
-		jsonModified = {
+		var jsonObj = $(button.parent().children()[0]).val();
+		var jsonModified = {
 				"startday":  $("#scheduleStartDay").val(),
 				"endday":    $("#scheduleEndDay").val(),
 				"starttime": $("#scheduleStart").val(),
@@ -777,8 +792,8 @@ function icalSchedule(button) {
 
 function printSchedule(button) {
 	// We need a schedule json object
-	jsonobj = eval($(button.parent().children()[0]).val());
-	json = {
+	var jsonobj = eval($(button.parent().children()[0]).val());
+	var json = {
 		courses: [jsonobj],
 		startTime: starttime,
 		endTime: endtime,
@@ -842,7 +857,7 @@ function saveSchedule(button) {
 	
 function shareFacebook(button) {
 	// We need a schedule url
-	url = getScheduleUrl(button);
+	var url = getScheduleUrl(button);
 
     // Error checking
     if(!url || url == 'none') {
@@ -861,7 +876,7 @@ function shareFacebook(button) {
 
 function shareGoogle(button) {
 	// We need a schedule url
-	url = getScheduleUrl(button);
+	var url = getScheduleUrl(button);
 
     // Error checking
     if(!url || url == 'none') {
@@ -880,7 +895,7 @@ function shareGoogle(button) {
 
 function shareTwitter(button) {
 	// We need a schedule url
-	url = getScheduleUrl(button);
+	var url = getScheduleUrl(button);
 
     // Error checking
     if(!url || url == 'none') {
@@ -905,21 +920,24 @@ function showSchedules() {
 	collapseForm();
 
 	// Serialize the form and store it if it changed
-	if(serialForm != $('#scheduleForm').serialize()) {
-		serialForm = $('#scheduleForm').serialize();
+    var form = $("#scheduleForm");
+	if(serialForm != form.serialize()) {
+		serialForm = form.serialize();
 		
 		// Clear out the schedules and errors
-		$("#schedules > :not(:first-child)").remove();
+		$("#schedules").find("> :not(:first-child)").remove();
 
 		// Now we need to submit all the data to the ajax caller
 		$.post("./js/scheduleAjax.php", $('#scheduleForm').serialize(), function(data) {
+            var scheduleDiv = $("#schedules");
+
 			// If there was a single, non-recoverable error, show it and die
 			if(data.error != null && data.error != undefined) {
 				$("<div>").attr("id", "errorDiv")
 						.addClass("scheduleError")
 						.html("<b>Fatal Error: </b>" + data.msg)
-						.appendTo($("#schedules"));
-				$("#schedules").slideDown();
+						.appendTo(scheduleDiv);
+				scheduleDiv.slideDown();
 				return;
 			}
 
@@ -927,10 +945,11 @@ function showSchedules() {
 			schedules = data.schedules;
 
 			// If we're showing all schedules on one page, then do that
-			if($("#schedPerPage").val() == 'all') {
+            var schedPerPage = $("#schedPerPage");
+			if(schedPerPage.val() == 'all') {
 				SCHEDPERPAGE = schedules.length;
 			} else {
-				SCHEDPERPAGE = parseInt($("#schedPerPage").val());
+				SCHEDPERPAGE = parseInt(schedPerPage.val());
 			}
 			
 			// How many pages of schedules are there
@@ -942,9 +961,9 @@ function showSchedules() {
 
 			// If there are no matching schedules, display an error
 			if(data.schedules == undefined || data.schedules == null || data.schedules.length == 0) {
-				errorDiv = $("<div id='errorDiv' class='scheduleError'>").html("There are no matching schedules!");
-				$('#schedules').append(errorDiv);
-				$('#schedules').slideDown();
+				var errorDiv = $("<div id='errorDiv' class='scheduleError'>").html("There are no matching schedules!");
+				scheduleDiv.append(errorDiv);
+				scheduleDiv.slideDown();
 				return;
 			}
 
@@ -952,7 +971,7 @@ function showSchedules() {
 			// NOTE: the php side determines whether to send errors based on verbose value
 			if(data.errors != null && data.errors != undefined) {
 				errorDiv = $("<div id='errorDiv' class='scheduleWarning'>");
-				errorHTML = "<div class='subheader'><h3>Schedule Generator Warnings</h3><input id='errorControl' type='button' value='Collapse' onClick='collapseErrors();' /></div>";
+				var errorHTML = "<div class='subheader'><h3>Schedule Generator Warnings</h3><input id='errorControl' type='button' value='Collapse' onClick='collapseErrors();' /></div>";
 				errorHTML = "<div class='subheader'><h3>Schedule Generator Warnings</h3><input id='errorControl' type='button' value='Collapse' onClick='collapseErrors();' /></div>";
 				errorHTML += "<div id='errorContents'>";
 				for(i = 0; i < data.errors.length; i++) {
@@ -977,16 +996,16 @@ function showSchedules() {
 			drawPage(0, false);
 
 			// Add next/previous page controls
-			pagination = $("<div>").addClass("schedulePagination");
-			pageinfo = schedules.length + " Schedules Generated (Page <span class='curpage'>" + (curPage + 1) + "</span> of " + pages + ")";
+			var pagination = $("<div>").addClass("schedulePagination");
+			var pageinfo = schedules.length + " Schedules Generated (Page <span class='curpage'>" + (curPage + 1) + "</span> of " + pages + ")";
 			pagination.html(pageinfo);
 			if(pages > 1) {
-				prev = $("<input>").attr("type", "button")
+				var prev = $("<input>").attr("type", "button")
 							.attr("value", "<- Previous")
 							.attr("onClick", "getPrevPage();")
 							.addClass("prevbutton")
 							.css("display", "none");
-				next = $("<input>").attr("type", "button")
+				var next = $("<input>").attr("type", "button")
 							.attr("value", "Next ->")
 							.attr("onClick", "getNextPage();")
 							.addClass("nextbutton");
@@ -998,14 +1017,15 @@ function showSchedules() {
 			pagination2.appendTo('#schedules');
 
 			// Unhide the schedules page
-			$('#schedules').slideDown();
+			scheduleDiv.slideDown();
 		}).error( function() {
+            var scheduleDiv = $("#schedules");
 			var errorDiv = $("<div>");
 			errorDiv.attr("id", "errorDiv");
 			errorDiv.addClass("scheduleError");
 			errorDiv.html("Fatal Error: An internal server error occurred");
-			errorDiv.appendTo($("#schedules"));
-			$("#schedules").slideDown();
+			errorDiv.appendTo(scheduleDiv);
+			scheduleDiv.slideDown();
 		});
 	}
 }
