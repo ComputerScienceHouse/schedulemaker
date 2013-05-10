@@ -211,6 +211,7 @@ function fileToTempTable($tableName, $file, $fields, $fileSize, $procFunc=NULL) 
 		// If we don't have $fields+1 fields, shit's borked
 		if(count($lineSplit) != $fields + 1) {
 			echo("*** Malformed line {$fields}, " . count($lineSplit) . "\n");
+            echo($str . "\n");
 			continue;
 		}
 
