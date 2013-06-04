@@ -29,9 +29,9 @@ function reloadSchedule() {
 			}
 			
 			// Fill in the course and prompt a reloading
-			courseOnFocus($("#courses" + courseId));
-			$("#courses" + courseId).val(schedule.courses[c].courseNum);
-			getCourseOptions(document.getElementById("courses" + courseId));
+            var courseInput = $("#courses" + courseId);
+			courseInput.val(schedule.courses[c].courseNum);
+			getCourseOptions(courseInput);
 
 			courseId++;
 		} else {
@@ -58,10 +58,10 @@ function reloadSchedule() {
 			}
 
 			var endDrop = nonCourseRow[2].children[0].children;
-			for(var i=0; i < endDrop.length; i++) {
+			for(var j=0; j < endDrop.length; j++) {
 				// Set the end time
-				if(endDrop[i].value == schedule.courses[c].times[0].end) {
-					$(endDrop[i]).prop("selected", true);
+				if(endDrop[j].value == schedule.courses[c].times[0].end) {
+					$(endDrop[j]).prop("selected", true);
 					break;
 				}
 			}
