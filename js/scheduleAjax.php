@@ -83,8 +83,9 @@ function overlapBase($item, $course) {
 		foreach($course['times'] as $courseTime) {
 			if(
 				(
-					($itemTime['start'] <= $courseTime['start'] && $courseTime['start'] < $itemTime['end']) || 	// itemStart <= courseStart < itemEnd
-					($itemTime['start'] < $courseTime['end'] && $courseTime['end'] <= $itemTime['end'])			// OR itemStart < courseEnd <= itemEnd
+					($itemTime['start'] <= $courseTime['start'] && $courseTime['start'] < $itemTime['end']) ||  // itemStart <= courseStart < itemEnd
+					($itemTime['start'] < $courseTime['end'] && $courseTime['end'] <= $itemTime['end']) ||      // OR itemStart < courseEnd <= itemEnd
+                    ($courseTime['start'] <= $itemTime['start'] && $courseTime['end'] >= $itemTime['end'])      // the course engulfs the item
 				) && 
 				$courseTime['day'] == $itemTime['day']															// AND the days are the same
 			  ) {
