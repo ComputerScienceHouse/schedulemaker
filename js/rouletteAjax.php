@@ -154,29 +154,42 @@ switch($_POST['action']) {
 		// @todo: store this in session to avoid lengthy and costly queries
         // @TODO: Use the getMeetingInfo function in databaseConn instead of this
 
-		// Now pick a course at random, grab it's times,
-		$courseNum = rand(0, count($courses) - 1);
+		// Now pick a course at random, grab it's times
+        $matchFound = false;
+        $courseNum = 0;
+        while(!$matchFound) {
+            $courseNum = rand(0, count($courses) - 1);
 
-		
-		$query = "SELECT day, start, end, b.code, b.number, room ";
-		$query .= "FROM times AS t JOIN buildings AS b ON b.number = t.building ";
-		$query .= "WHERE section='{$courses[$courseNum]['id']}' ORDER BY day, start";
-		$result = mysql_query($query);
-		if(!$result) {
-			echo json_encode(array("error" => "mysql", "msg" => mysql_error()));
-			break;
-		}
-		$courses[$courseNum]['times'] = array();
-		while($row = mysql_fetch_assoc($result)) {
-			$session = array(
-				'day' => translateDay($row['day']), 
-				'start' => translateTime($row['start']), 
-				'end' => translateTime($row['end']),
-				'bldg' => array("code"=>$row['code'], "number"=>$row['number']),
-				'room' => $row['room']
-			);
-			$courses[$courseNum]['times'][] = $session;
-		}
+
+            $query = "SELECT day, start, end, b.code, b.number, room, off_campus ";
+            $query .= "FROM times AS t JOIN buildings AS b ON b.number = t.building ";
+            $query .= "WHERE section='{$courses[$courseNum]['id']}' ORDER BY day, start";
+            $result = mysql_query($query);
+            if(!$result) {
+                echo json_encode(array("error" => "mysql", "msg" => mysql_error()));
+                break;
+            }
+            $courses[$courseNum]['times'] = array();
+            $offCampus = false;
+            while($row = mysql_fetch_assoc($result)) {
+                $session = array(
+                    'day' => translateDay($row['day']),
+                    'start' => translateTime($row['start']),
+                    'end' => translateTime($row['end']),
+                    'bldg' => array("code"=>$row['code'], "number"=>$row['number']),
+                    'room' => $row['room']
+                );
+                $courses[$courseNum]['times'][] = $session;
+                if($row['off_campus'] == '1') {
+                    $offCampus = true;
+                }
+            }
+
+            // Make sure that the
+            if((isset($_POST['offCampus']) && $_POST['offCampus'] == 'true') || !$offCampus) {
+                $matchFound = true;
+            }
+        }
 
 		echo json_encode($courses[$courseNum]);
 		break;

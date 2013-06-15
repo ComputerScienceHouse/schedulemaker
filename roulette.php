@@ -119,7 +119,11 @@ require "./inc/header.inc";
 		<div class='rouletteLabel'><label for='honors'>Include Honors Courses:</label></div>
 		<div class='rouletteField'><input id='honors' type='checkbox' name='honors' value='true' checked='checked'></div>
 	</div>
-	</div>
+    <div class='rouletteParamField'>
+        <div class='rouletteLabel'><label for='offCampus'>Include Off-Campus Courses:</label></div>
+        <div class='rouletteField'><input id='offCampus' type='checkbox' name='offCampus' value='true' checked='checked'/></div>
+    </div>
+</div>
 </div>
 	
 
