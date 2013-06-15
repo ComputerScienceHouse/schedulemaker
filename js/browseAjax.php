@@ -179,7 +179,7 @@ switch($_POST['action']) {
 				$section['online'] = true;
 			} else {
                 // Look up the times the section meets
-                $query = "SELECT day, start, end, b.code, b.number, room
+                $query = "SELECT day, start, end, b.code, b.number, b.off_campus AS off, room
                           FROM times AS t
                             JOIN buildings AS b ON b.number=t.building
                           WHERE t.section = '{$section['id']}'
@@ -190,11 +190,18 @@ switch($_POST['action']) {
                 }
 
                 while($time = mysql_fetch_assoc($timeResult)) {
-                    $time['start'] = translateTime($time['start']);
-                    $time['end']   = translateTime($time['end']);
-                    $time['day']   = translateDay($time['day']);
-                    $time['building'] = array("code"=>$time['code'], "number"=>$time['number']);
-                    $section['times'][] = $time;
+                    $timeOutput = array(
+                        'start'    => translateTime($time['start']),
+                        'end'      => translateTime($time['end']),
+                        'day'      => translateDay($time['day']),
+                        'building' => array(
+                            'code'    => $time['code'],
+                            'number'  => $time['number'],
+                            'offSite' => $time['off'] == '1'
+                        ),
+                        'room'     => $time['room']
+                    );
+                    $section['times'][] = $timeOutput;
                 }
             }
 
