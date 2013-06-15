@@ -71,18 +71,39 @@ function courseOnExpand(obj) {
 		
 		// No Errors!! No we need to add a div for each section
 		for(var i=0; i < data.sections.length; i++) {
+            var section = data.sections[i];
+
             // Department code for semesters, department number for quarters
             var term = $("#termSelect").val().match(/=(\d{5})/)[1];
-            var dept = (term > 20130) ? data.sections[i].department.code : data.sections[i].department.number;
+            var dept = (term > 20130) ? section.department.code : section.department.number;
 
 			var div = $("<div>").addClass("item")
-					.html("<b>" + dept + "-" + data.sections[i].course + "-" + data.sections[i].section + "</b>"
-						+ " : " + data.sections[i].title + " with " + data.sections[i].instructor + " ");
-			
+					.html("<b>" + dept + "-" + section.course + "-" + section.section + "</b>"
+						+ " : " + section.title + " with " + section.instructor + " ");
+
+            // Process the locations of the section and determine if the
+            // section is off campus
+            var locations = "";
+            var offsite = false;
+            for(j=0; j < section.times.length; ++j) {
+                // Add code for the time
+                locations += section.times[j].day + " " + section.times[j].start + " - " + section.times[j].end
+                    + " " + section.times[j].building.code
+                    + "(" + section.times[j].building.number + ")"
+                    + "-" + section.times[j].room + "<br />";
+
+                if(section.times[j].building.offSite) {
+                    offsite = true;
+                }
+            }
+
 			// If the section is online, mark it as such
-			if(data.sections[i].online) {
+			if(section.online) {
 				div.append($("<span class='online'>ONLINE</span>"));
 			}
+            if(offsite) {
+                div.append($("<span class='online'>OFF-CAMPUS</span>"));
+            }
 
 			// Add a paragraph for the current and maximum enrollment
 			$("<p>").html("Course Enrollment: " + data.sections[i].curenroll + " out of " + data.sections[i].maxenroll)
@@ -90,13 +111,7 @@ function courseOnExpand(obj) {
 
 			// Add a paragraph for each meeting time
 			var times = $("<p>");
-			for(j=0; j < data.sections[i].times.length; j++) {
-				times.html(times.html() +
-					data.sections[i].times[j].day + " " + data.sections[i].times[j].start + " - " + data.sections[i].times[j].end
-					+ " " + data.sections[i].times[j].building.code
-					+ "(" + data.sections[i].times[j].building.number + ")"
-					+ "-" + data.sections[i].times[j].room + "<br />");
-			}
+            times.html(times.html() + locations);
 			times.appendTo(div);
 
 			div.appendTo(box);
