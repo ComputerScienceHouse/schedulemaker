@@ -40,10 +40,13 @@ switch($_POST['action']) {
 
 		// Do the query
 		$query = "SELECT c.title, c.course, c.description, c.id, d.number, d.code
-                  FROM courses AS c
+                  FROM sections AS s
+                  JOIN courses AS c ON s.course = c.id
                   JOIN departments AS d ON d.id = c.department
 		          WHERE c.department = '{$_POST['department']}'
 		            AND quarter = '{$_POST['term']}'
+		            AND s.status != 'X'
+		          GROUP BY c.id
 		          ORDER BY course";
 		$result = mysql_query($query);
 		if(!$result) {
