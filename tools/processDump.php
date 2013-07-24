@@ -440,6 +440,7 @@ $quarterResult = mysqli_query($dbConn, $quarterQuery);
 $procQuart = 0;
 $totQuart = mysqli_num_rows($quarterResult);
 $outPercent = array(0);
+$quarters = array();
 while($row = mysqli_fetch_assoc($quarterResult)) {
 	// Progress bar
 	if($debugMode) {
@@ -463,6 +464,7 @@ while($row = mysqli_fetch_assoc($quarterResult)) {
 	if(mysqli_query($dbConn, $query)) {
 		// Success! 2 rows are affected if it was a duplicate
 		$quartersProc++;
+        $quarters[] = $row['strm'];
 	} else {
 		// Failure.
 		echo("    *** Error: Failed to insert/update quarter {$row['strm']}\n");
@@ -471,6 +473,22 @@ while($row = mysqli_fetch_assoc($quarterResult)) {
 	}
 }
 debug("...100%");
+
+// Mark all existing sections as cancelled. If they truly exist, they will be
+// reinstated later in the run
+$quarters = implode(",", $quarters);
+$cancelQuery = "UPDATE sections AS s
+                  JOIN courses AS c ON c.id = s.course
+                SET status = 'X'
+                WHERE c.quarter IN ({$quarters})";
+debug("... Marking all sections as canceled");
+if(!mysqli_query($dbConn, $cancelQuery)) {
+    echo("*** Error: Failed to mark sections as canceled.\n");
+    echo("    " . mysqli_error($dbConn) . "\n");
+    echo("    " . $cancelQuery . "\n");
+    $failures++;
+    die();
+}
 
 // Update all the school
 // NOTE: After semesters start, we can no longer use the subject as a lookup

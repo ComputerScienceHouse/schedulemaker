@@ -151,27 +151,29 @@ function getCourse($term, $dept, $courseNum, $sectNum) {
  * Does a query for all the terms in the database and then dumps them to
  * a handy drop down field. Parses them like 'Spring ####' for display val.
  * The option value will be the 5 digit number
- * @param	string	$fieldname	The name of the field (useful for multiple 
+ * @param	string	$fieldName	The name of the field (useful for multiple
  *								quarter fields in a single form)
  * @param	string	$selected	The selected value to add to the field
  * @return	string	A dropdown field as described
  */
-function getTermField($fieldname = "term", $selected = null) {
+function getTermField($fieldName = "term", $selected = null) {
 	// Build the start of the field
-	$return = "<select id='{$fieldname}' name='{$fieldname}'>";
+	$return = "<select id='{$fieldName}' name='{$fieldName}'>";
 	
 	// Query the database for the quarters
 	$query = "SELECT quarter FROM quarters ORDER BY quarter DESC";
 	$result = mysql_query($query);
 	
 	// Output the quarters as options
+    $curYear = 0;
+    $optGroupOpen = false;
 	while($row = mysql_fetch_assoc($result)) {
 		$term = $row['quarter'];
 
 		// Parse it into a year-quarter thingy
 		$year = substr(strval($term), 0, 4);
         $termNum = substr(strval($term), -1);
-        if($year > 2013) {
+        if($year >= 2013) {
             switch($termNum) {
                 case 1: $termName = "Fall"; break;
                 case 3: $termName = "Winter Intersession"; break;
@@ -189,12 +191,25 @@ function getTermField($fieldname = "term", $selected = null) {
             }
         }
 
+        // Output the year as a grouping
+        if($curYear != $year) {
+            $curYear = $year;
+            $nextYear = (int)$year + 1;
+            if($optGroupOpen) {
+                $return .= "</optgroup>";
+            }
+            $optGroupOpen = true;
+            $return .= "<optgroup label='{$year} - {$nextYear}'>";
+        }
 
 		// Now output it
 		$return .= "<option value='{$term}'" . (($selected == $term) ? " selected='selected'" : "") . ">{$year} {$termName}</option>";
 	}
 
 	// Close it up and return it
+    if($optGroupOpen) {
+        $return .= "</optgroup>";
+    }
 	$return .= "</select>";
 	return $return;
 }

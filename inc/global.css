@@ -196,6 +196,14 @@ span.error {
 	padding:3px;
 }
 
+optgroup {
+    font-weight:bold;
+    font-style:normal;
+    color: grey;
+}
+option {
+    color: black;
+}
 
 /**************************************************************************/
 /* STATUS */

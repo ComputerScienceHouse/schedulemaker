@@ -51,66 +51,44 @@ function getTermType($term) {
 }
 
 // Do we have a term specified?
-$term = (empty($_GET['term']) || !is_numeric($_GET['term'])) ? null : mysql_real_escape_string($_GET['term']);
+$term = (empty($_GET['term']) || !is_numeric($_GET['term'])) ? $CURRENT_QUARTER : $_GET['term'];
 
 // MAIN EXECUTION //////////////////////////////////////////////////////////
-switch($term) {
-	case null:
-		// No quarter was specified, so load the current quarter
-		$term = $CURRENT_QUARTER;
-		// Now fall into the standard printout of courses
+require "./inc/header.inc";
 
-	default:
-		// Display the fancy dropdown thingy that allows one to traverse the
-		// list of courses
-		require "./inc/header.inc";
-		
-		?>
-		<script src='./js/browse.js' type='text/javascript'></script>
-		<h1 id='browseHeader'>Browse Courses &gt; <?= getTermType($term) ?> <?= substr($term, 0, 4) ?></h1>
+// Display the fancy dropdown thingy that allows one to traverse the
+// list of courses
+?>
+<script src='./js/browse.js' type='text/javascript'></script>
+<h1 id='browseHeader'>Browse Courses &gt; <?= getTermType($term) ?> <?= substr($term, 0, 4) ?></h1>
 
-		<div class='subContainer' id='browseQuarter'>
-			<label for='termSelect'>Select a Different Term:</label>
-			<select id='termSelect' onChange='document.location=this.value'>
-			<?
-			$query = "SELECT quarter AS term FROM quarters ORDER BY quarter DESC";
-			$termResult = mysql_query($query);
-			if(!$termResult) {
-                trigger_error("Failed to retrieve terms from the database: " . mysql_error());
-				die("An error occurred!");
-			}
-			while($trm = mysql_fetch_assoc($termResult)) { ?>
-				<option value='browse.php?term=<?= $trm['term'] ?>' <?= ($trm['term'] == $term) ? "selected='selected'" : "" ?>>
-					<?= substr($trm['term'], 0, 4) ?> <?= getTermType($trm['term']) ?>
-				</option>
-			<? } ?>
-			</select>
-		</div>
+<div class='subContainer' id='browseQuarter'>
+    <label for='termSelect'>Select a Different Term:</label>
+    <?= getTermField("term", $term); ?>
+</div>
 
-		<?
-		// Display the list of departments
-        if($term > 20130) {
-            // School codes
-            $query = "SELECT id, code AS code, title FROM schools WHERE code IS NOT NULL ORDER BY code";
-        } else {
-            // School numbers
-            $query = "SELECT id, number AS code, title FROM schools WHERE number IS NOT NULL ORDER BY number";
-        }
-		$schoolResult = mysql_query($query);
-		if(!$schoolResult) {
-			die("An error occurred!");
-		}
-		while($school = mysql_fetch_assoc($schoolResult)) {
-			?>
-			<div class="item school">
-				<button>+</button>
-				<input type='hidden' value="<?= $school['id'] ?>" />
-				<?= $school['code'] ?> - <?= $school['title'] ?>
-			</div>
-			<?
-		}
-
-		require "./inc/footer.inc";
-		break;
+<?
+// Display the list of departments
+if($term > 20130) {
+    // School codes
+    $query = "SELECT id, code AS code, title FROM schools WHERE code IS NOT NULL ORDER BY code";
+} else {
+    // School numbers
+    $query = "SELECT id, number AS code, title FROM schools WHERE number IS NOT NULL ORDER BY number";
 }
+$schoolResult = mysql_query($query);
+if(!$schoolResult) {
+    die("An error occurred!");
+}
+while($school = mysql_fetch_assoc($schoolResult)) {
+    ?>
+    <div class="item school">
+        <button>+</button>
+        <input type='hidden' value="<?= $school['id'] ?>" />
+        <?= $school['code'] ?> - <?= $school['title'] ?>
+    </div>
+    <?
+}
+
+require "./inc/footer.inc";
 ?>

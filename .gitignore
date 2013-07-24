@@ -1,5 +1,5 @@
 # Ignore PhpStorm files
-*/.idea*
+.idea
 
 # Ignore configuration files
 inc/config.php

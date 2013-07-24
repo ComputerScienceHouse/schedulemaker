@@ -9,14 +9,21 @@
 
 // Register the on clicks for the schools
 $(document).ready( function() {
-	// Add handlers to the 
+	// Add handlers to the school drop down buttons
 	$(".school > button").each(function(k, v) {
 		$(v).click(function() {
 			schoolOnExpand($(v));
 			return false;			// Avoid following the clicks
-			});
 		});
 	});
+
+    // Add handler for changing the term
+    $("#term").change(function() {
+        // Grab selected value and link to the page for that term
+        var termSelected = $(this).val();
+        document.location = "browse.php?term=" + termSelected;
+    });
+});
 
 function courseOnCollapse(obj) {
 	obj.html("+");
@@ -74,7 +81,7 @@ function courseOnExpand(obj) {
             var section = data.sections[i];
 
             // Department code for semesters, department number for quarters
-            var term = $("#termSelect").val().match(/=(\d{5})/)[1];
+            var term = $("#term").val();
             var dept = (term > 20130) ? section.department.code : section.department.number;
 
 			var div = $("<div>").addClass("item")
@@ -142,7 +149,7 @@ function departmentOnExpand(obj) {
 	// Get the parent and the input field
 	var p       = obj.parent();
 	var input   = obj.next();
-	var term = $("#termSelect").val().match(/=(\d{5})/)[1];
+	var term = $("#term").val();
 
 	// If the courses already exist, then don't do the post request
 	if(p.children().last().hasClass("subDivision")) {
@@ -232,7 +239,7 @@ function schoolOnExpand(obj) {
 
 	// Snag the quarter for use in the query and determining whether to show
 	// department codes
-	var term = $("#termSelect").val().match(/=(\d{5})/)[1];
+	var term = $("#term").val();
 
 	// If the department already exists, then don't do the post resquest
 	if(p.children().last().hasClass("subDivision")) {
