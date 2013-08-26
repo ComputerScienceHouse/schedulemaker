@@ -48,23 +48,21 @@ function reloadSchedule() {
 			var nonCourseRow = title.parent().parent().children();
 
 			// Fill in the start and end times
-			var startDrop = nonCourseRow[1].children[0].children;
-			for(var i=0; i < startDrop.length; i++) {
-				// Set the start time
-				if(startDrop[i].value == schedule.courses[c].times[0].start) {
-					$(startDrop[i]).attr("selected", "selected");
-					break;
-				}
-			}
+            var nonCourseRowElements = nonCourseRow.children();
+			var startDrop = $(nonCourseRowElements[1]);
+			var endDrop = $(nonCourseRowElements[2]);
 
-			var endDrop = nonCourseRow[2].children[0].children;
-			for(var j=0; j < endDrop.length; j++) {
-				// Set the end time
-				if(endDrop[j].value == schedule.courses[c].times[0].end) {
-					$(endDrop[j]).prop("selected", true);
-					break;
-				}
-			}
+            var startTime = parseInt(schedule.courses[c].times[0].start);
+            var endTime = parseInt(schedule.courses[c].times[0].end);
+
+            startDrop.val(Math.floor(startTime / 60) + ":" + (startTime % 60));
+            endDrop.val(Math.floor(endTime / 60) + ":" + (endTime % 60));
+
+            endDrop.timepicker({
+                showDuration: true,
+                durationTime: startDrop.val(),
+                minTime: startDrop.val()
+            });
 
 			// Fill in the day USING MATH!
 			$(nonCourseRow[parseInt(schedule.courses[c].times[0].day) + 3].children).prop("checked", true);

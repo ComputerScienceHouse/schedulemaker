@@ -591,7 +591,7 @@ function getCourseOptions(field) {
     var options = {
         'action'     : 'getCourseOpts',
         'course'     : field.val(),
-        'term'       : $('#term').children(":selected").val(),
+        'term'       : $('#term').val(),
         'ignoreFull' : $('#ignoreFull').prop('checked')
     };
 	$.post("./js/scheduleAjax.php", options, function(d) {
