@@ -25,7 +25,7 @@ global $CURRENT_QUARTER;
 	</div>
 	<div class='courseSettings'>
 		<label for='term'>Term:</label> <?= getTermField('term', $CURRENT_QUARTER) ?>
-		<input id='courseCount' type='hidden' name='courseCount' value='4' />
+		<input id='courseCount' type='hidden' name='courseCount' value='5' />
 		
 		<input id='ignoreFull' type='checkbox' name='ignoreFull' value='true' />
 		<label for='ignoreFull'>Ignore full courses</label>

@@ -91,7 +91,7 @@ $(document).ready(function() {
  */
 function addCourse() {
     // First things first. Clone the last courseField
-    var lastCourse = $(".course").last();
+    var lastCourse = $(".courseRow").last();
     var newCourse = lastCourse.clone();
 
     // Increment the count of courses
@@ -105,25 +105,17 @@ function addCourse() {
     newInput.attr("id", "courses" + count);
     newInput.val("");
 
-    newCourse.find("h3").html("Course " + count);
+    var newTitle = newCourse.find("label");
+    newTitle.attr("for", "courses" + count);
+    newTitle.html("Course " + count);
 
-    var newCourseOpts = newCourse.find(".courseOpts");
+    // Clean out the course options
+    var newCourseOpts = newCourse.find(".courseOptions");
     newCourseOpts.empty();
     newCourseOpts.removeClass("courseOptsError");
 
-    // Grab the last row
-    var lastRow = $(".courseRow").last();
-
-    // If there are less than 4 fields in this row, we can just add the new one
-    if(lastRow.children().length < 4) {
-        lastRow.append(newCourse);
-    } else {
-        // Well shit. We've gotta add a new row.
-        var newRow = $("<div>");
-        newRow.addClass("courseRow");
-        newRow.appendTo(lastRow.parent());
-        newRow.append(newCourse);
-    }
+    // Append the new field to the end of the list of courses
+    $("#scheduleCourses").append(newCourse);
 }
 
 /**
