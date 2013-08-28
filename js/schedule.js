@@ -570,12 +570,11 @@ function expandForm() {
  */
 function getCourseOptions(field) {
     // Store some handy points in the DOM relative to the field
-    var courseOptions = field.next();
+    var courseOptions = field.parent().parent().children(".courseRowOptions");
 
 	// If no course number was provided, remove the options
 	if(field.val() == "") {
-		courseOptions.slideUp();
-		courseOptions.html("");
+		courseOptions.empty();
 		return;
 	}
 
@@ -587,11 +586,13 @@ function getCourseOptions(field) {
         'ignoreFull' : $('#ignoreFull').prop('checked')
     };
 	$.post("./js/scheduleAjax.php", options, function(d) {
+        // Clean out the course options
+        courseOptions.empty();
+
         if(d.error != null && d.error != undefined) {
             // Bomb out on an error
-            courseOptions.html("<span>" + d.msg + "</span>");
-            courseOptions.addClass("courseOptsError");
-            courseOptions.slideDown();
+            courseOptions.addClass("courseOptionsError");
+            courseOptions.html(d.msg);
         } else {
             // Empty out any currently showing courses
             courseOptions.empty();
