@@ -19,7 +19,9 @@ var schedWidth;			// Width of the schedule
 var serialForm;			// The serialized form so we can tell if there has been 
 						// any changes to the form
 var startday;			// The starting day for the schedule
-var starttime;			// The starting time for the schedule
+var starttime = null;	// The starting time for the schedule
+
+var courseOptionsTemplate;  // Handlebars template for course options list
 
 // We NEED to make any ajax a synchronous call
 $.ajaxSetup({async: false});
@@ -42,9 +44,8 @@ $(document).ready(function() {
 	}
 
     // Add live handlers to the timeContainers that will show/hide things
-    var timeContainers = $(".timeContainer");
-    timeContainers.live("mouseover", function() { $(this).addClass("timeContainerHover"); });
-    timeContainers.live("mouseout", function() { $(this).removeClass("timeContainerHover"); });
+    $(document).on("mouseover", ".timeContainer", function() { $(this).addClass("timeContainerHover"); });
+    $(document).on("mouseout", ".timeContainer", function() { $(this).removeClass("timeContainerHover"); });
 
     // Add handler to reset the course selections when terms change or when ignore full is clicked
     $("#ignoreFull").click(function() { refreshCourses(); });
@@ -53,7 +54,7 @@ $(document).ready(function() {
     // Add time pickers to the start time pickers
     var startTimePickers = $(".startTimePicker");
     startTimePickers.timepicker({scrollDefaultTime: "08:00" });
-    startTimePickers.live("change", function() {
+    $(document).on("change", ".startTimePicker", function() {
         // Add a time picker to the neighboring endTimePicker
         var endPicker = $(this).parent().parent().find(".endTimePicker");
         endPicker.timepicker("remove");
@@ -79,11 +80,41 @@ $(document).ready(function() {
        if(e.keyCode == 13) { getCourseOptions($(this)); }
     });
 
+    // Add handler for course option expanders
+    $(document).on("click", ".courseOptionsExpander", function(e) {
+        e.preventDefault();
+        var list = $(this).parent().prev().children(".list");
+        if(!list.is(":visible")) {
+            $(this).html("-");
+            list.slideDown();
+        } else {
+            $(this).html("+");
+            list.slideUp();
+        }
+    });
+
     // Add handler to the show schedules button
     $("#showSchedulesButton").click(function(e) { e.preventDefault(); showSchedules(); });
 });
 
 // @TODO: save the schedule data between page loads?
+
+/**
+ * Fetches the handlebars template for the course options list. It caches the
+ * template for repeated calls.
+ * @returns handlebars  The template for course options
+ */
+function getCourseOptionsTemplate() {
+    if(courseOptionsTemplate == null) {
+        $.ajax("./js/templates/generateCourseOptions.html", {
+            async: false,
+            success: function(data) {
+                courseOptionsTemplate = Handlebars.compile(data);
+            }
+        });
+    }
+    return courseOptionsTemplate;
+}
 
 /**
  * Called when the Add Course button is clicked to add an additional slot for
@@ -596,8 +627,30 @@ function getCourseOptions(field) {
         } else {
             // Empty out any currently showing courses
             courseOptions.empty();
-            courseOptions.removeClass();
-            courseOptions.addClass("courseOpts");
+            courseOptions.removeClass("courseOptionsError");
+
+            // Load the template
+            var template = getCourseOptionsTemplate();
+            if(template == null) {
+                courseOptions.addClass("courseOptionsError");
+                courseOptions.html("Error: Failed to load course options template.");
+                return;
+            }
+
+            // Setup the parameters to the template
+            var params = {
+                count: d.length,
+                courses: d,
+                courseField: field.attr('id')
+            };
+
+            // Apply the transform
+            courseOptions.html(template(params));
+
+            // Assign a handler to the expand button
+            $("#" + field.attr('id') + "Button").on
+
+            /*courseOptions.addClass("courseOpts");
 
             // Create a header that will show the number of courses matched
             // and provide a link to expand them
@@ -642,7 +695,7 @@ function getCourseOptions(field) {
                 } else {
                     $(this).html("[ Show Matches ]");
                 }
-            });
+            });*/
         }
 	});
 }

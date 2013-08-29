@@ -1,0 +1,15 @@
+<div class='courseOptionsList'>
+    <div class='title'>
+        {{count}} Courses Match
+    </div>
+    <div class='list'>
+        {{#each courses}}
+            <input id='{{../courseField}}{{this}}' type='checkbox' name='{{../courseField}}Opts[]' value='{{this}}' checked='checked'/>
+            <label for='{{../courseField}}{{this}}'>{{this}}</label>
+            <br />
+        {{/each}}
+    </div>
+</div>
+<div class='courseOptionsExpand'>
+    <button id='{{courseField}}Button' class='courseOptionsExpander'>+</button>
+</div>
