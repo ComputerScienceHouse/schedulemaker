@@ -223,4 +223,5 @@ global $CURRENT_QUARTER;
 	</div>
 </div>
 <script type='text/javascript' src='js/handlebars.js'></script>
+<script type='text/javascript' src='js/translateFunctions.js'></script>
 <? require "./inc/footer.inc"; ?>

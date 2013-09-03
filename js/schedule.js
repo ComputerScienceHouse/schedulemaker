@@ -83,7 +83,7 @@ $(document).ready(function() {
     // Add handler for course option expanders
     $(document).on("click", ".courseOptionsExpander", function(e) {
         e.preventDefault();
-        var list = $(this).parent().prev().children(".list");
+        var list = $(this).parent().parent().find(".list");
         if(!list.is(":visible")) {
             $(this).html("-");
             list.slideDown();
@@ -110,7 +110,10 @@ function getCourseOptionsTemplate() {
             async: false,
             success: function(data) {
                 courseOptionsTemplate = Handlebars.compile(data);
-            }
+            },
+
+            // @TODO: FOR DEBUGGING PURPOSES ONLY!
+            cache: false
         });
     }
     return courseOptionsTemplate;
@@ -617,86 +620,68 @@ function getCourseOptions(field) {
         'ignoreFull' : $('#ignoreFull').prop('checked')
     };
 	$.post("./js/scheduleAjax.php", options, function(d) {
-        // Clean out the course options
-        courseOptions.empty();
-
         if(d.error != null && d.error != undefined) {
             // Bomb out on an error
+            courseOptions.empty();
             courseOptions.addClass("courseOptionsError");
             courseOptions.html(d.msg);
-        } else {
-            // Empty out any currently showing courses
-            courseOptions.empty();
-            courseOptions.removeClass("courseOptionsError");
-
-            // Load the template
-            var template = getCourseOptionsTemplate();
-            if(template == null) {
-                courseOptions.addClass("courseOptionsError");
-                courseOptions.html("Error: Failed to load course options template.");
-                return;
-            }
-
-            // Setup the parameters to the template
-            var params = {
-                count: d.length,
-                courses: d,
-                courseField: field.attr('id')
-            };
-
-            // Apply the transform
-            courseOptions.html(template(params));
-
-            // Assign a handler to the expand button
-            $("#" + field.attr('id') + "Button").on
-
-            /*courseOptions.addClass("courseOpts");
-
-            // Create a header that will show the number of courses matched
-            // and provide a link to expand them
-            var listInfo = $("<span>").html(d.length + " Course Matches ");
-            var expandLink = $("<a href='#'>[ Show Matches ]</a>")
-
-            // Create a list of courses (hidden at first)
-            var listTable = $("<table>").addClass("courseOptsTable");
-            for(var i = 0; i < d.length; i++) {
-                // Add the row
-                // @TODO: Replace with divs and margin'd checkboxes
-                var row = $("<tr>");
-                row.append(
-                    $("<td>").html(
-                        "<input type='checkbox' name='" + field.attr("id") + "Opt[]' value='"
-                        + d[i] + "' checked='checked'>")
-                );
-                row.append(
-                    $("<td>").html(d[i])
-                );
-                listTable.append(row);
-            }
-
-            // Append everything as it should be
-            listInfo.append(expandLink);
-            courseOptions.append(listInfo);
-            courseOptions.append(listTable);
-            courseOptions.slideDown();
-
-            // Add click handler to the expand link that will show the list
-            // of matching courses
-            expandLink.click(function(event) {
-                // Don't follow the link
-                event.preventDefault();
-
-                // Show the table (or hide it)
-                $(this).parent().next().toggle();
-
-                // Change the text
-                if($(this).html() == "[ Show Matches ]") {
-                    $(this).html("[ Hide Matches ]");
-                } else {
-                    $(this).html("[ Show Matches ]");
-                }
-            });*/
+            return;
         }
+
+        // Empty out any currently showing courses
+        courseOptions.empty();
+        courseOptions.removeClass("courseOptionsError");
+
+        // Load the template
+        var template = getCourseOptionsTemplate();
+        if(template == null) {
+            courseOptions.addClass("courseOptionsError");
+            courseOptions.html("Error: Failed to load course options template.");
+            return;
+        }
+
+        // Condense the times into a single string for output
+        for(var c = 0; c < d.length; ++c) {
+            var times = [];
+            var course = d[c];
+
+            // Iterate over the times for the course
+            if(course.times == undefined) { continue; }
+            for(var e = 0; e < course.times.length; ++e) {
+                // Search the existing list of times to see if a match exists
+                var found = false;
+                var time = course.times[e];
+                for(var f = 0; f < times.length; ++f) {
+                    if(times[f].start == time.start && times[f].end == time.end) {
+                        found = f;
+                    }
+                }
+
+                // If a match was found, add the day to it, otherwise add a new time
+                if(found !== false) {
+                    times[found].days += ", " + translateDay(time.day);
+                } else {
+                    times.push({
+                        start: time.start,
+                        end:   time.end,
+                        days:  translateDay(time.day)
+                    });
+                }
+            }
+
+            // Replace the current list of times with the newly constructed one
+            d[c].times = times;
+        }
+
+        // Setup the parameters to the template
+        var params = {
+            count: d.length,
+            courses: d,
+            courseField: field.attr('id')
+        };
+
+        // Apply the transform
+        courseOptions.html(template(params));
 	});
 }
 

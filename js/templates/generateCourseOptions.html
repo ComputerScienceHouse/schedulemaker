@@ -4,8 +4,17 @@
     </div>
     <div class='list'>
         {{#each courses}}
-            <input id='{{../courseField}}{{this}}' type='checkbox' name='{{../courseField}}Opt[]' value='{{this}}' checked='checked'/>
-            <label for='{{../courseField}}{{this}}'>{{this}}</label>
+            <input id='{{../courseField}}{{this.number}}' type='checkbox' name='{{../courseField}}Opt[]' value='{{this.id}}' checked='checked'/>
+            <label for='{{../courseField}}{{this.number}}'>
+                {{this.courseNum}} with {{this.instructor}} |
+                {{#if this.online}}
+                    Online
+                {{else}}
+                    {{#each this.times}}
+                        {{this.days}} {{formatTime this.start}}-{{formatTime this.end}}
+                    {{/each}}
+                {{/if}}
+            </label>
             <br />
         {{/each}}
     </div>
