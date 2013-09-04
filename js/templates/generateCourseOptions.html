@@ -4,7 +4,7 @@
     </div>
     <div class='list'>
         {{#each courses}}
-            <input id='{{../courseField}}{{this.number}}' type='checkbox' name='{{../courseField}}Opt[]' value='{{this.id}}' checked='checked'/>
+            <input id='{{../courseField}}{{this.number}}' type='checkbox' name='{{../courseField}}Opt[]' value='{{this.sectionId}}' checked='checked'/>
             <label for='{{../courseField}}{{this.number}}'>
                 {{this.courseNum}} with {{this.instructor}} |
                 {{#if this.online}}

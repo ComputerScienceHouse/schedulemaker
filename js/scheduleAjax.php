@@ -248,8 +248,7 @@ switch($_POST['action']) {
 
 		// Build a query and run it
         if($_POST['term'] > 20130) {
-            $query = "SELECT s.id, d.code AS dept, c.course, s.section, s.instructor,
-                        CASE WHEN (s.title != '') THEN s.title ELSE c.title END AS title
+            $query = "SELECT s.id
                       FROM courses AS c
                         JOIN sections AS s ON s.course = c.id
                         JOIN departments AS d ON c.department = d.id
@@ -257,8 +256,7 @@ switch($_POST['action']) {
                         AND d.code = '{$department}'
                         AND s.status != 'X'";
         } else {
-            $query = "SELECT s.id, d.number AS dept, c.course, s.section, s.instructor,
-                        CASE WHEN (s.title != '') THEN s.title ELSE c.title END AS title
+            $query = "SELECT s.id
                       FROM courses AS c
                         JOIN sections AS s ON s.course = c.id
                         JOIN departments AS d ON c.department = d.id
@@ -325,11 +323,8 @@ switch($_POST['action']) {
 			if(!isset($_POST["courses{$i}Opt"])) { continue; }
 			$courseSubSet = array();
 			foreach($_POST["courses{$i}Opt"] as $course) {
-				// Split it by the -'s to get dept-course-sect
-				$courseSplit = explode('-', $course);
-				
 				// Do a query to get the course specified
-				$courseSubSet[] = getCourse($_POST['term'], $courseSplit[0], $courseSplit[1], $courseSplit[2]);
+				$courseSubSet[] = getCourseBySectionId($course);
 			}
 			$courseSet[] = $courseSubSet;
 		}
