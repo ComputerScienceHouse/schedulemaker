@@ -203,6 +203,7 @@ switch($_POST['action']) {
 	////////////////////////////////////////////////////////////////////////
 	// GET COURSE OPTIONS	
 	case "getCourseOpts":
+        // @TODO: Move this over to the power search ajax handler
 		// Verify that we got a course (or partial course) and a quarter
 		if(empty($_POST['course'])) {
 			die(json_encode(array("error" => "argument", "msg" => "You must provide at least a department number", "arg" => "course")));
@@ -247,7 +248,7 @@ switch($_POST['action']) {
 
 		// Build a query and run it
         if($_POST['term'] > 20130) {
-            $query = "SELECT d.code AS dept, c.course, s.section
+            $query = "SELECT s.id
                       FROM courses AS c
                         JOIN sections AS s ON s.course = c.id
                         JOIN departments AS d ON c.department = d.id
@@ -255,7 +256,7 @@ switch($_POST['action']) {
                         AND d.code = '{$department}'
                         AND s.status != 'X'";
         } else {
-            $query = "SELECT d.number AS dept, c.course, s.section
+            $query = "SELECT s.id
                       FROM courses AS c
                         JOIN sections AS s ON s.course = c.id
                         JOIN departments AS d ON c.department = d.id
@@ -280,16 +281,16 @@ switch($_POST['action']) {
 		
 		$result = mysql_query($query);
 		if(!$result) {
-			die(json_encode(array("error" => "mysql", "msg" => "There was a database error!", "arg" => "course")));
+			die(json_encode(array("error" => "mysql", "msg" => "A database error occurred")));
 		}
 		if(mysql_num_rows($result) == 0) {
-			die(json_encode(array("error" => "result", "msg" => "No courses match", "query"=>$query)));
+			die(json_encode(array("error" => "result", "msg" => "No courses match")));
 		}
 
 		// Now we can process it into a list of courses. It's pretty simple from here
 		$return = array();
 		while($row = mysql_fetch_assoc($result)) {
-			$return[] = implode('-', $row);
+			$return[] = getCourseBySectionId($row['id']);
 		}
 		
 		echo json_encode($return);
@@ -322,11 +323,8 @@ switch($_POST['action']) {
 			if(!isset($_POST["courses{$i}Opt"])) { continue; }
 			$courseSubSet = array();
 			foreach($_POST["courses{$i}Opt"] as $course) {
-				// Split it by the -'s to get dept-course-sect
-				$courseSplit = explode('-', $course);
-				
 				// Do a query to get the course specified
-				$courseSubSet[] = getCourse($_POST['term'], $courseSplit[0], $courseSplit[1], $courseSplit[2]);
+				$courseSubSet[] = getCourseBySectionId($course);
 			}
 			$courseSet[] = $courseSubSet;
 		}

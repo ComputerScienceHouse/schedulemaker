@@ -19,7 +19,9 @@ var schedWidth;			// Width of the schedule
 var serialForm;			// The serialized form so we can tell if there has been 
 						// any changes to the form
 var startday;			// The starting day for the schedule
-var starttime;			// The starting time for the schedule
+var starttime = null;	// The starting time for the schedule
+
+var courseOptionsTemplate;  // Handlebars template for course options list
 
 // We NEED to make any ajax a synchronous call
 $.ajaxSetup({async: false});
@@ -42,9 +44,8 @@ $(document).ready(function() {
 	}
 
     // Add live handlers to the timeContainers that will show/hide things
-    var timeContainers = $(".timeContainer");
-    timeContainers.live("mouseover", function() { $(this).addClass("timeContainerHover"); });
-    timeContainers.live("mouseout", function() { $(this).removeClass("timeContainerHover"); });
+    $(document).on("mouseover", ".timeContainer", function() { $(this).addClass("timeContainerHover"); });
+    $(document).on("mouseout", ".timeContainer", function() { $(this).removeClass("timeContainerHover"); });
 
     // Add handler to reset the course selections when terms change or when ignore full is clicked
     $("#ignoreFull").click(function() { refreshCourses(); });
@@ -53,7 +54,7 @@ $(document).ready(function() {
     // Add time pickers to the start time pickers
     var startTimePickers = $(".startTimePicker");
     startTimePickers.timepicker({scrollDefaultTime: "08:00" });
-    startTimePickers.live("change", function() {
+    $(document).on("change", ".startTimePicker", function() {
         // Add a time picker to the neighboring endTimePicker
         var endPicker = $(this).parent().parent().find(".endTimePicker");
         endPicker.timepicker("remove");
@@ -79,6 +80,19 @@ $(document).ready(function() {
        if(e.keyCode == 13) { getCourseOptions($(this)); }
     });
 
+    // Add handler for course option expanders
+    $(document).on("click", ".courseOptionsExpander", function(e) {
+        e.preventDefault();
+        var list = $(this).parent().parent().find(".list");
+        if(!list.is(":visible")) {
+            $(this).html("-");
+            list.slideDown();
+        } else {
+            $(this).html("+");
+            list.slideUp();
+        }
+    });
+
     // Add handler to the show schedules button
     $("#showSchedulesButton").click(function(e) { e.preventDefault(); showSchedules(); });
 });
@@ -86,12 +100,32 @@ $(document).ready(function() {
 // @TODO: save the schedule data between page loads?
 
 /**
+ * Fetches the handlebars template for the course options list. It caches the
+ * template for repeated calls.
+ * @returns handlebars  The template for course options
+ */
+function getCourseOptionsTemplate() {
+    if(courseOptionsTemplate == null) {
+        $.ajax("./js/templates/generateCourseOptions.html", {
+            async: false,
+            success: function(data) {
+                courseOptionsTemplate = Handlebars.compile(data);
+            },
+
+            // @TODO: FOR DEBUGGING PURPOSES ONLY!
+            cache: false
+        });
+    }
+    return courseOptionsTemplate;
+}
+
+/**
  * Called when the Add Course button is clicked to add an additional slot for
  * a course item. This works by cloning the last course options field
  */
 function addCourse() {
     // First things first. Clone the last courseField
-    var lastCourse = $(".course").last();
+    var lastCourse = $(".courseRow").last();
     var newCourse = lastCourse.clone();
 
     // Increment the count of courses
@@ -105,25 +139,17 @@ function addCourse() {
     newInput.attr("id", "courses" + count);
     newInput.val("");
 
-    newCourse.find("h3").html("Course " + count);
+    var newTitle = newCourse.find("label");
+    newTitle.attr("for", "courses" + count);
+    newTitle.html("Course " + count);
 
-    var newCourseOpts = newCourse.find(".courseOpts");
+    // Clean out the course options
+    var newCourseOpts = newCourse.find(".courseOptions");
     newCourseOpts.empty();
     newCourseOpts.removeClass("courseOptsError");
 
-    // Grab the last row
-    var lastRow = $(".courseRow").last();
-
-    // If there are less than 4 fields in this row, we can just add the new one
-    if(lastRow.children().length < 4) {
-        lastRow.append(newCourse);
-    } else {
-        // Well shit. We've gotta add a new row.
-        var newRow = $("<div>");
-        newRow.addClass("courseRow");
-        newRow.appendTo(lastRow.parent());
-        newRow.append(newCourse);
-    }
+    // Append the new field to the end of the list of courses
+    $("#scheduleCourses").append(newCourse);
 }
 
 /**
@@ -578,12 +604,11 @@ function expandForm() {
  */
 function getCourseOptions(field) {
     // Store some handy points in the DOM relative to the field
-    var courseOptions = field.next();
+    var courseOptions = field.parent().parent().children(".courseRowOptions");
 
 	// If no course number was provided, remove the options
 	if(field.val() == "") {
-		courseOptions.slideUp();
-		courseOptions.html("");
+		courseOptions.empty();
 		return;
 	}
 
@@ -597,60 +622,66 @@ function getCourseOptions(field) {
 	$.post("./js/scheduleAjax.php", options, function(d) {
         if(d.error != null && d.error != undefined) {
             // Bomb out on an error
-            courseOptions.html("<span>" + d.msg + "</span>");
-            courseOptions.addClass("courseOptsError");
-            courseOptions.slideDown();
-        } else {
-            // Empty out any currently showing courses
             courseOptions.empty();
-            courseOptions.removeClass();
-            courseOptions.addClass("courseOpts");
+            courseOptions.addClass("courseOptionsError");
+            courseOptions.html(d.msg);
+            return;
+        }
 
-            // Create a header that will show the number of courses matched
-            // and provide a link to expand them
-            var listInfo = $("<span>").html(d.length + " Course Matches ");
-            var expandLink = $("<a href='#'>[ Show Matches ]</a>")
+        // Empty out any currently showing courses
+        courseOptions.empty();
+        courseOptions.removeClass("courseOptionsError");
 
-            // Create a list of courses (hidden at first)
-            var listTable = $("<table>").addClass("courseOptsTable");
-            for(var i = 0; i < d.length; i++) {
-                // Add the row
-                // @TODO: Replace with divs and margin'd checkboxes
-                var row = $("<tr>");
-                row.append(
-                    $("<td>").html(
-                        "<input type='checkbox' name='" + field.attr("id") + "Opt[]' value='"
-                        + d[i] + "' checked='checked'>")
-                );
-                row.append(
-                    $("<td>").html(d[i])
-                );
-                listTable.append(row);
+        // Load the template
+        var template = getCourseOptionsTemplate();
+        if(template == null) {
+            courseOptions.addClass("courseOptionsError");
+            courseOptions.html("Error: Failed to load course options template.");
+            return;
+        }
+
+        // Condense the times into a single string for output
+        for(var c = 0; c < d.length; ++c) {
+            var times = [];
+            var course = d[c];
+
+            // Iterate over the times for the course
+            if(course.times == undefined) { continue; }
+            for(var e = 0; e < course.times.length; ++e) {
+                // Search the existing list of times to see if a match exists
+                var found = false;
+                var time = course.times[e];
+                for(var f = 0; f < times.length; ++f) {
+                    if(times[f].start == time.start && times[f].end == time.end) {
+                        found = f;
+                    }
+                }
+
+                // If a match was found, add the day to it, otherwise add a new time
+                if(found !== false) {
+                    times[found].days += ", " + translateDay(time.day);
+                } else {
+                    times.push({
+                        start: time.start,
+                        end:   time.end,
+                        days:  translateDay(time.day)
+                    });
+                }
             }
 
-            // Append everything as it should be
-            listInfo.append(expandLink);
-            courseOptions.append(listInfo);
-            courseOptions.append(listTable);
-            courseOptions.slideDown();
-
-            // Add click handler to the expand link that will show the list
-            // of matching courses
-            expandLink.click(function(event) {
-                // Don't follow the link
-                event.preventDefault();
-
-                // Show the table (or hide it)
-                $(this).parent().next().toggle();
-
-                // Change the text
-                if($(this).html() == "[ Show Matches ]") {
-                    $(this).html("[ Hide Matches ]");
-                } else {
-                    $(this).html("[ Show Matches ]");
-                }
-            });
+            // Replace the current list of times with the newly constructed one
+            d[c].times = times;
         }
+
+        // Setup the parameters to the template
+        var params = {
+            count: d.length,
+            courses: d,
+            courseField: field.attr('id')
+        };
+
+        // Apply the transform
+        courseOptions.html(template(params));
 	});
 }
 
