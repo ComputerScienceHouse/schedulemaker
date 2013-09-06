@@ -2276,3 +2276,26 @@ Handlebars.template = Handlebars.VM.template;
 // lib/handlebars/browser-suffix.js
 })(Handlebars);
 ;
+
+// A cache of handlebar templates
+var handlebarTemplates = {};
+
+/**
+ * Fetches a handlebars template from the given path
+ * @param pathToTemplate string The path to the template to fetch
+ * @returns object  A handlebar object will be returned upon successful retreival
+ *                  of the template. Null will be returned otherwise.
+ */
+function fetchTemplate(pathToTemplate) {
+    // Check to see if the templates have been cached
+    if(handlebarTemplates[pathToTemplate] == undefined) {
+        // Template has not been cached. Fetch it.
+        $.ajax(pathToTemplate, {
+            async: false,
+            success: function(data) {
+                handlebarTemplates[pathToTemplate] = Handlebars.compile(data);
+            }
+        });
+    }
+    return handlebarTemplates[pathToTemplate];
+}

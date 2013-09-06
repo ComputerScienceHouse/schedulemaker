@@ -21,8 +21,6 @@ var serialForm;			// The serialized form so we can tell if there has been
 var startday;			// The starting day for the schedule
 var starttime = null;	// The starting time for the schedule
 
-var courseOptionsTemplate;  // Handlebars template for course options list
-
 // We NEED to make any ajax a synchronous call
 $.ajaxSetup({async: false});
 // @TODO: No we don't. This is making things slow as balls.
@@ -98,26 +96,6 @@ $(document).ready(function() {
 });
 
 // @TODO: save the schedule data between page loads?
-
-/**
- * Fetches the handlebars template for the course options list. It caches the
- * template for repeated calls.
- * @returns handlebars  The template for course options
- */
-function getCourseOptionsTemplate() {
-    if(courseOptionsTemplate == null) {
-        $.ajax("./js/templates/generateCourseOptions.html", {
-            async: false,
-            success: function(data) {
-                courseOptionsTemplate = Handlebars.compile(data);
-            },
-
-            // @TODO: FOR DEBUGGING PURPOSES ONLY!
-            cache: false
-        });
-    }
-    return courseOptionsTemplate;
-}
 
 /**
  * Called when the Add Course button is clicked to add an additional slot for
@@ -633,7 +611,7 @@ function getCourseOptions(field) {
         courseOptions.removeClass("courseOptionsError");
 
         // Load the template
-        var template = getCourseOptionsTemplate();
+        var template = fetchTemplate("js/templates/generateCourseOptions.html");
         if(template == null) {
             courseOptions.addClass("courseOptionsError");
             courseOptions.html("Error: Failed to load course options template.");
