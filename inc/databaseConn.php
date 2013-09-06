@@ -75,6 +75,11 @@ function getMeetingInfo($sectionData) {
  * @return 	array	The information about the section
  */
 function getCourseBySectionId($id) {
+    // Sanity check for the section id
+    if($id == "" || !is_numeric($id)) {
+        trigger_error("A valid section id was not provided");
+    }
+
 	// Build the query to get section info
 	$query = "SELECT s.id,
                 (CASE WHEN (s.title != '') THEN s.title ELSE c.title END) AS title,

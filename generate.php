@@ -23,37 +23,49 @@ global $CURRENT_QUARTER;
 		<h2>Courses</h2>
 		<button id='addCourseButton'>Add Course</button>
 	</div>
-	<div class='courseRow'>
+	<div class='courseSettings'>
 		<label for='term'>Term:</label> <?= getTermField('term', $CURRENT_QUARTER) ?>
-		<input id='courseCount' type='hidden' name='courseCount' value='4' />
+		<input id='courseCount' type='hidden' name='courseCount' value='5' />
 		
 		<input id='ignoreFull' type='checkbox' name='ignoreFull' value='true' />
 		<label for='ignoreFull'>Ignore full courses</label>
 	</div>
 	<div id='scheduleCourses'>
-		<div class='courseRow'>
-			<div class='course'>
-				<h3>Course 1</h3>
-				<input id='courses1' type='text' name='courses1' class='courseField' maxlength='17' placeholder='XXXX-XXX-XXXX' />
-				<div class='courseOpts'></div>
-			</div>
-			<div class='course'>
-				<h3>Course 2</h3>
-				<input id='courses2' type='text' name='courses2' class='courseField' maxlength='17' placeholder='XXXX-XXX-XXXX' />
-				<div class='courseOpts'></div>
-			</div>
-			<div class='course'>
-				<h3>Course 3</h3>
-				<input id='courses3' type='text' name='courses3' class='courseField' maxlength='17' placeholder='XXXX-XXX-XXXX' />
-				<div class='courseOpts'></div>
-			</div>
-			<div class='course'>
-				<h3>Course 4</h3>
-				<input id='courses4' type='text' name='courses4' class='courseField' maxlength='17' placeholder='XXXX-XXX-XXXX' />
-				<div class='courseOpts'>
-				</div>
-			</div>
-		</div>
+        <div class='courseRow'>
+            <div class='courseRowField'>
+                <label for='courses1'>Course 1:</label>
+                <input id='courses1' type='text' name='courses1' class='courseField' maxlength='17' placeholder="XXXX-XXX-XXXX" />
+            </div>
+            <div class='courseRowOptions'></div>
+        </div>
+        <div class='courseRow'>
+            <div class='courseRowField'>
+                <label for='courses2'>Course 2:</label>
+                <input id='courses2' type='text' name='courses2' class='courseField' maxlength='17' placeholder="XXXX-XXX-XXXX" />
+            </div>
+            <div class='courseRowOptions'></div>
+        </div>
+        <div class='courseRow'>
+            <div class='courseRowField'>
+                <label for='courses3'>Course 3:</label>
+                <input id='courses3' type='text' name='courses3' class='courseField' maxlength='17' placeholder="XXXX-XXX-XXXX" />
+            </div>
+            <div class='courseRowOptions'></div>
+        </div>
+        <div class='courseRow'>
+            <div class='courseRowField'>
+                <label for='courses4'>Course 4:</label>
+                <input id='courses4' type='text' name='courses4' class='courseField' maxlength='17' placeholder="XXXX-XXX-XXXX" />
+            </div>
+            <div class='courseRowOptions'></div>
+        </div>
+        <div class='courseRow'>
+            <div class='courseRowField'>
+                <label for='courses5'>Course 5:</label>
+                <input id='courses5' type='text' name='courses5' class='courseField' maxlength='17' placeholder="XXXX-XXX-XXXX" />
+            </div>
+            <div class='courseRowOptions'></div>
+        </div>
 	</div>
 </div>
 <div class='scheduleForm'>
@@ -210,4 +222,6 @@ global $CURRENT_QUARTER;
 		<h2>Matching Schedules</h2>
 	</div>
 </div>
+<script type='text/javascript' src='js/handlebars.js'></script>
+<script type='text/javascript' src='js/translateFunctions.js'></script>
 <? require "./inc/footer.inc"; ?>

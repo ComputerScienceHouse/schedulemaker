@@ -454,39 +454,68 @@ li {
 	margin-right:auto;
 	margin-bottom:20px;
 	width:600px;
-}			
+}
+.courseSettings {
+    overflow: auto;
+    margin-left:auto;
+    margin-right:auto;
+    position: relative;
+    width: 900px;
+}
 .courseRow {
 	overflow:auto;
 	position:relative;
 	margin-left:auto;
 	margin-right:auto;
+    margin-top: 20px;
 	width:900px;
+    line-height: 24px;
+}
+.courseRow label {
+    font-weight:bold;
+    margin-right:10px;
+}
+.courseRow input[type='text'] {
+    float: right;
+}
+.courseOptionsList {
+    position: relative;
+    float: left;
+    font-weight:bold;
+}
+.courseOptionsList .list {
+    display: none;
+}
+.courseOptionsExpand {
+    position: relative;
+    float: right;
+    height: 24px; /* Not sure where the mystery pixel is coming from, but it's messing things up */
+}
+.courseRowField {
+    position: relative;
+    float: left;
+    width:280px;
+}
+.courseRowOptions {
+    position: relative;
+    float: left;
+    width: 565px;
+    padding-left: 10px;
+    padding-right: 10px;
+    margin-left: 20px;
+    margin-right: 15px;
+}
+.courseOptionsError {
+    background-color:#CC3129;
 }
 .course {
 	position:relative;
 	float:left;
-	margin:10px;
+	margin:15px;
 	width:205px;
 }
 .course h3 {
 	margin:0 0 0 5px;
-}
-.courseOpts {
-	margin-top:5px;
-	padding:5px;
-	width:100%;
-	display:none;
-}
-.courseOptsError {
-	background-color: #CC3129;
-	margin: 3px 3px 0;
-	width:auto;
-	color: white;
-}
-.courseOptsTable {
-	display:none;
-	width:100%;
-	font-size:12px;
 }
 .courseField {
 	width:193px;
