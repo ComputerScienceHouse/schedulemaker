@@ -43,8 +43,8 @@ function collegeOnChange() {
     // Clear out the list of departments
     var departments = $("#department");
     departments.children().remove();
-    var school = $("#college").children(":selected").val();
-    var term = $("#term").children(":selected").val();
+    var school = $("#college").val();
+    var term = $("#term").val();
 
     // If the school selected is 'all', then back out
     if(school == 'any') {
@@ -119,7 +119,7 @@ function termOnChange() {
     $("<option value='any'>Select a College From Above</option>").appendTo(departments);
 
     // Sort the list of schools based on code or number
-    var term = $("#term").children(":selected").val();
+    var term = $("#term").val();
     if(term > 20130) {
         // Sort by code
         sortSchools("title");
@@ -186,7 +186,7 @@ function spinRoulette() {
         $("<h2>Your Random Course</h2>").appendTo(courseDiv);
 
         // Display the department based on the term
-        var term = $("#term").children(":selected").val();
+        var term = $("#term").val();
         var title = (term > 20130) ? d.department.code : d.department.number;
         title += "-" + d.course + "-" + d.section;
         title += " " + d.title + " with " + d.instructor;
