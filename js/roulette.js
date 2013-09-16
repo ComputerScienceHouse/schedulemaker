@@ -171,54 +171,33 @@ function spinRoulette() {
         // Store the roulette course div for future use
         var courseDiv = $('#rouletteCourse');
 
+        // Clear out existing random courses and display the header
+        courseDiv.empty();
+        courseDiv.removeClass();
+
 		// Was there an error?
 		if(d.error != undefined && d.error != null) {
 			// Display the error in the result box
-			courseDiv.html("<h2>Sorry! An Error Occurred!</h2>" + d.msg + "");
-			courseDiv.removeClass();
+			courseDiv.html("<h2>Sorry! An error occurred!</h2>" + d.msg + "");
 			courseDiv.addClass('rouletteError');
             courseDiv.slideDown();
             return;
 		}
 
-        // Clear out existing random courses and display the header
-        courseDiv.empty();
-        $("<h2>Your Random Course</h2>").appendTo(courseDiv);
+        // Load the template for the random course
+        var template = fetchTemplate("js/templates/rouletteRandomCourse.html");
+        if(template == null) {
+            // Display an error
+            courseDiv.html("<h2>Sorry! An error occurred!</h2><p>Failed to load the output template.</p>");
+            courseDiv.addClass("rouletteError");
+            courseDiv.slideDown();
+            return;
+        }
 
         // Display the department based on the term
         var term = $("#term").val();
-        var title = (term > 20130) ? d.department.code : d.department.number;
-        title += "-" + d.course + "-" + d.section;
-        title += " " + d.title + " with " + d.instructor;
 
-        // Append the title
-        $("<p>").css("font-weight", "bold")
-                .html(title)
-                .appendTo(courseDiv);
-
-        // Append a table for the meeting times of the course
-        if(d.times.length > 0) {
-            var table = $("<table>").attr("id", "rouletteCourseTimes");
-            for(var i = 0; i < d.times.length; i++) {
-                var time = d.times[i];
-
-                // Generate a row
-                var row = $("<tr>");
-                $("<td>" + time.day + "</td>").appendTo(row);
-                $("<td>" + time.start + "</td>").appendTo(row);
-                $("<td>-</td>").appendTo(row);
-                $("<td>" + time.end + "</td>").appendTo(row);
-
-                // Building number/code is a bit more complex
-                var bldg = time.bldg.code + "(" + time.bldg.number + ")";
-                bldg += "-" + time.room;
-                $("<td>" + bldg + "</td>").appendTo(row);
-
-                // Add the row
-                row.appendTo(table);
-            }
-            table.appendTo(courseDiv);
-        }
+        courseDiv.html(template(d));
 
         // @TODO:	Link to course in the browse page
 
@@ -234,7 +213,6 @@ function spinRoulette() {
                         })
                     .appendTo(courseDiv);
 
-        courseDiv.removeClass();
         courseDiv.slideDown();
 		$('#spinButton').val("I Want a Different Course!");
 	});
