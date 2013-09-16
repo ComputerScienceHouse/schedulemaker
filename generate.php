@@ -168,9 +168,9 @@ global $CURRENT_QUARTER;
 	<table id='advancedOptions'>
 		<tr>
 			<td class='lbl'><label for='scheduleStart'>Start Time:</label></td>
-			<td><?= getTimeField("scheduleStart", 480) ?></td>
+			<td><input type='text' id='scheduleStart' value='8:00am' name='scheduleStart' /></td>
 			<td class='lbl'><label for='scheduleEnd'>End Time:</label></td>
-			<td><?= getTimeField("scheduleEnd", 1320) ?></td>
+			<td><input type='text' id='scheduleEnd' value='10:00pm' name='scheduleEnd' /></td>
 		</tr>
 		<tr>
 			<td class='lbl'><label for='scheduleStartDay'>First Day:</label></td>

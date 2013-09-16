@@ -65,6 +65,18 @@ $(document).ready(function() {
         }
     });
 
+    // Add time pickers to the schedule start and end times
+    var scheduleStartPicker = $("#scheduleStart");
+    scheduleStartPicker.timepicker({scrollDefaultTime: "08:00"});
+    var scheduleEndPicker = $("#scheduleEnd");
+    scheduleEndPicker.timepicker({minTime: scheduleStartPicker.val()});
+    $(document).on("change", "#scheduleStart", function() {
+        // Reset the time picker for the end of the schedule
+        var endPicker = $("#scheduleEnd");
+        endPicker.timepicker("remove");
+        endPicker.timepicker({minTime: $(this).val() });
+    });
+
     // Don't do anything on enter being pressed
     $(document).on("keypress", "input", function(e) { if(e.keyCode == 13) { e.preventDefault(); } });
 
@@ -225,7 +237,7 @@ function drawCourse(parent, course, startDay, endDay, startTime, endTime, colorN
 	}
 
 	// Draw the time divs of the course
-	for(t = 0; t < course.times.length; t++) {
+	for(var t = 0; t < course.times.length; t++) {
 		// Make it easier for the developer
 		var time = course.times[t];
 		
@@ -421,7 +433,7 @@ function drawPage(pageNum, print) {
 
                 // Add each item to the notice
                 for(var hi = 0; hi < hiddenCourses.length; hi++) {
-                    hiddenNotes.html(hiddenNotes.html() + " " + hiddenCourses[ol]);
+                    hiddenNotes.html(hiddenNotes.html() + " " + hiddenCourses[hi]);
                 }
 
                 // Add it to the notes div
@@ -940,6 +952,26 @@ function showSchedules() {
 		$.post("./js/scheduleAjax.php", $('#scheduleForm').serialize(), function(data) {
             var scheduleDiv = $("#schedules");
 
+            // Calculate the start and end times for the schedule
+            var start = $("#scheduleStart").val().match(/([0-9]+):([0-9]{2})(am|pm)/);
+            var end = $("#scheduleEnd").val().match(/([0-9]+):([0-9]{2})(am|pm)/);
+            if(start[3] == 'am' && parseInt(start[1]) == 12) {
+                starttime = parseInt(start[2]);
+            } else if(start[3] == 'pm') {
+                start[1] = parseInt(start[1]) + 12;
+            }
+            starttime = (parseInt(start[1]) * 60) + parseInt(start[2]);
+            if(end[3] == 'am' && parseInt(end[1]) == 12) {
+                starttime = parseInt(end[2]);
+            } else if(end[3] == 'pm') {
+                end[1] = parseInt(end[1]) + 12;
+            }
+            endtime = (parseInt(end[1]) * 60) + parseInt(end[2]);
+            if(starttime >= endtime) {
+                data.error = true;
+                data.msg = "Schedule start and end times are incompatible.";
+            }
+
 			// If there was a single, non-recoverable error, show it and die
 			if(data.error != null && data.error != undefined) {
 				$("<div>").attr("id", "errorDiv")
@@ -994,8 +1026,6 @@ function showSchedules() {
 			// Grab the advanced options for the schedule
 			startday  = parseInt($("#scheduleStartDay").val());
 			endday    = parseInt($("#scheduleEndDay").val());
-			starttime = parseInt($("#scheduleStart").val());
-			endtime   = parseInt($("#scheduleEnd").val());
 
 			// Determine the height and width of the schedule based on start/end time/day
 			schedHeight = (Math.floor((endtime - starttime) / 30) * 20) + 20;
