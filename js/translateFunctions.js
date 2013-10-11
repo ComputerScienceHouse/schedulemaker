@@ -3,7 +3,7 @@
  * @param   day int The numerical representation of the day
  * @returns Three letter representation of the day
  */
-function translateDay(day) {
+translateDay = function(day) {
     // Modulo it to make sure we get the correct days
     day = day % 7;
 
@@ -27,6 +27,7 @@ function translateDay(day) {
             return null;
     }
 }
+Handlebars.registerHelper("formatDay", translateDay);
 
 /**
  * Takes a time specified as the number of minutes into the day and returns
