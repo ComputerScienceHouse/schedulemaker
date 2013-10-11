@@ -67,5 +67,23 @@ translateMinutesToTime = function(minutes) {
     return hours + ":" + remMinutes + ampm;
 };
 
+/**
+ * Converts a string representation of the time into the number of minutes
+ * into the day.
+ * @param time  string  A string representation of the time
+ * @returns int The number of minutes into the day
+ */
+translateTimeToMinutes = function(time) {
+    // Strip off each part of the time
+    var regexMatch = time.match(/([0-9]+):([0-9]{2})(am|pm)/);
+    var hour = parseInt(regexMatch[1]) % 12;
+    var min = parseInt(regexMatch[2]);
+    if(regexMatch[3] == 'pm') {
+        hour += 12;
+    }
+
+    return (hour * 60) + min;
+};
+
 // Register this function as a handlebars helper
 Handlebars.registerHelper("formatTime", translateMinutesToTime);

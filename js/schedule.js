@@ -769,8 +769,8 @@ function getScheduleUrl(button) {
 		var jsonModified = {
 				"startday":  $("#scheduleStartDay").val(),
 				"endday":    $("#scheduleEndDay").val(),
-				"starttime": $("#scheduleStart").val(),
-				"endtime":   $("#scheduleEnd").val(),
+				"starttime": translateTimeToMinutes($("#scheduleStart").val()),
+				"endtime":   translateTimeToMinutes($("#scheduleEnd").val()),
 				"schedule":  eval(jsonObj),
 				"building":  $("#buildingStyle").val(),
 				"term":      $("#term").val()	// This /could/ be incorrect... just sayin
