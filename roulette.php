@@ -133,6 +133,8 @@ require "./inc/header.inc";
 </div>
 
 </form>
+<script src='js/handlebars.js' type="text/javascript"></script>
+<script src='js/translateFunctions.js' type="text/javascript"></script>
 
 <?
 require "inc/footer.inc";

@@ -346,7 +346,7 @@ switch($mode) {
             // Split it up and store it as the header
             var year = parseInt(data.term.substring(0,4));
             var term = data.term.substring(4);
-            if(year > 2013) {
+            if(year >= 2013) {
                 switch(term) {
                     case '1': term = "Fall"; break;
                     case '3': term = "Winter Intersession"; break;

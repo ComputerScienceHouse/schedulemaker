@@ -92,7 +92,7 @@ switch($_POST['action']) {
 		}
 
 		// Build the query
-		$query = "SELECT d.number AS deptNum, d.code AS deptCode, c.course, s.section, c.title, s.instructor, s.id";
+		$query = "SELECT s.id";
 		$query .= " FROM courses AS c ";
         $query .= " JOIN sections AS s ON s.course = c.id";
         $query .= " JOIN departments AS d ON d.id = c.department";
@@ -131,67 +131,61 @@ switch($_POST['action']) {
 		// Run it!
 		$result = mysql_query($query);
 		if(!$result) {
-			echo json_encode(array("error" => "mysql", "msg" => mysql_error(), "guru" => $query));
+			echo json_encode(array("error" => "mysql", "msg" => "An error occurred while searching the database."));
 			break;
 		}
 		if(mysql_num_rows($result) == 0) {
-			echo json_encode(array("error" => "result", "msg" => "No courses matched your criteria", "query" => $query));
+			echo json_encode(array("error" => "result", "msg" => "No courses matched your criteria"));
 			break;
 		} 
 
 		// Now we build an array of the results
 		$courses = array();
 		while($row = mysql_fetch_assoc($result)) {
-			$courses[] = array(
-                "id"         => $row['id'],
-                "department" => array("number" => $row['deptNum'], "code" => $row['deptCode']),
-                "course"     => $row['course'],
-                "section"    => $row['section'],
-                "title"      => $row['title'],
-                "instructor" => $row['instructor'],
-            );
+			$courses[] = $row['id'];
 		}
 		// @todo: store this in session to avoid lengthy and costly queries
-        // @TODO: Use the getMeetingInfo function in databaseConn instead of this
 
 		// Now pick a course at random, grab it's times
+        // This loop selects a course at random, then loops around the list of courses until
+        // it finds a match or it ends up where it starts
         $matchFound = false;
-        $courseNum = 0;
-        while(!$matchFound) {
-            $courseNum = rand(0, count($courses) - 1);
+        $matchingCourse = null;
+        $startingI = rand(0, count($courses) - 1);
+        for($i = ($startingI + 1) % count($courses); $i != $startingI; $i = ($i + 1) % count($courses)) {
+            // Look up the course
+            $course = getCourseBySectionId($courses[$i]);
 
-
-            $query = "SELECT day, start, end, b.code, b.number, room, off_campus ";
-            $query .= "FROM times AS t JOIN buildings AS b ON b.number = t.building ";
-            $query .= "WHERE section='{$courses[$courseNum]['id']}' ORDER BY day, start";
-            $result = mysql_query($query);
-            if(!$result) {
-                echo json_encode(array("error" => "mysql", "msg" => mysql_error()));
-                break;
+            // Do we need to exclude it because it's online?
+            if($course['online'] == true && (!isset($_POST['online']) || $_POST['online'] != true)) {
+                // Yes, it should be excluded
+                continue;
             }
-            $courses[$courseNum]['times'] = array();
+
+            // Determine if its on campus
             $offCampus = false;
-            while($row = mysql_fetch_assoc($result)) {
-                $session = array(
-                    'day' => translateDay($row['day']),
-                    'start' => translateTime($row['start']),
-                    'end' => translateTime($row['end']),
-                    'bldg' => array("code"=>$row['code'], "number"=>$row['number']),
-                    'room' => $row['room']
-                );
-                $courses[$courseNum]['times'][] = $session;
-                if($row['off_campus'] == '1') {
-                    $offCampus = true;
+            if(!empty($course['times'])) {
+                foreach($course['times'] as $time) {
+                    if($time['off_campus']) {
+                        $offCampus = true;
+                        break;
+                    }
                 }
             }
 
-            // Make sure that the
+            // Do we need to exclude this course?
             if((isset($_POST['offCampus']) && $_POST['offCampus'] == 'true') || !$offCampus) {
-                $matchFound = true;
+                // No need to exclude it -- match found
+                $matchingCourse = $course;
             }
         }
 
-		echo json_encode($courses[$courseNum]);
+        // There's no match if the matching course is null
+        if($matchingCourse == null) {
+            echo json_encode(array("error" => "result", "msg" => "No courses matched your criteria"));
+        } else {
+        	echo json_encode($matchingCourse);
+        }
 		break;
 
 	default:
