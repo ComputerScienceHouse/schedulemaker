@@ -3,3 +3,8 @@
 
 # Ignore configuration files
 inc/config.php
+
+$ Ignore Eclipse files
+.settings
+.project
+.buildpath

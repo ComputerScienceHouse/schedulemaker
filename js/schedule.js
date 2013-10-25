@@ -85,10 +85,10 @@ $(document).ready(function() {
     $(".addItemButton").click(function(e) { e.preventDefault(); addNonCourseItem($(this)); });
 
     // Add change handlers for the course fields
-    $(document).on("blur", ".courseField", function() { getCourseOptions($(this)); });
+    /*$(document).on("blur", ".courseField", function() { getCourseOptions($(this)); });
     $(document).on("keypress", ".courseField", function(e) {
        if(e.keyCode == 13) { getCourseOptions($(this)); }
-    });
+    });*/
 
     // Add handler for course option expanders
     $(document).on("click", ".courseOptionsExpander", function(e) {
@@ -155,9 +155,11 @@ function addNonCourseItem(button) {
     var countInput = parent.find(".itemCount");
     var count = parseInt(countInput.val()) + 1;
     countInput.val(count);
-
+    
+    var table = parent.parent().find('.panel-body table');
+    
     // Grab the last row from the table of non-course items
-    var table   = parent.next();
+    //var table   = parent.next();
     var lastRow = table.find("tr").last();
 
     // Clone it

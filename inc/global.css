@@ -1,9 +1,9 @@
 body {
 	margin: 0;
-	font-size:12px;
+    margin-top:50px;
+	/*font-size:12px;*/
 	font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
-	background-color:#FFFFF0;
-	color:white;
+	background-color:#111;
 }
 
 img {
@@ -11,12 +11,9 @@ img {
 }
 
 #superContainer {
-	position:relative;
-	margin-left:auto;
-	margin-right:auto;
-	min-width:960px;
-	max-width:1240px;
-	box-shadow: 0 0 10px black;
+	/*  nothing */
+    background-color:#2B4E69;
+	
 }
 
 #container {
@@ -24,7 +21,8 @@ img {
     padding: 20px;
     margin-left: auto;
 	margin-right: auto;
-	background-color:#2b4e69;
+    background-color: #2B4E69;
+	/*background-color:#799AA5;*/
 }
 
 #header {
@@ -61,6 +59,7 @@ img {
 #header .nav:hover {
 	border-bottom:2px solid #799AA5;
 }
+
 
 #header .nav {
 	position:relative;
@@ -119,7 +118,7 @@ img {
 	text-decoration:underline;
 }
 
-#footer .nav {
+#footer .OLDnav {
 	font-size:16px;
 	margin-bottom:10px;
 	text-shadow: 0 1px 1px black;
@@ -180,8 +179,8 @@ input[type=text] {
 
 /* Font Styles - */
 h1,h2 {
-	color: white;
-	text-shadow:0 1px 1px black;
+	/*color: white;
+	text-shadow:0 1px 1px black;*/
 }
 
 .leftColumn h2 {
@@ -220,18 +219,20 @@ option {
 /**************************************************************************/
 /* INDEX */
 #mainMenu {
-	width:100%;
-	margin-top:125px;
-	margin-bottom:125px;
+	margin-top:5%;
+	margin-bottom:5%;
 	overflow:auto;
 }
 #mainMenu .navItem {
-	width:33%;
+    margin: 0 auto;
 	position:relative;
-	float:left;
 	text-align:center;
 }
+
 #mainMenu .navItem img {
+    width: 100%;
+    height:auto;
+    max-width:200px;
 	margin-left:auto;
 	margin-right:auto;
 	display:block;
@@ -240,9 +241,14 @@ option {
 #mainMenu .navItem div {
 	font-size: 18px;
 	text-shadow: 0 1px 1px black;
-	margin-top:40px;
+	margin-top:5%;
 }
 
+@media only screen and (max-width:769px) {
+    #mainMenu .navItem div  a{
+        font-size: 16px;
+    }
+}
 #mainMenu .navItem a {
 	color: #EEE;
 	text-decoration: none;
@@ -257,7 +263,7 @@ option {
 form {
 	margin-bottom:5px;
 }
-li {
+#container li {
 	margin-top:3px;
 	margin-bottom:3px;
 }
@@ -420,8 +426,8 @@ li {
 }
 
 .subheader h2 {
-	text-shadow:0 1px 1px black;
-	color:white;
+	/*text-shadow:0 1px 1px black;
+	color:white;*/
 }
 
 #formControl input {
@@ -861,4 +867,112 @@ li {
 }
 .b {
 	background-color:orange;
+}
+/* CUSTOM BOOTSTRAP STUFF HERE */
+
+/* custom inclusion of right, left and below tabs */
+
+.tabs-below > .nav-tabs,
+.tabs-right > .nav-tabs,
+.tabs-left > .nav-tabs {
+  border-bottom: 0;
+}
+
+.tab-content > .tab-pane,
+.pill-content > .pill-pane {
+  display: none;
+}
+
+.tab-content > .active,
+.pill-content > .active {
+  display: block;
+}
+
+.tabs-below > .nav-tabs {
+  border-top: 1px solid #ddd;
+}
+
+.tabs-below > .nav-tabs > li {
+  margin-top: -1px;
+  margin-bottom: 0;
+}
+
+.tabs-below > .nav-tabs > li > a {
+  -webkit-border-radius: 0 0 4px 4px;
+     -moz-border-radius: 0 0 4px 4px;
+          border-radius: 0 0 4px 4px;
+}
+
+.tabs-below > .nav-tabs > li > a:hover,
+.tabs-below > .nav-tabs > li > a:focus {
+  border-top-color: #ddd;
+  border-bottom-color: transparent;
+}
+
+.tabs-below > .nav-tabs > .active > a,
+.tabs-below > .nav-tabs > .active > a:hover,
+.tabs-below > .nav-tabs > .active > a:focus {
+  border-color: transparent #ddd #ddd #ddd;
+}
+
+.tabs-left > .nav-tabs > li,
+.tabs-right > .nav-tabs > li {
+  float: none;
+}
+
+.tabs-left > .nav-tabs > li > a,
+.tabs-right > .nav-tabs > li > a {
+  min-width: 74px;
+  margin-right: 0;
+  margin-bottom: 3px;
+}
+
+.tabs-left > .nav-tabs {
+  float: left;
+  margin-right: 19px;
+  border-right: 1px solid #ddd;
+}
+
+.tabs-left > .nav-tabs > li > a {
+  margin-right: -1px;
+  -webkit-border-radius: 4px 0 0 4px;
+     -moz-border-radius: 4px 0 0 4px;
+          border-radius: 4px 0 0 4px;
+}
+
+.tabs-left > .nav-tabs > li > a:hover,
+.tabs-left > .nav-tabs > li > a:focus {
+  border-color: #eeeeee #dddddd #eeeeee #eeeeee;
+}
+
+.tabs-left > .nav-tabs .active > a,
+.tabs-left > .nav-tabs .active > a:hover,
+.tabs-left > .nav-tabs .active > a:focus {
+  border-color: #ddd transparent #ddd #ddd;
+  *border-right-color: #ffffff;
+}
+
+.tabs-right > .nav-tabs {
+  float: right;
+  margin-left: 19px;
+  border-left: 1px solid #ddd;
+}
+
+.tabs-right > .nav-tabs > li > a {
+  margin-left: -1px;
+  -webkit-border-radius: 0 4px 4px 0;
+     -moz-border-radius: 0 4px 4px 0;
+          border-radius: 0 4px 4px 0;
+}
+
+.tabs-right > .nav-tabs > li > a:hover,
+.tabs-right > .nav-tabs > li > a:focus {
+  border-color: #eeeeee #eeeeee #eeeeee #dddddd;
+}
+
+.tabs-right > .nav-tabs .active > a,
+.tabs-right > .nav-tabs .active > a:hover,
+.tabs-right > .nav-tabs .active > a:focus {
+  border-color: #ddd #ddd #ddd transparent;
+  *border-left-color: #ffffff;
 }
