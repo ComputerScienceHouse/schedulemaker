@@ -24,29 +24,30 @@ global $CURRENT_QUARTER;
 	</div>
     <div class="panel-body">
         <div class="row">
-            <div class="form-group col-md-6">
-                <label for="term" class="col-md-2 control-label">Term:</label>
-                <div class="col-md-4">
-                	 <?= getTermField('term', $CURRENT_QUARTER) ?>
-                </div>
-            </div>
-            <div class="form-group col-md-6">
-                <div class="col-md-2">
-                    <input id="ignoreFull" class="col-md-2 form-control" name="ignoreFull" value="true" type="checkbox">
-                 </div>
-                <label for="ignoreFull" class="col-md-4 control-label">Ignore full courses</label>
-            </div>
-        </div>
-        <div class="row">
             <div class="col-md-6">
                 <div class="scheduleCourse" ng-repeat="course in courses" course="course" coursesindex="$index"></div>
-                <div ng-show="courses.length == 1" style="text-align:center;"><i>Press Enter after each course to add a new one</i></div>
             </div>
             <div class="col-md-6">
-                <div class="well">
-                <h3>Course Results</h3>
+            	<div class="row">
+		            <div class="form-group col-md-6">
+		                <label for="term" class="col-md-4 control-label">Term:</label>
+		                <div class="col-md-8">
+		                	 <?= getTermField('term', $CURRENT_QUARTER) ?>
+		                </div>
+		            </div>
+		            <div class="form-group col-md-6" ng-init="ignoreFull = true">
+		                    <input id="ignoreFull" class="col-md-12 form-control" ng-model="ignoreFull" name="ignoreFull" type="hidden">
+		                    <button type="button" class="ng-class: {'btn-success': !ignoreFull}; btn-default btn" ng-click="ignoreFull = !ignoreFull">{{ignoreFull?"Ignor":"Show"}}ing courses at full capacity</button>
+		            </div>
+	            </div>
+	            <div class="row ">
+		            <div class="col-md-12">
+		                <div class="well">
+		                <i>0 Selected Courses</i>
+		                </div>
+		            </div>
                 </div>
-            </div>
+	       </div>
         </div>
     </div>
     <div class="panel-footer">

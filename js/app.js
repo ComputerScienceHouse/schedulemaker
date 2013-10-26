@@ -36,11 +36,11 @@ app.directive("scheduleCourse", function($timeout){
     template: '\
                 <div class="form-group">\
                     <label class="col-md-3 col-sm-12 control-label" for="courses{{index}}">Course {{index}}:</label>\
-                    <div class="col-md-8 col-sm-10">\
+                    <div class="col-md-7 col-xs-9">\
                         <input tabindex="{{index}}" id="courses{{index}}" class="form-control" value="{{course.search}}" type="text" name="courses{{index}}" maxlength="17" placeholder="XXXX-XXX-XXXX" />\
                     </div>\
-                    <div class="col-md-1 col-sm-2">\
-                        <button ng-show="course.index != \'1\'" type="button" class="btn btn-danger" ng-click="remove()">&times;</button>\
+                    <div class="col-md-2 col-xs-3">\
+                        <button ng-disabled="course.index == \'1\'" type="button" class="btn btn-danger" ng-click="remove()">&times;</button>\
                     </div>\
                 </div>\
             ',

@@ -40,7 +40,7 @@ require_once('./inc/timeFunctions.php');
 			</div>-->
 		<? } ?>
 		<div id='superContainer'>
-		<div class="navbar navbar-fixed-top navbar-inverse ng-scope" ng-controller="MainMenuCtrl">
+		<div class="navbar navbar-fixed-top navbar-default ng-scope" ng-controller="MainMenuCtrl">
             <div class="container">
                 <div class="navbar-header">
                     <button type="button" class="navbar-toggle btn btn-default" data-toggle="collapse" data-target=".navbar-ex1-collapse">
