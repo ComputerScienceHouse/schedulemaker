@@ -24,22 +24,11 @@ global $CURRENT_QUARTER;
 	</div>
     <div class="panel-body">
         <div class="row">
-            <div class="col-md-6">
+            <div id="scheduleCourses" class="col-md-6">
                 <div class="scheduleCourse" ng-repeat="course in courses" course="course" coursesindex="$index"></div>
+            	<div class="visible-xs visible-sm"><button class="btn btn-default btn-block" type="button" ng-click="addCourse()">Add Course</button><div>&nbsp;</div></div>
             </div>
             <div class="col-md-6">
-            	<div class="row">
-		            <div class="form-group col-md-6">
-		                <label for="term" class="col-md-4 control-label">Term:</label>
-		                <div class="col-md-8">
-		                	 <?= getTermField('term', $CURRENT_QUARTER) ?>
-		                </div>
-		            </div>
-		            <div class="form-group col-md-6" ng-init="ignoreFull = true">
-		                    <input id="ignoreFull" class="col-md-12 form-control" ng-model="ignoreFull" name="ignoreFull" type="hidden">
-		                    <button type="button" class="ng-class: {'btn-success': !ignoreFull}; btn-default btn" ng-click="ignoreFull = !ignoreFull">{{ignoreFull?"Ignor":"Show"}}ing courses at full capacity</button>
-		            </div>
-	            </div>
 	            <div class="row ">
 		            <div class="col-md-12">
 		                <div class="well">
@@ -51,7 +40,24 @@ global $CURRENT_QUARTER;
         </div>
     </div>
     <div class="panel-footer">
-    <button class="btn btn-default" type="button" ng-click="addCourse()">Add Course</button> <i>or</i> press enter after each course
+    	<div class="row">
+    		<div class="col-md-6">
+    		<span class="visible-md visible-lg"><button class="btn btn-default" type="button" ng-click="addCourse()">Add Course</button> <i>or</i> press enter after each course</span>
+    		</div>
+            <div class="col-md-3 col-xs-12">
+            	<div class="row">
+	                <label for="term" class="col-md-4 control-label">Term:</label>
+	                <div class="col-md-8">
+	                	 <?= getTermField('term', $CURRENT_QUARTER) ?>
+		            </div>
+	            </div>
+	        </div>
+	        <div class="visible-sm visible-xs">&nbsp;</div>
+	        <div class="col-md-3 col-xs-12" ng-init="ignoreFull = true">
+                    <input id="ignoreFull" ng-model="ignoreFull" name="ignoreFull" type="hidden">
+                    <button type="button" class="ng-class: {'btn-success': ignoreFull}; btn-default btn btn-block" ng-click="ignoreFull = !ignoreFull">{{ignoreFull?"Show":"Hide"}} filled up courses</button>
+	        </div>
+       </div>
     </div>
 </div>
 <div class="row">

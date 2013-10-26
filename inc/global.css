@@ -3,7 +3,7 @@ body {
     margin-top:50px;
 	/*font-size:12px;*/
 	font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
-	background-color:#111;
+	background-color:#2C3E50;
 }
 
 img {
@@ -15,6 +15,10 @@ img {
     background-color:#2B4E69;
     padding-top:20px;
 	
+}
+
+#scheduleCourses .scheduleCourse .noInput {
+	opacity: .5;
 }
 
 #container {
@@ -78,19 +82,8 @@ img {
 #footer {
 	position: relative;
 	padding:20px;
-	margin-top:0;
-	margin-left:auto;
-	margin-right:auto;
-	background-color:#111;
-	background-image:-khtml-gradient(linear, left top, left bottom, from(#333), to(#111));
-	background-image:-moz-linear-gradient(top, #333, #111);
-	background-image:-ms-linear-gradient(top, #333, #111);
-	background-image:-webkit-gradient(linear, left top, left bottom, color-stop(0%, #333), color-stop(100%, #111));
-	background-image:-o-linear-gradient(top, #333, #111);
-	background-image:linear-gradient(top, #333, #111);
-        filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#333333', endColorstr='#111111',GradientType=0 );
-	color: #EEE;
-	font-family: "Trebuchet MS", "Helvetica", "Lucida Sans", sans-serif;
+	background-color:#2C3E50;
+	color:#ccc;
 }
 
 #footer .logo {
@@ -398,7 +391,6 @@ form {
 	margin-left:auto;
 	margin-right:auto;
     padding: 20px 20px 0;
-    background-color:#799AA5;
 	overflow:auto;
 }
 
@@ -443,15 +435,7 @@ form {
 	float:right;
 	vertical-align:middle;
 }
-#scheduleCourses
-{
-	position:relative;
-	margin-left:auto;
-	margin-right:auto;
-	margin-bottom:20px;
-	min-width:900px;
-	max-width:1000px;
-}
+
 #nonCourses,
 #noCourses,
 #advancedOptions

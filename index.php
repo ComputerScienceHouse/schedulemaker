@@ -18,6 +18,10 @@ if(isset($_GET['s'])) {
 
 require "./inc/header.inc";
 ?>
+<div class="alert alert-success alert-dismissable">
+<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+Welcome to ScheduleMaker 2.0! This new version bring lots of new functionality to the website, including full mobile support, a brand-new interface, and a new ridiculously easy-to-use course browsing and selection system. Enjoy! 
+</div>
 <div id="mainMenu" class="row">
 	<div class="col-xs-4">
 		<div class='navItem'>

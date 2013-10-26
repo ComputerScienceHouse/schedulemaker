@@ -23,7 +23,7 @@ app.controller( "scheduleCoursesCtrl", function( $scope) {
         $scope.courses.splice(index - 1, 1);
   };
   $scope.addCourse();
-  console.log('here1');
+  $scope.addCourse();
 });
 
 app.directive("scheduleCourse", function($timeout){
@@ -34,13 +34,13 @@ app.directive("scheduleCourse", function($timeout){
         coursesindex:'='
     },
     template: '\
-                <div class="form-group">\
-                    <label class="col-md-3 col-sm-12 control-label" for="courses{{index}}">Course {{index}}:</label>\
-                    <div class="col-md-7 col-xs-9">\
-                        <input tabindex="{{index}}" id="courses{{index}}" class="form-control" value="{{course.search}}" type="text" name="courses{{index}}" maxlength="17" placeholder="XXXX-XXX-XXXX" />\
+                <div class="form-group" ng-class="{noInput:noInput}">\
+                    <label class="col-sm-3 col-xs-12 control-label" for="courses{{index}}">Course {{index}}:</label>\
+                    <div class="col-sm-7 col-xs-9">\
+    					<input tabindex="{{index}}" id="courses{{index}}" class="form-control" ng-model="course.search" type="text" name="courses{{index}}" maxlength="17" placeholder="DPMT-CRS-SECT" />\
                     </div>\
-                    <div class="col-md-2 col-xs-3">\
-                        <button ng-disabled="course.index == \'1\'" type="button" class="btn btn-danger" ng-click="remove()">&times;</button>\
+                    <div class="col-sm-2 col-xs-3">\
+                        <button type="button" class="btn btn-danger" ng-click="remove()">&times;</button>\
                     </div>\
                 </div>\
             ',
@@ -48,19 +48,33 @@ app.directive("scheduleCourse", function($timeout){
         $scope.$watch('coursesindex', function(newVal, oldVal) {
             $scope.index = newVal + 1;
         });
+        
+    	if($scope.coursesindex == 1) {
+    		$scope.noInput = true;
+    	} else {
+    		$scope.noInput = false;
+    	}
+    	
         $scope.remove = function() {
-            if($scope.index != '1') {
                 $scope.$parent.removeCourse($scope.index);
-            } else {
-                alert("You cannot delete the first course.");
+            if($scope.index == '1' && $scope.$parent.courses.length <=1) {
+            	$scope.$parent.addCourse();
             }
            // });
         };
     },
     link: function(scope, elm, attrs) {
-    	console.log('here');
         var input = elm.find('input');
-        input.keypress(function(e) {
+        
+        if(scope.coursesindex == 1) {
+	        input.focus(function(e) {
+	        	scope.$apply(function() {
+	        		scope.noInput = false;
+	        	});
+	        });
+        }
+        
+        var doKeystrokeAnalysis = function(e) {
             if(e.keyCode == 13) {
                 if(scope.$parent.courses.length == scope.index) {
                     scope.$parent.$apply(function() {
@@ -75,11 +89,13 @@ app.directive("scheduleCourse", function($timeout){
                 }
             } else if(e.keyCode == 27) {
                 e.preventDefault();
-                scope.$apply(function() {
                     elm.prev().find("input").focus();
                     scope.remove();  
-                });
             }
+        };
+        
+        input.keypress(function(e) {
+        	scope.$apply(doKeystrokeAnalysis(e));
         });
         if(scope.coursesindex == 0) {   
             $timeout(function() {
