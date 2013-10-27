@@ -119,8 +119,8 @@ img {
 }
 
 input[type=text] {
-	font-size:14px;
-	padding:3px;
+	/*font-size:14px;
+	padding:3px;*/
 }
 
 .notice, .devNotice {
@@ -395,7 +395,7 @@ form {
 }
 
 .startTimePicker, .endTimePicker {
-    width: 75px;
+    width: 93px;
 }
 
 .subheader {

@@ -11,25 +11,25 @@ app.controller( "MainMenuCtrl", function( $scope) {
 
 app.controller( "scheduleCoursesCtrl", function( $scope) {
   $scope.courses = [];
-  $scope.addCourse = function() {
-    
-    $scope.courses.push({
-        index: $scope.courses.length + 1,
-        search: '',
-        results: []
-    });
+  $scope.courses_helpers = {
+	  add: function() {
+	    $scope.courses.push({
+	        search: '',
+	        results: []
+	    });
+	  },
+	  remove: function(index) {
+	        $scope.courses.splice(index - 1, 1);
+	  }
   };
-  $scope.removeCourse = function(index) {
-        $scope.courses.splice(index - 1, 1);
-  };
-  $scope.addCourse();
-  $scope.addCourse();
+  $scope.courses_helpers.add();
+  //$scope.courses_helpers.add();
 });
-app.directive("scheduleCourse", function($timeout){
+app.directive("scheduleCourse", function(){
 	  return {
 	    restrict: "C",
 	    template: '\
-	                <div dynamicItem class="form-group" ng-class="{noInput:noInput}">\
+	                <div dynamicItem class="form-group">\
 	                    <label class="col-sm-3 col-xs-12 control-label" for="courses{{index}}">Course {{index}}:</label>\
 	                    <div class="col-sm-7 col-xs-9">\
 	    					<input tabindex="{{index}}" id="courses{{index}}" class="form-control" ng-model="item.search" type="text" name="courses{{index}}" maxlength="17" placeholder="DPMT-CRS-SECT" />\
@@ -41,20 +41,25 @@ app.directive("scheduleCourse", function($timeout){
 	            '
 	  };
 });
-app.directive("dynamicItems", function($timeout){
+app.directive("dynamicItems", function($compile,$timeout){
 	  return {
 	    restrict: "A",
 	    scope: {
 	    	'dynamicItems': '=',
 	    	'useClass':'@',
-	    	'onAdd':'&',
-	    	'onRemove':'&'
+	    	'helpers':'=',
 	    },
-	    template: '<div ng-repeat="item in dynamicItems" dynamic-item class="scheduleCourse"></div>',
 	    controller: function($scope) {
 	    	this.items = $scope.dynamicItems;
-	    	this.add = $scope.onAdd;
-	    	this.remove = $scope.onRemove;
+	    	this.add = $scope.helpers.add;
+	    	this.remove = $scope.helpers.remove;
+	    },
+	    compile: function(telm, tattrs) {
+	    	return {
+	    	pre: function(scope, elm, attrs) {
+		    		elm.append($compile('<div ng-repeat="item in dynamicItems" dynamic-item class="'+scope.useClass+'"></div>')(scope));
+	    		}
+	    	};
 	    }
 	  };
 });
@@ -66,7 +71,7 @@ app.directive("dynamicItem", function($timeout){
     link: { pre: function(scope, elm, attrs, dynamicItems) {
     		scope.$watch('$index', function(newVal) {
     			scope.index =  newVal + 1;
-    		})
+    		});
 
 	    	if(scope.index == 2) {
 	    		scope.noInput = true;
@@ -75,7 +80,6 @@ app.directive("dynamicItem", function($timeout){
 	    	}
 	    	
 	        scope.remove = function() {
-	        	console.log('removing' + scope.index)
                 dynamicItems.remove(scope.index);
 	            if(scope.index == '1' && dynamicItems.items.length <=1) {
 	            	dynamicItems.add();
@@ -104,7 +108,14 @@ app.directive("dynamicItem", function($timeout){
 	                }
 	            } else if(e.keyCode == 27) {
 	                e.preventDefault();
-                    elm.prev().find("input").focus();
+	                if(scope.index > 1) {
+                    	elm.prev().find("input").focus();
+	                } else {
+	                	var parent = elm.parent();
+	                	$timeout(function() {
+                            parent.find("input:first").focus();
+                        }, 0, false);
+	                }
                     scope.remove();  
 	            }
 	        };

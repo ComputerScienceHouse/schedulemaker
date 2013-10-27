@@ -25,14 +25,13 @@ global $CURRENT_QUARTER;
     <div class="panel-body">
         <div class="row">
             <div id="scheduleCourses" class="col-md-6">
-                <div dynamic-items="courses" use-class="scheduleCourse" on-add="addCourse()" on-remove="removeCourse()"></div>
-                <pre>{{courses|json}}</pre>
+                <div dynamic-items="courses" use-class="scheduleCourse" helpers="courses_helpers"></div>
             	<div class="visible-xs visible-sm"><button class="btn btn-default btn-block" type="button" ng-click="addCourse()">Add Course</button><div>&nbsp;</div></div>
             </div>
             <div class="col-md-6">
 	            <div class="row ">
 		            <div class="col-md-12">
-		                <div class="well">
+		                <div class="well well-sm">
 		                <i>0 Selected Courses</i>
 		                </div>
 		            </div>
