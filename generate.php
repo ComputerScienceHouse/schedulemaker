@@ -25,7 +25,8 @@ global $CURRENT_QUARTER;
     <div class="panel-body">
         <div class="row">
             <div id="scheduleCourses" class="col-md-6">
-                <div class="scheduleCourse" ng-repeat="course in courses" course="course" coursesindex="$index"></div>
+                <div dynamic-items="courses" use-class="scheduleCourse" on-add="addCourse()" on-remove="removeCourse()"></div>
+                <pre>{{courses|json}}</pre>
             	<div class="visible-xs visible-sm"><button class="btn btn-default btn-block" type="button" ng-click="addCourse()">Add Course</button><div>&nbsp;</div></div>
             </div>
             <div class="col-md-6">
