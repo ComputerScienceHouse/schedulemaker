@@ -7,10 +7,12 @@ require_once('./inc/timeFunctions.php');
 <!DOCTYPE html>
 <html>
 	<head>
-		<title><?= (!empty($TITLE)) ? $TITLE : "Schedule Maker" ?></title>
+		<title><?= (!empty($TITLE)) ? $TITLE : "Schedule Maker 2" ?></title>
 		
 		<link href='./inc/bootstrap.css' rel='stylesheet' type='text/css' />
+		<link href="//netdna.bootstrapcdn.com/font-awesome/4.0.1/css/font-awesome.css" rel="stylesheet">
 		<link href='./inc/global.css' rel='stylesheet' type='text/css' />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 		
 		<script type='text/javascript' src='./js/jquery.js'></script>
 		<script type="text/javascript" src="./js/bootstrap.js"></script>
@@ -50,13 +52,13 @@ require_once('./inc/timeFunctions.php');
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
                     </button>
-                    <a class="navbar-brand" href="/">ScheduleMaker</a>
+                    <a class="navbar-brand" href="/">ScheduleMaker 2</a>
                 </div>
                 <div class="collapse navbar-collapse navbar-right navbar-ex1-collapse">
                     <ul class="nav navbar-nav">
-                        <li ng-class="{active: path=='/generate.php'}"><a href="generate.php">Make a Schedule</a></li>
-                        <li ng-class="{active: path=='/browse.php'}"><a href="browse.php">Browse Courses</a></li>
-                        <li ng-class="{active: path=='/roulette.php'}"><a href="roulette.php">Course Roulette</a></li>
+                        <li ng-class="{active: path=='/generate.php'}"><a href="generate.php"><i class="fa fa-calendar-o"></i> Make a Schedule</a></li>
+                        <li ng-class="{active: path=='/browse.php'}"><a href="browse.php"><i class="fa fa-search"></i> Browse Courses</a></li>
+                        <li ng-class="{active: path=='/roulette.php'}"><a href="roulette.php"><i class="fa fa-bolt"></i> Course Roulette</a></li>
                     </ul>
                 </div>
             </div>

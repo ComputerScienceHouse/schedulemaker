@@ -18,26 +18,26 @@ if(isset($_GET['s'])) {
 
 require "./inc/header.inc";
 ?>
-<div class="alert alert-success alert-dismissable">
+<div class="alert alert-success alert-dismissable hidden-xs">
 <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-Welcome to ScheduleMaker 2.0! This new version bring lots of new functionality to the website, including full mobile support, a brand-new interface, and a new ridiculously easy-to-use course browsing and selection system. Enjoy! 
+Welcome to ScheduleMaker 2! This new version bring lots of new functionality to the website, including full mobile support, a brand-new interface, and a new ridiculously easy-to-use course browsing and selection system. Enjoy! 
 </div>
 <div id="mainMenu" class="row">
 	<div class="col-xs-4">
 		<div class='navItem'>
-			<a href='generate.php'><img src='img/calendar.png' alt='Make a Schedule'></a>
+			<a href='generate.php'><i class="fa fa-calendar"></i></a>
 			<div><a href='generate.php'>Make a Schedule</a></div>
 		</div>
 	</div>
 	<div class="col-xs-4">
 		<div class='navItem'>
-			<a href='browse.php'><img src='img/browse.png' alt='Browse Courses'></a>
+			<a href='browse.php'><i class="fa fa-search"></i></a>
 			<div><a href='browse.php'>Browse Courses</a></div>
 		</div>
 	</div>
 	<div class="col-xs-4">
 		<div class='navItem'>
-			<a href='roulette.php'><img src='img/roulette.png' alt='Course Roulette'></a>
+			<a href='roulette.php'><i class="fa fa-bolt"></i></a>
 			<div><a href='roulette.php'>Course Roulette</a></div>
 		</div>
 	</div>
