@@ -26,7 +26,7 @@ global $CURRENT_QUARTER;
         <div class="row">
             <div id="scheduleCourses" class="col-md-6">
                 <div dynamic-items="courses" use-class="scheduleCourse" helpers="courses_helpers"></div>
-            	<div class="visible-xs visible-sm"><button class="btn btn-default btn-block" type="button" ng-click="course_helpers.addCourse()">Add Course</button><div>&nbsp;</div></div>
+            	<div class="visible-xs visible-sm"><button class="btn btn-default btn-block" type="button" ng-click="courses_helpers.add()">Add Course</button><div>&nbsp;</div></div>
             </div>
             <div class="col-md-6">
 	            <div class="row ">
@@ -42,7 +42,7 @@ global $CURRENT_QUARTER;
     <div class="panel-footer">
     	<div class="row">
     		<div class="col-md-6">
-    		<span class="visible-md visible-lg"><button class="btn btn-default" type="button" ng-click="course_helpers.addCourse()">Add Course</button> <i>or</i> press enter after each course</span>
+    		<span class="visible-md visible-lg"><button class="btn btn-default" type="button" ng-click="courses_helpers.add()">Add Course</button> <i>or</i> press enter after each course</span>
     		</div>
             <div class="col-md-3 col-xs-12">
             	<div class="row">
