@@ -72,12 +72,6 @@ app.directive("dynamicItem", function($timeout){
     		scope.$watch('$index', function(newVal) {
     			scope.index =  newVal + 1;
     		});
-
-	    	if(scope.index == 2) {
-	    		scope.noInput = true;
-	    	} else {
-	    		scope.noInput = false;
-	    	}
 	    	
 	        scope.remove = function() {
                 dynamicItems.remove(scope.index);
@@ -87,14 +81,6 @@ app.directive("dynamicItem", function($timeout){
 	        };
     	}, post: function(scope, elm, attrs, dynamicItems) {
 	        var input = elm.find('input');
-	        
-	        if(scope.index == 2) {
-		        input.focus(function(e) {
-		        	scope.$apply(function() {
-		        		scope.noInput = false;
-		        	});
-		        });
-	        }
 	        
 	        var doKeystrokeAnalysis = function(e) {
 	            if(e.keyCode == 13) {
@@ -123,7 +109,7 @@ app.directive("dynamicItem", function($timeout){
 	        input.keypress(function(e) {
 	        	scope.$apply(doKeystrokeAnalysis(e));
 	        });
-	        if(scope.coursesindex == 0) {   
+	        if(scope.$index == 0) {   
 	            $timeout(function() {
 	                elm.find("input").focus();
 	            }, 0, false);

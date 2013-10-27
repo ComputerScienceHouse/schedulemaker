@@ -17,10 +17,6 @@ img {
 	
 }
 
-#scheduleCourses .scheduleCourse .noInput {
-	opacity: .5;
-}
-
 #container {
 	position: relative;
     padding: 20px;
