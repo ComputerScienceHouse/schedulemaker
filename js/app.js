@@ -1,7 +1,7 @@
-var app = angular.module( 'sm', [] )
+var app = angular.module( 'sm', ['ngAnimate'] );
 
 app.controller( "AppCtrl", function( $scope) {
-    $("button").addClass("btn btn-default")
+    $("button").addClass("btn btn-default");
     $("input[type='text']").addClass("form-control");
 });
 
@@ -57,7 +57,7 @@ app.directive("dynamicItems", function($compile,$timeout){
 	    compile: function(telm, tattrs) {
 	    	return {
 	    	pre: function(scope, elm, attrs) {
-		    		elm.append($compile('<div ng-repeat="item in dynamicItems" dynamic-item class="'+scope.useClass+'"></div>')(scope));
+		    		elm.append($compile('<div ng-repeat="item in dynamicItems" dynamic-item class="repeat-item '+scope.useClass+'"></div>')(scope));
 	    		}
 	    	};
 	    }
@@ -74,9 +74,14 @@ app.directive("dynamicItem", function($timeout){
     		});
 	    	
 	        scope.remove = function() {
-                dynamicItems.remove(scope.index);
-	            if(scope.index == '1' && dynamicItems.items.length <=1) {
+	            if(scope.index == 1 && dynamicItems.items.length == 1) {
+	            	dynamicItems.remove(scope.index);
 	            	dynamicItems.add();
+	            } else {
+	            	if(scope.index == 1) {
+	            		elm.removeClass('no-repeat-item-animation');
+	            	}
+	            	dynamicItems.remove(scope.index);
 	            }
 	        };
     	}, post: function(scope, elm, attrs, dynamicItems) {
@@ -106,11 +111,12 @@ app.directive("dynamicItem", function($timeout){
 	            }
 	        };
 	        
-	        input.keypress(function(e) {
+	        input.keydown(function(e) {
 	        	scope.$apply(doKeystrokeAnalysis(e));
 	        });
 	        if(scope.$index == 0) {   
 	            $timeout(function() {
+	            	elm.addClass('no-repeat-item-animation');
 	                elm.find("input").focus();
 	            }, 0, false);
 	        }

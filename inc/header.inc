@@ -15,6 +15,7 @@ require_once('./inc/timeFunctions.php');
 		<script type='text/javascript' src='./js/jquery.js'></script>
 		<script type="text/javascript" src="./js/bootstrap.js"></script>
         <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.0-rc.3/angular.js"></script>
+        <script type="text/javascript" src="http://code.angularjs.org/1.2.0-rc.3/angular-animate.min.js"></script>
         <script type="text/javascript" src="./js/app.js"></script>
 		<script type="text/javascript">
 			var _gaq = _gaq || [];

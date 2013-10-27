@@ -849,111 +849,114 @@ form {
 .b {
 	background-color:orange;
 }
-/* CUSTOM BOOTSTRAP STUFF HERE */
-
-/* custom inclusion of right, left and below tabs */
-
-.tabs-below > .nav-tabs,
-.tabs-right > .nav-tabs,
-.tabs-left > .nav-tabs {
-  border-bottom: 0;
+/* ANIMATIONS */
+.no-repeat-item-animation {
+	-webkit-animation:none !important;
+  -moz-animation:none !important;
+  -o-animation:none !important;
+  animation: none !important;
+  opacity: 1 !important;
+  margin-left: 0 !important;
 }
 
-.tab-content > .tab-pane,
-.pill-content > .pill-pane {
-  display: none;
+.repeat-item.ng-enter {
+  -webkit-animation:0.25s repeat-item-enter;
+  -moz-animation:0.25s repeat-item-enter;
+  -o-animation:0.25s repeat-item-enter;
+  animation:0.25s repeat-item-enter;
+  overflow:hidden;
 }
 
-.tab-content > .active,
-.pill-content > .active {
-  display: block;
+.repeat-item.ng-leave {
+  -webkit-animation:0.25s repeat-item-leave;
+  -moz-animation:0.25s repeat-item-leave;
+  -o-animation:0.25s repeat-item-leave;
+  animation:0.25s repeat-item-leave;
+  overflow:hidden;
 }
 
-.tabs-below > .nav-tabs {
-  border-top: 1px solid #ddd;
+@media screen and (max-width:767px) {
+	.repeat-item {
+	-ms-animation:none;
+   -o-animation:none;
+   -moz-animation:none;
+   -webkit-animation:none;
+  animation: none;
+  display:block !important;
+	}
+
+	}
+@keyframes repeat-item-enter {
+	0% {
+		opacity:0; 
+		margin-left:-40px;
+		max-height:0;
+	}
+	50% { 
+		opacity:0;
+		margin-left:-40px;
+		max-height:60px;
+		
+	}
+	100% {
+		opacity:1; 
+		margin-left:0px;
+		max-height:60px;
+	}
 }
 
-.tabs-below > .nav-tabs > li {
-  margin-top: -1px;
-  margin-bottom: 0;
+@-webkit-keyframes repeat-item-enter {
+	0% {
+		opacity:0; 
+		margin-left:-40px;
+		max-height:0;
+	}
+	50% { 
+		opacity:0;
+		margin-left:-40px;
+		max-height:60px;
+		
+	}
+	100% {
+		opacity:1; 
+		margin-left:0px;
+		max-height:60px;
+	}
 }
 
-.tabs-below > .nav-tabs > li > a {
-  -webkit-border-radius: 0 0 4px 4px;
-     -moz-border-radius: 0 0 4px 4px;
-          border-radius: 0 0 4px 4px;
+
+@keyframes repeat-item-leave {
+	0% {
+		opacity:1; 
+		margin-left:0px;
+		max-height:60px;
+	}
+	50% { 
+		opacity:0; 
+		margin-left:-40px;
+		max-height:60px;
+	}
+	100% {
+		max-height:0;
+		opacity:0; 
+		margin-left:-40px;
+	}
 }
 
-.tabs-below > .nav-tabs > li > a:hover,
-.tabs-below > .nav-tabs > li > a:focus {
-  border-top-color: #ddd;
-  border-bottom-color: transparent;
-}
-
-.tabs-below > .nav-tabs > .active > a,
-.tabs-below > .nav-tabs > .active > a:hover,
-.tabs-below > .nav-tabs > .active > a:focus {
-  border-color: transparent #ddd #ddd #ddd;
-}
-
-.tabs-left > .nav-tabs > li,
-.tabs-right > .nav-tabs > li {
-  float: none;
-}
-
-.tabs-left > .nav-tabs > li > a,
-.tabs-right > .nav-tabs > li > a {
-  min-width: 74px;
-  margin-right: 0;
-  margin-bottom: 3px;
-}
-
-.tabs-left > .nav-tabs {
-  float: left;
-  margin-right: 19px;
-  border-right: 1px solid #ddd;
-}
-
-.tabs-left > .nav-tabs > li > a {
-  margin-right: -1px;
-  -webkit-border-radius: 4px 0 0 4px;
-     -moz-border-radius: 4px 0 0 4px;
-          border-radius: 4px 0 0 4px;
-}
-
-.tabs-left > .nav-tabs > li > a:hover,
-.tabs-left > .nav-tabs > li > a:focus {
-  border-color: #eeeeee #dddddd #eeeeee #eeeeee;
-}
-
-.tabs-left > .nav-tabs .active > a,
-.tabs-left > .nav-tabs .active > a:hover,
-.tabs-left > .nav-tabs .active > a:focus {
-  border-color: #ddd transparent #ddd #ddd;
-  *border-right-color: #ffffff;
-}
-
-.tabs-right > .nav-tabs {
-  float: right;
-  margin-left: 19px;
-  border-left: 1px solid #ddd;
-}
-
-.tabs-right > .nav-tabs > li > a {
-  margin-left: -1px;
-  -webkit-border-radius: 0 4px 4px 0;
-     -moz-border-radius: 0 4px 4px 0;
-          border-radius: 0 4px 4px 0;
-}
-
-.tabs-right > .nav-tabs > li > a:hover,
-.tabs-right > .nav-tabs > li > a:focus {
-  border-color: #eeeeee #eeeeee #eeeeee #dddddd;
-}
-
-.tabs-right > .nav-tabs .active > a,
-.tabs-right > .nav-tabs .active > a:hover,
-.tabs-right > .nav-tabs .active > a:focus {
-  border-color: #ddd #ddd #ddd transparent;
-  *border-left-color: #ffffff;
+@-webkit-keyframes repeat-item-leave {
+	0% {
+		opacity:1; 
+		margin-left:0px;
+		max-height:60px;
+	}
+	50% { 
+		opacity:0; 
+		margin-left:-40px;
+		max-height:60px;
+	}
+	100% {
+		max-height:0;
+		opacity:0; 
+		margin-left:-40px;
+	}
 }
