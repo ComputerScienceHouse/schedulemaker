@@ -1,5 +1,6 @@
 var app = angular.module( 'sm', ['ngAnimate'] );
 
+
 app.controller( "AppCtrl", function( $scope) {
     $("button").addClass("btn btn-default");
     $("input[type='text']").addClass("form-control");

@@ -8,12 +8,13 @@ require_once('./inc/timeFunctions.php');
 <html>
 	<head>
 		<title><?= (!empty($TITLE)) ? $TITLE : "Schedule Maker 2" ?></title>
-		
+		<link href='http://fonts.googleapis.com/css?family=Roboto:300' rel='stylesheet' type='text/css'>
 		<link href='./inc/bootstrap.css' rel='stylesheet' type='text/css' />
 		<link href="//netdna.bootstrapcdn.com/font-awesome/4.0.1/css/font-awesome.css" rel="stylesheet">
 		<link href='./inc/global.css' rel='stylesheet' type='text/css' />
+		<meta name="apple-mobile-web-app-capable" content="yes">
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
-		
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 		<script type='text/javascript' src='./js/jquery.js'></script>
 		<script type="text/javascript" src="./js/bootstrap.js"></script>
         <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.0-rc.3/angular.js"></script>
@@ -30,8 +31,19 @@ require_once('./inc/timeFunctions.php');
 				var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
 			})();
 		</script>
+		    
 	</head>
-
+<script>
+      if (navigator.userAgent.match(/IEMobile\/10\.0/)) {
+  var msViewportStyle = document.createElement("style")
+  msViewportStyle.appendChild(
+    document.createTextNode(
+      "@-ms-viewport{width:auto!important}"
+    )
+  )
+  document.getElementsByTagName("head")[0].appendChild(msViewportStyle)
+}
+    </script>
 	<body ng-app="sm">
 		<?php if($SERVER_TYPE != 'production') { ?>
 			<!--<div id='devNotice' class='devNotice'>
