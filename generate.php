@@ -29,7 +29,7 @@ global $CURRENT_QUARTER;
 						helpers="courses_helpers"></div>
 					<div class="visible-xs visible-sm">
 						<button class="btn btn-default btn-block" type="button"
-							ng-click="courses_helpers.add()">Add Course</button>
+							ng-click="courses_helpers.add()"><i class="fa fa-plus"></i> Add Course</button>
 						<div>&nbsp;</div>
 					</div>
 				</div>
@@ -38,6 +38,7 @@ global $CURRENT_QUARTER;
 						<div class="col-md-12">
 							<div class="repeat-item" ng-repeat="course in courses">
 									<div ng-show="!course.results[0].isError" class="course-result">
+										<strong class="visible-xs visible-sm">Results for Course {{$index + 1}}:</strong>
 										<div class="form-group">
 											<div class="col-xs-6 control-label"
 												ng-switch="course.search.length > 5">
@@ -50,11 +51,11 @@ global $CURRENT_QUARTER;
 											<div class="col-xs-6">
 												<button type="button" class="btn btn-default btn-block"
 													ng-click="showResults = !showResults"
-													ng-disabled="!course.results.length">{{(course.results.length?(showResults?"Hide":"Show"):"No")+((course.results.length!=1)?" Matches":" Match")}}
+													ng-disabled="!course.results.length"><i class="fa" ng-class="{'fa-angle-down':!showResults && course.results.length > 0,'fa-angle-up':showResults && course.results.length > 0}"></i> {{(course.results.length?(showResults?"Hide":"Show"):"No")+((course.results.length!=1)?" Matches":" Match")}}
 													</button>
 											</div>
 										</div>
-										<div class="row" ng-show="showResults">
+										<div class="row animate-show-hide" ng-show="showResults">
 											<div class="col-xs-12">
 												<ul class="list-group" ng-repeat="result in course.results">
 													<li class="list-group-item" ng-class="{active:selected != ''}">
@@ -97,7 +98,7 @@ global $CURRENT_QUARTER;
     	<input type="hidden" value="{{courses.length}}" name="courseCount" id="courseCount">	
     	<div class="row">
     		<div class="col-md-6">
-    		<span class="visible-md visible-lg"><button class="btn btn-default" type="button" ng-click="courses_helpers.add()">Add Course</button> <i>or</i> press enter after each course</span>
+    		<span class="visible-md visible-lg"><button class="btn btn-default" type="button" ng-click="courses_helpers.add()"><i class="fa fa-plus"></i> Add Course</button> <i>or</i> press enter after each course</span>
     		</div>
             <div class="col-md-3 col-xs-12">
             	<div class="row">
@@ -109,7 +110,7 @@ global $CURRENT_QUARTER;
 	        </div>
 	        <div class="visible-sm visible-xs">&nbsp;</div>
 	        <div class="col-md-3 col-xs-12" ng-init="ignoreFull = true">
-                    <input id="ignoreFull" ng-model="ignoreFull" name="ignoreFull" type="hidden">
+                    <input id="ignoreFull" value="{{ignoreFull}}" name="ignoreFull" type="hidden">
                     <button type="button" class="ng-class: {'btn-success': ignoreFull}; btn-default btn btn-block" ng-click="ignoreFull = !ignoreFull">{{ignoreFull?"Show":"Hide"}} filled up courses</button>
 	        </div>
        </div>

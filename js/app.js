@@ -128,7 +128,7 @@ app.controller( "scheduleCoursesCtrl", function( $scope, $http, $q) {
 	    // Most likely typed too fast
 	    });
   };
-  $scope.$watch('term', function(newVal) {
+  $scope.$watchCollection('[term, ignoreFull]', function() {
 	  for(var i = 0, l = $scope.courses.length; i < l; i++) {
 		  var course = $scope.courses[i];
 		  if(course.search.length > 3)
@@ -166,7 +166,7 @@ app.directive("scheduleCourse", function(){
 	    					<input tabindex="{{index}}" id="courses{{index}}" class="form-control" ng-model="item.search" type="text" name="courses{{index}}" maxlength="17" placeholder="DEPT-CRS-SECT" />\
 	                    </div>\
 	                    <div class="col-sm-2 col-xs-3">\
-	                        <button type="button" ng-class="{\'btn-danger\':delHover}" ng-mouseenter="delHover = true" ng-mouseleave="delHover = false" class="btn btn-default" ng-click="remove()">&times;</button>\
+	                        <button type="button" ng-class="{\'btn-danger\':delHover}" ng-mouseenter="delHover = true" ng-mouseleave="delHover = false" class="btn btn-default" ng-click="remove()"><i class="fa fa-times"></i></button>\
 	                    </div>\
 	                </div>\
 	            '
