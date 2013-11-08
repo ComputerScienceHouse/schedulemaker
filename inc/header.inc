@@ -19,6 +19,7 @@ require_once('./inc/timeFunctions.php');
 		<script type="text/javascript" src="./js/bootstrap.js"></script>
         <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.0-rc.3/angular.js"></script>
         <script type="text/javascript" src="http://code.angularjs.org/1.2.0-rc.3/angular-animate.min.js"></script>
+        <script type="text/javascript" src="http://code.angularjs.org/1.2.0-rc.3/angular-sanitize.min.js"></script>
         <script type="text/javascript" src="./js/app.js"></script>
 		<script type="text/javascript">
 			var _gaq = _gaq || [];
@@ -45,15 +46,6 @@ require_once('./inc/timeFunctions.php');
 }
     </script>
 	<body ng-app="sm">
-		<?php if($SERVER_TYPE != 'production') { ?>
-			<!--<div id='devNotice' class='devNotice'>
-				<span style='bold'>Notice:</span>
-				This is the development server for ScheduleMaker.
-				All information available here is testing material and comes with no guarantee of accuracy.
-				The production server can be found at:
-				<a href='http://schedule.csh.rit.edu/'>http://schedule.csh.rit.edu</a>
-			</div>-->
-		<? } ?>
 		<div id='superContainer'>
 		<div class="navbar navbar-fixed-top navbar-default ng-scope" ng-controller="MainMenuCtrl">
             <div class="container">
@@ -76,3 +68,13 @@ require_once('./inc/timeFunctions.php');
             </div>
 		</div>
 		<div id="container" class="container">
+				<?php if($SERVER_TYPE != 'production') { ?>
+			<!-- Leaving this disabled until merge with develop after feature lock 
+				<div class='alert alert-warning'>
+				<span style='bold'>Notice:</span>
+				This is the development server for ScheduleMaker.
+				All information available here is testing material and comes with no guarantee of accuracy.
+				The production server can be found at:
+				<a href='http://schedule.csh.rit.edu/'>http://schedule.csh.rit.edu</a>
+			</div>-->
+		<? } ?>

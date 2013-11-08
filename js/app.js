@@ -1,13 +1,13 @@
-var app = angular.module( 'sm', ['ngAnimate'] );
+var app = angular.module( 'sm', ['ngAnimate', 'ngSanitize'] );
 
 app.filter('RMPUrl', function() {
 	return function(input) {
-		if(input) {
+		if(input && input != "TBA") {
 			var nameParts = input.split(" "),
 			lastName = nameParts[nameParts.length - 1];
-			return 'http://www.ratemyprofessors.com/SelectTeacher.jsp?searchName='+lastName+'&search_submit1=Search&sid=807';
+			return '<a target="_blank" href="http://www.ratemyprofessors.com/SelectTeacher.jsp?searchName=' + lastName + '&search_submit1=Search&sid=807">' + input + '</a>';
 		} else {
-			return '#';
+			return '<a href="#">' + input + '</a>';
 		}
 	}
 });
@@ -50,8 +50,43 @@ app.controller( "scheduleCoursesCtrl", function( $scope, $http) {
 	    	headers: {
 	            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
 	        }
-	    }).success(function(data, status, headers, config) {
-	    	course.results = data;
+	    }).success(function(d, status, headers, config) {
+	    	if(!d.error) {
+		    	for(var c = 0; c < d.length; ++c) {
+		            var times = [];
+		            var coursei = d[c];
+	
+		            // Iterate over the times for the course
+		            if(coursei.times == undefined) { continue; }
+		            for(var e = 0; e < coursei.times.length; ++e) {
+		                // Search the existing list of times to see if a match exists
+		                var found = false;
+		                var time = coursei.times[e];
+		                for(var f = 0; f < times.length; ++f) {
+		                    if(times[f].start == time.start && times[f].end == time.end) {
+		                        found = f;
+		                    }
+		                }
+	
+		                // If a match was found, add the day to it, otherwise add a new time
+		                if(found !== false) {
+		                    times[found].days += ", " + translateDay(time.day);
+		                } else {
+		                    times.push({
+		                        start: time.start,
+		                        end:   time.end,
+		                        days:  translateDay(time.day)
+		                    });
+		                }
+		            }
+		            d[c].isError = false;
+		            // Replace the current list of times with the newly constructed one
+		            d[c].times = times;
+		        }
+		    	course.results = d;
+	    	} else {
+	    		course.results = [{isError:true,error:d}];
+	    	}
 	    // this callback will be called asynchronously
 	    // when the response is available
 	    }).
@@ -60,6 +95,13 @@ app.controller( "scheduleCoursesCtrl", function( $scope, $http) {
 	    // or server returns response with an error status.
 	    });
   };
+  $scope.$watch('term', function(newVal) {
+	  for(var i = 0, l = $scope.courses.length; i < l; i++) {
+		  var course = $scope.courses[i];
+		  if(course.search.length > 3)
+			  $scope.search(course);
+	  }
+  });
   $scope.$watch('courses', function(newCourses, oldCourses) {
 	for(var i = 0, l = newCourses.length; i < l; i++){
 		var newCourse = newCourses[i],
@@ -72,7 +114,6 @@ app.controller( "scheduleCoursesCtrl", function( $scope, $http) {
 				results: []
 			};
 		}
-		console.log('s:'+newCourse.search);
 		if(newCourse.search != oldCourse.search && newCourse.search.length > 3) {
 			$scope.search(newCourse);
 		}
@@ -87,7 +128,7 @@ app.directive("scheduleCourse", function(){
 	                <div dynamicItem class="form-group">\
 	                    <label class="col-sm-3 col-xs-12 control-label" for="courses{{index}}">Course {{index}}:</label>\
 	                    <div class="col-sm-7 col-xs-9">\
-	    					<input tabindex="{{index}}" id="courses{{index}}" class="form-control" ng-model="item.search" type="text" name="courses{{index}}" maxlength="17" placeholder="DPMT-CRS-SECT" />\
+	    					<input tabindex="{{index}}" id="courses{{index}}" class="form-control" ng-model="item.search" type="text" name="courses{{index}}" maxlength="17" placeholder="DEPT-CRS-SECT" />\
 	                    </div>\
 	                    <div class="col-sm-2 col-xs-3">\
 	                        <button type="button" ng-class="{\'btn-danger\':delHover}" ng-mouseenter="delHover = true" ng-mouseleave="delHover = false" class="btn btn-default" ng-click="remove()">&times;</button>\
