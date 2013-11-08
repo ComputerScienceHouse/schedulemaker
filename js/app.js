@@ -11,6 +11,38 @@ app.filter('RMPUrl', function() {
 		}
 	}
 });
+app.filter('formatTime', function() {
+	return function(minutes) {
+		minutes = minutes % 1440;
+
+		// Figure out how many hours
+		var hours = Math.floor(minutes / 60);
+
+		// Figure out how many minutes
+		var remMinutes = minutes % 60;
+
+		// Correct for AM/PM
+		var ampm;
+		if(hours >= 12) {
+		    ampm = "pm";
+		    hours -= 12
+		} else {
+		    ampm = "am";
+		}
+
+		// Correct for 0 hour
+		if(hours == 0) {
+		    hours = 12;
+		}
+
+		// Correct minutes less than 10 min
+		if(remMinutes < 10) {
+		    remMinutes = "0" + remMinutes;
+		}
+		// Put it together
+		return hours + ":" + remMinutes + ampm;
+	}
+});
 
 app.controller( "AppCtrl", function( $scope) {
     $("button").addClass("btn btn-default");
@@ -21,7 +53,7 @@ app.controller( "MainMenuCtrl", function( $scope) {
   $scope.path = window.location.pathname;
 });
 
-app.controller( "scheduleCoursesCtrl", function( $scope, $http) {
+app.controller( "scheduleCoursesCtrl", function( $scope, $http, $q) {
   $scope.courses = [];
   var id = 0;
   $scope.courses_helpers = {
@@ -39,7 +71,10 @@ app.controller( "scheduleCoursesCtrl", function( $scope, $http) {
 	  }
   };
   $scope.courses_helpers.add();
+  var canceler;
   $scope.search = function(course) {
+	  if (canceler) canceler.resolve();
+      canceler = $q.defer();
 	    $http.post('./js/scheduleAjax.php',$.param({
     		'action'     : 'getCourseOpts',
             'course'     : course.search,
@@ -49,7 +84,8 @@ app.controller( "scheduleCoursesCtrl", function( $scope, $http) {
 	    	requestType:'json',
 	    	headers: {
 	            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
-	        }
+	        }, 
+	        timeout: canceler.promise
 	    }).success(function(d, status, headers, config) {
 	    	if(!d.error) {
 		    	for(var c = 0; c < d.length; ++c) {
@@ -87,12 +123,9 @@ app.controller( "scheduleCoursesCtrl", function( $scope, $http) {
 	    	} else {
 	    		course.results = [{isError:true,error:d}];
 	    	}
-	    // this callback will be called asynchronously
-	    // when the response is available
 	    }).
 	    error(function(data, status, headers, config) {
-	    // called asynchronously if an error occurs
-	    // or server returns response with an error status.
+	    // Most likely typed too fast
 	    });
   };
   $scope.$watch('term', function(newVal) {
@@ -114,8 +147,10 @@ app.controller( "scheduleCoursesCtrl", function( $scope, $http) {
 				results: []
 			};
 		}
-		if(newCourse.search != oldCourse.search && newCourse.search.length > 3) {
+		if(newCourse.search != oldCourse.search && newCourse.search.length > 5) {
 			$scope.search(newCourse);
+		} else if(newCourse.search != oldCourse.search) {
+			newCourse.results = [];
 		}
 	}
   }, true);
@@ -125,7 +160,7 @@ app.directive("scheduleCourse", function(){
 	  return {
 	    restrict: "C",
 	    template: '\
-	                <div dynamicItem class="form-group">\
+	                <div dynamicItem class="form-group" ng-class="{\'has-error\':item.results[0].isError == true}">\
 	                    <label class="col-sm-3 col-xs-12 control-label" for="courses{{index}}">Course {{index}}:</label>\
 	                    <div class="col-sm-7 col-xs-9">\
 	    					<input tabindex="{{index}}" id="courses{{index}}" class="form-control" ng-model="item.search" type="text" name="courses{{index}}" maxlength="17" placeholder="DEPT-CRS-SECT" />\

@@ -5,6 +5,7 @@ body {
 	font-family:"Roboto","Helvetica Neue",Helvetica,Arial,sans-serif;
 	font-weight:300;
 	background-color:#2C3E50;
+	overflow-y: scroll;
 }
 
 @-webkit-viewport   { width: device-width; }
@@ -125,8 +126,7 @@ img {
 }
 
 input[type=text] {
-	/*font-size:14px;
-	padding:3px;*/
+	margin-top:0px;
 }
 
 .notice, .devNotice {
@@ -523,10 +523,7 @@ form {
 .courseField {
 	width:193px;
 }
-.course-error {
-	padding: 9px;
-	margin-botom:15px;
-}
+
 
 #nonCourses,
 #noCourses td {
@@ -888,8 +885,18 @@ input {
 	color: #ccc;
 }
 
+.course-error {
+	padding: 9px;
+	margin-bottom:16px;
+}
 
-
+.course-result {
+	/*padding: 0 1px;*/
+	margin-bottom:16px;
+}
+.course-selected-checkbox {
+	display:none;
+}
 
 /* ANIMATIONS */
 @media screen and (min-width:767px) {

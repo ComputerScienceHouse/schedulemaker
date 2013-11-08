@@ -67,7 +67,7 @@ require_once('./inc/timeFunctions.php');
                 </div>
             </div>
 		</div>
-		<div id="container" class="container">
+		<div id="container" class="container" ng-cloak>
 				<?php if($SERVER_TYPE != 'production') { ?>
 			<!-- Leaving this disabled until merge with develop after feature lock 
 				<div class='alert alert-warning'>

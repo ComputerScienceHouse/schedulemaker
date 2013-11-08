@@ -36,48 +36,50 @@ global $CURRENT_QUARTER;
 				<div class="col-md-6">
 					<div class="row">
 						<div class="col-md-12">
-							<div ng-repeat="course in courses">
-									<div ng-show="!course.results[0].isError">
+							<div class="repeat-item" ng-repeat="course in courses">
+									<div ng-show="!course.results[0].isError" class="course-result">
 										<div class="form-group">
 											<div class="col-xs-6 control-label"
-												ng-switch="course.search.length > 3">
+												ng-switch="course.search.length > 5">
 												<span ng-switch-when="true"> <span ng-pluralize
 													count="course.results.length"
 													when="{'0': 'No matching courses','one': '1 matching course','other': '{} matching courses'}"></span>
 													for <strong>{{course.search}}</strong>
-												</span> <span ng-switch-when="false"> Please enter a
-													department </span>
+												</span> <span ng-switch-when="false">Please enter a course</span>
 											</div>
 											<div class="col-xs-6">
 												<button type="button" class="btn btn-default btn-block"
 													ng-click="showResults = !showResults"
-													ng-disabled="!course.results.length">{{showResults?"Hide":"Show"}}
-													Results</button>
+													ng-disabled="!course.results.length">{{(course.results.length?(showResults?"Hide":"Show"):"No")+((course.results.length!=1)?" Matches":" Match")}}
+													</button>
 											</div>
 										</div>
 										<div class="row" ng-show="showResults">
 											<div class="col-xs-12">
 												<ul class="list-group" ng-repeat="result in course.results">
-												<li class="list-group-item" ng-class="{active:sectionId != ''}">
-												<input type="hidden" ng-init="sectionId = result.sectionId" ng-model="sectionId" name="courses{{$parent.$index + 1}}Opt[]">
-													<div class="row">
-														<div class="col-md-8">
-															<h4 class="list-group-item-heading">{{result.courseNum}}</h4>
-															<p class="list-group-item-text">
-																<em>with</em> <span
-																	ng-bind-html="result.instructor | RMPUrl"></span>
-															</p>
+													<li class="list-group-item" ng-class="{active:selected != ''}">
+														<input type="checkbox" class="course-selected-checkbox" ng-init="selected = true" ng-checked="selected" value="{{result.sectionId}}" name="courses{{$parent.$index + 1}}Opt[]">
+														<div class="row">
+															<div class="col-md-8">
+																<h4 class="list-group-item-heading">{{result.courseNum}}</h4>
+																<p class="list-group-item-text">
+																	<em>with</em> <span
+																		ng-bind-html="result.instructor | RMPUrl"></span>
+																		<div ng-repeat="time in result.times">
+																		{{time.days}} {{time.start | formatTime}}-{{time.end | formatTime}}
+																		</div>
+																</p>
+															</div>
+															<div class="col-md-4">
+																<button type="button" class="btn btn-block"
+																	ng-click="selected = !selected"
+																	ng-class="{'btn-danger':selected, 'btn-success':!selected}">
+																	{{selected?"Unselect":"Select"}}
+																</button>
+															</div>
 														</div>
-														<div class="col-md-4">
-															<button type="button" class="btn btn-block"
-																ng-click="sectionId = (sectionId !='')?'':result.sectionId"
-																ng-class="{'btn-danger':sectionId != '', 'btn-success':sectionId == ''}">
-																{{sectionId?"Unselect":"Select"}}
-															</button>
-														</div>
-													</div>
-												</li>
-											</ul>
+													</li>
+												</ul>
 											</div>
 										</div>
 									</div>
@@ -89,10 +91,10 @@ global $CURRENT_QUARTER;
 					</div>
 				</div>
 			</div>
-			<pre>{{courses | json}}</pre>
+<!-- 			<pre>{{courses | json}}</pre> -->
 		</div>
     <div class="panel-footer">
-    	<input type="hidden" ng-model="courses.length" name="courseCount" id="courseCount">	
+    	<input type="hidden" value="{{courses.length}}" name="courseCount" id="courseCount">	
     	<div class="row">
     		<div class="col-md-6">
     		<span class="visible-md visible-lg"><button class="btn btn-default" type="button" ng-click="courses_helpers.add()">Add Course</button> <i>or</i> press enter after each course</span>
@@ -113,7 +115,7 @@ global $CURRENT_QUARTER;
        </div>
     </div>
 </div>
-<button type="button" class="btn btn-block btn-default" ng-click="showScheduleOptions = !showScheduleOptions">Toggle Schedule Options</button>
+<button type="button" class="btn btn-block btn-default btn-lg" ng-click="showScheduleOptions = !showScheduleOptions">Toggle Schedule Options</button>
 <div>&nbsp;</div><div class="row" ng-show="showScheduleOptions">
     <div class="col-md-6">
         <div class="panel panel-default">
@@ -221,7 +223,7 @@ global $CURRENT_QUARTER;
         </div>
     </div>
 </div>
-<div id="advancedOptionsCont" ng-init="showAdvancedOptions = false" ng-show="showAdvancedOptions" class="panel panel-default ng-hide">
+<div id="advancedOptionsCont" ng-show="showScheduleOptions" class="panel panel-default ng-hide">
 	<div class="panel-heading">
 		<h2 class="panel-title">Advanced Options</h2>
 	</div>
@@ -275,8 +277,7 @@ global $CURRENT_QUARTER;
     </div>
 </div>
 <input name="action" value="getMatchingSchedules" type="hidden">
-<div id="formSubmit" class="scheduleForm">
-    <button class="btn btn-lg btn-default ng-binding" ng-click="showAdvancedOptions = !showAdvancedOptions">Show Advanced Options</button> 
+<div id="formSubmit" class="scheduleForm"> 
     <button class="btn-lg btn btn-primary btn-default" id="showSchedulesButton">Show Matching Schedules</button>
 </div>
 </form>
