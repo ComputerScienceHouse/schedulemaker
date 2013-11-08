@@ -1,5 +1,16 @@
 var app = angular.module( 'sm', ['ngAnimate'] );
 
+app.filter('RMPUrl', function() {
+	return function(input) {
+		if(input) {
+			var nameParts = input.split(" "),
+			lastName = nameParts[nameParts.length - 1];
+			return 'http://www.ratemyprofessors.com/SelectTeacher.jsp?searchName='+lastName+'&search_submit1=Search&sid=807';
+		} else {
+			return '#';
+		}
+	}
+});
 
 app.controller( "AppCtrl", function( $scope) {
     $("button").addClass("btn btn-default");
@@ -10,22 +21,65 @@ app.controller( "MainMenuCtrl", function( $scope) {
   $scope.path = window.location.pathname;
 });
 
-app.controller( "scheduleCoursesCtrl", function( $scope) {
+app.controller( "scheduleCoursesCtrl", function( $scope, $http) {
   $scope.courses = [];
+  var id = 0;
   $scope.courses_helpers = {
 	  add: function() {
+		  id = id + 1
 	    $scope.courses.push({
+	    	id: id,
 	        search: '',
 	        results: []
 	    });
+        $scope.$broadcast('addedCourse');
 	  },
 	  remove: function(index) {
 	        $scope.courses.splice(index - 1, 1);
 	  }
   };
   $scope.courses_helpers.add();
-  //$scope.courses_helpers.add();
+  $scope.search = function(course) {
+	    $http.post('./js/scheduleAjax.php',$.param({
+    		'action'     : 'getCourseOpts',
+            'course'     : course.search,
+            'term'       : $scope.term,
+            'ignoreFull' : $scope.ignoreFull
+	    }), {
+	    	requestType:'json',
+	    	headers: {
+	            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+	        }
+	    }).success(function(data, status, headers, config) {
+	    	course.results = data;
+	    // this callback will be called asynchronously
+	    // when the response is available
+	    }).
+	    error(function(data, status, headers, config) {
+	    // called asynchronously if an error occurs
+	    // or server returns response with an error status.
+	    });
+  };
+  $scope.$watch('courses', function(newCourses, oldCourses) {
+	for(var i = 0, l = newCourses.length; i < l; i++){
+		var newCourse = newCourses[i],
+			oldCourse = oldCourses.filter(function (filterCourse) {
+				return filterCourse.id === newCourse.id;
+			})[0];
+		if(typeof oldCourse === 'undefined') {
+			oldCourse = {
+				search: '',
+				results: []
+			};
+		}
+		console.log('s:'+newCourse.search);
+		if(newCourse.search != oldCourse.search && newCourse.search.length > 3) {
+			$scope.search(newCourse);
+		}
+	}
+  }, true);
 });
+
 app.directive("scheduleCourse", function(){
 	  return {
 	    restrict: "C",
@@ -36,7 +90,7 @@ app.directive("scheduleCourse", function(){
 	    					<input tabindex="{{index}}" id="courses{{index}}" class="form-control" ng-model="item.search" type="text" name="courses{{index}}" maxlength="17" placeholder="DPMT-CRS-SECT" />\
 	                    </div>\
 	                    <div class="col-sm-2 col-xs-3">\
-	                        <button type="button" class="btn btn-danger" ng-click="remove()">&times;</button>\
+	                        <button type="button" ng-class="{\'btn-danger\':delHover}" ng-mouseenter="delHover = true" ng-mouseleave="delHover = false" class="btn btn-default" ng-click="remove()">&times;</button>\
 	                    </div>\
 	                </div>\
 	            '
@@ -58,6 +112,11 @@ app.directive("dynamicItems", function($compile,$timeout){
 	    compile: function(telm, tattrs) {
 	    	return {
 	    	pre: function(scope, elm, attrs) {
+                    scope.$parent.$on('addedCourse',function() {
+                        $timeout(function() {
+                            elm.find('input:last').focus();
+                        }, 0, false);
+                    });
 		    		elm.append($compile('<div ng-repeat="item in dynamicItems" dynamic-item class="repeat-item '+scope.useClass+'"></div>')(scope));
 	    		}
 	    	};
@@ -112,6 +171,10 @@ app.directive("dynamicItem", function($timeout){
 	            }
 	        };
 	        
+            input.blur(function(e) {
+                e.preventDefault();
+            });
+            
 	        input.keydown(function(e) {
 	        	scope.$apply(doKeystrokeAnalysis(e));
 	        });

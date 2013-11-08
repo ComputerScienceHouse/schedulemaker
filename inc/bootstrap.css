@@ -326,13 +326,13 @@ textarea {
 }
 
 a {
-  color: #18bc9c;
+  color: #fff;
   text-decoration: none;
 }
 
 a:hover,
 a:focus {
-  color: #18bc9c;
+  color: #ddd;
   text-decoration: underline;
 }
 
@@ -2113,7 +2113,7 @@ textarea.input-lg {
   white-space: nowrap;
   vertical-align: middle;
   cursor: pointer;
-  border: 1px solid transparent;
+  border: none !important;
   border-radius: 4px;
   -webkit-user-select: none;
      -moz-user-select: none;
@@ -2123,8 +2123,9 @@ textarea.input-lg {
 }
 
 .btn:focus {
-  outline: thin dotted #333;
-  outline: 5px auto -webkit-focus-ring-color;
+  /*outline: thin dotted #333;
+  outline: 5px auto -webkit-focus-ring-color;*/
+  outline: none;
   outline-offset: -2px;
 }
 
@@ -2132,16 +2133,19 @@ textarea.input-lg {
 .btn:focus {
   color: #ffffff;
   text-decoration: none;
+  box-shadow: inset 0 -.15em 0px rgba(0, 0, 0, 0.25);
 }
 
 .btn:active,
 .btn.active {
   background-image: none;
   outline: 0;
-  -webkit-box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
-          box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+  box-shadow: inset 0 .15em 0px rgba(0, 0, 0, 0.25);
 }
-
+    input[type="submit"]::-moz-focus-inner, input[type="button"]::-moz-focus-inner
+    {   
+        border : 0px;
+    } 
 .btn.disabled,
 .btn[disabled],
 fieldset[disabled] .btn {
@@ -2165,14 +2169,15 @@ fieldset[disabled] .btn {
 .btn-default.active,
 .open .dropdown-toggle.btn-default {
   color: #ffffff;
-  background-color: #7f9293;
-  border-color: #74898a;
+  background-color: #ACBEBF;
+  /*border-color: #74898a;*/
 }
 
 .btn-default:active,
 .btn-default.active,
 .open .dropdown-toggle.btn-default {
   background-image: none;
+  background-color: #8C9B9C;
 }
 
 .btn-default.disabled,
@@ -2191,7 +2196,7 @@ fieldset[disabled] .btn-default:active,
 .btn-default[disabled].active,
 fieldset[disabled] .btn-default.active {
   background-color: #95a5a6;
-  border-color: #95a5a6;
+  /*border-color: #95a5a6;*/
 }
 
 .btn-primary {
@@ -7231,8 +7236,8 @@ td.visible-print {
 }
 
 .btn:active {
-  -webkit-box-shadow: none;
-          box-shadow: none;
+  /*-webkit-box-shadow: none;
+          box-shadow: none;*/
 }
 
 .btn-group.open .dropdown-toggle {

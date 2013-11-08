@@ -23,21 +23,40 @@ global $CURRENT_QUARTER;
 		<h2 class="panel-title">Courses</h2>
 	</div>
     <div class="panel-body">
-        <div class="row">
-            <div id="scheduleCourses" class="col-md-6">
-                <div dynamic-items="courses" use-class="scheduleCourse" helpers="courses_helpers"></div>
-            	<div class="visible-xs visible-sm"><button class="btn btn-default btn-block" type="button" ng-click="courses_helpers.add()">Add Course</button><div>&nbsp;</div></div>
-            </div>
-            <div class="col-md-6">
-	            <div class="row ">
-		            <div class="col-md-12">
-		                <div class="well well-sm">
-		                <i>0 Selected Courses</i>
-		                </div>
-		            </div>
-                </div>
-	       </div>
-        </div>
+			<div class="row">
+				<div id="scheduleCourses" class="col-md-6">
+					<div dynamic-items="courses" use-class="scheduleCourse"
+						helpers="courses_helpers"></div>
+					<div class="visible-xs visible-sm">
+						<button class="btn btn-default btn-block" type="button"
+							ng-click="courses_helpers.add()">Add Course</button>
+						<div>&nbsp;</div>
+					</div>
+				</div>
+				<div class="col-md-6">
+					<div class="row ">
+						<div class="col-md-12">
+							<div class="repeat-item well-sm well"
+								ng-repeat="course in courses" ng-show="course.results.length">
+								{{course.results.length}} results for "{{course.search}}"<br>
+								<button type="button" class="btn btn-default" ng-click="showResults = !showResults">Show Results</button>
+								<div class="list-group" ng-show="showResults">
+									<div ng-repeat="result in course.results">
+										<li class="list-group-item active">
+											<h4 class="list-group-item-heading">{{result.courseNum}}</h4>
+											<p class="list-group-item-text">
+												<em>with</em> <a target="_blank"
+													ng-href="{{result.instructor | RMPUrl}}">{{result.instructor}}</a>
+											</p>
+										</li>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<pre>{{courses | json}}</pre>
     </div>
     <div class="panel-footer">
     	<div class="row">
@@ -60,7 +79,8 @@ global $CURRENT_QUARTER;
        </div>
     </div>
 </div>
-<div class="row">
+<button type="button" class="btn btn-block btn-default" ng-click="showScheduleOptions = !showScheduleOptions">Toggle Schedule Options</button>
+<div>&nbsp;</div><div class="row" ng-show="showScheduleOptions">
     <div class="col-md-6">
         <div class="panel panel-default">
             <div class="panel-heading">
