@@ -49,13 +49,13 @@ global $CURRENT_QUARTER;
 												</span> <span ng-switch-when="false">Please enter a course</span>
 											</div>
 											<div class="col-xs-6">
-												<button type="button" class="btn btn-default btn-block"
+												<button type="button" class="btn btn-primary btn-block"
 													ng-click="showResults = !showResults"
 													ng-disabled="!course.results.length"><i class="fa" ng-class="{'fa-angle-down':!showResults && course.results.length > 0,'fa-angle-up':showResults && course.results.length > 0}"></i> {{(course.results.length?(showResults?"Hide":"Show"):"No")+((course.results.length!=1)?" Matches":" Match")}}
 													</button>
 											</div>
 										</div>
-										<div class="row animate-show-hide" ng-show="showResults">
+										<div class="row" ng-show="showResults">
 											<div class="col-xs-12">
 												<ul class="list-group" ng-repeat="result in course.results">
 													<li class="list-group-item" ng-class="{active:selected != ''}">
@@ -92,7 +92,7 @@ global $CURRENT_QUARTER;
 					</div>
 				</div>
 			</div>
-<!-- 			<pre>{{courses | json}}</pre> -->
+ 			<!--<pre>{{courses | json}}</pre>-->
 		</div>
     <div class="panel-footer">
     	<input type="hidden" value="{{courses.length}}" name="courseCount" id="courseCount">	
@@ -279,13 +279,18 @@ global $CURRENT_QUARTER;
 </div>
 <input name="action" value="getMatchingSchedules" type="hidden">
 <div id="formSubmit" class="scheduleForm"> 
-    <button class="btn-lg btn btn-primary btn-default" id="showSchedulesButton">Show Matching Schedules</button>
+    <button class="btn-lg btn btn-primary btn-default" ng-click="generateSchedules()">Show Matching Schedules</button>
 </div>
 </form>
-<div id="schedules">
-	<div id="matchingSchedules" class="subheader">
-		<h2>Matching Schedules</h2>
+<div ng-show="schedules.length > 0" class="panel panel-default">
+	<div id="matchingSchedules" class="panel-heading">
+		<h2 class="panel-title">Matching Schedules</h2>
 	</div>
+	<div class="panel-body">
+		<div ng-repeat="schedule in schedules" schedule="schedule"></div>
+	</div>
+</div>
+<div id="schedules">
 </div>
 <script type='text/javascript' src='js/handlebars.js'></script>
 <script type='text/javascript' src='js/translateFunctions.js'></script>

@@ -897,6 +897,12 @@ input {
 .course-selected-checkbox {
 	display:none;
 }
+/* NEW SCHEDULES */
+div[schedule] .canvas-cont {
+	height:500px;
+	width:700px;
+	margin: 0 auto;
+}
 
 /* ANIMATIONS */
 @media screen and (min-width:767px) {

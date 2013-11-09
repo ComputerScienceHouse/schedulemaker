@@ -17,9 +17,9 @@ require_once('./inc/timeFunctions.php');
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 		<script type='text/javascript' src='./js/jquery.js'></script>
 		<script type="text/javascript" src="./js/bootstrap.js"></script>
-        <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.0-rc.3/angular.js"></script>
-        <script type="text/javascript" src="http://code.angularjs.org/1.2.0-rc.3/angular-animate.min.js"></script>
-        <script type="text/javascript" src="http://code.angularjs.org/1.2.0-rc.3/angular-sanitize.min.js"></script>
+        <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.0/angular.js"></script>
+        <script type="text/javascript" src="http://code.angularjs.org/1.2.0/angular-animate.min.js"></script>
+        <script type="text/javascript" src="http://code.angularjs.org/1.2.0/angular-sanitize.min.js"></script>
         <script type="text/javascript" src="./js/app.js"></script>
 		<script type="text/javascript">
 			var _gaq = _gaq || [];
@@ -67,7 +67,7 @@ require_once('./inc/timeFunctions.php');
                 </div>
             </div>
 		</div>
-		<div id="container" class="container" ng-cloak>
+		<div id="container" class="container" ng-cloak ng-controller="AppCtrl">
 				<?php if($SERVER_TYPE != 'production') { ?>
 			<!-- Leaving this disabled until merge with develop after feature lock 
 				<div class='alert alert-warning'>
