@@ -309,7 +309,6 @@ app.controller( "scheduleCoursesCtrl", function( $scope, $http, $q) {
 
 
 app.directive('professorLookup', function($http) {
-	var modalTemplate = $templateCache.get('rmpModal.html');
 	return {
 		restrict: 'A',
 		scope: {
