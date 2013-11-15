@@ -1,0 +1,62 @@
+<div class="row">
+	<div class="col-md-6">
+		<div class="form-group" ng-class="{'has-error':item.results[0].isError == true}">
+			<label class="col-sm-3 col-xs-12 control-label" for="courses{{index}}">Course {{index}}:</label>
+			<div class="col-sm-7 col-xs-9">
+				<input id="courses{{index}}" class="form-control searchField" ng-model="item.search" type="text" name="courses{{index}}" maxlength="17" placeholder="DEPT-CRS-SECT" />
+			</div>
+			<div class="col-sm-2 col-xs-3">
+				<button type="button" ng-class="{'btn-danger':delHover}" ng-blur="delHover = false" ng-focus="delHover = true" ng-mouseenter="delHover = true" ng-mouseleave="delHover = false" class="btn btn-default" ng-click="remove()">
+					<i class="fa fa-times"></i>
+				</button>
+			</div>
+		</div>
+	</div>
+	<div class="clearfix visible-xs visible-sm"></div>
+	<div class="col-md-6">
+		<div ng-show="!item.results[0].isError" class="form-group course-result">
+			<div class="col-sm-6 control-label" ng-switch="item.search.length > 5">
+				<span ng-switch-when="true"> <span ng-pluralize count="item.results.length" when="{'0': 'No matching courses','one': '1 matching course','other': '{} matching courses'}"></span> for <strong>{{item.search}}</strong>
+				</span> <span ng-switch-when="false">Please enter a course</span>
+			</div>
+			<div class="col-sm-6">
+				<button type="button" class="btn btn-primary btn-block" ng-click="showResults = !showResults" ng-disabled="!item.results.length">
+					<i class="fa" ng-class="{'fa-angle-down':!showResults && item.results.length > 0,'fa-angle-up':showResults && item.results.length > 0}"></i> {{(item.results.length?(showResults?"Hide":"Show"):"No")+((item.results.length!=1)?" Matches":" Match")}}
+				</button>
+			</div>
+		</div>
+		<div ng-show="item.results[0].isError" class="course-error alert alert-danger alert-sm">{{item.results[0].error.msg}}</div>
+	</div>
+</div>
+<div ng-show="showResults">
+	<div class="visible-xs visible-sm vert-spacer-static-md"></div>
+	<div class="row" ng-repeat="resultGroup in item.results | partition:3">
+		<div class="col-md-4" ng-repeat="result in resultGroup">
+			<ul class="list-group">
+				<li class="list-group-item course-info" ng-class="{'selected-course':selected != ''}"><input type="checkbox" class="course-selected-checkbox" ng-init="selected = true" ng-checked="selected" value="{{result.sectionId}}" name="courses{{$parent.$parent.$index + 1}}Opt[]">
+					<div class="row">
+						<div class="col-sm-8">
+							<h4 class="list-group-item-heading">{{result.courseNum}}</h4>
+							<p class="list-group-item-text label-line ">
+								<span class="label label-default" professor-lookup="result.instructor"></span>
+							<div ng-repeat="time in result.times">{{time.days}} <span style="white-space:nowrap">{{time.start | formatTime}}-{{time.end | formatTime}}</span></div>
+							</p>
+						</div>
+						<div class="col-sm-4">
+							<div class="row">
+								<div class="col-xs-6 col-sm-12">
+									<button type="button" class="btn btn-block" ng-click="selected = !selected" ng-class="{'btn-danger':selected, 'btn-success':!selected}">{{selected?"Unselect":"Select"}}</button>
+								</div>
+								<div class="hidden-xs vert-spacer-sm"></div>
+								<div class="col-xs-6 col-sm-12">
+									<button type="button" class="btn btn-block btn-info">Details</button>
+								</div>
+							</div>
+						</div>
+					</div></li>
+			</ul>
+		</div>
+	</div>
+</div>
+<div class="visible-xs visible-sm vert-spacer-md"></div>
+

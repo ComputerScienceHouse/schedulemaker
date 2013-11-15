@@ -18,105 +18,46 @@ global $CURRENT_QUARTER;
 <script type='text/javascript' src='./js/jquery.timepicker.min.js'></script>
 <link href='inc/jquery.timepicker.css' rel='stylesheet' type='text/css' />
 <form id="scheduleForm" name="schedule" class="form-horizontal ng-pristine ng-valid" method="POST">
-<div class="panel panel-default ng-scope" ng-controller="scheduleCoursesCtrl">
-	<div class="panel-heading">
-		<h2 class="panel-title">Courses</h2>
-	</div>
-    <div class="panel-body">
+	<div class="panel panel-default ng-scope" ng-controller="scheduleCoursesCtrl">
+		<div class="panel-heading">
+			<h2 class="panel-title">Courses</h2>
+		</div>
+		<div class="panel-body">
+			<div id="scheduleCourses">
+				<div dynamic-items="courses" use-class="scheduleCourse" helpers="courses_helpers"></div>
+			</div>
+			<!--<pre>{{courses | json}}</pre>-->
+		</div>
+		<div class="panel-footer">
+			<input type="hidden" value="{{courses.length}}" name="courseCount" id="courseCount">
 			<div class="row">
-				<div id="scheduleCourses" class="col-md-6">
-					<div dynamic-items="courses" use-class="scheduleCourse"
-						helpers="courses_helpers"></div>
-					<div class="visible-xs visible-sm">
-						<button class="btn btn-default btn-block" type="button"
-							ng-click="courses_helpers.add()"><i class="fa fa-plus"></i> Add Course</button>
-						<div>&nbsp;</div>
-					</div>
-				</div>
 				<div class="col-md-6">
+					<button class="btn btn-primary btn-block visible-xs visible-sm" type="button" ng-click="courses_helpers.add()">
+						<i class="fa fa-plus"></i> Add Course
+					</button>
+					<span class="visible-md visible-lg">
+					<button class="btn btn-primary" type="button" ng-click="courses_helpers.add()">
+						<i class="fa fa-plus"></i> Add Course
+					</button> <i>or</i> press enter after each course</span>
+					</span>
+				</div>
+				<div class="col-md-3 col-xs-12">
 					<div class="row">
-						<div class="col-md-12">
-							<div class="repeat-item" ng-repeat="course in courses">
-									<div ng-show="!course.results[0].isError" class="course-result">
-										<strong class="visible-xs visible-sm">Results for Course {{$index + 1}}:</strong>
-										<div class="form-group">
-											<div class="col-xs-6 control-label"
-												ng-switch="course.search.length > 5">
-												<span ng-switch-when="true"> <span ng-pluralize
-													count="course.results.length"
-													when="{'0': 'No matching courses','one': '1 matching course','other': '{} matching courses'}"></span>
-													for <strong>{{course.search}}</strong>
-												</span> <span ng-switch-when="false">Please enter a course</span>
-											</div>
-											<div class="col-xs-6">
-												<button type="button" class="btn btn-primary btn-block"
-													ng-click="showResults = !showResults"
-													ng-disabled="!course.results.length"><i class="fa" ng-class="{'fa-angle-down':!showResults && course.results.length > 0,'fa-angle-up':showResults && course.results.length > 0}"></i> {{(course.results.length?(showResults?"Hide":"Show"):"No")+((course.results.length!=1)?" Matches":" Match")}}
-													</button>
-											</div>
-										</div>
-										<div class="row" ng-show="showResults">
-											<div class="col-xs-12">
-												<ul class="list-group" ng-repeat="result in course.results">
-													<li class="list-group-item" ng-class="{active:selected != ''}">
-														<input type="checkbox" class="course-selected-checkbox" ng-init="selected = true" ng-checked="selected" value="{{result.sectionId}}" name="courses{{$parent.$index + 1}}Opt[]">
-														<div class="row">
-															<div class="col-md-8">
-																<h4 class="list-group-item-heading">{{result.courseNum}}</h4>
-																<p class="list-group-item-text">
-																	<em>with</em> <span
-																		ng-bind-html="result.instructor | RMPUrl"></span>
-																		<div ng-repeat="time in result.times">
-																		{{time.days}} {{time.start | formatTime}}-{{time.end | formatTime}}
-																		</div>
-																</p>
-															</div>
-															<div class="col-md-4">
-																<button type="button" class="btn btn-block"
-																	ng-click="selected = !selected"
-																	ng-class="{'btn-danger':selected, 'btn-success':!selected}">
-																	{{selected?"Unselect":"Select"}}
-																</button>
-															</div>
-														</div>
-													</li>
-												</ul>
-											</div>
-										</div>
-									</div>
-									<div ng-show="course.results[0].isError" class="course-error alert alert-danger alert-sm">
-										{{course.results[0].error.msg}}
-									</div>
-							</div>
+						<label for="term" class="col-md-4 control-label">Term:</label>
+						<div class="col-md-8">
+							<?= getTermField('term', $CURRENT_QUARTER) ?>
 						</div>
 					</div>
 				</div>
+				<div class="visible-sm visible-xs">&nbsp;</div>
+				<div class="col-md-3 col-xs-12" ng-init="ignoreFull = true">
+					<input id="ignoreFull" value="{{ignoreFull}}" name="ignoreFull" type="hidden">
+					<button type="button" class="ng-class: {'btn-success': ignoreFull}; btn-default btn btn-block" ng-click="ignoreFull = !ignoreFull">{{ignoreFull?"Show":"Hide"}} filled up courses</button>
+				</div>
 			</div>
- 			<!--<pre>{{courses | json}}</pre>-->
 		</div>
-    <div class="panel-footer">
-    	<input type="hidden" value="{{courses.length}}" name="courseCount" id="courseCount">	
-    	<div class="row">
-    		<div class="col-md-6">
-    		<span class="visible-md visible-lg"><button class="btn btn-default" type="button" ng-click="courses_helpers.add()"><i class="fa fa-plus"></i> Add Course</button> <i>or</i> press enter after each course</span>
-    		</div>
-            <div class="col-md-3 col-xs-12">
-            	<div class="row">
-	                <label for="term" class="col-md-4 control-label">Term:</label>
-	                <div class="col-md-8">
-	                	 <?= getTermField('term', $CURRENT_QUARTER) ?>
-		            </div>
-	            </div>
-	        </div>
-	        <div class="visible-sm visible-xs">&nbsp;</div>
-	        <div class="col-md-3 col-xs-12" ng-init="ignoreFull = true">
-                    <input id="ignoreFull" value="{{ignoreFull}}" name="ignoreFull" type="hidden">
-                    <button type="button" class="ng-class: {'btn-success': ignoreFull}; btn-default btn btn-block" ng-click="ignoreFull = !ignoreFull">{{ignoreFull?"Show":"Hide"}} filled up courses</button>
-	        </div>
-       </div>
-    </div>
-</div>
-<button type="button" class="btn btn-block btn-default btn-lg" ng-click="showScheduleOptions = !showScheduleOptions">Toggle Schedule Options</button>
+	</div>
+	<button type="button" class="btn btn-block btn-default btn-lg" ng-click="showScheduleOptions = !showScheduleOptions">Toggle Schedule Options</button>
 <div>&nbsp;</div><div class="row" ng-show="showScheduleOptions">
     <div class="col-md-6">
         <div class="panel panel-default">

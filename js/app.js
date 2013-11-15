@@ -44,6 +44,24 @@ app.filter('formatTime', function() {
 	}
 });
 
+app.filter('partition', function($cacheFactory) {
+	  var arrayCache = $cacheFactory('partition')
+	  return function(arr, size) {
+	    var parts = [], cachedParts,
+	      jsonArr = JSON.stringify(arr);
+	    for (var i=0; i < arr.length; i += size) {
+	        parts.push(arr.slice(i, i + size));        
+	    }
+	    cachedParts = arrayCache.get(jsonArr); 
+	    if (JSON.stringify(cachedParts) === JSON.stringify(parts)) {
+	      return cachedParts;
+	    }
+	    arrayCache.put(jsonArr, parts);
+
+	    return parts;
+	  }; 
+	});
+
 app.controller( "AppCtrl", function( $scope) {
 	$scope.schedules =[];
     $scope.generateSchedules = function() {
@@ -248,7 +266,9 @@ app.controller( "scheduleCoursesCtrl", function( $scope, $http, $q) {
 		            }
 		            d[c].isError = false;
 		            // Replace the current list of times with the newly constructed one
+		            d[c].oldTimes = d[c].times;
 		            d[c].times = times;
+		            
 		        }
 		    	course.results = d;
 	    	} else {
@@ -287,20 +307,74 @@ app.controller( "scheduleCoursesCtrl", function( $scope, $http, $q) {
   }, true);
 });
 
+
+app.directive('professorLookup', function($http) {
+	var modalTemplate = $templateCache.get('rmpModal.html');
+	return {
+		restrict: 'A',
+		scope: {
+			professorLookup:'='
+		},
+		template: '{{professorLookup}}',
+		link: {
+			pre: function(scope, elm, attrs) {
+				
+			},
+			post: function(scope, elm, attrs) {
+				if(scope.professorLookup != '' && scope.professorLookup != 'TBA') {
+					scope.stats = 'none';
+					elm.on('click', function() {
+						var nameParts = scope.professorLookup.split(" "),
+						lastName = nameParts[nameParts.length - 1];
+						if(scope.stats == 'none') {
+							$http({
+								method:'GET',
+								url:'js/rmp.php?professor='+lastName,
+								headers: {
+									'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+								}, 
+								withCredentials: true
+							}).success(function(data, status, headers, config) {
+								var parser = new DOMParser();
+								var doc = parser.parseFromString(data,"text/html");
+								var entry = doc.querySelectorAll('#ratingTable .entry')[0];
+								var getStat = function(selector) {
+									return entry.querySelectorAll(selector)[0].innerHTML;
+								};
+								var getUrl = function() {
+									return 'http://www.ratemyprofessors.com/ShowRatings.jsp?tid=' + entry.querySelectorAll('.profName a')[0].href.split('?tid=')[1];
+								};
+								scope.stats = {
+									name: getStat('.profName a'),
+									url: getUrl(),
+									dept: getStat('.profDept'),
+									numRatings: getStat('.profRatings'),
+									rating: getStat('.profAvg'),
+									easiness: getStat('.profEasy'),
+								};
+								elm.popover({
+									html:true,
+									trigger:'manual',
+									title: '<a target="_blank" href="'+scope.stats.url+'">'+scope.stats.name+' - '+scope.stats.dept+'</a>',
+									content: '<div class="row"><div class="col-xs-6 rmp-rating"><h2>'+scope.stats.rating+'</h2>Average Rating</div><div class="col-xs-6 rmp-rating"><h2>'+scope.stats.easiness+'</h2>Easiness</div></div><div style="text-align:center">Based on '+scope.stats.numRatings+' ratings<br><a target="_blank" href="http://www.ratemyprofessors.com/SelectTeacher.jsp?searchName='+lastName+'&search_submit1=Search&sid=807">Not the right professor?</a><br><small>Powered By <a target="_blank" href="http://www.ratemyprofessors.com">RateMyProfessors.com</a></small></div>'
+								});
+								elm.popover('show');
+								
+						    });
+						} else {
+							elm.popover('toggle');
+						}
+					});
+				}
+			}
+		}
+	};
+});
+
 app.directive("scheduleCourse", function(){
 	  return {
 	    restrict: "C",
-	    template: '\
-	                <div dynamicItem class="form-group" ng-class="{\'has-error\':item.results[0].isError == true}">\
-	                    <label class="col-sm-3 col-xs-12 control-label" for="courses{{index}}">Course {{index}}:</label>\
-	                    <div class="col-sm-7 col-xs-9">\
-	    					<input tabindex="{{index}}" id="courses{{index}}" class="form-control" ng-model="item.search" type="text" name="courses{{index}}" maxlength="17" placeholder="DEPT-CRS-SECT" />\
-	                    </div>\
-	                    <div class="col-sm-2 col-xs-3">\
-	                        <button type="button" ng-class="{\'btn-danger\':delHover}" ng-mouseenter="delHover = true" ng-mouseleave="delHover = false" class="btn btn-default" ng-click="remove()"><i class="fa fa-times"></i></button>\
-	                    </div>\
-	                </div>\
-	            '
+	    templateUrl: './js/templates/courseselect.html',
 	  };
 });
 app.directive("dynamicItems", function($compile,$timeout){
@@ -324,7 +398,7 @@ app.directive("dynamicItems", function($compile,$timeout){
                             elm.find('input:last').focus();
                         }, 0, false);
                     });
-		    		elm.append($compile('<div ng-repeat="item in dynamicItems" dynamic-item class="repeat-item '+scope.useClass+'"></div>')(scope));
+		    		elm.append($compile('<div class="'+scope.useClass+' repeat-item" ng-repeat="item in dynamicItems" dynamic-item></div>')(scope));
 	    		}
 	    	};
 	    }
@@ -352,29 +426,40 @@ app.directive("dynamicItem", function($timeout){
 	            }
 	        };
     	}, post: function(scope, elm, attrs, dynamicItems) {
-	        var input = elm.find('input');
+	        var ident = 'input.searchField',
+	        input = elm.find(ident);
 	        
 	        var doKeystrokeAnalysis = function(e) {
 	            if(e.keyCode == 13) {
 	                if(dynamicItems.items.length == scope.index) {
 	                	dynamicItems.add();
                         $timeout(function() {
-                            elm.next().find("input").focus();
+                            elm.next().find(ident).focus();
                         }, 0, false);
 	                } else {
-	                    elm.next().find("input").focus();
+	                    elm.next().find(ident).focus();
 	                }
 	            } else if(e.keyCode == 27) {
 	                e.preventDefault();
 	                if(scope.index > 1) {
-                    	elm.prev().find("input").focus();
+                    	elm.prev().find(ident).focus();
 	                } else {
 	                	var parent = elm.parent();
 	                	$timeout(function() {
-                            parent.find("input:first").focus();
+                            parent.find(ident+":first").focus();
                         }, 0, false);
 	                }
                     scope.remove();  
+	            } else if(e.keyCode == 38) {
+	                e.preventDefault();
+	                if(scope.index > 1) {
+                    	elm.prev().find(ident).focus();
+	                } 
+	            } else if(e.keyCode == 40) {
+	                if(scope.index < dynamicItems.items.length) {
+                    	elm.next().find(ident).focus();
+                    	e.preventDefault();
+	                } 
 	            }
 	        };
 	        

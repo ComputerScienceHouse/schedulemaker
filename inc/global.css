@@ -887,23 +887,101 @@ input {
 
 .course-error {
 	padding: 9px;
-	margin-bottom:16px;
+	margin-bottom:0px;
 }
 
 .course-result {
 	/*padding: 0 1px;*/
-	margin-bottom:16px;
+	margin-bottom:0px;
 }
 .course-selected-checkbox {
 	display:none;
+}
+.course-info {
+	transition:  background-color .25s ease, color .25s ease, border .25s ease;
+	background-color:#eee;
+	border:1px solid #eee;
+	color:#333;
+}
+.selected-course {
+	border:1px solid #2c3e50;
+	background-color:#2c3e50;
+	color:#fff;
+}
+.course-info a {
+	color:#fff !important;
+}
+.label-line {
+	line-height:2em;
 }
 /* NEW SCHEDULES */
 div[schedule] .canvas-cont {
 	height:500px;
 	width:700px;
 	margin: 0 auto;
+  
 }
-
+@media screen and (max-width:768px) {
+div[schedule] {
+    overflow: hidden;
+}
+  div[schedule] .canvas-cont {
+	height:500px;
+	width:320px;
+	margin: 0 auto;
+    overflow-x: scroll;
+   }  
+}
+/* BOOTSTRAP EXTENSIONS */
+.btn {
+	transition: background-color .25s ease, box-shadow .125s ease;
+}
+.vert-spacer-sm {
+	margin-bottom:10px;
+	width:1px;
+	float:left;
+}
+.vert-spacer-static-sm {
+	margin-bottom:10px;
+	width:1px;
+}
+.vert-spacer-md {
+	margin-bottom:20px;
+	width:1px;
+	float:left;
+}
+.vert-spacer-static-md {
+	margin-bottom:20px;
+	width:1px;
+}
+.popover {
+	color: #333 !important;
+	width:300px;
+}
+.popover a {
+	color: #000 !important;
+}
+.popover-title {
+	display:block;
+}
+.rmp-rating h2 {
+	color:#fff;
+	text-align:center;
+	display:block;
+	margin:0 auto;
+	background-color:#2c3e50;
+	border-radius: 50% 50%;
+	height:70px;
+	width:70px;
+	line-height:70px;
+}
+.rmp-rating {
+	font-family:"Lato","Helvetica Neue",Helvetica,Arial,sans-serif;
+	text-align:center;
+}
+span[professor-lookup] {
+	cursor: pointer;
+}
 /* ANIMATIONS */
 @media screen and (min-width:767px) {
 	.no-repeat-item-animation {
