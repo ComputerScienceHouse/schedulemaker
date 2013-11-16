@@ -13,7 +13,8 @@
 function drawCourse($course, $startTime, $endTime, $startDay, $endDay, $color, $bldg) {
 	$code = "";
 
-	// Iterate over the times that the couse has session
+	// Iterate over the times that the course has session
+    if(empty($course['times'])) { return ""; }
 	foreach($course['times'] as $time) {
 		// Skip times that aren't part of the displayed days
 		if($time['day'] < $startDay || $time['day'] > $endDay) {
