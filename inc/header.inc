@@ -5,10 +5,19 @@ require_once('./inc/databaseConn.php');
 require_once('./inc/timeFunctions.php');
 ?>
 <!DOCTYPE html>
-<html>
+<html prefix="og: http://ogp.me/ns#">
 	<head>
-		<title><?= (!empty($TITLE)) ? $TITLE : "Schedule Maker" ?></title>
-		
+		<title><?= (!empty($TITLE)) ? $TITLE . " " : "" ?>Schedule Maker</title>
+
+        <meta property="og:title" content="<?= (!empty($TITLE)) ? $TITLE . " " : "" ?>Schedule Maker" />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="http://<?= $_SERVER['HTTP_HOST'] ?><?= $_SERVER['REQUEST_URI'] ?>" />
+        <? if(!empty($IMGURL)) { ?>
+        <meta property="og:image" content="<?= $IMGURL ?>" />
+        <? } else { ?>
+        <meta property="og:image" content="<?= $HTTPROOTADDRESS ?>img/csh_og.png" />
+        <? } ?>
+
 		<link href='./inc/global.css' rel='stylesheet' type='text/css' />
 
 		<script type='text/javascript' src='./js/jquery.js'></script>
