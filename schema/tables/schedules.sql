@@ -17,7 +17,7 @@ CREATE TABLE schedule (
   `endtime`           SMALLINT(4) UNSIGNED ZEROFILL NOT NULL DEFAULT 1320,  -- End time for schedule. Value is minutes into the day (eg. 1320=10PM)
   `building`          SET('code', 'number') NOT NULL DEFAULT 'number',      -- Whether to show old or new building id. Defaulting to number for old fogies
   `quarter`           SMALLINT(5) UNSIGNED NULL DEFAULT NULL,               -- The quarter the schedule was made for. Not necessary for it to reference quarters table
-  `image`             BOOL NOT NULL DEFAULT ((0))                            -- Whether or not an image of the schedule has been generated and saved
+  `image`             BOOL NOT NULL DEFAULT FALSE                           -- Whether or not an image of the schedule has been generated and saved
 )ENGINE=InnoDb;
 
 -- Add index to searchable columns

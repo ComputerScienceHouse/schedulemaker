@@ -6,4 +6,4 @@
 --          + Adding column for schedule image location
 -- -------------------------------------------------------------------------
 
-ALTER TABLE schedules ADD COLUMN (`image` BOOL NOT NULL DEFAULT ((0)));
+ALTER TABLE schedules ADD COLUMN (`image` BOOL NOT NULL DEFAULT FALSE);

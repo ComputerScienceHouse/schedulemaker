@@ -9,8 +9,9 @@ require_once('./inc/timeFunctions.php');
 	<head>
 		<title><?= (!empty($TITLE)) ? $TITLE . " " : "" ?>Schedule Maker</title>
 
-        <meta property="og:title" content="<?= (!empty($TITLE)) ? $TITLE . " " : "" ?>Schedule Maker" />
+        <meta property="og:title" content="<?= (!empty($TITLE)) ? $TITLE . " - " : "" ?>ScheduleMaker" />
         <meta property="og:type" content="website" />
+        <meta property="og:description" content="CSH ScheduleMaker makes picking your RIT class schedule easy! Preview all permutations of your schedule, browse available courses, and select courses at random, all with ScheduleMaker."
         <meta property="og:url" content="http://<?= $_SERVER['HTTP_HOST'] ?><?= $_SERVER['REQUEST_URI'] ?>" />
         <? if(!empty($IMGURL)) { ?>
         <meta property="og:image" content="<?= $IMGURL ?>" />

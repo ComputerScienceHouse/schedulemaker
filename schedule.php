@@ -8,6 +8,11 @@
 // @descrip	Loads up the requested schedule from the database.
 ////////////////////////////////////////////////////////////////////////////
 
+// REQUIRED FILES //////////////////////////////////////////////////////////
+require_once('./inc/config.php');
+require_once('./inc/databaseConn.php');
+require_once('./inc/timeFunctions.php');
+
 // FUNCTIONS ///////////////////////////////////////////////////////////////
 
 function drawCourse($course, $startTime, $endTime, $startDay, $endDay, $color, $bldg) {
@@ -253,8 +258,11 @@ function getScheduleFromId($id) {
 	$query = "UPDATE schedules SET datelastaccessed = NOW() WHERE id={$id}";
 	$result = mysql_query($query);
 	
-	$query = "SELECT startday, endday, starttime, endtime, building, quarter FROM schedules WHERE id={$id}";
+	$query = "SELECT startday, endday, starttime, endtime, building, `quarter`, `image` FROM schedules WHERE id={$id}";
 	$result = mysql_query($query);
+    if(!$result) {
+        return NULL;
+    }
 	$scheduleInfo = mysql_fetch_assoc($result);
 	if(!$scheduleInfo) {
 		return NULL;
@@ -267,6 +275,7 @@ function getScheduleFromId($id) {
 	$endTime   = (int)$scheduleInfo['endtime'];
 	$building  = $scheduleInfo['building'];
 	$term      = $scheduleInfo['quarter'];
+    $image     = $scheduleInfo['image'] == 1;
 
 	// Create storage for the courses that will be returned
 	$schedule = array();
@@ -304,7 +313,8 @@ function getScheduleFromId($id) {
 			"startDay"   => $startDay,
 			"endDay"     => $endDay,
 			"bldgStyle"  => $building,
-			"term"       => $term
+			"term"       => $term,
+            "image"      => $image
 			);
 }
 
@@ -461,11 +471,13 @@ switch($mode) {
 
 	case "schedule":
 		// DEFAULT SCHEDULE FORMAT /////////////////////////////////////////
-		require "./inc/header.inc";
-		
-		$schedule = getScheduleFromId(hexdec($_GET['id']));
+        $id = hexdec($_GET['id']);
+        $schedule = getScheduleFromId($id);
+
+        // Make sure the schedule exists
 		if($schedule == NULL) {
             // Schedule does not exist. Error out and die.
+            require "./inc/header.inc";
 			?>
 			<div class='schedUrl error'>
 				<p><span style='font-weight:bold'>Fatal Error:</span> The requested schedule does not exist!</p>
@@ -476,6 +488,15 @@ switch($mode) {
 		}
 
         // Schedule exists! Output it.
+
+        // Set image location (if it exists)
+        if($schedule['image']) {
+            $IMGURL = "{$HTTPROOTADDRESS}img/schedules/{$id}.png";
+        }
+        $TITLE = "My Schedule"; //@TODO: Generate this with term titles
+
+        require "./inc/header.inc";
+
         echo generateScheduleFromCourses($schedule);
 
 		// Translate the schedule into json and escape '
