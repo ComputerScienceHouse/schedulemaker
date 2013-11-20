@@ -184,6 +184,36 @@ function timeStringToMinutes($str) {
     return $hour * 60 + $minute;
 }
 
+/**
+ * Generates a render of schedule's SVG. The PNG render of the image will be
+ * stored in /img/schedules/ with a filename equal to the id of the schedule.
+ * @param   $svg    string  The SVG code for the image
+ * @param   $id     string  The ID of the schedule, for file name generation
+ * @return  bool    True on success, False otherwise.
+ */
+function renderSvg($svg, $id) {
+    try {
+        // Load the image into an ImageMagick object
+        $im = new Imagick();
+        $im->readimageblob($svg);
+
+        // Convert it to png
+        $im->setImageFormat("png24");
+        $im->scaleimage(600, 600, true);
+
+
+        // Write it to the filesystem
+        $im->writeimage("../img/schedules/{$id}.png");
+        $im->clear();
+        $im->destroy();
+
+        // Success!
+        return true;
+
+    } catch(Exception $e) {
+        return false;
+    }
+}
 
 ////////////////////////////////////////////////////////////////////////////
 // MAIN EXECUTION
@@ -413,7 +443,9 @@ switch($_POST['action']) {
 		if($json == null) {
 			die(json_encode(array("error" => "argument", "msg" => "The schedule could not be decoded", "arg" => "schedule")));
 		}
-		// @TODO: THERE SHOULD BE SOME REQUIRED PARAMETER CHECKS
+		if(!isset($json['starttime']) || !isset($json['endtime']) || !isset($json['building']) || !isset($json['startday']) || !isset($json['endday'])) {
+            die(json_encode(array("error" => "argument", "msg" => "A required schedule parameter was not provided")));
+        }
 
 		// Start the storing process with storing the data about the schedule
 		$query = "INSERT INTO schedules (startday, endday, starttime, endtime, building, quarter)" .
@@ -423,9 +455,16 @@ switch($_POST['action']) {
 		if(!$result) {
 			die(json_encode(array("error" => "mysql", "msg" => "Failed to store the schedule: " . mysql_error($dbConn))));
 		}
-		
+
 		// Grab the latest id for the schedule
 		$schedId = mysql_insert_id();
+
+        // Optionally process the svg for the schedule
+        $image = false;
+        if(!empty($_POST['svg']) && renderSvg($_POST['svg'], $schedId)) {
+            $query = "UPDATE schedules SET image = ((1)) WHERE id = '{$schedId}'";
+            mysql_query($query);  // We don't particularly care if this fails
+        }
 
 		// Now iterate through the schedule
 		foreach($json['schedule'] as $item) {
