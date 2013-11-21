@@ -461,7 +461,7 @@ switch($_POST['action']) {
 
         // Optionally process the svg for the schedule
         $image = false;
-        if(!empty($_POST['svg']) && renderSvg($_POST['svg'], $schedId)) {
+        if(!empty($_POST['svg']) && renderSvg(html_entity_decode($_POST['svg']), $schedId)) {
             $query = "UPDATE schedules SET image = ((1)) WHERE id = '{$schedId}'";
             mysql_query($query);  // We don't particularly care if this fails
         }
