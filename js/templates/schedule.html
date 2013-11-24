@@ -1,6 +1,27 @@
 <h4>Schedule {{$index +1}}:</h4>
-<div class="canvas-cont">
-<canvas width="700" height="500"></canvas>
+<div class="schedule-cont">
+	<div onload="alignToPixels()">
+		<svg height="{{grid.opts.height}}" width="100%" xmlns="http://www.w3.org/2000/svg">
+			<defs>
+				<pattern vector-effect="non-scaling-stroke" id="day" width="100%" x="0" height="40" patternUnits="userSpaceOnUse">
+					<line vector-effect="non-scaling-stroke" x1="0" y1="9.5" x2="100%" y2="9.5" style="stroke:#bbb;stroke-width:1" />
+					<line vector-effect="non-scaling-stroke" x1="0" y1="28.5" x2="100%" y2="28.5" style="stroke:#ccc;stroke-width:1" stroke-dasharray="3,3" />
+				</pattern>
+			</defs>
+			<g transform="{{grid.opts.pixelAlignment}}" font-family="Roboto" font-size="15">
+				
+				<text fill="#aaa" text-anchor="end" font-weight="bold" ng-repeat="hour in grid.hours track by $index" x="5%" y="{{($index * 40) + 15}}">{{hour}}</text>
+				
+				<rect ng-repeat="day in grid.days" y="9" x="{{day.offset}}" width="{{day.width}}" height="{{grid.opts.height}}" fill="url(#day)" />
+				<g class="item">
+					<rect x="7%" y="49px" width="13.8333%" height="60" fill="rgba(0,126,55, 0.7)" />
+					<text x="7%" y="65px" transform="translate(3,0)" font-weight="bold" fill="white">Test Class 1</text>
+				</g>
+				<g class="item">
+					<rect x="22.666666666666668%" y="89px" width="13.8333%" height="60" fill="rgba(0,126,55, 0.7)" />
+					<text x="22.666666666666668%" y="105px" transform="translate(3,0)" textLength="16.8333%" lengthAdjust="spacingAndGlyphs" font-weight="bold" fill="white">Another Really Long Class Name</text>
+				</g>
+			</g>
+		</svg>
+	</div>
 </div>
-<button class="btn btn-default pull-right" ng-click="toImage()">Make Image</button><br>
-{{scope.image}}

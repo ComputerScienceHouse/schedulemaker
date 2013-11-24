@@ -6,7 +6,7 @@
 				<input id="courses{{index}}" class="form-control searchField" ng-model="item.search" type="text" name="courses{{index}}" maxlength="17" placeholder="DEPT-CRS-SECT" />
 			</div>
 			<div class="col-sm-2 col-xs-3">
-				<button type="button" ng-class="{'btn-danger':delHover}" ng-blur="delHover = false" ng-focus="delHover = true" ng-mouseenter="delHover = true" ng-mouseleave="delHover = false" class="btn btn-default" ng-click="remove()">
+				<button type="button" ng-class="{'btn-danger':delHover}" ng-blur="delHover = false" ng-focus="delHover = true" ng-mouseenter="delHover = true" ng-mouseleave="delHover = false" class="btn btn-default" ng-mousedown="remove()">
 					<i class="fa fa-times"></i>
 				</button>
 			</div>
@@ -39,13 +39,13 @@
 							<h4 class="list-group-item-heading">{{result.courseNum}}</h4>
 							<p class="list-group-item-text label-line ">
 								<span class="label label-default" professor-lookup="result.instructor"></span>
-							<div ng-repeat="time in result.times">{{time.days}} <span style="white-space:nowrap">{{time.start | formatTime}}-{{time.end | formatTime}}</span></div>
+							<div ng-repeat="time in result.times" style="font-size:small">{{time.days}} <span style="white-space:nowrap">{{time.start | formatTime}}-{{time.end | formatTime}}</span></div>
 							</p>
 						</div>
 						<div class="col-sm-4">
 							<div class="row">
 								<div class="col-xs-6 col-sm-12">
-									<button type="button" class="btn btn-block" ng-click="selected = !selected" ng-class="{'btn-danger':selected, 'btn-success':!selected}">{{selected?"Unselect":"Select"}}</button>
+									<button type="button" class="btn btn-block" ng-mousedown="selected = !selected" ng-class="{'btn-danger':selected, 'btn-success':!selected}">{{selected?"Unselect":"Select"}}</button>
 								</div>
 								<div class="hidden-xs vert-spacer-sm"></div>
 								<div class="col-xs-6 col-sm-12">

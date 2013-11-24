@@ -32,9 +32,7 @@ require_once('./inc/timeFunctions.php');
 				var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
 			})();
 		</script>
-		    
-	</head>
-<script>
+		    <script>
       if (navigator.userAgent.match(/IEMobile\/10\.0/)) {
   var msViewportStyle = document.createElement("style")
   msViewportStyle.appendChild(
@@ -45,6 +43,8 @@ require_once('./inc/timeFunctions.php');
   document.getElementsByTagName("head")[0].appendChild(msViewportStyle)
 }
     </script>
+	</head>
+
 	<body ng-app="sm">
 		<div id='superContainer'>
 		<div class="navbar navbar-fixed-top navbar-default ng-scope" ng-controller="MainMenuCtrl">

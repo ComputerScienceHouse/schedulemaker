@@ -343,6 +343,16 @@ app.directive('professorLookup', function($http) {
 								var getUrl = function() {
 									return 'http://www.ratemyprofessors.com/ShowRatings.jsp?tid=' + entry.querySelectorAll('.profName a')[0].href.split('?tid=')[1];
 								};
+								var ratingColor = function(score) {
+									score = parseFloat(score);
+									if(score >= 4) {
+										return '#18BC9C';
+									} else if(score >= 3) {
+										return '#F39C12';
+									} else {
+										return '#E74C3C';
+									}
+								}
 								scope.stats = {
 									name: getStat('.profName a'),
 									url: getUrl(),
@@ -354,8 +364,9 @@ app.directive('professorLookup', function($http) {
 								elm.popover({
 									html:true,
 									trigger:'manual',
+									placement:'auto left',
 									title: '<a target="_blank" href="'+scope.stats.url+'">'+scope.stats.name+' - '+scope.stats.dept+'</a>',
-									content: '<div class="row"><div class="col-xs-6 rmp-rating"><h2>'+scope.stats.rating+'</h2>Average Rating</div><div class="col-xs-6 rmp-rating"><h2>'+scope.stats.easiness+'</h2>Easiness</div></div><div style="text-align:center">Based on '+scope.stats.numRatings+' ratings<br><a target="_blank" href="http://www.ratemyprofessors.com/SelectTeacher.jsp?searchName='+lastName+'&search_submit1=Search&sid=807">Not the right professor?</a><br><small>Powered By <a target="_blank" href="http://www.ratemyprofessors.com">RateMyProfessors.com</a></small></div>'
+									content: '<div class="row"><div class="col-xs-6 rmp-rating"><h2 style="background-color:'+ratingColor(scope.stats.rating)+'">'+scope.stats.rating+'</h2>Average Rating</div><div class="col-xs-6 rmp-rating"><h2 style="background-color:'+ratingColor(scope.stats.easiness)+'">'+scope.stats.easiness+'</h2>Easiness</div></div><div style="text-align:center">Based on '+scope.stats.numRatings+' ratings<br><a target="_blank" href="http://www.ratemyprofessors.com/SelectTeacher.jsp?searchName='+lastName+'&search_submit1=Search&sid=807">Not the right professor?</a><br><small>&copy; 2013 <a target="_blank" href="http://www.ratemyprofessors.com">RateMyProfessors.com</a></small></div>'
 								});
 								elm.popover('show');
 								
@@ -480,86 +491,74 @@ app.directive("dynamicItem", function($timeout){
   };
 });
 
-app.directive('schedule', function() {
-	var colors = ['247, 134, 134',
-	              '243, 220, 146',
-	              '243, 243, 170',
-	              '220, 247, 133',
-	              '186, 238, 243'
-	              ];
-	var drawGrid = function(context) {
-		var cHeight = context.canvas.height + .5,
-		cWidth = context.canvas.width + .5;
-		var curHeight = .5;
-		while(curHeight <= cHeight) {
-			if(curHeight == cHeight) curHeight = cHeight - 1; //Dumb solution for antialiasing....
-			context.beginPath();
-			context.moveTo(0, curHeight);
-			context.lineTo(cWidth, curHeight);
-			if((curHeight - .5) % 40 >=19) context.strokeStyle = '#ddd';
-			else context.strokeStyle = '#ccc';
-			context.lineWidth = 1;
-			context.stroke();
-			curHeight += 20;
-		}
-		context.strokeStyle = '#fff';
-		var curWidth = .5;
-		while(curWidth <= cWidth) {
-			if(curWidth == cWidth) curWidth = cWidth - 1; //Dumb solution for antialiasing....
-			context.beginPath();
-			context.moveTo(curWidth, 0);
-			context.lineTo(curWidth, cHeight);
-			context.lineWidth = 10;
-			context.stroke();
-			curWidth += 140;
-		}
+app.directive('schedule', function($timeout) {
+	function Schedule(courses) {
+		this.elm = null;
+		this.courses = courses;	
+		this.colors = ['247, 134, 134',
+		              '243, 220, 146',
+		              '243, 243, 170',
+		              '220, 247, 133',
+		              '186, 238, 243'
+		              ];
+	}
+	Schedule.prototype.draw = function(elm) {
+		//elm.html()
 	};
-	var drawSchedule = function(context, schedule) {
+	Schedule.drawSchedule = function(context, schedule) {
 		for(var i=0, l= schedule.length; i <l; i++) {
 			drawCourse(context, schedule[i]);
 		}
 	};
-	var drawCourse = function(context, course) {
-		var x = (Math.floor(Math.random()*5) * 140) + 5.5; 
-		var y = (Math.floor(Math.random()*7) * 60) + 1; 
-		context.beginPath();
-		context.rect(x, y, 130, 59);
-		var rgb = colors[Math.floor(Math.random()*colors.length)];
-		context.fillStyle = 'rgba('+rgb+', 0.9)';
-		context.lineWidth= 0;
-		context.fill();
-		context.font = '14px Roboto';
-		context.fillStyle = '#333';
-		context.fillText(course.title, x + 5, y + 15);
-		context.fillStyle = '#444';
-		context.font = '12px Roboto';
-		context.fillText(course.courseNum, x + 5, y + 30);
-		context.fillStyle = '#555';
-		context.fillText(course.instructor, x + 5, y + 45);
-	}
-	var drawBg = function(context) {
-		/*var cHeight = context.canvas.height + .5,
-		cWidth = context.canvas.width + .5;
-		ontext.beginPath();
-		context.rect(0, 0, cWidth, cHeight);
-		context.fillStyle = '#ffffff';
-		context.fill();*/
-	};
+
 	return {
 		restrict: 'A',
 		templateUrl: './js/templates/schedule.html',
 		link: {
-			pre: function(scope) {
+			pre: function(scope, elm, attrs) {
+				// Set up defaults
+				var numDays = 6,
+				numHours = 10,
+				height = (numHours * 40),
+				dayOpts = {
+					num: numDays,
+					width: 100 / numDays,
+					padding: 1
+				},
+				globalOpts = {
+					height: height,
+					hoursWidth: 5
+				},
+				dayArray = [];
+
+				//Generate days
+				for(var i=0; i < numDays; i++) {
+					var width = (dayOpts.width - (globalOpts.hoursWidth / numDays) - 2 * dayOpts.padding)
+					var offset = globalOpts.hoursWidth + ( 2 * dayOpts.padding) + ((dayOpts.width - dayOpts.padding) * i);
+					dayArray.push({
+						offset: offset + '%',
+						width: width + '%',
+					});
+				}
 				
-			},
-			post: function(scope, elm, attrs) {
-				var context = elm.find('canvas').get(0).getContext('2d');
-				drawBg(context);
-				drawGrid(context);
-				drawSchedule(context, scope.schedule);
-				scope.toImage = function() {
-					elm.append("<img src=\""+context.canvas.toDataURL("image/png")+"\" />");
+				//Set the scope variable
+				scope.grid = {
+					hours: ['9 AM','10 AM','11 AM','12 PM','1 PM','2 PM', '3 PM','4 PM','5 PM','6 PM'],
+					days: dayArray,
+					opts: {
+						height: globalOpts.height,
+						hoursWidth: globalOpts.hoursWidth,
+						pixelAlignment:''
+					}
 				};
+			},
+			post: function(scope, elm) {
+				$timeout(function() {
+					var offset = elm.find("svg").offset(),
+					vert = 1 - parseFloat('0.'+('' + offset.top).split('.')[1]);
+					horz = 1 - parseFloat('0.'+('' + offset.left).split('.')[1]);
+					scope.grid.opts.pixelAlignment ='translate('+horz+','+vert+')';
+				},0,true);
 			}
 		}
 	};

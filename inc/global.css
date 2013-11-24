@@ -941,6 +941,7 @@ div[schedule] {
 	width:1px;
 	float:left;
 }
+
 .vert-spacer-static-sm {
 	margin-bottom:10px;
 	width:1px;
@@ -982,8 +983,29 @@ div[schedule] {
 span[professor-lookup] {
 	cursor: pointer;
 }
+/* SVG Schedule Rendering */
+svg rect {
+	shape-rendering: crispEdges;
+	pointer-events: all;
+}
+
+svg g.item:hover rect {
+	stroke:rgba(0,0,0,.1);
+	stroke-width:5;
+}
+
+@media screen and (max-width:767px) {
+	.schedule-cont {
+		width:1000px;
+	}
+	div[schedule] {
+		overflow-x:scroll;
+	}
+}
+
 /* ANIMATIONS */
 @media screen and (min-width:767px) {
+	
 	.no-repeat-item-animation {
 		-webkit-animation:none !important;
 	  -moz-animation:none !important;
