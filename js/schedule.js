@@ -469,6 +469,9 @@ function drawPage(pageNum, print) {
 			.attr("name", "url")
 			.val("none")
 			.appendTo(saveForm);
+        $("<input>").attr("type", "hidden")
+            .attr("name", "svg")
+            .appendTo(saveForm);
 		$("<input>").attr("type", "hidden")
 			.attr("name", "scheduleId")
 			.val("sched" + schedId)
@@ -751,7 +754,7 @@ function getScheduleUrl(button) {
 	var urlInput = $(button.parent().children()[1]);
 	if(urlInput.val() == "none") {
         // Grab the id of the schedule
-        var scheduleId = $(button.parent().children()[2]).val();
+        var scheduleId = $(button.parent().children()[3]).val();
 
 		// Grab the field for the json
 		var jsonObj = $(button.parent().children()[0]).val();
@@ -764,12 +767,19 @@ function getScheduleUrl(button) {
 				"building":  $("#buildingStyle").val(),
 				"term":      $("#term").val()	// This /could/ be incorrect... just sayin
 				};
+        var svgVal = $(button.parent().children()[2]).val();
 		// We don't have a url already, so get one!
-		$.post("./js/scheduleAjax.php", {action: "saveSchedule", data: JSON.stringify(jsonModified)}, function(data) {
+        var params = {
+            "action":   "saveSchedule",
+            "data":     JSON.stringify(jsonModified),
+            "svg":      svgVal
+        };
+
+		$.post("./js/scheduleAjax.php", params, function(data) {
 			// Error checking. Display a error. URL will remain NONE on error.
 			if(data.error != null && data.error != undefined) {
                 // Get the URL div
-                var scheduleId = $(button.parent().children()[2]).val();
+                var scheduleId = $(button.parent().children()[3]).val();
                 var urlDiv = $("#" + scheduleId + "Url");
                 if(urlDiv.length) {
                     // URL Div exists, so empty it
@@ -871,7 +881,7 @@ function saveSchedule(button) {
 	}
 
     // Grab the schedule we're adding this to
-    var scheduleId = $(button.parent().children()[2]).val();
+    var scheduleId = $(button.parent().children()[3]).val();
     var schedule = $("#" + scheduleId);
 
     // Disable the button
