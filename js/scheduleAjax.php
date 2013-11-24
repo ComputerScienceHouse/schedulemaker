@@ -236,94 +236,87 @@ switch($_POST['action']) {
         // @TODO: Move this over to the power search ajax handler
 		// Verify that we got a course (or partial course) and a quarter
 		if(empty($_POST['course'])) {
-			die(json_encode(array("error" => "argument", "msg" => "You must provide at least a department number", "arg" => "course")));
+			die(json_encode(array("error" => "argument", "msg" => "You must provide at least one partial course number")));
 		}
 		if(empty($_POST['term'])) {
-			die(json_encode(array("error" => "argument", "msg" => "You must provide a term", "arg" => "term")));
+			die(json_encode(array("error" => "argument", "msg" => "You must provide a term")));
 		}
 
-		// If it has dashes or whitespace, then strip them out
-		$course = preg_replace("/[-\s]/", "", $_POST['course']);
+        // If it has dashes or whitespace, then strip them out
+        $_POST['course'] = preg_replace("/[-\s]/", "", $_POST['course']);
 
-		// If the course has enough characters for a lab section but
-		// but doesn't match OR there are <= 9 characters but it isn't
-		// numeric, then they fucked up.
-		//@TODO: Add some more rigerous input validation for course/section numbers
-		if(strlen($course) > 11) {
-			die(json_encode(array("error" => "argument", "msg" => "Your course must be in the format XXXX-XXX-XXLX", "arg" => "course")));
-		}
+        // Iterate over the multiple options
+        $courseOptions = array();
+        foreach(explode(',', $_POST['course']) as $course) {
+            // If the course has enough characters for a lab section but
+            // but doesn't match OR there are <= 9 characters but it isn't
+            // numeric, then they fucked up.
+            if(strlen($course) > 11) {
+                die(json_encode(array("error" => "argument", "msg" => "Your courses must be in the format XXXX-XXX-XXLX")));
+            }
 
-		// Now we'll split the course into the various components
-		$department = substr($course, 0, 4);
-		if(strlen($department) != 4) {
-			// We didn't get an entire department. We won't proceed
-			die(json_encode(array("error" => "argument", "msg" => "You must provide at least a complete department", "arg" => "course")));
-		}
-
-		$coursenum = substr($course, 4, 3);
-		if(!$coursenum || strlen($coursenum) != 3) {
-			// We got a partial course. That's ok.
-			$partialCourse = true;
-		} else {
-			$partialCourse = false;
-		}
-
-		$section = substr($course, 7);
-		if(!$section || strlen($coursenum) != 4) {
-			// We got a partial section number. That's ok.
-			$partialSection = true;
-		} else {
-			$partialSection = false;
-		}
-
-		// Build a query and run it
-        if($_POST['term'] > 20130) {
+            // Now we'll split the course into the various components and build the query for it all
+            // Query base: Noncancelled courses from the requested term
             $query = "SELECT s.id
                       FROM courses AS c
                         JOIN sections AS s ON s.course = c.id
                         JOIN departments AS d ON c.department = d.id
-                      WHERE c.quarter = '{$_POST['term']}'
-                        AND d.code = '{$department}'
-                        AND s.status != 'X'";
-        } else {
-            $query = "SELECT s.id
-                      FROM courses AS c
-                        JOIN sections AS s ON s.course = c.id
-                        JOIN departments AS d ON c.department = d.id
-                      WHERE c.quarter = '{$_POST['term']}'
-                        AND d.number = '{$department}'
-                        AND s.status != 'X'";
+                      WHERE
+                        s.status != 'X'
+                        AND c.quarter = '{$_POST['term']}'";
+
+            // Component 1: Department
+            $department = substr($course, 0, 4);
+            if(strlen($department) != 4) {
+                // We didn't get an entire department. We won't proceed
+                die(json_encode(array("error" => "argument", "msg" => "You must provide at least a complete department")));
+            }
+            $query .= " AND (d.code = '{$department}' OR d.number = '{$department}')";
+
+            // Component 2: Course number
+            $coursenum = substr($course, 4, 3);
+            if(!$coursenum || strlen($coursenum) != 3) {
+                // We got a partial course. That's ok.
+                $query .= " AND c.course LIKE '{$coursenum}%'";
+            } else {
+                $query .= " AND c.course = '{$coursenum}'";
+            }
+
+            // Component 3: Section number
+            $section = substr($course, 7);
+            if(!$section || strlen($coursenum) != 4) {
+                // We got a partial section number. That's ok.
+                $query .= " AND s.section LIKE '{$section}%'";
+            } else {
+                $query .= " AND s.section = '{$section}'";
+            }
+
+            // Ignore full courses option
+            if($_POST['ignoreFull'] == 'true') {
+                $query .= " AND s.curEnroll < s.maxEnroll";
+            }
+
+            // Close it up and provide order
+            $query .= " ORDER BY c.course, s.section";
+
+            $result = mysql_query($query);
+            if(!$result) {
+                die(json_encode(array("error" => "mysql", "msg" => "A database error occurred while searching for {$course}")));
+            }
+            if(mysql_num_rows($result) == 0) { continue; }
+
+            // Fetch all the results and append them to the list
+            while($row = mysql_fetch_assoc($result)) {
+                $courseOptions[] = getCourseBySectionId($row['id']);
+            }
         }
-		if($partialCourse) {
-			$query .= " AND c.course LIKE '{$coursenum}%'";
-		} else {
-			$query .= " AND c.course = '{$coursenum}'";
-		}
-		if($partialSection) {
-			$query .= " AND s.section LIKE '{$section}%'";
-		} else {
-			$query .= " AND s.section = '{$section}'";
-		}
-		if($_POST['ignoreFull'] == 'true') {
-			$query .= " AND s.curEnroll < s.maxEnroll";
-		}	
-		$query .= " ORDER BY c.course, s.section";
-		
-		$result = mysql_query($query);
-		if(!$result) {
-			die(json_encode(array("error" => "mysql", "msg" => "A database error occurred")));
-		}
-		if(mysql_num_rows($result) == 0) {
-			die(json_encode(array("error" => "result", "msg" => "No courses match")));
-		}
 
-		// Now we can process it into a list of courses. It's pretty simple from here
-		$return = array();
-		while($row = mysql_fetch_assoc($result)) {
-			$return[] = getCourseBySectionId($row['id']);
-		}
-		
-		echo json_encode($return);
+        if(count($courseOptions) == 0) {
+            die(json_encode(array("error" => "result", "msg" => "No courses match")));
+        }
+
+        // Puke the results back to the user
+		echo json_encode($courseOptions);
 
 		break;
 
