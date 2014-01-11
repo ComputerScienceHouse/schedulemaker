@@ -18,6 +18,8 @@ table {
 	overflow:auto;
 }
 
+
+
 img {
 	border: 0;
 }
@@ -983,6 +985,13 @@ div[schedule] {
 span[professor-lookup] {
 	cursor: pointer;
 }
+
+.inline-col {
+	display: inline-block;
+	vertical-align:top;
+	float:none;
+}
+
 /* SVG Schedule Rendering */
 svg rect {
 	shape-rendering: crispEdges;

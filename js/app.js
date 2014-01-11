@@ -44,26 +44,58 @@ app.filter('formatTime', function() {
 	}
 });
 
-app.filter('partition', function($cacheFactory) {
-	  var arrayCache = $cacheFactory('partition')
-	  return function(arr, size) {
-	    var parts = [], cachedParts,
-	      jsonArr = JSON.stringify(arr);
-	    for (var i=0; i < arr.length; i += size) {
-	        parts.push(arr.slice(i, i + size));        
-	    }
-	    cachedParts = arrayCache.get(jsonArr); 
-	    if (JSON.stringify(cachedParts) === JSON.stringify(parts)) {
-	      return cachedParts;
-	    }
-	    arrayCache.put(jsonArr, parts);
+app.filter('startFrom', function() {
+    return function(input, start) {
+        start = +start; //parse to int
+        return input.slice(start);
+    }
+});
 
-	    return parts;
-	  }; 
-	});
+app.filter('partition', function($cacheFactory) {
+	var arrayCache = $cacheFactory('partition')
+	return function(arr, size) {
+		var parts = [], cachedParts,
+		jsonArr = JSON.stringify(arr);
+		for (var i=0; i < arr.length; i += size) {
+			parts.push(arr.slice(i, i + size));        
+		}
+		cachedParts = arrayCache.get(jsonArr); 
+		if (JSON.stringify(cachedParts) === JSON.stringify(parts)) {
+			return cachedParts;
+		}
+		arrayCache.put(jsonArr, parts);
+
+		return parts;
+	}; 
+});
 
 app.controller( "AppCtrl", function( $scope) {
 	$scope.schedules =[];
+	$scope.options = {
+		start_time:'8:00am',
+		end_time:'10:00pm',
+		start_day: 1,
+		end_day: 6
+	};
+	$scope.ui = {
+		days: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+	};
+	
+	$scope.ensureCorrectEndDay = function() {
+		if($scope.options.start_day > $scope.options.end_day) {
+			$scope.options.end_day = $scope.options.start_day;
+		}
+	};
+	/*days: {
+		0: "Sunday",
+		1: "Monday",
+		2: "Tuesday",
+		3: "Wednesday",
+		4: "Thursday",
+		5: "Friday",
+		6: "Saturday"
+	}*/
+	
     $scope.generateSchedules = function() {
     	
     	// Serialize the form and store it if it changed
@@ -78,25 +110,6 @@ app.controller( "AppCtrl", function( $scope) {
     		$.post("./js/scheduleAjax.php", $('#scheduleForm').serialize(), function(data) {
                 var scheduleDiv = $("#schedules");
 
-                // Calculate the start and end times for the schedule
-                var start = $("#scheduleStart").val().match(/([0-9]+):([0-9]{2})(am|pm)/);
-                var end = $("#scheduleEnd").val().match(/([0-9]+):([0-9]{2})(am|pm)/);
-                if(start[3] == 'am' && parseInt(start[1]) == 12) {
-                    starttime = parseInt(start[2]);
-                } else if(start[3] == 'pm') {
-                    start[1] = parseInt(start[1]) + 12;
-                }
-                starttime = (parseInt(start[1]) * 60) + parseInt(start[2]);
-                if(end[3] == 'am' && parseInt(end[1]) == 12) {
-                    starttime = parseInt(end[2]);
-                } else if(end[3] == 'pm') {
-                    end[1] = parseInt(end[1]) + 12;
-                }
-                endtime = (parseInt(end[1]) * 60) + parseInt(end[2]);
-                if(starttime >= endtime) {
-                    data.error = true;
-                    data.msg = "Schedule start and end times are incompatible.";
-                }
 
     			// If there was a single, non-recoverable error, show it and die
     			if(data.error != null && data.error != undefined) {
@@ -131,6 +144,7 @@ app.controller( "AppCtrl", function( $scope) {
     			}
     			// Unhide the schedules page
     			scheduleDiv.show();
+    			$scope.$broadcast('generatedSchedules');
     			/*
     			// If we're showing all schedules on one page, then do that
                 var schedPerPage = $("#schedPerPage");
@@ -491,10 +505,17 @@ app.directive("dynamicItem", function($timeout){
   };
 });
 
+app.directive('scheduleOptions', function() {
+	return {
+		restrict: 'A',
+		link: function(scope, elm, attrs) {
+		}
+	};
+});
+
 app.directive('schedule', function($timeout) {
-	function Schedule(courses) {
-		this.elm = null;
-		this.courses = courses;	
+	function Schedule(scope) {
+		this.scope = scope;
 		this.colors = ['247, 134, 134',
 		              '243, 220, 146',
 		              '243, 243, 170',
@@ -502,13 +523,85 @@ app.directive('schedule', function($timeout) {
 		              '186, 238, 243'
 		              ];
 	}
-	Schedule.prototype.draw = function(elm) {
-		//elm.html()
-	};
-	Schedule.drawSchedule = function(context, schedule) {
-		for(var i=0, l= schedule.length; i <l; i++) {
-			drawCourse(context, schedule[i]);
+	Schedule.prototype.draw = function() {
+		var scope = this.scope;
+		
+		var start = scope.options.start_time.match(/([0-9]+):([0-9]{2})(am|pm)/);
+        var end = scope.options.end_time.match(/([0-9]+):([0-9]{2})(am|pm)/);
+        console.log("herere: ", start, ", end:", end);
+        if(start[3] == 'am' && parseInt(start[1]) == 12) {
+            starttime = parseInt(start[2]);
+        } else if(start[3] == 'pm') {
+            start[1] = parseInt(start[1]) + 12;
+        }
+        starttime = (parseInt(start[1]) * 60) + parseInt(start[2]);
+        if(end[3] == 'am' && parseInt(end[1]) == 12) {
+            starttime = parseInt(end[2]);
+        } else if(end[3] == 'pm') {
+            end[1] = parseInt(end[1]) + 12;
+        }
+        endtime = (parseInt(end[1]) * 60) + parseInt(end[2]);
+        if(starttime >= endtime) {
+            data.error = true;
+            data.msg = "Schedule start and end times are incompatible.";
+        }
+		
+        var hourArray = [];
+        for(var time = starttime; time < endtime; time += 60) {
+    		// Calculate the label
+    		var hourLabel = Math.floor(time / 60);
+    		if(hourLabel > 12) { hourLabel -= 12; }
+    		else if(hourLabel == 0) { hourLabel = 12; }
+
+    		if(time >= 720) { ap = " PM"; } else { ap = " AM"; }	
+    		
+    		hourArray.push(String(hourLabel) + ap);
+    	}
+
+		// Generate grid
+        var numDays = scope.options.end_day - scope.options.start_day + 1;
+		// Set up grid
+		var rawHeight = (hourArray.length * 40),
+		globalOpts = {
+			height: rawHeight + 25,
+			hoursWidth: 5
+		},
+		rawDayWidth = 100 / numDays,
+		dayPadding = 1,
+		dayOpts = {
+			num: numDays,
+			rawWidth: rawDayWidth,
+			width: (rawDayWidth - (globalOpts.hoursWidth / numDays) - (2 * dayPadding)) + '%',
+			padding: dayPadding,
+			height: rawHeight
+		};
+		
+		var dayArray = [];
+		//Generate days
+		
+		var dayIndex = scope.options.start_day;
+		for(var i=0; i < numDays; i++) {
+			var offset = globalOpts.hoursWidth + ( 2 * dayOpts.padding) + ((dayOpts.rawWidth - dayOpts.padding) * i);
+			dayArray.push({
+				name: scope.ui.days[dayIndex],
+				offset: offset + '%',
+			});
+			dayIndex++;
 		}
+		
+        
+		//Set the scope variable
+		scope.grid = {
+			hours: hourArray,
+			days: dayArray,
+			opts: {
+				height: globalOpts.height,
+				hoursWidth: globalOpts.hoursWidth,
+				daysWidth: dayOpts.width,
+				daysHeight: dayOpts.height,
+				pixelAlignment:''
+			}
+		};
 	};
 
 	return {
@@ -516,49 +609,21 @@ app.directive('schedule', function($timeout) {
 		templateUrl: './js/templates/schedule.html',
 		link: {
 			pre: function(scope, elm, attrs) {
-				// Set up defaults
-				var numDays = 6,
-				numHours = 10,
-				height = (numHours * 40),
-				dayOpts = {
-					num: numDays,
-					width: 100 / numDays,
-					padding: 1
-				},
-				globalOpts = {
-					height: height,
-					hoursWidth: 5
-				},
-				dayArray = [];
-
-				//Generate days
-				for(var i=0; i < numDays; i++) {
-					var width = (dayOpts.width - (globalOpts.hoursWidth / numDays) - 2 * dayOpts.padding)
-					var offset = globalOpts.hoursWidth + ( 2 * dayOpts.padding) + ((dayOpts.width - dayOpts.padding) * i);
-					dayArray.push({
-						offset: offset + '%',
-						width: width + '%',
-					});
-				}
+				scope.scheduleController = new Schedule(scope);
 				
-				//Set the scope variable
-				scope.grid = {
-					hours: ['9 AM','10 AM','11 AM','12 PM','1 PM','2 PM', '3 PM','4 PM','5 PM','6 PM'],
-					days: dayArray,
-					opts: {
-						height: globalOpts.height,
-						hoursWidth: globalOpts.hoursWidth,
-						pixelAlignment:''
-					}
-				};
 			},
 			post: function(scope, elm) {
-				$timeout(function() {
-					var offset = elm.find("svg").offset(),
-					vert = 1 - parseFloat('0.'+('' + offset.top).split('.')[1]);
-					horz = 1 - parseFloat('0.'+('' + offset.left).split('.')[1]);
-					scope.grid.opts.pixelAlignment ='translate('+horz+','+vert+')';
-				},0,true);
+				scope.$watchCollection('options', function() {			
+					scope.scheduleController.draw();
+					
+					// Fix the pixel issues after DOM updates
+					$timeout(function() {
+						var offset = elm.find("svg").offset(),
+						vert = 1 - parseFloat('0.'+('' + offset.top).split('.')[1]);
+						horz = 1 - parseFloat('0.'+('' + offset.left).split('.')[1]);
+						scope.grid.opts.pixelAlignment ='translate('+horz+','+vert+')';
+					},0,true);
+				});
 			}
 		}
 	};

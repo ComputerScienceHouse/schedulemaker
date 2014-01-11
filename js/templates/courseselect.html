@@ -30,8 +30,8 @@
 </div>
 <div ng-show="showResults">
 	<div class="visible-xs visible-sm vert-spacer-static-md"></div>
-	<div class="row" ng-repeat="resultGroup in item.results | partition:3">
-		<div class="col-md-4" ng-repeat="result in resultGroup">
+	<div class="row">
+		<div class="inline-col col-md-4" ng-repeat="result in item.results">
 			<ul class="list-group">
 				<li class="list-group-item course-info" ng-class="{'selected-course':selected != ''}"><input type="checkbox" class="course-selected-checkbox" ng-init="selected = true" ng-checked="selected" value="{{result.sectionId}}" name="courses{{$parent.$parent.$index + 1}}Opt[]">
 					<div class="row">
@@ -45,7 +45,7 @@
 						<div class="col-sm-4">
 							<div class="row">
 								<div class="col-xs-6 col-sm-12">
-									<button type="button" class="btn btn-block" ng-mousedown="selected = !selected" ng-class="{'btn-danger':selected, 'btn-success':!selected}">{{selected?"Unselect":"Select"}}</button>
+									<button type="button" class="btn btn-block" ng-mouseup="selected = !selected" ng-class="{'btn-danger':selected, 'btn-success':!selected}">{{selected?"Unselect":"Select"}}</button>
 								</div>
 								<div class="hidden-xs vert-spacer-sm"></div>
 								<div class="col-xs-6 col-sm-12">

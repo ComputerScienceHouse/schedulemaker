@@ -7,7 +7,7 @@ require_once('./inc/timeFunctions.php');
 <!DOCTYPE html>
 <html>
 	<head>
-		<title><?= (!empty($TITLE)) ? $TITLE : "Schedule Maker 2" ?></title>
+		<title><?= (!empty($TITLE)) ? $TITLE : "Schedule Maker" ?></title>
 		<link href='http://fonts.googleapis.com/css?family=Roboto:300' rel='stylesheet' type='text/css'>
 		<link href='./inc/bootstrap.css' rel='stylesheet' type='text/css' />
 		<link href="//netdna.bootstrapcdn.com/font-awesome/4.0.1/css/font-awesome.css" rel="stylesheet">
@@ -16,6 +16,7 @@ require_once('./inc/timeFunctions.php');
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 		<script type='text/javascript' src='./js/jquery.js'></script>
+		<script type='text/javascript' src='./js/jquery.pin.min.js'></script>
 		<script type="text/javascript" src="./js/bootstrap.js"></script>
         <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.0/angular.js"></script>
         <script type="text/javascript" src="http://code.angularjs.org/1.2.0/angular-animate.min.js"></script>
@@ -56,7 +57,7 @@ require_once('./inc/timeFunctions.php');
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
                     </button>
-                    <a class="navbar-brand" href="/">ScheduleMaker 2</a>
+                    <a class="navbar-brand" href="/">ScheduleMaker</a>
                 </div>
                 <div class="collapse navbar-collapse navbar-right navbar-ex1-collapse">
                     <ul class="nav navbar-nav">

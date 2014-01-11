@@ -25,7 +25,7 @@ function getDayField($fieldname, $selectedDay, $numeric = false) {
 	}
 	
 	// Generate a bunch of code
-	$result = "<select id='{$fieldname}' name='{$fieldname}'>";
+	$result = "<select class=\"form-control\" ng-model=\"options.$fieldname\" id='options-{$fieldname}' name='{$fieldname}'>";
 	foreach($days as $dayCode => $dayName) {
 		$result .= "<option value='{$dayCode}'" . (($dayCode == $selectedDay) ? " selected='selected'" : "" ) . ">{$dayName}</option>";
 	}
