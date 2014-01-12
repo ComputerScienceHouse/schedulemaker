@@ -1,23 +1,28 @@
 <div class="schedule-cont">
 	<div onload="alignToPixels()">
-		<svg ng-attr-height="{{grid.opts.height}}" height="0" width="100%" xmlns="http://www.w3.org/2000/svg">
+		<svg ng-attr-height="{{grid.opts.height}}" width="100%" xmlns="http://www.w3.org/2000/svg">
 			<defs>
 				<pattern vector-effect="non-scaling-stroke" id="day" width="100%" x="0" height="40" patternUnits="userSpaceOnUse">
 					<line vector-effect="non-scaling-stroke" x1="0" y1="19.5" x2="100%" y2="19.5" style="stroke:#bbb;stroke-width:1" />
-					<line vector-effect="non-scaling-stroke" x1="0" y1="38.5" x2="100%" y2="38.5" style="stroke:#ccc;stroke-width:1" stroke-dasharray="3,3" />
+					<line vector-effect="non-scaling-stroke" x1="0" y1="39.5" x2="100%" y2="38.5" style="stroke:#ccc;stroke-width:1" stroke-dasharray="3,3" />
 				</pattern>
 			</defs>
 			<g ng-attr-transform="{{grid.opts.pixelAlignment}}" font-family="Roboto" font-size="15">
-				
-				<text fill="#aaa" text-anchor="end" font-weight="bold" ng-repeat="hour in grid.hours track by $index" x="5%" ng-attr-y="{{($index * 40) + 25}}">{{hour}}</text>
-				
+				<g>
+					<text fill="#aaa" text-anchor="end" ng-repeat="hour in grid.hours track by $index" x="5%" ng-attr-y="{{($index * 40) + 25}}">{{hour}}</text>
+				</g>
 				<g ng-repeat="day in grid.days">
-					<text y="12" ng-attr-x="{{day.offset}}" ng-attr-width="{{grid.opts.daysWidth}}" font-weight="bold" fill="#aaa" ng-bind="day.name"></text>
+					<text y="12" ng-attr-x="{{day.offset}}" ng-attr-width="{{grid.opts.daysWidth}}" fill="#aaa" ng-bind="day.name"></text>
 					<rect y="19" ng-attr-x="{{day.offset}}" ng-attr-width="{{grid.opts.daysWidth}}" ng-attr-height="{{grid.opts.daysHeight}}" fill="url(#day)" />
 				</g>
-				<g class="item">
-					<rect x="7%" y="59px" width="13.8333%" height="60" fill="rgba(0,126,55, 0.7)" />
-					<text x="7%" y="74px" transform="translate(3,0)" font-weight="bold" fill="white">Test Class 1</text>
+				<g svg-schedule-item class="item" ng-mouseenter="itemEnter($event)" ng-mouseleave="itemLeave($event)" ng-repeat="item in scheduleItems">
+					<rect ng-attr-x="{{item.boundry.x}}" ng-attr-y="{{item.boundry.y}}" ng-attr-width="{{item.boundry.width}}" ng-attr-height="{{item.boundry.height}}" ng-attr-fill="{{item.color}}" fill-opacity=".8" />
+					<text svg-text-line="{{item.title}}" ng-attr-x="{{item.boundry.x}}" ng-attr-y="{{item.boundry.y + 16}}" transform="translate(3,0)" font-weight="bold" fill="white"></text>
+					<text ng-if="item.boundry.height > 32 && item.content.courseNum" svg-text-line="{{item.content.courseNum}}" ng-attr-x="{{item.boundry.x}}" ng-attr-y="{{item.boundry.y + 32}}" transform="translate(3,0)" fill="#fff"></text>
+					<text ng-if="item.boundry.height > 48 && item.content.instructor" svg-text-line="{{item.content.instructor}}" ng-attr-x="{{item.boundry.x}}" ng-attr-y="{{item.boundry.y + 48}}" transform="translate(3,0)" fill="#fff"></text>
+					<text ng-if="item.boundry.height > 64 && item.content.location" svg-text-line="{{item.content.location}}" ng-attr-x="{{item.boundry.x}}" ng-attr-y="{{item.boundry.y + 64}}" transform="translate(3,0)" fill="#fff"></text>
+					<g svg-text-content="item.content">
+					</g>
 				</g>
 				<!-- <g class="item">
 					<rect x="22.666666666666668%" y="83px" width="13.8333%" height="60" fill="rgba(0,126,55, 0.7)" />

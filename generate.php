@@ -282,7 +282,7 @@ global $CURRENT_QUARTER;
 						<div class="panel-body">
 							<div class="row">
 								<div class="col-md-9 col-lg-10">
-									<div schedule="schedule"></div>
+									<div schedule></div>
 								</div>
 								<div class="col-md-3 col-lg-2">
 									<div class="panel panel-default">

@@ -2,8 +2,13 @@
 	<div class="col-md-6">
 		<div class="form-group" ng-class="{'has-error':item.results[0].isError == true}">
 			<label class="col-sm-3 col-xs-12 control-label" for="courses{{index}}">Course {{index}}:</label>
-			<div class="col-sm-7 col-xs-9">
+			<div class="col-sm-5 col-xs-6">
 				<input id="courses{{index}}" class="form-control searchField" ng-model="item.search" type="text" name="courses{{index}}" maxlength="17" placeholder="DEPT-CRS-SECT" />
+			</div>
+			<div class="col-sm-2 col-xs-3">
+				<button type="button" class="btn btn-default" ng-style="{'background-color':item.color}">
+					<i class="fa fa-circle"></i>
+				</button>
 			</div>
 			<div class="col-sm-2 col-xs-3">
 				<button type="button" ng-class="{'btn-danger':delHover}" ng-blur="delHover = false" ng-focus="delHover = true" ng-mouseenter="delHover = true" ng-mouseleave="delHover = false" class="btn btn-default" ng-mousedown="remove()">
@@ -33,7 +38,7 @@
 	<div class="row">
 		<div class="inline-col col-md-4" ng-repeat="result in item.results">
 			<ul class="list-group">
-				<li class="list-group-item course-info" ng-class="{'selected-course':selected != ''}"><input type="checkbox" class="course-selected-checkbox" ng-init="selected = true" ng-checked="selected" value="{{result.sectionId}}" name="courses{{$parent.$parent.$index + 1}}Opt[]">
+				<li class="list-group-item course-info" ng-class="{'selected-course':selected != ''}"><input type="checkbox" class="course-selected-checkbox" ng-init="selected = true" ng-checked="selected" value="{{result.sectionId}}" name="courses{{$parent.$index + 1}}Opt[]">
 					<div class="row">
 						<div class="col-sm-8">
 							<h4 class="list-group-item-heading">{{result.courseNum}}</h4>
