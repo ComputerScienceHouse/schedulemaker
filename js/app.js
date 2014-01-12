@@ -528,8 +528,8 @@ app.directive('schedule', function($timeout) {
 	Schedule.prototype.draw = function() {
 		var scope = this.scope;
 		
-		var start = scope.options.start_time.match(/([0-9]+):([0-9]{2})(am|pm)/);
-        var end = scope.options.end_time.match(/([0-9]+):([0-9]{2})(am|pm)/);
+		var start = scope.options.start_time.match(/([0-9]|1[0-2]):([0-9]{2})(am|pm)/);
+        var end = scope.options.end_time.match(/([0-9]|1[0-2]):([0-9]{2})(am|pm)/);
         console.log("herere: ", start, ", end:", end);
         if(start[3] == 'am' && parseInt(start[1]) == 12) {
             starttime = parseInt(start[2]);

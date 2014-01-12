@@ -18,7 +18,9 @@ table {
 	overflow:auto;
 }
 
-
+.center {
+	text-align: center;
+}
 
 img {
 	border: 0;

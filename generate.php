@@ -57,7 +57,6 @@ global $CURRENT_QUARTER;
 			</div>
 		</div>
 	</div>
-	<button type="button" class="btn btn-block btn-default btn-lg" ng-click="showScheduleOptions = !showScheduleOptions">Toggle Schedule Options</button>
 	<div>&nbsp;</div>
 	<div class="row" ng-show="showScheduleOptions">
 		<div class="col-md-6">
@@ -187,52 +186,14 @@ global $CURRENT_QUARTER;
 			</div>
 		</div>
 	</div>
-	<div id="advancedOptionsCont" ng-show="showScheduleOptions" class="panel panel-default ng-hide">
-		<div class="panel-heading">
-			<h2 class="panel-title">Advanced Options</h2>
+	<input name="action" value="getMatchingSchedules" type="hidden"> <input type="hidden" value="true" name="verbose" id="verbose">
+	<div class="center" role="toolbar">
+		<div class="btn-group">
+			<button type="button" class="btn btn-default btn-lg" ng-click="showScheduleOptions = !showScheduleOptions">Toggle Schedule Options</button>
 		</div>
-		<div class="panel-body">
-			<table id="advancedOptions">
-				<tbody>
-					<tr>
-						<td class="lbl"><label for="scheduleStart">Start Time:</label></td>
-						<td><input ng-model="options.start_time" autocomplete="off" class="form-control" type="text"></td>
-						<td class="lbl"><label for="scheduleEnd">End Time:</label></td>
-						<td><input ng-model="options.end_time" autocomplete="off" class="form-control" type="text"></td>
-					</tr>
-					<tr>
-						<td class="lbl"><label for="scheduleStartDay">First Day:</label></td>
-						<td><?= getDayField("scheduleStartDay", 1, true) ?></td>
-						<td class="lbl"><label for="scheduleEndDay">End Day:</label></td>
-						<td><?= getDayField("scheduleEndDay", 6, true) ?></td>
-					</tr>
-					<tr>
-						<td class="lbl"><label class="lbl">Schedules per Page:</label></td>
-						<td><select id="schedPerPage" name="schedPerPage">
-								<option value="3" selected="selected">3 per Page</option>
-								<option value="5">5 per Page</option>
-								<option value="10">10 per Page</option>
-								<option value="15">15 per Page</option>
-								<option value="20">20 per Page</option>
-								<option value="all">All Schedules</option>
-						</select></td>
-						<td><label for="buildingStyle">Buildings:</label></td>
-						<td><select id="buildingStyle" name="buildingStyle">
-								<option selected="selected" value="code">Codes (eg. GOL)</option>
-								<option value="number">Number (eg. 70)</option>
-						</select></td>
-					</tr>
-					<tr>
-						<td style="text-align: right"><input id="verbose" name="verbose" value="true" type="checkbox"></td>
-						<td><label for="verbose">Show Error Messages/Course Conflicts</label></td>
-					</tr>
-				</tbody>
-			</table>
+		<div class="btn-group">
+			<button class="btn-lg btn btn-primary btn-default" ng-click="generateSchedules()">Show Matching Schedules</button>
 		</div>
-	</div>
-	<input name="action" value="getMatchingSchedules" type="hidden">
-	<div id="formSubmit" class="scheduleForm">
-		<button class="btn-lg btn btn-primary btn-default" ng-click="generateSchedules()">Show Matching Schedules</button>
 	</div>
 </form>
 <div ng-show="schedules.length > 0">
@@ -275,7 +236,7 @@ global $CURRENT_QUARTER;
 							</div>
 							<div class="col-md-4">
 								<div class="form-group">
-									<label for="options-building_style" class="col-sm-4 control-label">Start Day</label>
+									<label for="options-building_style" class="col-sm-4 control-label">Buildings</label>
 									<div class="col-sm-8">
 										<select id="options-building_style" class="form-control" ng-model="options.building_style">
 											<option value="code">Codes (eg. GOL)</option>
@@ -283,10 +244,11 @@ global $CURRENT_QUARTER;
 										</select>
 									</div>
 								</div>
-								<div class="form-group">
-									<div class="col-sm-8 col-sm-offset-4">
+								<div class="form-group hidden-xs">
+									<label for="options-fullscreen" class="col-sm-4 control-label">Width</label>
+									<div class="col-sm-8">
 										<div class="checkbox">
-											<label> <input type="checkbox" ng-model="options.fullscreen"> Fullscreen
+											<label> <input id="options-fullscreen" type="checkbox" ng-model="options.fullscreen"> Fullscreen
 											</label>
 										</div>
 									</div>
@@ -319,16 +281,16 @@ global $CURRENT_QUARTER;
 						</div>
 						<div class="panel-body">
 							<div class="row">
-								<div class="col-md-10">
+								<div class="col-md-9 col-lg-10">
 									<div schedule="schedule"></div>
 								</div>
-								<div class="col-md-2">
+								<div class="col-md-3 col-lg-2">
 									<div class="panel panel-default">
 										<div class="panel-heading">
 											<h2 class="panel-title">Options</h2>
 										</div>
 										<div class="panel-body">
-											<button type="button" class="btn btn-default">Save Schedule</button>
+											<button type="button" class="btn btn-block btn-default">Save Schedule</button>
 										</div>
 									</div>
 								</div>
