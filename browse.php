@@ -59,6 +59,7 @@ require "./inc/header.inc";
 // Display the fancy dropdown thingy that allows one to traverse the
 // list of courses
 ?>
+<div class="container">
 <script src='./js/browse.js' type='text/javascript'></script>
 <h1 id='browseHeader'>Browse Courses &gt; <?= getTermType($term) ?> <?= substr($term, 0, 4) ?></h1>
 
@@ -89,6 +90,8 @@ while($school = mysql_fetch_assoc($schoolResult)) {
     </div>
     <?
 }
-
+?>
+</div>
+<?
 require "./inc/footer.inc";
 ?>
