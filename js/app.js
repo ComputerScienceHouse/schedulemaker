@@ -777,6 +777,7 @@ app.directive('svgTextContent', function($compile) {
 		}
 	};
 });
+
 /*
 app.directive('svgScheduleItem', function() {
 	return {
@@ -786,3 +787,49 @@ app.directive('svgScheduleItem', function() {
 		}
 	};
 })*/
+// BROWSE PAGE
+app.controller("BrowseCtrl", function($scope, browseRequest) {
+	$scope.contents = [];
+	
+	$scope.toggleSchool = function($event) {
+		var scope = angular.element($event.target).scope();
+		scope.school.code;
+		if(typeof scope.expanded == 'undefined') {
+			scope.expanded = true;
+		} else {
+			scope.expanded = !scope.expanded;
+		}
+	};
+	
+	$scope.$watch('term', function(newTerm) {
+		browseRequest.getSchoolsForTerm(newTerm).success(function(data, status) {
+			if(status == 200 && typeof data.error == 'undefined') {
+				$scope.contents = data;
+			} else if(data.error) {
+				// TODO: Better error checking
+				alert(data.msg);
+			}
+		});
+	});
+});
+
+app.factory('browseRequest', function($http) {
+	var browseRequest = function(params, callback) {
+		return $http.post('js/browseAjax.php', $.param(params), {
+			requestType:'json',
+			headers: {
+				'Content-Type': 'application/x-www-form-urlencoded'
+			}, 
+			withCredentials: true
+		});
+	};
+	return {
+		'getSchoolsForTerm': function(term) {
+			return browseRequest({
+				action:'getSchoolsForTerm',
+				term: term
+			});
+		}
+	};
+});
+

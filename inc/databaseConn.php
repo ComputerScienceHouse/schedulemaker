@@ -181,18 +181,18 @@ function getTermField($fieldName = "term", $selected = null) {
         $termNum = substr(strval($term), -1);
         if($year >= 2013) {
             switch($termNum) {
-                case 1: $termName = "Fall"; break;
-                case 3: $termName = "Winter Intersession"; break;
-                case 5: $termName = "Spring"; break;
-                case 8: $termName = "Summer"; break;
+                case 1: $termName = "Fall"; $useYear = $year; break;
+                case 3: $termName = "Winter Intersession"; $useYear = (int) $year + 1; break;
+                case 5: $termName = "Spring"; $useYear = (int) $year + 1; break;
+                case 8: $termName = "Summer"; $useYear = (int) $year + 1; break;
                 default: $termName = "Unknown";
             }
         } else {
             switch($termNum) {
-                case 1: $termName = "Fall"; break;
-                case 2: $termName = "Winter"; break;
-                case 3: $termName = "Spring"; break;
-                case 4: $termName = "Summer"; break;
+                case 1: $termName = "Fall"; $useYear = $year; break;
+                case 2: $termName = "Winter"; $useYear = $year; break;
+                case 3: $termName = "Spring"; $useYear = (int) $year + 1; break;
+                case 4: $termName = "Summer"; $useYear = (int) $year + 1; break;
                 default: $termName = "Unknown";
             }
         }
@@ -209,7 +209,7 @@ function getTermField($fieldName = "term", $selected = null) {
         }
 
 		// Now output it
-		$return .= "<option value='{$term}'" . (($selected == $term) ? " selected='selected'" : "") . ">{$year} {$termName}</option>";
+		$return .= "<option value='{$term}'" . (($selected == $term) ? " selected='selected'" : "") . ">{$termName} {$useYear}</option>";
 	}
 
 	// Close it up and return it

@@ -18,9 +18,9 @@ global $CURRENT_QUARTER;
 <script type='text/javascript' src='./js/jquery.timepicker.min.js'></script>
 <link href='inc/jquery.timepicker.css' rel='stylesheet' type='text/css' />
 <form novalidate id="scheduleForm" name="schedule" class="form-horizontal ng-pristine ng-valid container" method="POST">
-	<div class="panel panel-default ng-scope" ng-controller="scheduleCoursesCtrl">
+	<div class="panel panel-default" ng-controller="scheduleCoursesCtrl">
 		<div class="panel-heading">
-			<h2 class="panel-title">Courses</h2>
+			<h2 class="panel-title">Select Courses</h2>
 		</div>
 		<div class="panel-body">
 			<div id="scheduleCourses">

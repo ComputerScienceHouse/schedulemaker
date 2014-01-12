@@ -808,15 +808,17 @@ form {
 	color:black;
 }
 
-.subDivision {
+#browse-contents .list-group-item {
+	min-height: 60px;
+}
+
+/*.subDivision {
 	display:none;
 	margin-left:20px;
 	margin-top:5px;
 }
 .item {
-	line-height:16px;
-	padding:5px;
-	background:#799AA5;
+
 }
 
 .item .item {
@@ -830,7 +832,7 @@ form {
 	margin-top:0;
 	margin-left:5px;
 	margin-right:5px;
-}
+}*/
 
 .courseDescription {
 	display: none;

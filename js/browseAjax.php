@@ -139,6 +139,38 @@ switch($_POST['action']) {
         // Return it to the user
         echo(json_encode($schools));
         break;
+        
+    case "getSchoolsForTerm":
+        // REQUEST FOR LIST OF SCHOOLS FOR TERM ////////////////////////////
+    	if(empty($_POST['term'])) {
+    		die(json_encode(array("error" => "argument", "msg" => "You must provide a term")));
+    	}
+    	
+    	$term = (int) $_POST['term'];
+    	
+    	// Determine if term was before quarters
+		if ($term > 20130) {
+			// School codes
+			$query = "SELECT id, code AS code, title FROM schools WHERE code IS NOT NULL ORDER BY code";
+		} else {
+			// School numbers
+			$query = "SELECT id, number AS code, title FROM schools WHERE number IS NOT NULL ORDER BY number";
+		}
+		// Query for the schools
+        $result = mysql_query($query);
+        if(!$result) {
+        	die(json_encode(array("error" => "database", "msg" => "The list of schools could not be retrieved at this time.")));
+        }
+        
+        // Build an array of schools
+        $schools = array();
+        while($school = mysql_fetch_assoc($result)) {
+        	$schools[] = $school;
+        }
+        
+        // Return it to the user
+        echo(json_encode($schools));
+        break;
 
 	case "getSections":
 		// Query for the sections and times of a given course
