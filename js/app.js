@@ -75,7 +75,9 @@ app.controller( "AppCtrl", function( $scope) {
 		start_time:'8:00am',
 		end_time:'10:00pm',
 		start_day: 1,
-		end_day: 6
+		end_day: 6,
+		building_style: 'code',
+		fullscreen: false
 	};
 	$scope.ui = {
 		days: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],

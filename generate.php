@@ -17,7 +17,7 @@ global $CURRENT_QUARTER;
 <script type='text/javascript' src='./js/schedule.js'></script>
 <script type='text/javascript' src='./js/jquery.timepicker.min.js'></script>
 <link href='inc/jquery.timepicker.css' rel='stylesheet' type='text/css' />
-<form novalidate id="scheduleForm" name="schedule" class="form-horizontal ng-pristine ng-valid" method="POST">
+<form novalidate id="scheduleForm" name="schedule" class="form-horizontal ng-pristine ng-valid container" method="POST">
 	<div class="panel panel-default ng-scope" ng-controller="scheduleCoursesCtrl">
 		<div class="panel-heading">
 			<h2 class="panel-title">Courses</h2>
@@ -236,79 +236,101 @@ global $CURRENT_QUARTER;
 	</div>
 </form>
 <div ng-show="schedules.length > 0">
-	<pre>
-	{{options | json}}
-	</pre>
-	<div class="row">
-		<div class="col-md-12">
-			<div class="panel panel-primary">
-				<div class="panel-heading">
-					<h2 class="panel-title">Display Options</h2>
-				</div>
-				<div class="panel-body">
-					<div class="row form-horizontal">
-						<div class="col-md-4">
-							<div class="form-group">
-								<label for="options-start_time" class="col-sm-4 control-label">Start Time</label>
-								<div class="col-sm-8">
-									<input id="options-start_time" type="text" class="form-control" ng-model="options.start_time" autocomplete="off">
-								</div>
-							</div>
-							<div class="form-group">
-								<label for="options-end_time" class="col-sm-4 control-label">End Time</label>
-								<div class="col-sm-8">
-									<input id="options-end_time" type="text" class="form-control" ng-model="options.end_time" autocomplete="off">
-								</div>
-							</div>
-						</div>
-						<div class="col-md-4">
-							<div class="form-group">
-								<label for="options-start_day" class="col-sm-4 control-label">Start Day</label>
-								<div class="col-sm-8">
-									<select id="options-start_day" ng-change="ensureCorrectEndDay()" class="form-control" ng-model="options.start_day" ng-options="ui.days.indexOf(value) as value for (key, value) in ui.days"></select>
-								</div>
-							</div>
-							<div class="form-group">
-								<label for="options-end_day" class="col-sm-4 control-label">End Day</label>
-								<div class="col-sm-8">
-									<select id="options-end_day" class="form-control" ng-model="options.end_day" ng-options="ui.days.indexOf(value) as value for (key, value) in ui.days | startFrom: options.start_day"></select>
-								</div>
-							</div>
-						</div>
+	<div class="container">
+		<div class="row">
+			<div class="col-md-12">
+				<div class="panel panel-primary">
+					<div class="panel-heading">
+						<h2 class="panel-title">Display Options</h2>
 					</div>
-					<!--<div class="form-group">
-						<div class="col-sm-offset-2 col-sm-10">
-							<div class="checkbox">
-								<label> <input type="checkbox"> Remember me
-								</label>
+					<div class="panel-body">
+						<div class="row form-horizontal">
+							<div class="col-md-4">
+								<div class="form-group">
+									<label for="options-start_time" class="col-sm-4 control-label">Start Time</label>
+									<div class="col-sm-8">
+										<input id="options-start_time" type="text" class="form-control" ng-model="options.start_time" autocomplete="off">
+									</div>
+								</div>
+								<div class="form-group">
+									<label for="options-end_time" class="col-sm-4 control-label">End Time</label>
+									<div class="col-sm-8">
+										<input id="options-end_time" type="text" class="form-control" ng-model="options.end_time" autocomplete="off">
+									</div>
+								</div>
+							</div>
+							<div class="col-md-4">
+								<div class="form-group">
+									<label for="options-start_day" class="col-sm-4 control-label">Start Day</label>
+									<div class="col-sm-8">
+										<select id="options-start_day" ng-change="ensureCorrectEndDay()" class="form-control" ng-model="options.start_day" ng-options="ui.days.indexOf(value) as value for (key, value) in ui.days"></select>
+									</div>
+								</div>
+								<div class="form-group">
+									<label for="options-end_day" class="col-sm-4 control-label">End Day</label>
+									<div class="col-sm-8">
+										<select id="options-end_day" class="form-control" ng-model="options.end_day" ng-options="ui.days.indexOf(value) as value for (key, value) in ui.days | startFrom: options.start_day"></select>
+									</div>
+								</div>
+							</div>
+							<div class="col-md-4">
+								<div class="form-group">
+									<label for="options-building_style" class="col-sm-4 control-label">Start Day</label>
+									<div class="col-sm-8">
+										<select id="options-building_style" class="form-control" ng-model="options.building_style">
+											<option value="code">Codes (eg. GOL)</option>
+											<option value="number">Number (eg. 70)</option>
+										</select>
+									</div>
+								</div>
+								<div class="form-group">
+									<div class="col-sm-8 col-sm-offset-4">
+										<div class="checkbox">
+											<label> <input type="checkbox" ng-model="options.fullscreen"> Fullscreen
+											</label>
+										</div>
+									</div>
+								</div>
 							</div>
 						</div>
+						<!--<div class="form-group">
+							<div class="col-sm-offset-2 col-sm-10">
+								<div class="checkbox">
+									<label> <input type="checkbox"> Remember me
+									</label>
+								</div>
+							</div>
+						</div>
+						<div class="form-group">
+							<input ng-model="options.start_time" autocomplete="off" class="form-control" type="text"> <input ng-model="options.end_time" autocomplete="off" class="form-control" type="text">
+						</div>-->
 					</div>
-					<div class="form-group">
-						<input ng-model="options.start_time" autocomplete="off" class="form-control" type="text"> <input ng-model="options.end_time" autocomplete="off" class="form-control" type="text">
-					</div>-->
 				</div>
 			</div>
 		</div>
 	</div>
-	<div class="row" ng-repeat="schedule in schedules">
-		<div class="col-md-12">
-			<div class="panel panel-default">
-				<div id="matchingSchedules" class="panel-heading">
-					<h2 class="panel-title">Schedule {{$index +1}}:</h2>
-				</div>
-				<div class="panel-body">
-					<div class="row">
-						<div class="col-md-10">
-							<div schedule="schedule"></div>
+	<div ng-class="{container: !options.fullscreen}">
+		<div ng-class="{'col-sm-12': options.fullscreen}">
+			<div class="row" ng-repeat="schedule in schedules">
+				<div class="col-md-12">
+					<div class="panel panel-default">
+						<div id="matchingSchedules" class="panel-heading">
+							<h2 class="panel-title">Schedule {{$index +1}}:</h2>
 						</div>
-						<div class="col-md-2">
-							<div class="panel panel-default">
-								<div class="panel-heading">
-									<h2 class="panel-title">Options</h2>
+						<div class="panel-body">
+							<div class="row">
+								<div class="col-md-10">
+									<div schedule="schedule"></div>
 								</div>
-								<div class="panel-body">
-									<button type="button" class="btn btn-default">Save Schedule</button>
+								<div class="col-md-2">
+									<div class="panel panel-default">
+										<div class="panel-heading">
+											<h2 class="panel-title">Options</h2>
+										</div>
+										<div class="panel-body">
+											<button type="button" class="btn btn-default">Save Schedule</button>
+										</div>
+									</div>
 								</div>
 							</div>
 						</div>
