@@ -996,6 +996,14 @@ span[professor-lookup] {
 	float:none;
 }
 
+.course-select-form {
+	border-style: solid;
+	border-color: #ffffff;
+	border-width: 0px;
+	border-left-width: 10px;
+	transition: border-left-color .3s;
+}
+
 /* SVG Schedule Rendering */
 svg rect {
 	shape-rendering: crispEdges;
@@ -1016,6 +1024,11 @@ svg g.item:hover rect {
 	}
 	div[schedule] {
 		overflow-x:scroll;
+	}
+	.course-select-form {
+		border-left-width: 0px;
+		border-top-width: 3px;
+		margin-top: 10px;
 	}
 }
 

@@ -98,12 +98,13 @@ app.controller( "AppCtrl", function( $scope) {
 		         "#629E6D",
 		         "#D47F55",
 		         "#8C9AC3",
-		         "#4D9F9E",
-		         "#B29144",
 		         "#D07A7B",
-		         "#87944F",
+		         "#808591",
+		         "#4D9F9E",
 		         "#A37758",
-		         "#808591"]
+		         "#87944F",
+		         "#B29144",
+		        ]
 	};
 	
 	$scope.colorSearch = function(search) {
@@ -250,29 +251,54 @@ app.controller( "MainMenuCtrl", function( $scope) {
   $scope.path = window.location.pathname;
 });
 
-app.controller( "scheduleCoursesCtrl", function( $scope, $http, $q) {
+app.controller( "scheduleCoursesCtrl", function( $scope, $http, $q, $timeout) {
   var id = 0;
   $scope.courses_helpers = {
 	  add: function() {
-		 id = id + 1
-	    $scope.courses.push({
-	    	id: id,
+		var newCourse = {
+	    	id: ++id,
 	        search: '',
 	        results: [],
-	        color: $scope.ui.colors[id % 4]
-	    });
+	        color: '#fff',
+	        status: 'D'
+	    }
+	    $scope.courses.push(newCourse);
+		var colorIndex = $scope.courses.length;
+		$timeout(function() {
+			newCourse.color = $scope.ui.colors[colorIndex % 10];
+		}, 200);
         $scope.$broadcast('addedCourse');
 	  },
 	  remove: function(index) {
 	        $scope.courses.splice(index - 1, 1);
+	  },
+	  clear: function(index) {
+		index = index - 1;
+		var id = $scope.courses[index].id,
+		color = $scope.courses[index].color,
+		status = $scope.courses[index].status;
+		$scope.courses[index] = {
+			id: id,
+			color: '#fff',
+			search: '',
+			results: [],
+			status: status
+		};
+		var colorIndex = $scope.courses.length;
+		$timeout(function() {
+			$scope.courses[index].color = $scope.ui.colors[colorIndex % 10];
+		}, 200);
 	  }
   };
   $scope.courses_helpers.add();
-  var canceler;
+  var canceler = {};
   $scope.search = function(course) {
-	  if (canceler) canceler.resolve();
-      canceler = $q.defer();
-	    $http.post('./js/scheduleAjax.php',$.param({
+	  if (canceler.hasOwnProperty(course.id)) {
+		  canceler[course.id].resolve();
+	  }
+      canceler[course.id] = $q.defer();
+      course.status = 'L';
+	    var searchRequest = $http.post('./js/scheduleAjax.php',$.param({
     		'action'     : 'getCourseOpts',
             'course'     : course.search,
             'term'       : $scope.term,
@@ -282,13 +308,13 @@ app.controller( "scheduleCoursesCtrl", function( $scope, $http, $q) {
 	    	headers: {
 	            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
 	        }, 
-	        timeout: canceler.promise
+	        timeout: canceler[course.id].promise
 	    }).success(function(d, status, headers, config) {
+	    	course.status = 'D';
 	    	if(!d.error) {
 		    	for(var c = 0; c < d.length; ++c) {
 		            var times = [];
 		            var coursei = d[c];
-	
 		            // Iterate over the times for the course
 		            if(coursei.times == undefined) { continue; }
 		            for(var e = 0; e < coursei.times.length; ++e) {
@@ -324,14 +350,16 @@ app.controller( "scheduleCoursesCtrl", function( $scope, $http, $q) {
 	    	}
 	    }).
 	    error(function(data, status, headers, config) {
+	    	course.status = 'D';
 	    // Most likely typed too fast
 	    });
   };
   $scope.$watchCollection('[term, ignoreFull]', function() {
-	  for(var i = 0, l = $scope.courses.length; i < l; i++) {
-		  var course = $scope.courses[i];
-		  if(course.search.length > 3)
-			  $scope.search(course);
+	for(var i = 0, l = $scope.courses.length; i < l; i++) {
+		var course = $scope.courses[i];
+		if(course.search.length > 3) {
+			$scope.search(course);
+		}
 	  }
   });
   $scope.$watch('courses', function(newCourses, oldCourses) {
@@ -347,8 +375,13 @@ app.controller( "scheduleCoursesCtrl", function( $scope, $http, $q) {
 			};
 		}
 		if(newCourse.search != oldCourse.search && newCourse.search.length > 5) {
+			$scope.search(newCourse);
 		} else if(newCourse.search != oldCourse.search) {
 			newCourse.results = [];
+			if (canceler.hasOwnProperty(newCourse.id)) {
+				canceler[newCourse.id].resolve();
+				course.status = 'D';
+			}
 		}
 	}
   }, true);
@@ -446,6 +479,7 @@ app.directive("dynamicItems", function($compile,$timeout){
 	    	this.items = $scope.dynamicItems;
 	    	this.add = $scope.helpers.add;
 	    	this.remove = $scope.helpers.remove;
+	    	this.clear = $scope.helpers.clear;
 	    },
 	    compile: function(telm, tattrs) {
 	    	return {
@@ -454,6 +488,7 @@ app.directive("dynamicItems", function($compile,$timeout){
                         $timeout(function() {
                             elm.find('input:last').focus();
                         }, 0, false);
+                        console.log('addCourse');
                     });
 		    		elm.append($compile('<div class="'+scope.useClass+' repeat-item" ng-repeat="item in dynamicItems" dynamic-item></div>')(scope));
 	    		}
@@ -469,17 +504,25 @@ app.directive("dynamicItem", function($timeout){
     link: { pre: function(scope, elm, attrs, dynamicItems) {
     		scope.$watch('$index', function(newVal) {
     			scope.index =  newVal + 1;
+    	        if(scope.index == 1) {   
+    	            $timeout(function() {
+    	            	elm.addClass('no-repeat-item-animation');
+    	                elm.find("input").focus();
+    	            }, 0, false);
+    	        }
     		});
 	    	
 	        scope.remove = function() {
+	        	console.log('r1');
 	            if(scope.index == 1 && dynamicItems.items.length == 1) {
-	            	dynamicItems.remove(scope.index);
-	            	dynamicItems.add();
+	            	dynamicItems.clear(scope.index);
+	            	console.log('r2');
 	            } else {
 	            	if(scope.index == 1) {
 	            		elm.removeClass('no-repeat-item-animation');
 	            	}
 	            	dynamicItems.remove(scope.index);
+	            	console.log('r3');
 	            }
 	        };
     	}, post: function(scope, elm, attrs, dynamicItems) {
@@ -503,11 +546,12 @@ app.directive("dynamicItem", function($timeout){
 	                } else {
 	                	var parent = elm.parent();
 	                	$timeout(function() {
-                            parent.find(ident+":first").focus();
+	                		parent.find(ident+":first").focus();
                         }, 0, false);
 	                }
+	                console.log('esc');
                     scope.remove();  
-	            } else if(e.keyCode == 38) {
+	            }/* else if(e.keyCode == 38) {
 	                e.preventDefault();
 	                if(scope.index > 1) {
                     	elm.prev().find(ident).focus();
@@ -517,7 +561,7 @@ app.directive("dynamicItem", function($timeout){
                     	elm.next().find(ident).focus();
                     	e.preventDefault();
 	                } 
-	            }
+	            }*/
 	        };
 	        
             input.blur(function(e) {
@@ -527,12 +571,9 @@ app.directive("dynamicItem", function($timeout){
 	        input.keydown(function(e) {
 	        	scope.$apply(doKeystrokeAnalysis(e));
 	        });
-	        if(scope.$index == 0) {   
-	            $timeout(function() {
-	            	elm.addClass('no-repeat-item-animation');
-	                elm.find("input").focus();
-	            }, 0, false);
-	        }
+            $timeout(function() {
+                elm.find("input").focus();
+            }, 0, false);
     	}
     }
   };
@@ -681,7 +722,7 @@ app.directive('schedule', function($timeout, $filter) {
 					width: grid.opts.daysWidth,
 					height:timeHeight
 				},
-				color: this.scope.ui.colors[index % 4]
+				color: this.scope.ui.colors[index % 10]
 			});
 			
 		}
@@ -751,7 +792,7 @@ app.directive('svgTextLine', function() {
 	return {
 		link: function(scope, elm, attrs) {
 			var text = attrs.svgTextLine;
-			if(scope.grid.days.length > 4) {
+			if(scope.grid.days.length > 3) {
 				if(text.length > 16) {
 					element = elm.get(0);
 					element.setAttribute("textLength", (parseFloat(scope.grid.opts.daysWidth) + 1 )+ "%");
@@ -761,7 +802,7 @@ app.directive('svgTextLine', function() {
 					text = text.slice(0, 22) + '...';
 				}
 			}
-			elm.html(text);
+			elm.text(text);
 		}
 	};
 });
