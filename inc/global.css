@@ -920,6 +920,10 @@ input {
 .label-line {
 	line-height:2em;
 }
+
+.display-options-header {
+	cursor: pointer;
+}
 /* NEW SCHEDULES */
 div[schedule] .canvas-cont {
 	height:500px;

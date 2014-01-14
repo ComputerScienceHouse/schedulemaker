@@ -3,7 +3,7 @@
 		<div class="form-group course-select-form" ng-style="{'border-color':item.color}" ng-class="{'has-error':item.results[0].isError == true}">
 			<label class="col-sm-3 col-xs-12 control-label" for="courses{{index}}">Course {{index}}:</label>
 			<div class="col-sm-7 col-xs-9">
-				<input id="courses{{index}}" class="form-control searchField" ng-model="item.search" type="text" name="courses{{index}}" maxlength="17" placeholder="DEPT-CRS-SECT" />
+				<input id="courses{{index}}" class="form-control searchField mousetrap" ng-model="item.search" type="text" name="courses{{index}}" maxlength="17" placeholder="DEPT-CRS-SECT" />
 			</div>
 			<div class="col-sm-2 col-xs-3">
 				<button type="button" ng-class="{'btn-danger':delHover}" ng-blur="delHover = false" ng-focus="delHover = true" ng-mouseenter="delHover = true" ng-mouseleave="delHover = false" class="btn btn-default" ng-mousedown="remove()">
@@ -16,7 +16,7 @@
 	<div class="col-md-6">
 		<div ng-show="!item.results[0].isError" class="form-group course-result">
 			<div class="col-sm-6 control-label" ng-switch="item.search.length > 5">
-				<i ng-show="item.status=='L'"class="fa fa-refresh fa-spin"></i> <span ng-switch-when="true"> <span ng-pluralize count="item.results.length" when="{'0': 'No matching courses','one': '1 matching course','other': '{} matching courses'}"></span> for <strong>{{item.search}}</strong>
+				<i ng-show="item.status=='L'"class="fa fa-refresh fa-spin"></i> <span ng-switch-when="true"> <span ng-pluralize count="item.results.length" when="{'0': 'No matching courses','one': '1 matching course','other': '{} matching courses'}"></span>
 				</span> <span ng-switch-when="false">Please enter a course</span>
 			</div>
 			<div class="col-sm-6">
@@ -30,13 +30,13 @@
 </div>
 <div ng-show="showResults && !item.results[0].isError">
 	<div class="visible-xs visible-sm vert-spacer-static-md"></div>
-	<div class="row">
+	<div class="course-results-cont row">
 		<div class="inline-col col-md-4" ng-repeat="result in item.results">
 			<ul class="list-group">
 				<li class="list-group-item course-info" ng-class="{'selected-course':selected != ''}"><input type="checkbox" class="course-selected-checkbox" ng-init="selected = true" ng-checked="selected" value="{{result.sectionId}}" name="courses{{$parent.$index + 1}}Opt[]">
 					<div class="row">
 						<div class="col-sm-8">
-							<h4 class="list-group-item-heading">{{result.courseNum}}</h4>
+							<h4 class="list-group-item-heading">{{$index + 1}}. {{result.courseNum}}</h4>
 							<small>{{result.title}}</small>
 							<p class="list-group-item-text label-line ">
 								<span class="label label-default" professor-lookup="result.instructor"></span>
@@ -54,7 +54,8 @@
 								</div>
 							</div>
 						</div>
-					</div></li>
+					</div>
+				</li>
 			</ul>
 		</div>
 	</div>

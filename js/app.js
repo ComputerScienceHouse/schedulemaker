@@ -81,7 +81,7 @@ app.filter("parseTime", function() {
 	};
 });
 
-app.controller( "AppCtrl", function( $scope) {
+app.controller( "AppCtrl", function($scope, globalKbdShortcuts) {
 	$scope.courses = [];
 	$scope.schedules =[];
 	$scope.options = {
@@ -132,7 +132,6 @@ app.controller( "AppCtrl", function( $scope) {
 	}*/
 	
     $scope.generateSchedules = function() {
-    	
     	// Serialize the form and store it if it changed
         var form = $("#scheduleForm");
     	if(serialForm != form.serialize()) {
@@ -144,7 +143,6 @@ app.controller( "AppCtrl", function( $scope) {
     		// Now we need to submit all the data to the ajax caller
     		$.post("./js/scheduleAjax.php", $('#scheduleForm').serialize(), function(data) {
                 var scheduleDiv = $("#schedules");
-
 
     			// If there was a single, non-recoverable error, show it and die
     			if(data.error != null && data.error != undefined) {
@@ -180,6 +178,17 @@ app.controller( "AppCtrl", function( $scope) {
     			// Unhide the schedules page
     			scheduleDiv.show();
     			$scope.$broadcast('generatedSchedules');
+    			
+    			
+    			// I know this is bad, but I'm lazy
+    			setTimeout(function() {
+    				$('input:focus').blur();
+        			$('html, body').animate({
+        		        scrollTop: $("#master_schedule_results").offset().top - 65
+        		    }, 500);
+    			}, 100);
+    			
+    			
     			/*
     			// If we're showing all schedules on one page, then do that
                 var schedPerPage = $("#schedPerPage");
@@ -245,6 +254,7 @@ app.controller( "AppCtrl", function( $scope) {
     		});
     	}
     };
+    globalKbdShortcuts.bindGenerateSchedules($scope.generateSchedules);
 });
 
 app.controller( "MainMenuCtrl", function( $scope) {
@@ -266,7 +276,7 @@ app.controller( "scheduleCoursesCtrl", function( $scope, $http, $q, $timeout) {
 		var colorIndex = $scope.courses.length;
 		$timeout(function() {
 			newCourse.color = $scope.ui.colors[colorIndex % 10];
-		}, 200);
+		}, 250);
         $scope.$broadcast('addedCourse');
 	  },
 	  remove: function(index) {
@@ -287,7 +297,7 @@ app.controller( "scheduleCoursesCtrl", function( $scope, $http, $q, $timeout) {
 		var colorIndex = $scope.courses.length;
 		$timeout(function() {
 			$scope.courses[index].color = $scope.ui.colors[colorIndex % 10];
-		}, 200);
+		}, 250);
 	  }
   };
   $scope.courses_helpers.add();
@@ -380,7 +390,7 @@ app.controller( "scheduleCoursesCtrl", function( $scope, $http, $q, $timeout) {
 			newCourse.results = [];
 			if (canceler.hasOwnProperty(newCourse.id)) {
 				canceler[newCourse.id].resolve();
-				course.status = 'D';
+				newCourse.status = 'D';
 			}
 		}
 	}
@@ -467,7 +477,7 @@ app.directive("scheduleCourse", function(){
 	    templateUrl: './js/templates/courseselect.html',
 	  };
 });
-app.directive("dynamicItems", function($compile,$timeout){
+app.directive("dynamicItems", function($compile,$timeout, globalKbdShortcuts){
 	  return {
 	    restrict: "A",
 	    scope: {
@@ -483,14 +493,25 @@ app.directive("dynamicItems", function($compile,$timeout){
 	    },
 	    compile: function(telm, tattrs) {
 	    	return {
-	    	pre: function(scope, elm, attrs) {
+	    		pre: function(scope, elm, attrs) {
                     scope.$parent.$on('addedCourse',function() {
                         $timeout(function() {
                             elm.find('input:last').focus();
                         }, 0, false);
-                        console.log('addCourse');
                     });
 		    		elm.append($compile('<div class="'+scope.useClass+' repeat-item" ng-repeat="item in dynamicItems" dynamic-item></div>')(scope));
+	    		},
+	    		post: function(scope, elm, attrs) {
+	    			globalKbdShortcuts.bindSelectCourses(function() {
+	    				if($("input.searchField:focus").length == 0) {
+	            			$('html, body').animate({
+	            		        scrollTop:0
+	            		    }, 500, null, function() {
+	            		    	elm.find('input:first').focus();
+	            		    });
+	    				}
+	    			
+	    			});
 	    		}
 	    	};
 	    }
@@ -513,24 +534,21 @@ app.directive("dynamicItem", function($timeout){
     		});
 	    	
 	        scope.remove = function() {
-	        	console.log('r1');
 	            if(scope.index == 1 && dynamicItems.items.length == 1) {
 	            	dynamicItems.clear(scope.index);
-	            	console.log('r2');
 	            } else {
 	            	if(scope.index == 1) {
 	            		elm.removeClass('no-repeat-item-animation');
 	            	}
 	            	dynamicItems.remove(scope.index);
-	            	console.log('r3');
 	            }
 	        };
     	}, post: function(scope, elm, attrs, dynamicItems) {
 	        var ident = 'input.searchField',
 	        input = elm.find(ident);
-	        
 	        var doKeystrokeAnalysis = function(e) {
-	            if(e.keyCode == 13) {
+	        	kbdResult = true;
+	            if(e.keyCode == 13 && !e.ctrlKey) {
 	                if(dynamicItems.items.length == scope.index) {
 	                	dynamicItems.add();
                         $timeout(function() {
@@ -549,19 +567,31 @@ app.directive("dynamicItem", function($timeout){
 	                		parent.find(ident+":first").focus();
                         }, 0, false);
 	                }
-	                console.log('esc');
                     scope.remove();  
-	            }/* else if(e.keyCode == 38) {
+	            } else if(e.keyCode == 38 && e.ctrlKey && !e.altKey) {
 	                e.preventDefault();
 	                if(scope.index > 1) {
                     	elm.prev().find(ident).focus();
 	                } 
-	            } else if(e.keyCode == 40) {
+	            } else if(e.keyCode == 40 && e.ctrlKey &&! e.altKey) {
 	                if(scope.index < dynamicItems.items.length) {
                     	elm.next().find(ident).focus();
                     	e.preventDefault();
 	                } 
-	            }*/
+	            } else if(e.keyCode == 38 && e.ctrlKey && e.altKey) {
+	            	scope.showResults = false;
+	            	kbdResult = false;
+	            } else if(e.keyCode == 40 && e.ctrlKey && e.altKey) {
+	                scope.showResults = true;
+	                kbdResult = false;
+	            } else if (e.ctrlKey && e.altKey && e.keyCode > 48 && e.keyCode < 57) {
+	            	var index = e.keyCode - 48;
+	            	var resultElm = elm.find('.course-results-cont > div:nth-child('+index+')');
+	            	if(resultElm.length > 0) {
+	            		var resultScope = resultElm.scope();
+	            		resultScope.selected = !resultScope.selected;
+	            	}
+	            }
 	        };
 	        
             input.blur(function(e) {
@@ -570,6 +600,7 @@ app.directive("dynamicItem", function($timeout){
             
 	        input.keydown(function(e) {
 	        	scope.$apply(doKeystrokeAnalysis(e));
+	        	return kbdResult;
 	        });
             $timeout(function() {
                 elm.find("input").focus();
@@ -806,28 +837,31 @@ app.directive('svgTextLine', function() {
 		}
 	};
 });
-app.directive('svgTextContent', function($compile) {
-	return {
-		scope: {
-			text: '=svgTextContent'
+app.factory('globalKbdShortcuts', function($rootScope) {
+	var globalKbdShortcuts = {
+		'bindGenerateSchedules': function(callback) {
+			Mousetrap.bind('mod+enter', function(e) {
+			    $rootScope.$apply(callback);
+			    return true;
+			});
+			
+			// Only allow to bind once, so mock function after first use
+			this.bindGenerateSchedules = function() {};
 		},
-		link: function(scope, elm, attrs) {
-			/*angular.forEach(scope.text, function(line, index) {
-				elm.append($compile('<text svg-text-line="' + line + '" x="{{$parent.item.boundry.x}}" y="{{$parent.item.boundry.y + ' + 16 * (index + 2) + '}}" transform="translate(3,0)" fill="white"></text>')(scope));
-			});	*/
-		}
+		'bindSelectCourses': function(callback) {
+			Mousetrap.bind('mod+down', function(e) {
+			    callback();
+			    return false;
+			});
+			
+			// Only allow to bind once, so mock function after first use
+			this.bindSelectCourses = function() {};
+		},
 	};
+	return globalKbdShortcuts;
 });
 
-/*
-app.directive('svgScheduleItem', function() {
-	return {
-		link: function(scope, elm, attrs) {
-			var elmForAttrs = elm.get(0);
-			
-		}
-	};
-})*/
+
 // BROWSE PAGE
 app.controller("BrowseCtrl", function($scope, browseRequest) {
 	$scope.contents = [];

@@ -196,15 +196,16 @@ global $CURRENT_QUARTER;
 		</div>
 	</div>
 </form>
-<div ng-show="schedules.length > 0">
+<div id="master_schedule_results" ng-show="schedules.length > 0">
 	<div class="container">
 		<div class="row">
 			<div class="col-md-12">
-				<div class="panel panel-primary">
-					<div class="panel-heading">
+				<div class="panel panel-primary" ng-init="showDisplayOptions = false">
+					<div class="display-options-header panel-heading" ng-click="showDisplayOptions = !showDisplayOptions">
+						<button class="btn btn-xs btn-success pull-right" type="button">{{showDisplayOptions?"Hide":"Show"}} Options</button>
 						<h2 class="panel-title">Display Options</h2>
 					</div>
-					<div class="panel-body">
+					<div class="panel-body" ng-show="showDisplayOptions">
 						<div class="row form-horizontal">
 							<div class="col-md-4">
 								<div class="form-group">
