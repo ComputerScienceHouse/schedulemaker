@@ -864,22 +864,21 @@ app.factory('globalKbdShortcuts', function($rootScope) {
 
 // BROWSE PAGE
 app.controller("BrowseCtrl", function($scope, browseRequest) {
-	$scope.contents = [];
+	$scope.schools = [];
 	
-	$scope.toggleSchool = function($event) {
+	/*$scope.toggleDisplay = function(type, $event) {
 		var scope = angular.element($event.target).scope();
-		scope.school.code;
 		if(typeof scope.expanded == 'undefined') {
 			scope.expanded = true;
 		} else {
 			scope.expanded = !scope.expanded;
 		}
-	};
+	};*/
 	
 	$scope.$watch('term', function(newTerm) {
 		browseRequest.getSchoolsForTerm(newTerm).success(function(data, status) {
 			if(status == 200 && typeof data.error == 'undefined') {
-				$scope.contents = data;
+				$scope.schools = data;
 			} else if(data.error) {
 				// TODO: Better error checking
 				alert(data.msg);
@@ -888,6 +887,71 @@ app.controller("BrowseCtrl", function($scope, browseRequest) {
 	});
 });
 
+
+app.directive('browseSchool', function(browseRequest) {
+	return {
+		restrict: 'A',
+		link: {
+			pre: function(scope, elm, attrs) {
+				
+				scope.school.departments = [];
+				
+				scope.school.ui = {
+					expanded: false,
+					toggleDisplay: function() {
+						this.expanded = !this.expanded;
+						
+						if(this.expanded && scope.school.departments.length == 0) {
+							browseRequest.getDepartmentsForSchool(scope.term, scope.school.id).success(function(data, status) {
+								if(status == 200 && typeof data.error == 'undefined') {
+									scope.school.departments = data.departments;
+								} else if(data.error) {
+									// TODO: Better error checking
+									alert(data.msg);
+								}
+							});
+						}
+					}
+				};
+			}
+		}
+	};
+});
+app.directive('browseDepartment', function(browseRequest) {
+	return {
+		restrict: 'A',
+		scope: {
+			school: '=browseSchool',
+			term: '=browseTerm'
+		},
+		link: {
+			pre: function(scope, elm, attrs) {
+				
+				scope.school.departments = [];
+				
+				scope.school.ui = {
+					expanded: false,
+					toggleDisplay: function() {
+						this.expanded = !this.expanded;
+						
+						if(this.expanded && scope.school.departments.length == 0) {
+							browseRequest.getDepartmentsForSchool(scope.term, scope.school.id).success(function(data, status) {
+								if(status == 200 && typeof data.error == 'undefined') {
+									scope.school.departments = data.departments;
+								} else if(data.error) {
+									// TODO: Better error checking
+									alert(data.msg);
+								}
+							});
+						}
+					}
+				};
+			}
+		}
+	};
+});
+
+		
 app.factory('browseRequest', function($http) {
 	var browseRequest = function(params, callback) {
 		return $http.post('js/browseAjax.php', $.param(params), {
@@ -899,10 +963,17 @@ app.factory('browseRequest', function($http) {
 		});
 	};
 	return {
-		'getSchoolsForTerm': function(term) {
+		getSchoolsForTerm: function(term) {
 			return browseRequest({
 				action:'getSchoolsForTerm',
 				term: term
+			});
+		},
+		getDepartmentsForSchool: function(term, school) {
+			return browseRequest({
+				action:'getDepartments',
+				term: term,
+				school: school
 			});
 		}
 	};

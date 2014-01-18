@@ -87,11 +87,28 @@ require "./inc/header.inc";
 		</div>
 		<div class="panel-body">
 			<div id="browse-contents" class="list-group">
-				<a href="#" ng-click="toggleSchool($event)" class="list-group-item" ng-repeat="school in contents">
-					<button class="btn pull-right btn-default"><i class="fa" ng-class="{'fa-plus':!expanded, 'fa-minus':expanded}"></i></button>
-   	 				<h4 class="list-group-item-heading">{{school.code}}</h4>
-    				<p class="list-group-item-text">{{school.title}}</p>
-				</a>
+				<div browse-school="" ng-repeat="school in schools" class="list-group-item" ng-class="{active: school.ui.expanded && school.departments.length > 0}">
+					<div class="browse-heading" ng-click="school.ui.toggleDisplay()">
+						<button class="btn pull-right btn-default">
+							<i class="fa" ng-class="{'fa-plus':!school.ui.expanded, 'fa-minus':school.ui.expanded}"></i>
+						</button>
+						<h4 class="list-group-item-heading">{{school.code}}</h4>
+						<p class="list-group-item-text">{{school.title}}</p>
+					</div>
+					<div class="browse-departments" ng-if="school.departments.length > 0 && school.ui.expanded">
+						<div class="list-group">
+							<div class="list-group-item" ng-repeat="department in school.departments">
+								<div class="browse-heading" ng-click="department.ui.toggleDisplay()">
+									<button class="btn pull-right btn-default">
+										<i class="fa" ng-class="{'fa-plus':!school.ui.expanded, 'fa-minus':school.ui.expanded}"></i>
+									</button>
+									<h4 class="list-group-item-heading">{{department.code}}</h4>
+									<p class="list-group-item-text">{{department.title}}</p>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
 			</div>
 		</div>
 	</div>

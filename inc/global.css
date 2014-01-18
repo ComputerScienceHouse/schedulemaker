@@ -808,9 +808,7 @@ form {
 	color:black;
 }
 
-#browse-contents .list-group-item {
-	min-height: 60px;
-}
+
 
 /*.subDivision {
 	display:none;
@@ -1007,6 +1005,25 @@ span[professor-lookup] {
 	border-left-width: 10px;
 	transition: border-left-color .3s;
 }
+/* Browse Courses */
+
+#browse-contents .list-group-item {
+	min-height: 60px;
+}
+
+#browse-contents .browse-heading {
+	cursor: pointer;
+}
+
+#browse-contents .browse-departments {
+	margin-top:10px;
+}
+
+#browse-contents .list-group-item.active .list-group-item h4.list-group-item-heading,
+#browse-contents .list-group-item.active .list-group-item p.list-group-item-text {
+	color: rgb(44, 62, 80);
+}
+
 
 /* SVG Schedule Rendering */
 svg rect {
