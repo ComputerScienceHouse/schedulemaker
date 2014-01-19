@@ -1008,6 +1008,7 @@ span[professor-lookup] {
 /* Browse Courses */
 
 #browse-contents .list-group-item {
+	transition:  background-color .25s ease, color .25s ease, border .25s ease;
 	min-height: 60px;
 }
 
@@ -1015,15 +1016,28 @@ span[professor-lookup] {
 	cursor: pointer;
 }
 
-#browse-contents .browse-departments {
+#browse-contents .browse-sublist {
 	margin-top:10px;
 }
 
-#browse-contents .list-group-item.active .list-group-item h4.list-group-item-heading,
-#browse-contents .list-group-item.active .list-group-item p.list-group-item-text {
+#browse-contents .list-group-item[browse-list]:not(.active):not(.active-nostyle):hover {
+	background: rgb(245, 245, 245);
+}
+
+.browse-toggle-button {
+	margin-right:10px;
+}
+
+#browse-contents .list-group-item.active > .browse-sublist > .list-group > .list-group-item:not(.active) > .browse-heading > h4.list-group-item-heading,
+#browse-contents .list-group-item.active > .browse-sublist > .list-group > .list-group-item:not(.active) > .browse-heading > p.list-group-item-text {
 	color: rgb(44, 62, 80);
 }
 
+.course-description {
+	margin-top: 10px;
+	font-size: small;
+	color: rgb(44, 62, 80);
+}
 
 /* SVG Schedule Rendering */
 svg rect {

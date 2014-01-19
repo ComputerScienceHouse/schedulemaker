@@ -69,6 +69,14 @@ require "./inc/header.inc";
 // list of courses
 ?>
 <div class="container" ng-controller="BrowseCtrl">
+	<div class="panel panel-default" ng-show="cart.length > 0">
+		<div class="panel-heading">
+			<h2 class="panel-title">Course Cart</h2>
+		</div>
+		<div class="panel-body">
+		Selected Courses: <span ng-repeat="(id, item) in cart.items">{{item.id}}, </span>
+		</div>
+	</div>
 	<div class="panel panel-default">
 		<div class="panel-heading">
 			<div class="row form-horizontal">
@@ -87,23 +95,71 @@ require "./inc/header.inc";
 		</div>
 		<div class="panel-body">
 			<div id="browse-contents" class="list-group">
-				<div browse-school="" ng-repeat="school in schools" class="list-group-item" ng-class="{active: school.ui.expanded && school.departments.length > 0}">
+				<div browse-list="school" ng-repeat="school in schools" class="list-group-item" ng-class="{active: school.ui.expanded && school.departments.length > 0}">
 					<div class="browse-heading" ng-click="school.ui.toggleDisplay()">
 						<button class="btn pull-right btn-default">
-							<i class="fa" ng-class="{'fa-plus':!school.ui.expanded, 'fa-minus':school.ui.expanded}"></i>
+							<i class="fa" ng-class="school.ui.buttonClass"></i>
 						</button>
 						<h4 class="list-group-item-heading">{{school.code}}</h4>
 						<p class="list-group-item-text">{{school.title}}</p>
 					</div>
-					<div class="browse-departments" ng-if="school.departments.length > 0 && school.ui.expanded">
+					<div class="browse-sublist" ng-show="school.departments.length > 0 && school.ui.expanded">
 						<div class="list-group">
-							<div class="list-group-item" ng-repeat="department in school.departments">
+							<div browse-list="department" class="list-group-item" ng-repeat="department in school.departments" ng-class="{active: department.ui.expanded && department.courses.length > 0}">
 								<div class="browse-heading" ng-click="department.ui.toggleDisplay()">
 									<button class="btn pull-right btn-default">
-										<i class="fa" ng-class="{'fa-plus':!school.ui.expanded, 'fa-minus':school.ui.expanded}"></i>
+										<i class="fa" ng-class="department.ui.buttonClass"></i>
 									</button>
 									<h4 class="list-group-item-heading">{{department.code}}</h4>
 									<p class="list-group-item-text">{{department.title}}</p>
+								</div>
+								<div class="browse-sublist" ng-show="department.courses.length > 0 && department.ui.expanded">
+									<div class="list-group">
+										<div browse-list="course" class="list-group-item" ng-repeat="course in department.courses" ng-class="{'active-nostyle': course.ui.expanded && course.sections.length > 0}">
+											<div class="browse-heading" ng-click="course.ui.toggleDisplay()">
+												<button class="btn pull-right btn-default">
+													<i class="fa" ng-class="course.ui.buttonClass"></i>
+												</button>
+												<h4 class="list-group-item-heading">{{department.code}}-{{course.course}}</h4>
+												<p class="list-group-item-text">{{course.title}}</p>
+											</div>
+											<div ng-init="showDesc = true" ng-show="course.sections.length > 0 && course.ui.expanded">
+												<button type="button" class="btn btn-block btn-default visible-sm visible-xs" ng-click="showDesc = !showDesc" style="margin-bottom: 10px;">Toggle Desciption</button>
+												<p ng-class="{'hidden-xs':showDesc, 'hidden-sm': showDesc}" class="course-description">{{course.description}}</p>
+												<div class="course-results-cont row">
+													<div class="inline-col col-md-4" ng-repeat="section in course.sections">
+														<ul class="list-group" ng-init="selected = cart.inCart(section)">
+															<li class="list-group-item course-info">
+																<div class="row">
+																	<div class="col-sm-8">
+																		<h4 class="list-group-item-heading">{{$index + 1}}. {{department.code}}-{{course.course}}-{{section.section}}</h4>
+																		<small>{{section.title}}</small>
+																		<p class="list-group-item-text label-line ">
+																			<span class="label label-default" professor-lookup="section.instructor"></span>
+																		</p>
+																		<div ng-init="parsedTimes = (section.times | parseSectionTimes:true)">
+																			<div ng-repeat="time in parsedTimes" style="font-size: small">
+																				{{time.days}} <span style="white-space: nowrap">{{time.start | formatTime}}-{{time.end | formatTime}}</span> <span style="font-style: italic; white-space: nowrap">Location: {{time.location}}</span>
+																			</div>
+																		</div>
+																	</div>
+																	<div class="col-sm-4">
+																		<div class="row">
+																			<div class="col-xs-12">
+																				<button type="button" class="btn btn-block" ng-click="cart.toggleCart(section); selected = !selected" ng-class="{'btn-danger':selected, 'btn-success':!selected}">
+																					<i class="fa" ng-class="{'fa-minus':selected, 'fa-plus':!selected}"></i> <i class="fa fa-shopping-cart"></i>
+																				</button>
+																			</div>
+																		</div>
+																	</div>
+																</div>
+															</li>
+														</ul>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
 								</div>
 							</div>
 						</div>

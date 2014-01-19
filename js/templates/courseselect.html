@@ -41,7 +41,9 @@
 							<p class="list-group-item-text label-line ">
 								<span class="label label-default" professor-lookup="result.instructor"></span>
 							</p>
-							<div ng-repeat="time in result.times" style="font-size:small">{{time.days}} <span style="white-space:nowrap">{{time.start | formatTime}}-{{time.end | formatTime}}</span></div>
+							<div ng-init="parsedTimes = (result.times | parseSectionTimes)">
+								<div ng-repeat="time in parsedTimes" style="font-size:small">{{time.days}} <span style="white-space:nowrap">{{time.start | formatTime}}-{{time.end | formatTime}}</span></div>
+							</div>
 						</div>
 						<div class="col-sm-4">
 							<div class="row">

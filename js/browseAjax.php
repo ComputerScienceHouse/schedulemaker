@@ -226,9 +226,9 @@ switch($_POST['action']) {
 
                 while($time = mysql_fetch_assoc($timeResult)) {
                     $timeOutput = array(
-                        'start'    => translateTime($time['start']),
-                        'end'      => translateTime($time['end']),
-                        'day'      => translateDay($time['day']),
+                        'start'    => $time['start'],
+                        'end'      => $time['end'],
+                        'day'      => $time['day'],
                         'building' => array(
                             'code'    => $time['code'],
                             'number'  => $time['number'],

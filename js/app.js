@@ -323,35 +323,8 @@ app.controller( "scheduleCoursesCtrl", function( $scope, $http, $q, $timeout) {
 	    	course.status = 'D';
 	    	if(!d.error) {
 		    	for(var c = 0; c < d.length; ++c) {
-		            var times = [];
-		            var coursei = d[c];
-		            // Iterate over the times for the course
-		            if(coursei.times == undefined) { continue; }
-		            for(var e = 0; e < coursei.times.length; ++e) {
-		                // Search the existing list of times to see if a match exists
-		                var found = false;
-		                var time = coursei.times[e];
-		                for(var f = 0; f < times.length; ++f) {
-		                    if(times[f].start == time.start && times[f].end == time.end) {
-		                        found = f;
-		                    }
-		                }
-	
-		                // If a match was found, add the day to it, otherwise add a new time
-		                if(found !== false) {
-		                    times[found].days += ", " + translateDay(time.day);
-		                } else {
-		                    times.push({
-		                        start: time.start,
-		                        end:   time.end,
-		                        days:  translateDay(time.day)
-		                    });
-		                }
-		            }
+		    		
 		            d[c].isError = false;
-		            // Replace the current list of times with the newly constructed one
-		            d[c].oldTimes = d[c].times;
-		            d[c].times = times;
 		            
 		        }
 		    	course.results = d;
@@ -862,6 +835,73 @@ app.factory('globalKbdShortcuts', function($rootScope) {
 });
 
 
+app.filter('parseSectionTimes', function($filter) {
+	var translateDay = $filter('translateDay');
+	return function(times, byLocation) {
+		if(typeof times != 'object') return times;
+		var parsedTimes = [];
+		for(var e = 0; e < times.length; ++e) {
+            // Search the existing list of times to see if a match exists
+            var found = false;
+            var time = times[e];
+            
+            if(byLocation) {
+        		time.location =  time.building.code
+                + ": " + time.building.number + " "
+                + "-" + time.room;
+        	} else {
+        		time.location = false;
+        	}
+            
+            for(var f = 0; f < parsedTimes.length; ++f) {
+                if(parsedTimes[f].start == time.start && parsedTimes[f].end == time.end && parsedTimes[f].location == time.location) {
+                    found = f;
+                }
+            }
+
+            // If a match was found, add the day to it, otherwise add a new time
+            if(found !== false) {
+            	parsedTimes[found].days += ", " + translateDay(time.day);
+            } else {
+            	parsedTimes.push({
+                    start: time.start,
+                    end:   time.end,
+                    days:  translateDay(time.day),
+                    location: time.location
+                });
+            }
+        }
+		return parsedTimes;
+	};
+});
+
+app.filter('translateDay', function() {
+	return function(day) {
+    // Modulo it to make sure we get the correct days
+    day = day % 7;
+
+    // Now switch on the different days
+    switch(day) {
+        case 0:
+            return "Sun";
+        case 1:
+            return "Mon";
+        case 2:
+            return "Tue";
+        case 3:
+            return "Wed";
+        case 4:
+            return "Thu";
+        case 5:
+            return "Fri";
+        case 6:
+            return "Sat";
+        default:
+            return null;
+    }
+}
+});
+
 // BROWSE PAGE
 app.controller("BrowseCtrl", function($scope, browseRequest) {
 	$scope.schools = [];
@@ -874,9 +914,25 @@ app.controller("BrowseCtrl", function($scope, browseRequest) {
 			scope.expanded = !scope.expanded;
 		}
 	};*/
+	$scope.cart = {
+		items: {},
+		length: 0,
+		inCart: function(section) {
+			return  $scope.cart.items.hasOwnProperty(section.id);
+		},
+		toggleCart: function(section) {
+			if(!$scope.cart.inCart(section)) {
+				$scope.cart.length++;
+				$scope.cart.items[section.id] = section;
+			} else {
+				$scope.cart.length--;
+				delete $scope.cart.items[section.id];
+			}
+		},
+	};
 	
 	$scope.$watch('term', function(newTerm) {
-		browseRequest.getSchoolsForTerm(newTerm).success(function(data, status) {
+		browseRequest.getSchoolsForTerm({term:newTerm}).success(function(data, status) {
 			if(status == 200 && typeof data.error == 'undefined') {
 				$scope.schools = data;
 			} else if(data.error) {
@@ -888,61 +944,48 @@ app.controller("BrowseCtrl", function($scope, browseRequest) {
 });
 
 
-app.directive('browseSchool', function(browseRequest) {
-	return {
-		restrict: 'A',
-		link: {
-			pre: function(scope, elm, attrs) {
-				
-				scope.school.departments = [];
-				
-				scope.school.ui = {
-					expanded: false,
-					toggleDisplay: function() {
-						this.expanded = !this.expanded;
-						
-						if(this.expanded && scope.school.departments.length == 0) {
-							browseRequest.getDepartmentsForSchool(scope.term, scope.school.id).success(function(data, status) {
-								if(status == 200 && typeof data.error == 'undefined') {
-									scope.school.departments = data.departments;
-								} else if(data.error) {
-									// TODO: Better error checking
-									alert(data.msg);
-								}
-							});
-						}
-					}
-				};
-			}
-		}
+app.directive('browseList', function($http, browseRequest) {
+	var hierarchy = ['school', 'department', 'course', 'section'];
+	var capitalize = function(string) {
+		return string.charAt(0).toUpperCase() + string.slice(1);
 	};
-});
-app.directive('browseDepartment', function(browseRequest) {
+	
 	return {
 		restrict: 'A',
-		scope: {
-			school: '=browseSchool',
-			term: '=browseTerm'
-		},
 		link: {
 			pre: function(scope, elm, attrs) {
-				
-				scope.school.departments = [];
-				
-				scope.school.ui = {
+				var hIndex = hierarchy.indexOf(attrs.browseList);
+				if(hIndex == -1) {
+					throw "browseList mode does not exist";
+					return;
+				}
+				var itemName = hierarchy[hIndex],
+				childrenName = hierarchy[hIndex + 1] + 's',
+				browseRequestMethodName = 'get' + capitalize(childrenName) + 'For' + capitalize(itemName);
+				scope[itemName][childrenName] = [];
+				scope[itemName].ui = {
 					expanded: false,
+					buttonClass: 'fa-plus',
 					toggleDisplay: function() {
-						this.expanded = !this.expanded;
 						
-						if(this.expanded && scope.school.departments.length == 0) {
-							browseRequest.getDepartmentsForSchool(scope.term, scope.school.id).success(function(data, status) {
+						scope[itemName].ui.expanded = !scope[itemName].ui.expanded;
+						
+						if(scope[itemName].ui.expanded && scope[itemName][childrenName].length == 0) {
+							scope[itemName].ui.loading = true;
+							scope[itemName].ui.buttonClass = 'fa-refresh fa-spin';
+							browseRequest[browseRequestMethodName]({term: scope.term, param: scope[itemName].id}).success(function(data, status) {
 								if(status == 200 && typeof data.error == 'undefined') {
-									scope.school.departments = data.departments;
+									scope[itemName][childrenName] = data[childrenName];
 								} else if(data.error) {
 									// TODO: Better error checking
 									alert(data.msg);
 								}
+								scope[itemName].ui.buttonClass = 'fa-minus';
 							});
+						} else if(scope[itemName].ui.expanded) {
+							scope[itemName].ui.buttonClass = 'fa-minus';
+						} else {
+							scope[itemName].ui.buttonClass = 'fa-plus';
 						}
 					}
 				};
@@ -963,17 +1006,30 @@ app.factory('browseRequest', function($http) {
 		});
 	};
 	return {
-		getSchoolsForTerm: function(term) {
+		getSchoolsForTerm: function(opts) {
 			return browseRequest({
 				action:'getSchoolsForTerm',
-				term: term
+				term: opts.term
 			});
 		},
-		getDepartmentsForSchool: function(term, school) {
+		getDepartmentsForSchool: function(opts) {
 			return browseRequest({
 				action:'getDepartments',
-				term: term,
-				school: school
+				term: opts.term,
+				school: opts.param
+			});
+		},
+		getCoursesForDepartment: function(opts) {
+			return browseRequest({
+				action:'getCourses',
+				term: opts.term,
+				department: opts.param
+			});
+		},
+		getSectionsForCourse: function(opts) {
+			return browseRequest({
+				action:'getSections',
+				course: opts.param
 			});
 		}
 	};
