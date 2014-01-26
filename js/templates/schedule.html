@@ -18,6 +18,7 @@
 				</g>
 				<g svg-schedule-item class="item" ng-mouseenter="itemEnter($event)" ng-mouseleave="itemLeave($event)" ng-repeat="item in scheduleItems">
 					<rect ng-attr-x="{{item.boundry.x}}" ng-attr-y="{{item.boundry.y}}" ng-attr-width="{{item.boundry.width}}" ng-attr-height="{{item.boundry.height}}" ng-attr-fill="{{item.color}}" fill-opacity=".8" />
+					<rect ng-if="item.boundry.shorten != 0" ng-attr-x="{{item.boundry.x}}" ng-attr-y="{{item.boundry.shorten < 0 ?item.boundry.y : item.boundry.y + item.boundry.height - 2}}" ng-attr-width="{{item.boundry.width}}" height="2" fill="#ffff00" />
 					<text svg-text-line="{{item.title}}" ng-attr-x="{{item.boundry.x}}" ng-attr-y="{{item.boundry.y + 16}}" transform="translate(3,0)" font-weight="bold" fill="white"></text>
 					<text ng-if="item.boundry.height > 32 && item.content.courseNum" svg-text-line="{{item.content.courseNum}}" ng-attr-x="{{item.boundry.x}}" ng-attr-y="{{item.boundry.y + 32}}" transform="translate(3,0)" fill="#fff"></text>
 					<text ng-if="item.boundry.height > 48 && item.content.instructor" svg-text-line="{{item.content.instructor}}" ng-attr-x="{{item.boundry.x}}" ng-attr-y="{{item.boundry.y + 48}}" transform="translate(3,0)" fill="#fff"></text>

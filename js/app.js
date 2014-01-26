@@ -89,22 +89,55 @@ app.controller( "AppCtrl", function($scope, globalKbdShortcuts) {
 	$scope.courses = [];
 	$scope.schedules =[];
 	$scope.options = {
-		start_time:'8:00am',
-		end_time:'10:00pm',
+		start_time: 480,
+		end_time: 1320,
 		start_day: 1,
 		end_day: 6,
-		building_style: 'code',
-		fullscreen: false,
+		building_style: 'code'
 	};
+	
 	$scope.displayOptions = {
 		currentPage: 0,
 		pageSize: 3,
 		numberOfPages: function(){
 	        return Math.ceil($scope.schedules.length/$scope.displayOptions.pageSize);                
-	    }
+	    },
+	    fullscreen: false
 	};
 	$scope.ui = {
-		days: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+		optionLists: {
+			days: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+			times: {
+				keys: [0, 60, 120, 180, 240, 300, 360, 420, 480, 540, 600, 660, 720, 780, 840, 900, 960, 1020, 1080, 1140, 1200, 1260, 1320, 1380, 1440],
+				values: {
+					0: '12:00am',
+					60: '1:00am',
+					120: '2:00am',
+					180: '3:00am',
+					240: '4:00am',
+					300: '5:00am',
+					360: '6:00am',
+					420: '7:00am',
+					480: '8:00am',
+					540: '9:00am',
+					600: '10:00am',
+					660: '11:00am',
+					720: '12:00pm',
+					780: '1:00pm',
+					840: '2:00pm',
+					900: '3:00pm',
+					960: '4:00pm',
+					1020: '5:00pm',
+					1080: '6:00pm',
+					1140: '7:00pm',
+					1200: '8:00pm',
+					1260: '9:00pm',
+					1320: '10:00pm',
+					1380: '11:00pm',
+					1440: '12:00am'
+				}
+			}
+		},
 		colors: ["#B97D9C",
 		         "#629E6D",
 		         "#D47F55",
@@ -117,7 +150,6 @@ app.controller( "AppCtrl", function($scope, globalKbdShortcuts) {
 		         "#B29144",
 		        ]
 	};
-	
 	$scope.colorSearch = function(search) {
 		var foundColor = null;
 		$scope.courses.forEach(function(e) {
@@ -130,6 +162,11 @@ app.controller( "AppCtrl", function($scope, globalKbdShortcuts) {
 	$scope.ensureCorrectEndDay = function() {
 		if($scope.options.start_day > $scope.options.end_day) {
 			$scope.options.end_day = $scope.options.start_day;
+		}
+	};
+	$scope.ensureCorrectEndTime = function() {
+		if($scope.options.start_time >= $scope.options.end_time) {
+			$scope.options.end_time = $scope.options.start_time + 60;
 		}
 	};
 	/*days: {
@@ -620,10 +657,9 @@ app.directive('schedule', function($timeout, $filter) {
 		this.courseDrawIndex = 0;
 	}
 	Schedule.prototype.init = function() {
-		var parseTime = $filter('parseTime');
 		
-		this.drawOptions.parsedTime.start = parseTime(this.scope.options.start_time);
-		this.drawOptions.parsedTime.end = parseTime(this.scope.options.end_time);
+		this.drawOptions.parsedTime.start = parseInt(this.scope.options.start_time);
+		this.drawOptions.parsedTime.end = parseInt(this.scope.options.end_time);
 		if(!this.drawOptions.parsedTime.start || !this.drawOptions.parsedTime.end) return false;
         
 		this.scope.hiddenCourses = [];
@@ -671,7 +707,7 @@ app.directive('schedule', function($timeout, $filter) {
 		for(var i=0; i < numDays; i++) {
 			var offset = globalOpts.hoursWidth + ( 2 * dayOpts.padding) + ((dayOpts.rawWidth - dayOpts.padding) * i);
 			dayArray.push({
-				name: this.scope.ui.days[dayIndex],
+				name: this.scope.ui.optionLists.days[dayIndex],
 				offset: offset + '%',
 			});
 			dayIndex++;
@@ -694,7 +730,6 @@ app.directive('schedule', function($timeout, $filter) {
 	};
 	
 	Schedule.prototype.drawCourse = function(course, index) {
-		console.log('Drawing: '+course.courseNum);
 		var grid = this.scope.grid;
 		var startTime = this.drawOptions.parsedTime.start;
 		var endTime = this.drawOptions.parsedTime.end;
@@ -713,7 +748,8 @@ app.directive('schedule', function($timeout, $filter) {
 			}
 			
 			var courseStart = time.start,
-			courseEnd = time.end;
+			courseEnd = time.end,
+			shorten = 0;
 
 			// Skip times that aren't part of the displayed hours
 			if(courseStart < startTime || courseStart > endTime || courseEnd > endTime) {
@@ -721,8 +757,10 @@ app.directive('schedule', function($timeout, $filter) {
 				// the visible spectrum
 				if(courseStart < startTime && courseEnd > startTime) {
 					courseStart = startTime;
+					shorten = -1;
 				} else if(courseEnd > endTime && courseStart < endTime) {
 					courseEnd = endTime;
+					shorten = 1;
 				} else {
 					// The course is completely hidden
 					if($.inArray(course.courseNum, this.scope.hiddenCourses) == -1) {
@@ -756,6 +794,7 @@ app.directive('schedule', function($timeout, $filter) {
 				boundry: {
 					x: grid.days[time.day - this.scope.options.start_day].offset,
 					y: timeTop,
+					shorten: shorten,
 					width: grid.opts.daysWidth,
 					height:timeHeight
 				},
@@ -935,12 +974,6 @@ app.filter('translateDay', function() {
 }
 });
 
-app.filter('startFrom', function() {
-    return function(input, start) {
-        start = +start; //parse to int
-        return input.slice(start);
-    }
-});
 
 // BROWSE PAGE
 app.controller("BrowseCtrl", function($scope, browseRequest) {

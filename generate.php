@@ -211,13 +211,13 @@ global $CURRENT_QUARTER;
 								<div class="form-group">
 									<label for="options-start_time" class="col-sm-4 control-label">Start Time</label>
 									<div class="col-sm-8">
-										<input id="options-start_time" type="text" class="form-control" ng-model="options.start_time" autocomplete="off">
+										<select id="options-start_time" ng-change="ensureCorrectEndTime()" class="form-control" ng-model="options.start_time" ng-options="key as ui.optionLists.times.values[key] for key in ui.optionLists.times.keys"></select>
 									</div>
 								</div>
 								<div class="form-group">
 									<label for="options-end_time" class="col-sm-4 control-label">End Time</label>
 									<div class="col-sm-8">
-										<input id="options-end_time" type="text" class="form-control" ng-model="options.end_time" autocomplete="off">
+										<select id="options-end_time" class="form-control" ng-model="options.end_time" ng-options="key as ui.optionLists.times.values[key] for key in ui.optionLists.times.keys | startFrom: ui.optionLists.times.keys.indexOf(options.start_time) + 1"></select>
 									</div>
 								</div>
 							</div>
@@ -225,13 +225,13 @@ global $CURRENT_QUARTER;
 								<div class="form-group">
 									<label for="options-start_day" class="col-sm-4 control-label">Start Day</label>
 									<div class="col-sm-8">
-										<select id="options-start_day" ng-change="ensureCorrectEndDay()" class="form-control" ng-model="options.start_day" ng-options="ui.days.indexOf(value) as value for (key, value) in ui.days"></select>
+										<select id="options-start_day" ng-change="ensureCorrectEndDay()" class="form-control" ng-model="options.start_day" ng-options="ui.optionLists.days.indexOf(value) as value for (key, value) in ui.optionLists.days"></select>
 									</div>
 								</div>
 								<div class="form-group">
 									<label for="options-end_day" class="col-sm-4 control-label">End Day</label>
 									<div class="col-sm-8">
-										<select id="options-end_day" class="form-control" ng-model="options.end_day" ng-options="ui.days.indexOf(value) as value for (key, value) in ui.days | startFrom: options.start_day"></select>
+										<select id="options-end_day" class="form-control" ng-model="options.end_day" ng-options="ui.optionLists.days.indexOf(value) as value for (key, value) in ui.optionLists.days | startFrom: options.start_day"></select>
 									</div>
 								</div>
 							</div>
@@ -249,7 +249,7 @@ global $CURRENT_QUARTER;
 									<label for="options-fullscreen" class="col-sm-4 control-label">Width</label>
 									<div class="col-sm-8">
 										<div class="checkbox">
-											<label> <input id="options-fullscreen" type="checkbox" ng-model="options.fullscreen"> Fullscreen
+											<label> <input id="options-fullscreen" type="checkbox" ng-model="displayOptions.fullscreen"> Fullscreen
 											</label>
 										</div>
 									</div>
@@ -285,8 +285,8 @@ global $CURRENT_QUARTER;
 			</div>
 		</div>
 	</div>
-	<div ng-class="{container: !options.fullscreen}">
-		<div ng-class="{'col-sm-12': options.fullscreen}">
+	<div ng-class="{container: !displayOptions.fullscreen}">
+		<div ng-class="{'col-sm-12': displayOptions.fullscreen}">
 			<div class="row" ng-repeat="schedule in schedules | startFrom:displayOptions.currentPage*displayOptions.pageSize | limitTo:displayOptions.pageSize">
 				<div class="col-md-12">
 					<div class="panel panel-default">
