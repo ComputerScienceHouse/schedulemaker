@@ -591,6 +591,15 @@ app.directive('scheduleOptions', function() {
 	};
 });
 
+app.directive('pinned', function() {
+	return {
+		restrict: 'A',
+		link: function(scope, elm, attrs) {
+			elm.affix();
+		}
+	};
+});
+
 app.directive('schedule', function($timeout, $filter) {
 	function Schedule(scope) {
 		this.scope = scope;
@@ -916,19 +925,66 @@ app.controller("BrowseCtrl", function($scope, browseRequest) {
 	};*/
 	$scope.cart = {
 		items: {},
+		courses: {},
 		length: 0,
-		inCart: function(section) {
+		sectionInCart: function(section) {
 			return  $scope.cart.items.hasOwnProperty(section.id);
 		},
-		toggleCart: function(section) {
-			if(!$scope.cart.inCart(section)) {
-				$scope.cart.length++;
-				$scope.cart.items[section.id] = section;
+		courseInCart: function(course) {
+			if(!$scope.cart.courses.hasOwnProperty(course.id)) {
+				return false;
 			} else {
-				$scope.cart.length--;
-				delete $scope.cart.items[section.id];
+				var isInCart = true;
+				angular.forEach(course.sections, function(section) {
+					isInCart = isInCart && $scope.cart.sectionInCart(section);
+				});
+				if(isInCart) {
+					return true;
+				} else {
+					delete $scope.cart.courses[course.id];
+					return false;
+				}
 			}
 		},
+		addSection: function(section) {
+			$scope.cart.length++;
+			$scope.cart.items[section.id] = section;
+			section.selected = true;
+		},
+		removeSection: function(section) {
+			$scope.cart.length--;
+			delete $scope.cart.items[section.id];
+			section.selected = false;
+		},
+		toggleSection: function(section) {
+			if(!$scope.cart.sectionInCart(section)) {
+				$scope.cart.addSection(section);
+			} else {
+				$scope.cart.removeSection(section);
+				if($scope.cart.courses.hasOwnProperty(section.courseId)) {
+					$scope.cart.courses[section.courseId].selected = false;
+					delete $scope.cart.courses[section.courseId];
+				}
+			}
+		},
+		toggleCourse: function(course) {
+			if($scope.cart.courseInCart(course)) {
+				angular.forEach(course.sections, function(section) {
+					if($scope.cart.sectionInCart(section)) {
+						$scope.cart.removeSection(section);
+					}
+				});
+				delete $scope.cart.courses[course.id];
+			} else {
+				angular.forEach(course.sections, function(section) {
+					if(!$scope.cart.sectionInCart(section)) {
+						$scope.cart.addSection(section);
+					}
+				});
+				$scope.cart.courses[course.id] = course;
+			}
+			course.selected = !course.selected;
+		}
 	};
 	
 	$scope.$watch('term', function(newTerm) {

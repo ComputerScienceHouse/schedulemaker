@@ -1053,6 +1053,26 @@ svg g.item:hover rect {
 	fill-opacity: 1;
 }
 
+
+@media screen and (min-width: 991px) and (max-width: 1199px)  {
+	.course-cart {
+		width: 293px;
+	}
+}
+
+@media screen and (min-width:1200px) {
+	.course-cart {
+		width: 360px;
+	}
+}
+@media screen and (min-width: 991px) {
+	.course-cart .course-cart-window {
+		max-height: 350px;
+		overflow-y: auto;
+	}
+}
+
+
 @media screen and (max-width:767px) {
 	.schedule-cont {
 		width:1000px;
@@ -1069,6 +1089,7 @@ svg g.item:hover rect {
 
 /* ANIMATIONS */
 @media screen and (min-width:767px) {
+	
 	
 	.no-repeat-item-animation {
 		-webkit-animation:none !important;
