@@ -271,10 +271,23 @@ global $CURRENT_QUARTER;
 				</div>
 			</div>
 		</div>
+		<div class="row">
+			<div class="col-xs-12">
+				<div class="panel panel-default">
+					<div class="panel-body">
+						<div class="form-group">
+							<button class="btn btn-default" ng-disabled="displayOptions.currentPage == 0" ng-click="displayOptions.currentPage=displayOptions.currentPage-1">Previous</button>
+							{{displayOptions.currentPage+1}}/{{displayOptions.numberOfPages()}}
+							<button class="btn btn-default" ng-disabled="displayOptions.currentPage >= schedules.length/displayOptions.pageSize - 1" ng-click="displayOptions.currentPage=displayOptions.currentPage+1">Next</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
 	</div>
 	<div ng-class="{container: !options.fullscreen}">
 		<div ng-class="{'col-sm-12': options.fullscreen}">
-			<div class="row" ng-repeat="schedule in schedules">
+			<div class="row" ng-repeat="schedule in schedules | startFrom:displayOptions.currentPage*displayOptions.pageSize | limitTo:displayOptions.pageSize">
 				<div class="col-md-12">
 					<div class="panel panel-default">
 						<div id="matchingSchedules" class="panel-heading">

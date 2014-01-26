@@ -183,8 +183,8 @@ require "./inc/header.inc";
 				</div>
 				<div class="panel-body">
 					<div class="course-cart-window" ng-switch="cart.length > 0">
-						<ul ng-switch-when="true" class="list-group">
-							<li class="list-group-item repeat-item" ng-repeat="(id, item) in cart.items">
+						<ul ng-switch-when="true" class="list-group animate-show-hide">
+							<li class="list-group-item repeat-item" ng-repeat="(id, item) in cart.listItems()">
 								<button class="btn pull-right btn-danger" ng-click="cart.toggleSection(item)">
 									<i class="fa fa-minus"></i> <i class="fa fa-shopping-cart"></i>
 								</button>
@@ -192,7 +192,7 @@ require "./inc/header.inc";
 								<p class="list-group-item-text">{{item.title}}</p>
 							</li>
 						</ul>
-						<div class="alert" ng-switch-when="false">Add courses to your cart and make a schedule with them. They will show up here.</div>
+						<div class="alert animate-show-hide" ng-switch-when="false">Add courses to your cart and make a schedule with them. They will show up here.</div>
 					</div>
 				</div>
 				<div class="panel-footer">

@@ -72,12 +72,16 @@ app.filter('partition', function($cacheFactory) {
 app.filter("parseTime", function() {
 	return function(rawTime) {
 		var matchedTime = rawTime.match(/([0-9]|1[0-2]):([0-9]{2})(am|pm)/);
-	    if(matchedTime[3] == 'am' && parseInt(matchedTime[1]) == 12) {
-	        return parseInt(matchedTime[2]);
-	    } else if(matchedTime[3] == 'pm') {
-	    	matchedTime[1] = parseInt(matchedTime[1]) + 12;
-	    }
-	    return (parseInt(matchedTime[1]) * 60) + parseInt(matchedTime[2]);
+		if(matchedTime) {
+		    if(matchedTime[3] == 'am' && parseInt(matchedTime[1]) == 12) {
+		        return parseInt(matchedTime[2]);
+		    } else if(matchedTime[3] == 'pm') {
+		    	matchedTime[1] = parseInt(matchedTime[1]) + 12;
+		    }
+		    return (parseInt(matchedTime[1]) * 60) + parseInt(matchedTime[2]);
+		} else {
+			return false;
+		}
 	};
 });
 
@@ -91,6 +95,13 @@ app.controller( "AppCtrl", function($scope, globalKbdShortcuts) {
 		end_day: 6,
 		building_style: 'code',
 		fullscreen: false,
+	};
+	$scope.displayOptions = {
+		currentPage: 0,
+		pageSize: 3,
+		numberOfPages: function(){
+	        return Math.ceil($scope.schedules.length/$scope.displayOptions.pageSize);                
+	    }
 	};
 	$scope.ui = {
 		days: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
@@ -606,14 +617,24 @@ app.directive('schedule', function($timeout, $filter) {
 		this.drawOptions = {
 			parsedTime: {}
 		};
+		this.courseDrawIndex = 0;
 	}
-	Schedule.prototype.drawGrid = function() {
+	Schedule.prototype.init = function() {
 		var parseTime = $filter('parseTime');
 		
 		this.drawOptions.parsedTime.start = parseTime(this.scope.options.start_time);
 		this.drawOptions.parsedTime.end = parseTime(this.scope.options.end_time);
+		if(!this.drawOptions.parsedTime.start || !this.drawOptions.parsedTime.end) return false;
+        
+		this.scope.hiddenCourses = [];
+		this.scope.onlineCourses = [];
+		this.scope.scheduleItems = [];
 		
-        var hourArray = [];
+		return true;
+	};
+	Schedule.prototype.drawGrid = function() {
+		
+		var hourArray = [];
         for(var time = this.drawOptions.parsedTime.start; time < this.drawOptions.parsedTime.end; time += 60) {
     		// Calculate the label
     		var hourLabel = Math.floor(time / 60);
@@ -669,9 +690,11 @@ app.directive('schedule', function($timeout, $filter) {
 				pixelAlignment:''
 			}
 		};
+		return true;
 	};
 	
 	Schedule.prototype.drawCourse = function(course, index) {
+		console.log('Drawing: '+course.courseNum);
 		var grid = this.scope.grid;
 		var startTime = this.drawOptions.parsedTime.start;
 		var endTime = this.drawOptions.parsedTime.end;
@@ -688,20 +711,21 @@ app.directive('schedule', function($timeout, $filter) {
 				}
 				continue;
 			}
+			
+			var courseStart = time.start,
+			courseEnd = time.end;
 
 			// Skip times that aren't part of the displayed hours
-			if(time.start < startTime || time.start > endTime || time.end > endTime) {
+			if(courseStart < startTime || courseStart > endTime || courseEnd > endTime) {
 				// Shorten up the boxes of times that extend into
 				// the visible spectrum
-				if(time.start < startTime && time.end > startTime) {
-					time.start = startTime;
-					time.shorten = "top";
-				} else if(time.end > endTime && time.start < endTime) {
-					time.end = endTime;
-					time.shorten = "bottom";
+				if(courseStart < startTime && courseEnd > startTime) {
+					courseStart = startTime;
+				} else if(courseEnd > endTime && courseStart < endTime) {
+					courseEnd = endTime;
 				} else {
 					// The course is completely hidden
-					if($.inArray(course.courseNum, hiddenCourses) == -1) {
+					if($.inArray(course.courseNum, this.scope.hiddenCourses) == -1) {
 						this.scope.hiddenCourses.push(course.courseNum);
 					}
 					continue;
@@ -709,13 +733,13 @@ app.directive('schedule', function($timeout, $filter) {
 			}
 			
 			// Calculate the height
-			var timeHeight = parseInt(time.end) - parseInt(time.start);
+			var timeHeight = parseInt(courseEnd) - parseInt(courseStart);
 			timeHeight = timeHeight / 30;
 			timeHeight = Math.ceil(timeHeight);
 			timeHeight = (timeHeight * 20);
 
 			// Calculate the top offset
-			var timeTop = parseInt(time.start) - startTime;
+			var timeTop = parseInt(courseStart) - startTime;
 			timeTop = timeTop / 30;
 			timeTop = Math.floor(timeTop);
 			timeTop = timeTop * 20;
@@ -735,25 +759,27 @@ app.directive('schedule', function($timeout, $filter) {
 					width: grid.opts.daysWidth,
 					height:timeHeight
 				},
-				color: this.scope.ui.colors[index % 10]
+				color: this.scope.ui.colors[this.courseDrawIndex % 10]
 			});
 			
 		}
 	};
 	
 	Schedule.prototype.drawCourses = function() {
+		this.courseDrawIndex = 0;
 		for(var coursesIndex = 0, coursesLength = this.scope.schedule.length; coursesIndex < coursesLength; coursesIndex++) {
 			var course = this.scope.schedule[coursesIndex];
+			this.courseDrawIndex++;
 			if(course.online) {
 				this.scope.onlineCourses.push(course);
 			} else if(course.times != undefined) {
-				this.drawCourse(course, coursesIndex + 1);
+				this.drawCourse(course);
 			}
 		}
 	};
 	
 	Schedule.prototype.draw = function() {
-		this.drawGrid();
+		this.drawGrid()
 		this.drawCourses();
 	};
 
@@ -781,20 +807,18 @@ app.directive('schedule', function($timeout, $filter) {
 			},
 			post: function(scope, elm) {
 				scope.$watchCollection('options', function() {	
-					// Re-init scope items
-					scope.hiddenCourses = [];
-					scope.onlineCourses = [];
-					scope.scheduleItems = [];
-					
-					scope.scheduleController.draw();
-					
-					// Fix the pixel issues after DOM updates
-					$timeout(function() {
-						var offset = elm.find("svg").offset(),
-						vert = 1 - parseFloat('0.'+('' + offset.top).split('.')[1]);
-						horz = 1 - parseFloat('0.'+('' + offset.left).split('.')[1]);
-						scope.grid.opts.pixelAlignment ='translate('+horz+','+vert+')';
-					},0,true);
+					if(scope.scheduleController.init()) {
+						// Only redraw if valid options
+						scope.scheduleController.draw();
+						
+						// Fix the pixel issues after DOM updates
+						$timeout(function() {
+							var offset = elm.find("svg").offset(),
+							vert = 1 - parseFloat('0.'+('' + offset.top).split('.')[1]);
+							horz = 1 - parseFloat('0.'+('' + offset.left).split('.')[1]);
+							scope.grid.opts.pixelAlignment ='translate('+horz+','+vert+')';
+						},0,true);
+					}
 				});
 			}
 		}
@@ -911,6 +935,13 @@ app.filter('translateDay', function() {
 }
 });
 
+app.filter('startFrom', function() {
+    return function(input, start) {
+        start = +start; //parse to int
+        return input.slice(start);
+    }
+});
+
 // BROWSE PAGE
 app.controller("BrowseCtrl", function($scope, browseRequest) {
 	$scope.schools = [];
@@ -925,6 +956,7 @@ app.controller("BrowseCtrl", function($scope, browseRequest) {
 	};*/
 	$scope.cart = {
 		items: {},
+		sortOrder: [],
 		courses: {},
 		length: 0,
 		sectionInCart: function(section) {
@@ -949,11 +981,13 @@ app.controller("BrowseCtrl", function($scope, browseRequest) {
 		addSection: function(section) {
 			$scope.cart.length++;
 			$scope.cart.items[section.id] = section;
+			$scope.cart.sortOrder.push(section.id);
 			section.selected = true;
 		},
 		removeSection: function(section) {
 			$scope.cart.length--;
 			delete $scope.cart.items[section.id];
+			$scope.cart.sortOrder.splice($scope.cart.sortOrder.indexOf(section.id), 1);
 			section.selected = false;
 		},
 		toggleSection: function(section) {
@@ -984,6 +1018,13 @@ app.controller("BrowseCtrl", function($scope, browseRequest) {
 				$scope.cart.courses[course.id] = course;
 			}
 			course.selected = !course.selected;
+		},
+		listItems: function() {
+			var items = [];
+			for(var i = 0, length = $scope.cart.sortOrder.length; i < length; i++) {
+				items.push($scope.cart.items[$scope.cart.sortOrder[i]]);
+			}
+			return items;
 		}
 	};
 	
