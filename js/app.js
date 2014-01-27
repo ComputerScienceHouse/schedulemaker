@@ -179,6 +179,17 @@ app.controller( "AppCtrl", function($scope, globalKbdShortcuts) {
 		6: "Saturday"
 	}*/
 	
+	$scope.scrollToSchedules = function() {
+		
+		// I know this is bad, but I'm lazy
+		setTimeout(function() {
+			$('input:focus').blur();
+			$('html, body').animate({
+		        scrollTop: $("#master_schedule_results").offset().top - 65
+		    }, 500);
+		}, 100);
+	};
+	
     $scope.generateSchedules = function() {
     	// Serialize the form and store it if it changed
         var form = $("#scheduleForm");
@@ -227,14 +238,7 @@ app.controller( "AppCtrl", function($scope, globalKbdShortcuts) {
     			scheduleDiv.show();
     			$scope.$broadcast('generatedSchedules');
     			
-    			
-    			// I know this is bad, but I'm lazy
-    			setTimeout(function() {
-    				$('input:focus').blur();
-        			$('html, body').animate({
-        		        scrollTop: $("#master_schedule_results").offset().top - 65
-        		    }, 500);
-    			}, 100);
+    			$scope.scrollToSchedules();
     			
     			
     			/*
@@ -631,10 +635,22 @@ app.directive("dynamicItem", function($timeout){
   };
 });
 
-app.directive('scheduleOptions', function() {
+app.directive('schedulePagination', function() {
 	return {
 		restrict: 'A',
+		scope: {
+			displayOptions: '=schedulePagination',
+			schedulePaginationCallback: '&'
+		},
+		template: '<button class="btn btn-default" ng-disabled="displayOptions.currentPage == 0" ng-click="displayOptions.currentPage=displayOptions.currentPage-1">Previous</button>' +
+				  ' {{displayOptions.currentPage+1}}/{{displayOptions.numberOfPages()}} ' +
+		          '<button class="btn btn-default" ng-disabled="displayOptions.currentPage >= schedules.length/displayOptions.pageSize - 1" ng-click="displayOptions.currentPage=displayOptions.currentPage+1">Next</button>',
 		link: function(scope, elm, attrs) {
+			if(scope.schedulePaginationCallback) {
+				elm.find('button').click(function() {
+					scope.schedulePaginationCallback();
+				});
+			}
 		}
 	};
 });

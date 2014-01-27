@@ -1005,6 +1005,9 @@ span[professor-lookup] {
 	border-left-width: 10px;
 	transition: border-left-color .3s;
 }
+#master_schedule_results {
+	padding-top: 10px;
+}
 /* Browse Courses */
 
 #browse-contents .list-group-item {

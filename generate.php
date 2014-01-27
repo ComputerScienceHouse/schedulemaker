@@ -196,89 +196,91 @@ global $CURRENT_QUARTER;
 		</div>
 	</div>
 </form>
-<div id="master_schedule_results" ng-show="schedules.length > 0">
+<div id="master_schedule_results" ng-show="schedules.length > 0" ng-init="showOptions = true">
 	<div class="container">
-		<div class="row">
-			<div class="col-md-12">
-				<div class="panel panel-primary" ng-init="showDisplayOptions = false">
-					<div class="display-options-header panel-heading" ng-click="showDisplayOptions = !showDisplayOptions">
-						<button class="btn btn-xs btn-success pull-right" type="button">{{showDisplayOptions?"Hide":"Show"}} Options</button>
-						<h2 class="panel-title">Display Options</h2>
-					</div>
-					<div class="panel-body" ng-show="showDisplayOptions">
-						<div class="row form-horizontal">
-							<div class="col-md-4">
+		<div class="visible-xs visible-sm form-group">
+			<button class="btn btn-block btn-primary" ng-click="showOptions = !showOptions" type="button"><i class="fa" ng-class="{'fa-chevron-down':showOptions,'fa-chevron-up':!showOptions}"></i> Options</button>
+		</div>
+		<div ng-class="{'hidden-xs':showOptions, 'hidden-sm': showOptions}" class="row">
+			<div class="col-xs-12">
+				<div class="panel panel-default">
+					<div class="panel-body">
+						<div class="row form-inline">
+							<div class="col-xs-12">
 								<div class="form-group">
-									<label for="options-start_time" class="col-sm-4 control-label">Start Time</label>
-									<div class="col-sm-8">
-										<select id="options-start_time" ng-change="ensureCorrectEndTime()" class="form-control" ng-model="options.start_time" ng-options="key as ui.optionLists.times.values[key] for key in ui.optionLists.times.keys"></select>
-									</div>
+									<button class="hidden-xs hidden-sm btn btn-primary" ng-click="showDisplayOptions = !showDisplayOptions" type="button"><i class="fa" ng-class="{'fa-chevron-down':!showDisplayOptions,'fa-chevron-up':showDisplayOptions}"></i></button>
 								</div>
 								<div class="form-group">
-									<label for="options-end_time" class="col-sm-4 control-label">End Time</label>
-									<div class="col-sm-8">
-										<select id="options-end_time" class="form-control" ng-model="options.end_time" ng-options="key as ui.optionLists.times.values[key] for key in ui.optionLists.times.keys | startFrom: ui.optionLists.times.keys.indexOf(options.start_time) + 1"></select>
-									</div>
+									Display from
 								</div>
+								<div class="form-group">
+									<select id="options-start_time" ng-change="ensureCorrectEndTime()" class="form-control" ng-model="options.start_time" ng-options="key as ui.optionLists.times.values[key] for key in ui.optionLists.times.keys"></select>
+								</div>
+								<div class="form-group">
+									to
+								</div>
+								<div class="form-group">
+									<select id="options-end_time" class="form-control" ng-model="options.end_time" ng-options="key as ui.optionLists.times.values[key] for key in ui.optionLists.times.keys | startFrom: ui.optionLists.times.keys.indexOf(options.start_time) + 1"></select>
+								</div>
+								<div class="form-group">
+									and from
+								</div>
+								<div class="form-group">
+									<select id="options-start_day" ng-change="ensureCorrectEndDay()" class="form-control" ng-model="options.start_day" ng-options="ui.optionLists.days.indexOf(value) as value for (key, value) in ui.optionLists.days"></select>
+								</div>
+								<div class="form-group">
+									to
+								</div>
+								<div class="form-group">
+									<select id="options-end_day" class="form-control" ng-model="options.end_day" ng-options="ui.optionLists.days.indexOf(value) as value for (key, value) in ui.optionLists.days | startFrom: options.start_day"></select>
+								</div>
+								<div class="form-group pull-right" schedule-pagination="displayOptions"></div>
 							</div>
-							<div class="col-md-4">
-								<div class="form-group">
-									<label for="options-start_day" class="col-sm-4 control-label">Start Day</label>
-									<div class="col-sm-8">
-										<select id="options-start_day" ng-change="ensureCorrectEndDay()" class="form-control" ng-model="options.start_day" ng-options="ui.optionLists.days.indexOf(value) as value for (key, value) in ui.optionLists.days"></select>
+						</div>
+						<div class="visible-xs visible-sm">
+							<button class="btn btn-block btn-primary" ng-click="showDisplayOptions = !showDisplayOptions" type="button"><i class="fa" ng-class="{'fa-chevron-down':!showDisplayOptions,'fa-chevron-up':showDisplayOptions}"></i> Advanced Options</button>
+						</div>
+						<div ng-show="showDisplayOptions" ng-init="showDisplayOptions = false">
+							<div class="vert-spacer-static-md"></div>
+							<div class="row form-horizontal">
+								<div class="col-md-4">
+									<div class="form-group">
+										<label for="options-building_style" class="col-sm-4 control-label">Buildings</label>
+										<div class="col-sm-8">
+											<select id="options-building_style" class="form-control" ng-model="options.building_style">
+												<option value="code">Codes (eg. GOL)</option>
+												<option value="number">Number (eg. 70)</option>
+											</select>
+										</div>
 									</div>
 								</div>
-								<div class="form-group">
-									<label for="options-end_day" class="col-sm-4 control-label">End Day</label>
-									<div class="col-sm-8">
-										<select id="options-end_day" class="form-control" ng-model="options.end_day" ng-options="ui.optionLists.days.indexOf(value) as value for (key, value) in ui.optionLists.days | startFrom: options.start_day"></select>
+								<div class="col-md-4">
+									<div class="form-group hidden-xs">
+										<label for="options-fullscreen" class="col-sm-4 control-label">Width</label>
+										<div class="col-sm-8">
+											<div class="checkbox">
+												<label> <input id="options-fullscreen" type="checkbox" ng-model="displayOptions.fullscreen"> Fullscreen
+												</label>
+											</div>
+										</div>
 									</div>
 								</div>
-							</div>
-							<div class="col-md-4">
-								<div class="form-group">
-									<label for="options-building_style" class="col-sm-4 control-label">Buildings</label>
-									<div class="col-sm-8">
-										<select id="options-building_style" class="form-control" ng-model="options.building_style">
-											<option value="code">Codes (eg. GOL)</option>
-											<option value="number">Number (eg. 70)</option>
-										</select>
-									</div>
-								</div>
-								<div class="form-group hidden-xs">
-									<label for="options-fullscreen" class="col-sm-4 control-label">Width</label>
-									<div class="col-sm-8">
-										<div class="checkbox">
-											<label> <input id="options-fullscreen" type="checkbox" ng-model="displayOptions.fullscreen"> Fullscreen
-											</label>
+								<div class="col-md-4">
+									<div class="form-group">
+										<label for="displayOptions-pageSize" class="col-sm-4 control-label">Page Size</label>
+										<div class="col-sm-8">
+											<select id="displayOptions-pageSize" class="form-control" ng-model="displayOptions.pageSize">
+												<option value="3">3</option>
+												<option value="5">5</option>
+												<option value="10">10</option>
+												<option value="15">15</option>
+												<option value="20">20</option>
+												<option value="50">50</option>
+											</select>
 										</div>
 									</div>
 								</div>
 							</div>
-						</div>
-						<!--<div class="form-group">
-							<div class="col-sm-offset-2 col-sm-10">
-								<div class="checkbox">
-									<label> <input type="checkbox"> Remember me
-									</label>
-								</div>
-							</div>
-						</div>
-						<div class="form-group">
-							<input ng-model="options.start_time" autocomplete="off" class="form-control" type="text"> <input ng-model="options.end_time" autocomplete="off" class="form-control" type="text">
-						</div>-->
-					</div>
-				</div>
-			</div>
-		</div>
-		<div class="row">
-			<div class="col-xs-12">
-				<div class="panel panel-default">
-					<div class="panel-body">
-						<div class="form-group">
-							<button class="btn btn-default" ng-disabled="displayOptions.currentPage == 0" ng-click="displayOptions.currentPage=displayOptions.currentPage-1">Previous</button>
-							{{displayOptions.currentPage+1}}/{{displayOptions.numberOfPages()}}
-							<button class="btn btn-default" ng-disabled="displayOptions.currentPage >= schedules.length/displayOptions.pageSize - 1" ng-click="displayOptions.currentPage=displayOptions.currentPage+1">Next</button>
 						</div>
 					</div>
 				</div>
@@ -304,12 +306,42 @@ global $CURRENT_QUARTER;
 											<h2 class="panel-title">Options</h2>
 										</div>
 										<div class="panel-body">
+											<button type="button" class="btn btn-block btn-info hidden-xs hidden-sm">Print Schedule</button>
 											<button type="button" class="btn btn-block btn-default">Save Schedule</button>
+											<button type="button" class="btn btn-block btn-default">Download iCal</button>
+											<button type="button" class="btn btn-block btn-primary">Share to <i class="fa fa-facebook"></i></button>
+											<button type="button" class="btn btn-block btn-primary">Share to <i class="fa fa-google-plus"></i></button>
+											<button type="button" class="btn btn-block btn-primary">Share to <i class="fa fa-twitter"></i></button>
 										</div>
 									</div>
 								</div>
 							</div>
+							<div ng-show="hiddenCourses.length > 0" class="row">
+								<div class="col-xs-12">
+									<div class="alert alert-warning">
+										<strong>Warning!</strong> The following courses are not displayed: <span ng-repeat="course in hiddenCourses">{{course}}{{$last?'':','}}</span>
+									</div>
+								</div>
+							</div>
+							<div ng-show="onlineCourses.length > 0" class="row">
+								<div class="col-xs-12">
+									<div class="alert alert-info">
+										Online Courses: <span ng-repeat="course in onlineCourses">{{course}}{{$last?'':','}}</span>
+									</div>
+								</div>
+							</div>
 						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="container">
+		<div class="row">
+			<div class="col-xs-12">
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<div class="center" schedule-pagination="displayOptions" schedule-pagination-callback="scrollToSchedules()"></div>
 					</div>
 				</div>
 			</div>
