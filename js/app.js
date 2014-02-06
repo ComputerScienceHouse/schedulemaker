@@ -85,10 +85,11 @@ app.filter("parseTime", function() {
 	};
 });
 
-app.controller( "AppCtrl", function($scope, globalKbdShortcuts) {
-	$scope.courses = [];
-	$scope.schedules =[];
-	$scope.options = {
+app.controller("AppCtrl", function($scope) {
+	$scope.state = {};
+	$scope.state.courses = [];
+	$scope.state.schedules =[];
+	$scope.state.drawOptions = {
 		start_time: 480,
 		end_time: 1320,
 		start_day: 1,
@@ -96,14 +97,25 @@ app.controller( "AppCtrl", function($scope, globalKbdShortcuts) {
 		building_style: 'code'
 	};
 	
-	$scope.displayOptions = {
+
+	$scope.state.displayOptions = {
 		currentPage: 0,
 		pageSize: 3,
-		numberOfPages: function(){
-	        return Math.ceil($scope.schedules.length/$scope.displayOptions.pageSize);                
-	    },
-	    fullscreen: false
+		numberOfPages: function() {
+			return Math.ceil($scope.state.schedules.length
+					/ $scope.state.displayOptions.pageSize);
+		},
+		fullscreen: false
 	};
+	
+	$scope.requestOptions = {
+		term: 0,
+		ingoreFull: false
+	};
+});
+
+app.controller("GenerateCtrl", function($scope, globalKbdShortcuts) {
+
 	$scope.ui = {
 		optionLists: {
 			days: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
@@ -152,7 +164,7 @@ app.controller( "AppCtrl", function($scope, globalKbdShortcuts) {
 	};
 	$scope.colorSearch = function(search) {
 		var foundColor = null;
-		$scope.courses.forEach(function(e) {
+		$scope.state.courses.forEach(function(e) {
 			if(e.search.search(search) >= 0) {
 				foundColor =  e.color;
 			}
@@ -160,13 +172,13 @@ app.controller( "AppCtrl", function($scope, globalKbdShortcuts) {
 		return foundColor;
 	};
 	$scope.ensureCorrectEndDay = function() {
-		if($scope.options.start_day > $scope.options.end_day) {
-			$scope.options.end_day = $scope.options.start_day;
+		if($scope.state.drawOptions.start_day > $scope.state.drawOptions.end_day) {
+			$scope.state.drawOptions.end_day = $scope.state.drawOptions.start_day;
 		}
 	};
 	$scope.ensureCorrectEndTime = function() {
-		if($scope.options.start_time >= $scope.options.end_time) {
-			$scope.options.end_time = $scope.options.start_time + 60;
+		if($scope.state.drawOptions.start_time >= $scope.state.drawOptions.end_time) {
+			$scope.state.drawOptions.end_time = $scope.state.drawOptions.start_time + 60;
 		}
 	};
 	/*days: {
@@ -214,7 +226,7 @@ app.controller( "AppCtrl", function($scope, globalKbdShortcuts) {
     			}
 
     			// Store the data for pagination later
-    			$scope.schedules = data.schedules;
+    			$scope.state.schedules = data.schedules;
     			if(data.errors != null && data.errors != undefined) {
     				errorDiv = $("<div id='errorDiv' class='scheduleWarning'>");
     				var errorHTML = "<div class='subheader'><h3>Schedule Generator Warnings</h3><input id='errorControl' type='button' value='Collapse' onClick='collapseErrors();' /></div>";
@@ -239,61 +251,6 @@ app.controller( "AppCtrl", function($scope, globalKbdShortcuts) {
     			$scope.$broadcast('generatedSchedules');
     			
     			$scope.scrollToSchedules();
-    			
-    			
-    			/*
-    			// If we're showing all schedules on one page, then do that
-                var schedPerPage = $("#schedPerPage");
-    			if(schedPerPage.val() == 'all') {
-    				SCHEDPERPAGE = schedules.length;
-    			} else {
-    				SCHEDPERPAGE = parseInt(schedPerPage.val());
-    			}
-    			
-    			// How many pages of schedules are there
-    			pages = Math.ceil(schedules.length / SCHEDPERPAGE);
-    			curPage = 0;
-
-    			// Generate a subset of the schedules for display
-    			data.schedules = schedules.slice(0, SCHEDPERPAGE);
-
-    			
-
-    			// If there were recoverable errors, show them
-    			// NOTE: the php side determines whether to send errors based on verbose value
-
-    			// Grab the advanced options for the schedule
-    			startday  = parseInt($("#scheduleStartDay").val());
-    			endday    = parseInt($("#scheduleEndDay").val());
-
-    			// Determine the height and width of the schedule based on start/end time/day
-    			schedHeight = (Math.floor((endtime - starttime) / 30) * 20) + 20;
-    			schedWidth  = ((endday - startday) * 100) + 200;		// +200 b/c we always show at least ONE day
-
-    			// Now we draw the schedules
-    			//drawPage(0, false);
-
-    			// Add next/previous page controls
-    			var pagination = $("<div>").addClass("schedulePagination");
-    			var pageinfo = schedules.length + " Schedules Generated (Page <span class='curpage'>" + (curPage + 1) + "</span> of " + pages + ")";
-    			pagination.html(pageinfo);
-    			if(pages > 1) {
-    				var prev = $("<input>").attr("type", "button")
-    							.attr("value", "<- Previous")
-    							.attr("onClick", "getPrevPage();")
-    							.addClass("prevbutton")
-    							.css("display", "none");
-    				var next = $("<input>").attr("type", "button")
-    							.attr("value", "Next ->")
-    							.attr("onClick", "getNextPage();")
-    							.addClass("nextbutton");
-    				pagination.append(prev);
-    				pagination.append(next);
-    			}
-    			pagination.insertAfter('#matchingSchedules');
-    			pagination2 = pagination.clone();
-    			pagination2.appendTo('#schedules');
-    			*/
     			
     		}).error( function() {
                 var scheduleDiv = $("#schedules");
@@ -324,31 +281,31 @@ app.controller( "scheduleCoursesCtrl", function( $scope, $http, $q, $timeout) {
 	        color: '#fff',
 	        status: 'D'
 	    }
-	    $scope.courses.push(newCourse);
-		var colorIndex = $scope.courses.length;
+	    $scope.state.courses.push(newCourse);
+		var colorIndex = $scope.state.courses.length;
 		$timeout(function() {
 			newCourse.color = $scope.ui.colors[colorIndex % 10];
 		}, 250);
         $scope.$broadcast('addedCourse');
 	  },
 	  remove: function(index) {
-	        $scope.courses.splice(index - 1, 1);
+	        $scope.state.courses.splice(index - 1, 1);
 	  },
 	  clear: function(index) {
 		index = index - 1;
-		var id = $scope.courses[index].id,
-		color = $scope.courses[index].color,
-		status = $scope.courses[index].status;
-		$scope.courses[index] = {
+		var id = $scope.state.courses[index].id,
+		color = $scope.state.courses[index].color,
+		status = $scope.state.courses[index].status;
+		$scope.state.courses[index] = {
 			id: id,
 			color: '#fff',
 			search: '',
 			results: [],
 			status: status
 		};
-		var colorIndex = $scope.courses.length;
+		var colorIndex = $scope.state.courses.length;
 		$timeout(function() {
-			$scope.courses[index].color = $scope.ui.colors[colorIndex % 10];
+			$scope.state.courses[index].color = $scope.ui.colors[colorIndex % 10];
 		}, 250);
 	  }
   };
@@ -363,8 +320,8 @@ app.controller( "scheduleCoursesCtrl", function( $scope, $http, $q, $timeout) {
 	    var searchRequest = $http.post('./js/scheduleAjax.php',$.param({
     		'action'     : 'getCourseOpts',
             'course'     : course.search,
-            'term'       : $scope.term,
-            'ignoreFull' : $scope.ignoreFull
+            'term'       : $scope.state.requestOptions.term,
+            'ignoreFull' : $scope.state.requestOptions.ignoreFull
 	    }), {
 	    	requestType:'json',
 	    	headers: {
@@ -389,15 +346,15 @@ app.controller( "scheduleCoursesCtrl", function( $scope, $http, $q, $timeout) {
 	    // Most likely typed too fast
 	    });
   };
-  $scope.$watchCollection('[term, ignoreFull]', function() {
-	for(var i = 0, l = $scope.courses.length; i < l; i++) {
-		var course = $scope.courses[i];
+  $scope.$watchCollection('state.requestOptions', function() {
+	for(var i = 0, l = $scope.state.courses.length; i < l; i++) {
+		var course = $scope.state.courses[i];
 		if(course.search.length > 3) {
 			$scope.search(course);
 		}
 	  }
   });
-  $scope.$watch('courses', function(newCourses, oldCourses) {
+  $scope.$watch('state.courses', function(newCourses, oldCourses) {
 	for(var i = 0, l = newCourses.length; i < l; i++){
 		var newCourse = newCourses[i],
 			oldCourse = oldCourses.filter(function (filterCourse) {
@@ -644,7 +601,7 @@ app.directive('schedulePagination', function() {
 		},
 		template: '<button class="btn btn-default" ng-disabled="displayOptions.currentPage == 0" ng-click="displayOptions.currentPage=displayOptions.currentPage-1">Previous</button>' +
 				  ' {{displayOptions.currentPage+1}}/{{displayOptions.numberOfPages()}} ' +
-		          '<button class="btn btn-default" ng-disabled="displayOptions.currentPage >= schedules.length/displayOptions.pageSize - 1" ng-click="displayOptions.currentPage=displayOptions.currentPage+1">Next</button>',
+		          '<button class="btn btn-default" ng-disabled="displayOptions.currentPage >= state.schedules.length/displayOptions.pageSize - 1" ng-click="displayOptions.currentPage=displayOptions.currentPage+1">Next</button>',
 		link: function(scope, elm, attrs) {
 			if(scope.schedulePaginationCallback) {
 				elm.find('button').click(function() {
@@ -674,8 +631,8 @@ app.directive('schedule', function($timeout, $filter) {
 	}
 	Schedule.prototype.init = function() {
 		
-		this.drawOptions.parsedTime.start = parseInt(this.scope.options.start_time);
-		this.drawOptions.parsedTime.end = parseInt(this.scope.options.end_time);
+		this.drawOptions.parsedTime.start = parseInt(this.scope.state.drawOptions.start_time);
+		this.drawOptions.parsedTime.end = parseInt(this.scope.state.drawOptions.end_time);
 		if(!this.drawOptions.parsedTime.start || !this.drawOptions.parsedTime.end) return false;
         
 		this.scope.hiddenCourses = [];
@@ -699,7 +656,7 @@ app.directive('schedule', function($timeout, $filter) {
     	}
 
 		// Generate grid
-        var numDays = this.scope.options.end_day - this.scope.options.start_day + 1;
+        var numDays = this.scope.state.drawOptions.end_day - this.scope.state.drawOptions.start_day + 1;
 		// Set up grid
 		var rawHeight = (hourArray.length * 40),
 		globalOpts = {
@@ -719,7 +676,7 @@ app.directive('schedule', function($timeout, $filter) {
 		var dayArray = [];
 		//Generate days
 		
-		var dayIndex = this.scope.options.start_day;
+		var dayIndex = this.scope.state.drawOptions.start_day;
 		for(var i=0; i < numDays; i++) {
 			var offset = globalOpts.hoursWidth + ( 2 * dayOpts.padding) + ((dayOpts.rawWidth - dayOpts.padding) * i);
 			dayArray.push({
@@ -756,7 +713,7 @@ app.directive('schedule', function($timeout, $filter) {
 			// Make it easier for the developer
 			var time = course.times[t];
 			// Skip times that aren't part of the displayed days
-			if(time.day < this.scope.options.start_day || time.day > this.scope.options.end_day) {
+			if(time.day < this.scope.state.drawOptions.start_day || time.day > this.scope.state.drawOptions.end_day) {
 				if($.inArray(course.courseNum, this.scope.hiddenCourses) == -1) {
 					this.scope.hiddenCourses.push(course.courseNum);
 				}
@@ -799,7 +756,7 @@ app.directive('schedule', function($timeout, $filter) {
 			timeTop = timeTop * 20;
 			timeTop += 19;					// Offset for the header
 			
-			var building = (this.scope.options.building_style == 'code') ? time.bldg.code : time.bldg.number;
+			var building = (this.scope.state.drawOptions.building_style == 'code') ? time.bldg.code : time.bldg.number;
 			this.scope.scheduleItems.push({
 				title:course.title,
 				content: {
@@ -808,7 +765,7 @@ app.directive('schedule', function($timeout, $filter) {
 				    instructor: course.instructor
 				},
 				boundry: {
-					x: grid.days[time.day - this.scope.options.start_day].offset,
+					x: grid.days[time.day - this.scope.state.drawOptions.start_day].offset,
 					y: timeTop,
 					shorten: shorten,
 					width: grid.opts.daysWidth,
@@ -861,7 +818,7 @@ app.directive('schedule', function($timeout, $filter) {
 				};
 			},
 			post: function(scope, elm) {
-				scope.$watchCollection('options', function() {	
+				scope.$watchCollection('state.drawOptions', function() {	
 					if(scope.scheduleController.init()) {
 						// Only redraw if valid options
 						scope.scheduleController.draw();
