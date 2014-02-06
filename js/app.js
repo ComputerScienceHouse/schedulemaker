@@ -88,6 +88,8 @@ app.filter("parseTime", function() {
 app.controller("AppCtrl", function($scope) {
 	$scope.state = {};
 	$scope.state.courses = [];
+	$scope.state.nonCourses = [];
+	$scope.state.noCourses = [];
 	$scope.state.schedules =[];
 	$scope.state.drawOptions = {
 		start_time: 480,
@@ -114,7 +116,7 @@ app.controller("AppCtrl", function($scope) {
 	};
 });
 
-app.controller("GenerateCtrl", function($scope, globalKbdShortcuts) {
+app.controller("GenerateCtrl", function($scope, globalKbdShortcuts, $http, $filter) {
 
 	$scope.ui = {
 		optionLists: {
@@ -201,8 +203,54 @@ app.controller("GenerateCtrl", function($scope, globalKbdShortcuts) {
 		    }, 500);
 		}, 100);
 	};
-	
     $scope.generateSchedules = function() {
+    	var formatTime = $filter('formatTime');
+    	var requestData = {
+    		'action': 'getMatchingSchedules',
+    		'term': $scope.state.requestOptions.term,
+    		'courseCount': $scope.state.courses.length,
+    		'nonCourseCount': $scope.state.nonCourses.length,
+    		'noCourseCount': $scope.state.noCourses.length,
+    		'scheduleStart': formatTime($scope.state.drawOptions.start_time),
+    		'scheduleEnd': formatTime($scope.state.drawOptions.end_time),
+    		'scheduleStartDay': $scope.state.drawOptions.start_day,
+    		'scheduleEndDay': $scope.state.drawOptions.end_day,
+    		'schedPerPage': $scope.state.displayOptions.pageSize,
+    		'buildingStyle': $scope.state.drawOptions.building_style,
+    	};
+    	
+    	for(var courseIndex = 0; courseIndex < $scope.state.courses.length; courseIndex++) {
+    		var course = $scope.state.courses[courseIndex];
+    		var fieldName = 'courses' + (courseIndex + 1) + 'Opt[]';
+    		requestData['courses' + (courseIndex + 1)] = course.search;
+    		requestData[fieldName] = [];
+    		for(var sectionIndex = 0; sectionIndex < course.sections.length; sectionIndex++) {
+    			if(course.sections[sectionIndex].selected) {
+    				requestData[fieldName].push(course.sections[sectionIndex].sectionId);
+    			}
+    		}
+    		
+    	}
+    	
+    	$http.post('./js/scheduleAjax.php',$.param(requestData), {
+	    	requestType:'json',
+	    	headers: {
+	            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+	        }
+	    }).success(function(data, status, headers, config) {
+	    	if(!data.error) {
+		    	$scope.state.schedules = data.schedules;
+		    	$scope.scrollToSchedules();
+	    	} else {
+	    		alert('There will be better error handling, but this happened: \n'+data.msg);
+	    	}
+	    }).
+	    error(function(data, status, headers, config) {
+	    	course.status = 'D';
+	    // Most likely typed too fast
+	    });
+    	
+    	/*
     	// Serialize the form and store it if it changed
         var form = $("#scheduleForm");
     	if(serialForm != form.serialize()) {
@@ -261,7 +309,8 @@ app.controller("GenerateCtrl", function($scope, globalKbdShortcuts) {
     			errorDiv.appendTo(scheduleDiv);
     			scheduleDiv.slideDown();
     		});
-    	}
+    		
+    	}*/
     };
     globalKbdShortcuts.bindGenerateSchedules($scope.generateSchedules);
 });
@@ -277,7 +326,7 @@ app.controller( "scheduleCoursesCtrl", function( $scope, $http, $q, $timeout) {
 		var newCourse = {
 	    	id: ++id,
 	        search: '',
-	        results: [],
+	        sections: [],
 	        color: '#fff',
 	        status: 'D'
 	    }
@@ -300,7 +349,7 @@ app.controller( "scheduleCoursesCtrl", function( $scope, $http, $q, $timeout) {
 			id: id,
 			color: '#fff',
 			search: '',
-			results: [],
+			sections: [],
 			status: status
 		};
 		var colorIndex = $scope.state.courses.length;
@@ -334,11 +383,12 @@ app.controller( "scheduleCoursesCtrl", function( $scope, $http, $q, $timeout) {
 		    	for(var c = 0; c < d.length; ++c) {
 		    		
 		            d[c].isError = false;
+		            d[c].selected = true;
 		            
 		        }
-		    	course.results = d;
+		    	course.sections = d;
 	    	} else {
-	    		course.results = [{isError:true,error:d}];
+	    		course.sections = [{isError:true,error:d}];
 	    	}
 	    }).
 	    error(function(data, status, headers, config) {
@@ -363,13 +413,13 @@ app.controller( "scheduleCoursesCtrl", function( $scope, $http, $q, $timeout) {
 		if(typeof oldCourse === 'undefined') {
 			oldCourse = {
 				search: '',
-				results: []
+				sections: []
 			};
 		}
 		if(newCourse.search != oldCourse.search && newCourse.search.length > 5) {
 			$scope.search(newCourse);
 		} else if(newCourse.search != oldCourse.search) {
-			newCourse.results = [];
+			newCourse.sections = [];
 			if (canceler.hasOwnProperty(newCourse.id)) {
 				canceler[newCourse.id].resolve();
 				newCourse.status = 'D';
@@ -597,11 +647,12 @@ app.directive('schedulePagination', function() {
 		restrict: 'A',
 		scope: {
 			displayOptions: '=schedulePagination',
+			totalLength: '=totalLength',
 			schedulePaginationCallback: '&'
 		},
 		template: '<button class="btn btn-default" ng-disabled="displayOptions.currentPage == 0" ng-click="displayOptions.currentPage=displayOptions.currentPage-1">Previous</button>' +
 				  ' {{displayOptions.currentPage+1}}/{{displayOptions.numberOfPages()}} ' +
-		          '<button class="btn btn-default" ng-disabled="displayOptions.currentPage >= state.schedules.length/displayOptions.pageSize - 1" ng-click="displayOptions.currentPage=displayOptions.currentPage+1">Next</button>',
+		          '<button class="btn btn-default" ng-disabled="displayOptions.currentPage >= totalLength/displayOptions.pageSize - 1" ng-click="displayOptions.currentPage=displayOptions.currentPage+1">Next</button>',
 		link: function(scope, elm, attrs) {
 			if(scope.schedulePaginationCallback) {
 				elm.find('button').click(function() {
