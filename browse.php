@@ -79,9 +79,9 @@ require "./inc/header.inc";
 						</div>
 						<div class="col-md-6">
 							<div class="control-group">
-								<label class="col-sm-6 control-label" for="term">Select Term</label>
+								<label class="col-sm-6 control-label" for="term">Term:</label>
 								<div class="col-sm-6">
-									<?= getTermField("term", $term); ?>
+									<?= getTermField("state.requestOptions.term"); ?>
 								</div>
 							</div>
 						</div>
@@ -100,7 +100,7 @@ require "./inc/header.inc";
 									<i class="fa" ng-class="school.ui.buttonClass"></i>
 								</button>
 								<h4 class="list-group-item-heading">{{school.code}}</h4>
-								<p class="list-group-item-text">{{school.title}}</p>
+								<p class="list-group-item-text">{{school.title?school.title:"&nbsp;"}}</p>
 							</div>
 							<div class="browse-sublist" ng-show="school.departments.length > 0 && school.ui.expanded">
 								<div class="list-group">
@@ -109,8 +109,8 @@ require "./inc/header.inc";
 											<button class="btn pull-right btn-default">
 												<i class="fa" ng-class="department.ui.buttonClass"></i>
 											</button>
-											<h4 class="list-group-item-heading">{{department.code}}</h4>
-											<p class="list-group-item-text">{{department.title}}</p>
+											<h4 class="list-group-item-heading">{{department.code?department.code:department.number}}</h4>
+											<p class="list-group-item-text">{{department.title?department.title:"&nbsp;"}}</p>
 										</div>
 										<div class="browse-sublist" ng-show="department.courses.length > 0 && department.ui.expanded">
 											<div class="list-group">
@@ -119,7 +119,7 @@ require "./inc/header.inc";
 														<button class="btn pull-right btn-default">
 															<i class="fa" ng-class="course.ui.buttonClass"></i>
 														</button>
-														<h4 class="list-group-item-heading">{{department.code}}-{{course.course}}</h4>
+														<h4 class="list-group-item-heading">{{department.code?department.code:department.number}}-{{course.course}}</h4>
 														<p class="list-group-item-text">{{course.title}}</p>
 													</div>
 													<div ng-init="showDesc = true" ng-show="course.sections.length > 0 && course.ui.expanded">
@@ -139,7 +139,7 @@ require "./inc/header.inc";
 																	<li class="list-group-item course-info">
 																		<div class="row">
 																			<div class="col-sm-8">
-																				<h4 class="list-group-item-heading">{{$index + 1}}. {{department.code}}-{{course.course}}-{{section.section}}</h4>
+																				<h4 class="list-group-item-heading">{{$index + 1}}. {{course.department.code?course.department.code:course.department.number}}-{{course.course}}-{{section.section}}</h4>
 																				<small>{{section.title}}</small>
 																				<p class="list-group-item-text label-line ">
 																					<span class="label label-default" professor-lookup="section.instructor"></span>

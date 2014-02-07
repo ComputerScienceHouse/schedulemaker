@@ -164,7 +164,7 @@ function getCourse($term, $dept, $courseNum, $sectNum) {
  */
 function getTermField($fieldName = "term", $selected = null) {
 	// Build the start of the field
-	$return = "<select ng-init='{$fieldName} = \"{$selected}\"' ng-model='{$fieldName}' class=\"form-control\" name='{$fieldName}'>";
+	$return = "<select ng-model='{$fieldName}' class=\"form-control\" name='{$fieldName}'>";
 	
 	// Query the database for the quarters
 	$query = "SELECT quarter FROM quarters ORDER BY quarter DESC";

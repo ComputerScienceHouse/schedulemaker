@@ -58,7 +58,7 @@ global $CURRENT_QUARTER;
 				</div>
 			</div>
 			<div>&nbsp;</div>
-			<div ng-show="true">
+			<div ng-show="showScheduleOptions">
 				<div class="panel panel-default">
 					<div class="panel-heading">
 						<h2 class="panel-title">Non-Course Schedule Items</h2>
@@ -138,14 +138,14 @@ global $CURRENT_QUARTER;
 			</div>
 			<input name="action" value="getMatchingSchedules" type="hidden"> <input type="hidden" value="true" name="verbose" id="verbose">
 			<div class="center" role="toolbar">
-				<div class="btn-group visible-md visible-lg">
-					<!-- <button type="button" class="btn btn-default btn-lg" ng-click="showScheduleOptions = !showScheduleOptions">Toggle Schedule Options</button> -->
+				<div class="btn-group">
+					<button type="button" class="btn btn-default btn-lg" ng-click="showScheduleOptions = !showScheduleOptions">Options</button>
 				</div>
 				<div class="btn-group">
 					<button class="btn-lg btn btn-primary btn-default" ng-click="generateSchedules()">Show Matching Schedules</button>
 				</div>
 				<div class="btn-group">
-					<button class="btn-lg btn btn-primary btn-default" ng-click="resetState()">Reset</button>
+					<button class="btn-lg btn btn-default btn-default" ng-click="resetState()">Reset</button>
 				</div>
 			</div>
 		</div>
@@ -163,7 +163,7 @@ global $CURRENT_QUARTER;
 				<div class="panel-body" ng-class="{'hidden-xs':showCourseCart, 'hidden-sm': showCourseCart}">
 					<div class="course-cart-window animate-show-hide" ng-switch=" (state.courses.length == 1 && state.courses[0].sections.length > 0) || state.courses.length > 1">
 						<ul ng-switch-when="true" class="list-group">
-							<li class="list-group-item repeat-item course-cart-item" ng-style="{'border-left-color':course.color.value}" ng-if="course.sections.length > 0 && !course.sections[0].isError" ng-repeat="course in state.courses">
+							<li class="list-group-item repeat-item course-cart-item" ng-style="{'border-left-color':course.color}" ng-if="course.sections.length > 0 && !course.sections[0].isError" ng-repeat="course in state.courses">
 								<div class="btn-group pull-right">
 									<button class="btn btn-danger" ng-click="removeCourse(course)">
 										<i class="fa fa-minus"></i> <i class="fa fa-shopping-cart"></i>
@@ -292,7 +292,7 @@ global $CURRENT_QUARTER;
 					<div class="col-md-12">
 						<div class="panel panel-default">
 							<div id="matchingSchedules" class="panel-heading">
-								<h2 class="panel-title">Schedule {{$index +1}}:</h2>
+								<h2 class="panel-title">Schedule {{state.schedules.indexOf(schedule) + 1}}:</h2>
 							</div>
 							<div class="panel-body">
 								<div class="row">

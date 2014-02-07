@@ -156,15 +156,11 @@ app.controller("AppCtrl", function($scope, sessionStorage, debounce, $window) {
 		$scope.state.displayOptions = {
 			currentPage: 0,
 			pageSize: 3,
-			numberOfPages: function() {
-				return Math.ceil($scope.state.schedules.length
-					/ $scope.state.displayOptions.pageSize);
-			},
 			fullscreen: false
 		};
 
 		$scope.state.requestOptions = {
-			term: 0,
+			term: $scope.defaultTerm,
 			ignoreFull: false
 		};
 	};
@@ -286,6 +282,10 @@ app.controller("GenerateCtrl", function($scope, globalKbdShortcuts, $http) {
 		6: "Saturday"
 	}*/
 	
+	$scope.numberOfPages = function() {
+		return Math.ceil($scope.state.schedules.length / $scope.state.displayOptions.pageSize);
+	};
+	
 	$scope.scrollToSchedules = function() {
 		
 		// I know this is bad, but I'm lazy
@@ -325,6 +325,9 @@ app.controller("GenerateCtrl", function($scope, globalKbdShortcuts, $http) {
 	        }
 	    }).success(function(data, status, headers, config) {
 	    	if(!data.error) {
+	    		for(var i = 0; i < data.schedules.length; i++) {
+	    			data.schedules[i].number = i + 1;
+		    	}
 		    	$scope.state.schedules = data.schedules;
 		    	$scope.scrollToSchedules();
 	    	} else {
@@ -399,6 +402,15 @@ app.controller("GenerateCtrl", function($scope, globalKbdShortcuts, $http) {
     	}*/
     };
     globalKbdShortcuts.bindGenerateSchedules($scope.generateSchedules);
+    globalKbdShortcuts.bindPagination(function() {
+    	if (this.keyCode == 39 && $scope.state.displayOptions.currentPage + 1 < $scope.numberOfPages()) {
+    		$scope.state.displayOptions.currentPage++;
+    		$scope.scrollToSchedules();
+    	} else if(this.keyCode == 37 && $scope.state.displayOptions.currentPage - 1 >= 0) {
+    		$scope.state.displayOptions.currentPage--;
+    		$scope.scrollToSchedules();
+    	}
+    });
 });
 
 app.controller( "MainMenuCtrl", function( $scope) {
@@ -417,7 +429,7 @@ app.controller( "scheduleCoursesCtrl", function( $scope, $http, $q, $timeout) {
 	    	id: ++id,
 	        search: '',
 	        sections: [],
-	        color: {value: '#fff'},
+	        color: '#fff',
 	        status: 'D'
 	    }
 	    $scope.state.courses.push(newCourse);
@@ -437,7 +449,7 @@ app.controller( "scheduleCoursesCtrl", function( $scope, $http, $q, $timeout) {
 		status = $scope.state.courses[index].status;
 		$scope.state.courses[index] = {
 			id: id,
-			color: {value: '#fff'},
+			color: '#fff',
 			search: '',
 			sections: [],
 			status: status
@@ -499,6 +511,14 @@ app.controller( "scheduleCoursesCtrl", function( $scope, $http, $q, $timeout) {
 		}
 	  }
   }, true);
+  $scope.$watch('state.displayOptions.pageSize', function(newPS, oldPS) {
+	  if(newPS === oldPS) {
+		  return;
+	  }
+	  if($scope.state.displayOptions.currentPage + 1 > $scope.numberOfPages()) {
+		  $scope.state.displayOptions.currentPage = $scope.numberOfPages() - 1;
+	  }
+  });
   $scope.$watch('state.courses', function(newCourses, oldCourses) {
 	for(var i = 0, l = newCourses.length; i < l; i++){
 		var newCourse = newCourses[i],
@@ -653,7 +673,7 @@ app.directive("dynamicItem", function($timeout){
     link: { pre: function(scope, elm, attrs, dynamicItems) {
     		scope.$watch('$index', function(newVal) {
     			scope.index =  newVal + 1;
-    			scope.item.color.value = scope.colors[scope.index % 10];
+    			scope.item.color = scope.colors[scope.index % 10];
     	        if(scope.index == 1) {   
     	            $timeout(function() {
     	            	elm.addClass('no-repeat-item-animation');
@@ -711,14 +731,32 @@ app.directive("dynamicItem", function($timeout){
 	            	scope.showResults = false;
 	            	kbdResult = false;
 	            } else if(e.keyCode == 40 && e.ctrlKey && e.altKey) {
-	                scope.showResults = true;
+	                scope.showResults = !scope.showResults;
 	                kbdResult = false;
 	            } else if (e.ctrlKey && e.altKey && e.keyCode > 48 && e.keyCode < 57) {
-	            	var index = e.keyCode - 48;
-	            	var resultElm = elm.find('.course-results-cont > div:nth-child('+index+')');
-	            	if(resultElm.length > 0) {
-	            		var resultScope = resultElm.scope();
-	            		resultScope.selected = !resultScope.selected;
+	            	if(scope.item.sections.length > 0) {
+		            	var index = e.keyCode - 49;
+		            	var resultElm = scope.item.sections[index];
+		            	if(resultElm) {
+		            		scope.item.sections[index].selected = !scope.item.sections[index].selected;
+		            	}
+	            	}
+	            } else if (e.ctrlKey && e.altKey && e.keyCode == 65) {
+	            	if(scope.item.sections.length > 0) {
+	            		var total = 0;
+	            		for(var i = 0; i < scope.item.sections.length; i++) {
+	            			if(scope.item.sections[i].selected) {
+	            				total++;
+	            			}
+	            		}
+	            		if(total == scope.item.sections.length) {
+	            			var target = false;
+	            		} else {
+	            			var target = true;
+	            		}
+	            		for(var i = 0; i < scope.item.sections.length; i++) {
+	            			scope.item.sections[i].selected = target;
+	            		}
 	            	}
 	            }
 	        };
@@ -748,13 +786,20 @@ app.directive('schedulePagination', function() {
 			schedulePaginationCallback: '&'
 		},
 		template: '<button class="btn btn-default" ng-disabled="displayOptions.currentPage == 0" ng-click="displayOptions.currentPage=displayOptions.currentPage-1">Previous</button>' +
-				  ' {{displayOptions.currentPage+1}}/{{displayOptions.numberOfPages()}} ' +
+				  ' {{displayOptions.currentPage+1}}/{{numberOfPages()}} ' +
 		          '<button class="btn btn-default" ng-disabled="displayOptions.currentPage >= totalLength/displayOptions.pageSize - 1" ng-click="displayOptions.currentPage=displayOptions.currentPage+1">Next</button>',
-		link: function(scope, elm, attrs) {
-			if(scope.schedulePaginationCallback) {
-				elm.find('button').click(function() {
-					scope.schedulePaginationCallback();
-				});
+		link: {
+			pre: function(scope) {
+				scope.numberOfPages = function() {
+					return Math.ceil(scope.totalLength / scope.displayOptions.pageSize);
+				};
+			},
+			post: function(scope, elm, attrs) {
+				if(scope.schedulePaginationCallback) {
+					elm.find('button').click(function() {
+						scope.schedulePaginationCallback();
+					});
+				}
 			}
 		}
 	};
@@ -1014,6 +1059,19 @@ app.factory('globalKbdShortcuts', function($rootScope) {
 			// Only allow to bind once, so mock function after first use
 			this.bindGenerateSchedules = function() {};
 		},
+		'bindPagination': function(callback) {
+			Mousetrap.bind('mod+right', function(e) {
+			    $rootScope.$apply(callback.apply(e));
+			    return true;
+			});
+			Mousetrap.bind('mod+left', function(e) {
+			    $rootScope.$apply(callback.apply(e));
+			    return true;
+			});
+			
+			// Only allow to bind once, so mock function after first use
+			this.bindPagination = function() {};
+		},
 		'bindSelectCourses': function(callback) {
 			Mousetrap.bind('mod+down', function(e) {
 			    callback();
@@ -1182,7 +1240,7 @@ app.controller("BrowseCtrl", function($scope, browseRequest) {
 		}
 	};
 	
-	$scope.$watch('term', function(newTerm) {
+	$scope.$watch('state.requestOptions.term', function(newTerm) {
 		browseRequest.getSchoolsForTerm({term:newTerm}).success(function(data, status) {
 			if(status == 200 && typeof data.error == 'undefined') {
 				$scope.schools = data;
@@ -1224,7 +1282,7 @@ app.directive('browseList', function($http, browseRequest) {
 						if(scope[itemName].ui.expanded && scope[itemName][childrenName].length == 0) {
 							scope[itemName].ui.loading = true;
 							scope[itemName].ui.buttonClass = 'fa-refresh fa-spin';
-							browseRequest[browseRequestMethodName]({term: scope.term, param: scope[itemName].id}).success(function(data, status) {
+							browseRequest[browseRequestMethodName]({term: scope.state.requestOptions.term, param: scope[itemName].id}).success(function(data, status) {
 								if(status == 200 && typeof data.error == 'undefined') {
 									scope[itemName][childrenName] = data[childrenName];
 								} else if(data.error) {

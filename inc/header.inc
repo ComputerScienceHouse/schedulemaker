@@ -68,7 +68,7 @@ require_once('./inc/timeFunctions.php');
                 </div>
             </div>
 		</div>
-		<div id="container" ng-cloak ng-controller="AppCtrl">
+		<div id="container" ng-cloak ng-controller="AppCtrl" ng-init="defaultTerm = <?=$CURRENT_QUARTER?>">
 				<?php if($SERVER_TYPE != 'production') { ?>
 			<!-- Leaving this disabled until merge with develop after feature lock 
 				<div class='alert alert-warning'>
