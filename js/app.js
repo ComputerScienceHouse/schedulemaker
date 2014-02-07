@@ -85,38 +85,131 @@ app.filter("parseTime", function() {
 	};
 });
 
-app.controller("AppCtrl", function($scope) {
-	$scope.state = {};
-	$scope.state.courses = [];
-	$scope.state.nonCourses = [];
-	$scope.state.noCourses = [];
-	$scope.state.schedules =[];
-	$scope.state.drawOptions = {
-		start_time: 480,
-		end_time: 1320,
-		start_day: 1,
-		end_day: 6,
-		building_style: 'code'
-	};
-	
+app.factory('debounce', ['$timeout', function ($timeout) {
+    return function(fn, timeout, apply){
+        timeout = angular.isUndefined(timeout) ? 0 : timeout;
+        apply = angular.isUndefined(apply) ? true : apply; // !!default is true! most suitable to my experience
+        var nthCall = 0;
+        return function(){ // intercepting fn
+            var that = this;
+            var argz = arguments;
+            nthCall++;
+            var later = (function(version){
+                return function(){
+                    if (version === nthCall){
+                        return fn.apply(that, argz);
+                    }
+                };
+            })(nthCall);
+            return $timeout(later, timeout, apply);
+        };
+    };
+}]);
 
-	$scope.state.displayOptions = {
-		currentPage: 0,
-		pageSize: 3,
-		numberOfPages: function() {
-			return Math.ceil($scope.state.schedules.length
-					/ $scope.state.displayOptions.pageSize);
-		},
-		fullscreen: false
-	};
+app.factory("sessionStorage", function($window) {
 	
-	$scope.requestOptions = {
-		term: 0,
-		ingoreFull: false
+	var sessionStorage = $window.sessionStorage;
+	
+	return {
+		setItem: function(key, value) {
+			if(sessionStorage) {
+				setTimeout(function() {
+					sessionStorage.setItem(key, angular.toJson(value));
+				}, 10);
+			} else {
+				return false;
+			}
+		},
+		getItem: function(key) {
+			if(sessionStorage) {
+				return angular.fromJson(sessionStorage.getItem(key));
+			} else {
+				return false;
+			}
+		},
+		clear: function() {
+			if(sessionStorage) {
+				return sessionStorage.clear();
+			} else {
+				return false;
+			}
+		},
 	};
 });
 
-app.controller("GenerateCtrl", function($scope, globalKbdShortcuts, $http, $filter) {
+app.controller("AppCtrl", function($scope, sessionStorage, debounce, $window) {
+	
+	$scope.initState = function() {
+		$scope.state = {};
+		$scope.state.courses = [];
+		$scope.state.nonCourses = [];
+		$scope.state.noCourses = [];
+		$scope.state.schedules =[];
+		$scope.state.drawOptions = {
+			start_time: 480,
+			end_time: 1320,
+			start_day: 1,
+			end_day: 6,
+			building_style: 'code'
+		};
+
+		$scope.state.displayOptions = {
+			currentPage: 0,
+			pageSize: 3,
+			numberOfPages: function() {
+				return Math.ceil($scope.state.schedules.length
+					/ $scope.state.displayOptions.pageSize);
+			},
+			fullscreen: false
+		};
+
+		$scope.state.requestOptions = {
+			term: 0,
+			ignoreFull: false
+		};
+	};
+	
+	$scope.resetState = function() {
+		$scope.initState();
+		$window.location.reload();
+	};
+	
+	var storedState = sessionStorage.getItem('state');
+	if(storedState != null) {
+		$scope.state = storedState;
+		
+		
+	} else {
+		$scope.initState();
+		
+	}
+	
+	$scope.saveState = debounce(function() {
+		console.log('saving state');
+		sessionStorage.setItem('state', $scope.state);
+	}, 2000, false);
+	
+	
+	$window.onbeforeunload = function() {
+		
+		// Force save on close
+		sessionStorage.setItem('state', $scope.state);
+	};
+	
+	$scope.getSelectedSectionCount = function(course) {
+		var count = 0;
+		for(var i = 0; i < course.sections.length; i++) {
+			if(course.sections[i].selected) count++;
+		}
+		return count;
+	};
+	
+	$scope.removeCourse = function removeCourse(course) {
+		$scope.state.courses.splice($scope.state.courses.indexOf(course), 1);
+	};
+});
+
+app.controller("GenerateCtrl", function($scope, globalKbdShortcuts, $http) {
 
 	$scope.ui = {
 		optionLists: {
@@ -204,19 +297,12 @@ app.controller("GenerateCtrl", function($scope, globalKbdShortcuts, $http, $filt
 		}, 100);
 	};
     $scope.generateSchedules = function() {
-    	var formatTime = $filter('formatTime');
     	var requestData = {
     		'action': 'getMatchingSchedules',
     		'term': $scope.state.requestOptions.term,
     		'courseCount': $scope.state.courses.length,
     		'nonCourseCount': $scope.state.nonCourses.length,
-    		'noCourseCount': $scope.state.noCourses.length,
-    		'scheduleStart': formatTime($scope.state.drawOptions.start_time),
-    		'scheduleEnd': formatTime($scope.state.drawOptions.end_time),
-    		'scheduleStartDay': $scope.state.drawOptions.start_day,
-    		'scheduleEndDay': $scope.state.drawOptions.end_day,
-    		'schedPerPage': $scope.state.displayOptions.pageSize,
-    		'buildingStyle': $scope.state.drawOptions.building_style,
+    		'noCourseCount': $scope.state.noCourses.length
     	};
     	
     	for(var courseIndex = 0; courseIndex < $scope.state.courses.length; courseIndex++) {
@@ -226,7 +312,7 @@ app.controller("GenerateCtrl", function($scope, globalKbdShortcuts, $http, $filt
     		requestData[fieldName] = [];
     		for(var sectionIndex = 0; sectionIndex < course.sections.length; sectionIndex++) {
     			if(course.sections[sectionIndex].selected) {
-    				requestData[fieldName].push(course.sections[sectionIndex].sectionId);
+    				requestData[fieldName].push(course.sections[sectionIndex].id);
     			}
     		}
     		
@@ -320,20 +406,24 @@ app.controller( "MainMenuCtrl", function( $scope) {
 });
 
 app.controller( "scheduleCoursesCtrl", function( $scope, $http, $q, $timeout) {
-  var id = 0;
+	if($scope.state.courses.length > 0) {
+		var id = $scope.state.courses[$scope.state.courses.length - 1].id + 1;
+	} else {
+		var id = 0;
+	}
   $scope.courses_helpers = {
 	  add: function() {
 		var newCourse = {
 	    	id: ++id,
 	        search: '',
 	        sections: [],
-	        color: '#fff',
+	        color: {value: '#fff'},
 	        status: 'D'
 	    }
 	    $scope.state.courses.push(newCourse);
 		var colorIndex = $scope.state.courses.length;
 		$timeout(function() {
-			newCourse.color = $scope.ui.colors[colorIndex % 10];
+			//newCourse.color = $scope.ui.colors[colorIndex % 10];
 		}, 250);
         $scope.$broadcast('addedCourse');
 	  },
@@ -347,18 +437,20 @@ app.controller( "scheduleCoursesCtrl", function( $scope, $http, $q, $timeout) {
 		status = $scope.state.courses[index].status;
 		$scope.state.courses[index] = {
 			id: id,
-			color: '#fff',
+			color: {value: '#fff'},
 			search: '',
 			sections: [],
 			status: status
 		};
 		var colorIndex = $scope.state.courses.length;
 		$timeout(function() {
-			$scope.state.courses[index].color = $scope.ui.colors[colorIndex % 10];
+			//$scope.state.courses[index].color = $scope.ui.colors[colorIndex % 10];
 		}, 250);
 	  }
   };
-  $scope.courses_helpers.add();
+  if($scope.state.courses.length == 0) {
+	  $scope.courses_helpers.add();  
+  }
   var canceler = {};
   $scope.search = function(course) {
 	  if (canceler.hasOwnProperty(course.id)) {
@@ -396,14 +488,17 @@ app.controller( "scheduleCoursesCtrl", function( $scope, $http, $q, $timeout) {
 	    // Most likely typed too fast
 	    });
   };
-  $scope.$watchCollection('state.requestOptions', function() {
+  $scope.$watch('state.requestOptions', function(newRO, oldRO) {
+	  if(angular.equals(newRO, oldRO)) {
+		  return;
+	  }
 	for(var i = 0, l = $scope.state.courses.length; i < l; i++) {
 		var course = $scope.state.courses[i];
 		if(course.search.length > 3) {
 			$scope.search(course);
 		}
 	  }
-  });
+  }, true);
   $scope.$watch('state.courses', function(newCourses, oldCourses) {
 	for(var i = 0, l = newCourses.length; i < l; i++){
 		var newCourse = newCourses[i],
@@ -516,6 +611,7 @@ app.directive("dynamicItems", function($compile,$timeout, globalKbdShortcuts){
 	    	'dynamicItems': '=',
 	    	'useClass':'@',
 	    	'helpers':'=',
+	    	'colors': '='
 	    },
 	    controller: function($scope) {
 	    	this.items = $scope.dynamicItems;
@@ -557,6 +653,7 @@ app.directive("dynamicItem", function($timeout){
     link: { pre: function(scope, elm, attrs, dynamicItems) {
     		scope.$watch('$index', function(newVal) {
     			scope.index =  newVal + 1;
+    			scope.item.color.value = scope.colors[scope.index % 10];
     	        if(scope.index == 1) {   
     	            $timeout(function() {
     	            	elm.addClass('no-repeat-item-animation');

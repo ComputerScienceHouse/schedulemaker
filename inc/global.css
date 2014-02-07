@@ -998,12 +998,12 @@ span[professor-lookup] {
 	float:none;
 }
 
-.course-select-form {
+.course-cart-item {
 	border-style: solid;
 	border-color: #ffffff;
 	border-width: 0px;
 	border-left-width: 10px;
-	transition: border-left-color .3s;
+	
 }
 #master_schedule_results {
 	padding-top: 10px;
@@ -1083,10 +1083,13 @@ svg g.item:hover rect {
 	div[schedule] {
 		overflow-x:scroll;
 	}
-	.course-select-form {
+	.course-cart-item {
 		border-left-width: 0px;
 		border-top-width: 3px;
 		margin-top: 10px;
+	}
+	.mobile-no-bottom-margin {
+		margin-bottom: 0 !important;
 	}
 }
 

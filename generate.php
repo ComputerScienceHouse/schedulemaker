@@ -25,9 +25,9 @@ global $CURRENT_QUARTER;
 				</div>
 				<div class="panel-body">
 					<div id="scheduleCourses">
-						<div dynamic-items="state.courses" use-class="scheduleCourse" helpers="courses_helpers"></div>
+						<div dynamic-items="state.courses" colors="ui.colors" use-class="scheduleCourse" helpers="courses_helpers"></div>
 					</div>
-					<!--<pre>{{courses | json}}</pre>-->
+					<!-- <pre>{{state.courses | json}}</pre> -->
 				</div>
 				<div class="panel-footer">
 					<input type="hidden" value="{{state.courses.length}}" name="courseCount" id="courseCount">
@@ -58,141 +58,94 @@ global $CURRENT_QUARTER;
 				</div>
 			</div>
 			<div>&nbsp;</div>
-			<div class="row" ng-show="showScheduleOptions">
-				<div class="col-md-6">
-					<div class="panel panel-default">
-						<div class="panel-heading">
-							<h2 class="panel-title">Non-Course Schedule Items</h2>
-						</div>
-						<div class="panel-body">
-							<table id="nonCourses">
-								<tbody>
-									<tr>
-										<th>Title</th>
-										<th>Start Time</th>
-										<th>End Time</th>
-										<th>U</th>
-										<th>M</th>
-										<th>T</th>
-										<th>W</th>
-										<th>R</th>
-										<th>F</th>
-										<th>S</th>
-									</tr>
-									<tr>
-										<td><input class="form-control" name="nonCourseTitle1" id="nonCourseTitle1" type="text"></td>
-										<td><input autocomplete="off" class="startTimePicker form-control ui-timepicker-input" name="nonCourseStartTime1" id="nonCourseStartTime1" placeholder="12:00pm" type="text"></td>
-										<td><input class="endTimePicker form-control" name="nonCourseEndTime1" id="nonCourseStartTime1" placeholder="12:00pm" type="text"></td>
-										<td><input name="nonCourseDays1[]" value="Sun" id="nonCourseDaysSun1" type="checkbox"></td>
-										<td><input name="nonCourseDays1[]" value="Mon" id="nonCourseDaysMon1" type="checkbox"></td>
-										<td><input name="nonCourseDays1[]" value="Tue" id="nonCourseDaysTue1" type="checkbox"></td>
-										<td><input name="nonCourseDays1[]" value="Wed" id="nonCourseDaysWed1" type="checkbox"></td>
-										<td><input name="nonCourseDays1[]" value="Thu" id="nonCourseDaysThu1" type="checkbox"></td>
-										<td><input name="nonCourseDays1[]" value="Fri" id="nonCourseDaysFri1" type="checkbox"></td>
-										<td><input name="nonCourseDays1[]" value="Sat" id="nonCourseDaysSat1" type="checkbox"></td>
-									</tr>
-									<tr>
-										<td><input class="form-control" name="nonCourseTitle2" id="nonCourseTitle2" type="text"></td>
-										<td><input autocomplete="off" class="startTimePicker form-control ui-timepicker-input" name="nonCourseStartTime2" id="nonCourseStartTime2" placeholder="12:00pm" type="text"></td>
-										<td><input class="endTimePicker form-control" name="nonCourseEndTime2" id="nonCourseStartTime2" placeholder="12:00pm" type="text"></td>
-										<td><input name="nonCourseDays2[]" value="Sun" id="nonCourseDaysSun2" type="checkbox"></td>
-										<td><input name="nonCourseDays2[]" value="Mon" id="nonCourseDaysMon2" type="checkbox"></td>
-										<td><input name="nonCourseDays2[]" value="Tue" id="nonCourseDaysTue2" type="checkbox"></td>
-										<td><input name="nonCourseDays2[]" value="Wed" id="nonCourseDaysWed2" type="checkbox"></td>
-										<td><input name="nonCourseDays2[]" value="Thu" id="nonCourseDaysThu2" type="checkbox"></td>
-										<td><input name="nonCourseDays2[]" value="Fri" id="nonCourseDaysFri2" type="checkbox"></td>
-										<td><input name="nonCourseDays2[]" value="Sat" id="nonCourseDaysSat2" type="checkbox"></td>
-									</tr>
-									<tr class="lastNonCourseItem">
-										<td><input class="form-control" name="nonCourseTitle3" id="nonCourseTitle3" type="text"></td>
-										<td><input autocomplete="off" class="startTimePicker form-control ui-timepicker-input" name="nonCourseStartTime3" id="nonCourseStartTime3" placeholder="12:00pm" type="text"></td>
-										<td><input class="endTimePicker form-control" name="nonCourseEndTime3" id="nonCourseStartTime3" placeholder="12:00pm" type="text"></td>
-										<td><input name="nonCourseDays3[]" value="Sun" id="nonCourseDaysSun3" type="checkbox"></td>
-										<td><input name="nonCourseDays3[]" value="Mon" id="nonCourseDaysMon3" type="checkbox"></td>
-										<td><input name="nonCourseDays3[]" value="Tue" id="nonCourseDaysTue3" type="checkbox"></td>
-										<td><input name="nonCourseDays3[]" value="Wed" id="nonCourseDaysWed3" type="checkbox"></td>
-										<td><input name="nonCourseDays3[]" value="Thu" id="nonCourseDaysThu3" type="checkbox"></td>
-										<td><input name="nonCourseDays3[]" value="Fri" id="nonCourseDaysFri3" type="checkbox"></td>
-										<td><input name="nonCourseDays3[]" value="Sat" id="nonCourseDaysSat3" type="checkbox"></td>
-									</tr>
-								</tbody>
-							</table>
-						</div>
-						<div class="panel-footer">
-							<input id="nonCourseCount" class="itemCount" name="nonCourseCount" value="4" type="hidden">
-							<button id="addNonCourseButton" class="addItemButton btn btn-default">Add Item</button>
-						</div>
+			<div ng-show="true">
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h2 class="panel-title">Non-Course Schedule Items</h2>
+					</div>
+					<div class="panel-body">
+						<table id="nonCourses">
+							<tbody>
+								<tr>
+									<th>Title</th>
+									<th>Start Time</th>
+									<th>End Time</th>
+									<th>U</th>
+									<th>M</th>
+									<th>T</th>
+									<th>W</th>
+									<th>R</th>
+									<th>F</th>
+									<th>S</th>
+								</tr>
+								<tr>
+									<td><input class="form-control" name="nonCourseTitle1" id="nonCourseTitle1" type="text"></td>
+									<td><input autocomplete="off" class="startTimePicker form-control ui-timepicker-input" name="nonCourseStartTime1" id="nonCourseStartTime1" placeholder="12:00pm" type="text"></td>
+									<td><input class="endTimePicker form-control" name="nonCourseEndTime1" id="nonCourseStartTime1" placeholder="12:00pm" type="text"></td>
+									<td><input name="nonCourseDays1[]" value="Sun" id="nonCourseDaysSun1" type="checkbox"></td>
+									<td><input name="nonCourseDays1[]" value="Mon" id="nonCourseDaysMon1" type="checkbox"></td>
+									<td><input name="nonCourseDays1[]" value="Tue" id="nonCourseDaysTue1" type="checkbox"></td>
+									<td><input name="nonCourseDays1[]" value="Wed" id="nonCourseDaysWed1" type="checkbox"></td>
+									<td><input name="nonCourseDays1[]" value="Thu" id="nonCourseDaysThu1" type="checkbox"></td>
+									<td><input name="nonCourseDays1[]" value="Fri" id="nonCourseDaysFri1" type="checkbox"></td>
+									<td><input name="nonCourseDays1[]" value="Sat" id="nonCourseDaysSat1" type="checkbox"></td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+					<div class="panel-footer">
+						<input id="nonCourseCount" class="itemCount" name="nonCourseCount" value="1" type="hidden">
+						<button id="addNonCourseButton" class="addItemButton btn btn-default">Add Item</button>
 					</div>
 				</div>
-				<div class="col-md-6">
-					<div class="panel panel-default">
-						<div class="panel-heading">
-							<h2 class="panel-title">Times You Don't Want Classes</h2>
-						</div>
-						<div class="panel-body">
-							<table id="noCourses">
-								<tbody>
-									<tr>
-										<th>Start Time</th>
-										<th>End Time</th>
-										<th>U</th>
-										<th>M</th>
-										<th>T</th>
-										<th>W</th>
-										<th>R</th>
-										<th>F</th>
-										<th>S</th>
-									</tr>
-									<tr>
-										<td><input autocomplete="off" class="startTimePicker form-control ui-timepicker-input" name="noCourseStartTime1" id="noCourseStartTime1" placeholder="12:00pm" type="text"></td>
-										<td><input class="endTimePicker form-control" name="noCourseEndTime1" id="noCourseStartTime1" placeholder="12:00pm" type="text"></td>
-										<td><input name="noCourseDays1[]" value="Sun" id="noCourseDaysSun1" type="checkbox"></td>
-										<td><input name="noCourseDays1[]" value="Mon" id="noCourseDaysMon1" type="checkbox"></td>
-										<td><input name="noCourseDays1[]" value="Tue" id="noCourseDaysTue1" type="checkbox"></td>
-										<td><input name="noCourseDays1[]" value="Wed" id="noCourseDaysWed1" type="checkbox"></td>
-										<td><input name="noCourseDays1[]" value="Thu" id="noCourseDaysThu1" type="checkbox"></td>
-										<td><input name="noCourseDays1[]" value="Fri" id="noCourseDaysFri1" type="checkbox"></td>
-										<td><input name="noCourseDays1[]" value="Sat" id="noCourseDaysSat1" type="checkbox"></td>
-									</tr>
-									<tr>
-										<td><input autocomplete="off" class="startTimePicker form-control ui-timepicker-input" name="noCourseStartTime2" id="noCourseStartTime2" placeholder="12:00pm" type="text"></td>
-										<td><input class="endTimePicker form-control" name="noCourseEndTime2" id="noCourseStartTime2" placeholder="12:00pm" type="text"></td>
-										<td><input name="noCourseDays2[]" value="Sun" id="noCourseDaysSun2" type="checkbox"></td>
-										<td><input name="noCourseDays2[]" value="Mon" id="noCourseDaysMon2" type="checkbox"></td>
-										<td><input name="noCourseDays2[]" value="Tue" id="noCourseDaysTue2" type="checkbox"></td>
-										<td><input name="noCourseDays2[]" value="Wed" id="noCourseDaysWed2" type="checkbox"></td>
-										<td><input name="noCourseDays2[]" value="Thu" id="noCourseDaysThu2" type="checkbox"></td>
-										<td><input name="noCourseDays2[]" value="Fri" id="noCourseDaysFri2" type="checkbox"></td>
-										<td><input name="noCourseDays2[]" value="Sat" id="noCourseDaysSat2" type="checkbox"></td>
-									</tr>
-									<tr>
-										<td><input autocomplete="off" class="startTimePicker form-control ui-timepicker-input" name="noCourseStartTime3" id="noCourseStartTime3" placeholder="12:00pm" type="text"></td>
-										<td><input class="endTimePicker form-control" name="noCourseEndTime3" id="noCourseStartTime3" placeholder="12:00pm" type="text"></td>
-										<td><input name="noCourseDays3[]" value="Sun" id="noCourseDaysSun3" type="checkbox"></td>
-										<td><input name="noCourseDays3[]" value="Mon" id="noCourseDaysMon3" type="checkbox"></td>
-										<td><input name="noCourseDays3[]" value="Tue" id="noCourseDaysTue3" type="checkbox"></td>
-										<td><input name="noCourseDays3[]" value="Wed" id="noCourseDaysWed3" type="checkbox"></td>
-										<td><input name="noCourseDays3[]" value="Thu" id="noCourseDaysThu3" type="checkbox"></td>
-										<td><input name="noCourseDays3[]" value="Fri" id="noCourseDaysFri3" type="checkbox"></td>
-										<td><input name="noCourseDays3[]" value="Sat" id="noCourseDaysSat3" type="checkbox"></td>
-									</tr>
-								</tbody>
-							</table>
-						</div>
-						<div class="panel-footer">
-							<input id="noCourseCount" class="itemCount" name="noCourseCount" value="3" type="hidden">
-							<button class="addItemButton btn btn-default">Add Time</button>
-						</div>
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h2 class="panel-title">Times You Don't Want Classes</h2>
+					</div>
+					<div class="panel-body">
+						<table id="noCourses">
+							<tbody>
+								<tr>
+									<th>Start Time</th>
+									<th>End Time</th>
+									<th>U</th>
+									<th>M</th>
+									<th>T</th>
+									<th>W</th>
+									<th>R</th>
+									<th>F</th>
+									<th>S</th>
+								</tr>
+								<tr>
+									<td><input autocomplete="off" class="startTimePicker form-control ui-timepicker-input" name="noCourseStartTime1" id="noCourseStartTime1" placeholder="12:00pm" type="text"></td>
+									<td><input class="endTimePicker form-control" name="noCourseEndTime1" id="noCourseStartTime1" placeholder="12:00pm" type="text"></td>
+									<td><input name="noCourseDays1[]" value="Sun" id="noCourseDaysSun1" type="checkbox"></td>
+									<td><input name="noCourseDays1[]" value="Mon" id="noCourseDaysMon1" type="checkbox"></td>
+									<td><input name="noCourseDays1[]" value="Tue" id="noCourseDaysTue1" type="checkbox"></td>
+									<td><input name="noCourseDays1[]" value="Wed" id="noCourseDaysWed1" type="checkbox"></td>
+									<td><input name="noCourseDays1[]" value="Thu" id="noCourseDaysThu1" type="checkbox"></td>
+									<td><input name="noCourseDays1[]" value="Fri" id="noCourseDaysFri1" type="checkbox"></td>
+									<td><input name="noCourseDays1[]" value="Sat" id="noCourseDaysSat1" type="checkbox"></td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+					<div class="panel-footer">
+						<input id="noCourseCount" class="itemCount" name="noCourseCount" value="1" type="hidden">
+						<button class="addItemButton btn btn-default">Add Time</button>
 					</div>
 				</div>
 			</div>
 			<input name="action" value="getMatchingSchedules" type="hidden"> <input type="hidden" value="true" name="verbose" id="verbose">
 			<div class="center" role="toolbar">
 				<div class="btn-group visible-md visible-lg">
-					<button type="button" class="btn btn-default btn-lg" ng-click="showScheduleOptions = !showScheduleOptions">Toggle Schedule Options</button>
+					<!-- <button type="button" class="btn btn-default btn-lg" ng-click="showScheduleOptions = !showScheduleOptions">Toggle Schedule Options</button> -->
 				</div>
 				<div class="btn-group">
 					<button class="btn-lg btn btn-primary btn-default" ng-click="generateSchedules()">Show Matching Schedules</button>
+				</div>
+				<div class="btn-group">
+					<button class="btn-lg btn btn-primary btn-default" ng-click="resetState()">Reset</button>
 				</div>
 			</div>
 		</div>
@@ -208,11 +161,20 @@ global $CURRENT_QUARTER;
 					</h2>
 				</div>
 				<div class="panel-body" ng-class="{'hidden-xs':showCourseCart, 'hidden-sm': showCourseCart}">
-					<div class="course-cart-window" ng-switch=" (state.courses.length == 1 && state.courses[0].sections.length > 0) || state.courses.length > 1">
-						<ul ng-switch-when="true" class="list-group animate-show-hide">
-							<li class="list-group-item repeat-item" ng-if="course.sections.length > 0 && !course.sections[0].isError" ng-repeat="course in state.courses">
+					<div class="course-cart-window animate-show-hide" ng-switch=" (state.courses.length == 1 && state.courses[0].sections.length > 0) || state.courses.length > 1">
+						<ul ng-switch-when="true" class="list-group">
+							<li class="list-group-item repeat-item course-cart-item" ng-style="{'border-left-color':course.color.value}" ng-if="course.sections.length > 0 && !course.sections[0].isError" ng-repeat="course in state.courses">
+								<div class="btn-group pull-right">
+									<button class="btn btn-danger" ng-click="removeCourse(course)">
+										<i class="fa fa-minus"></i> <i class="fa fa-shopping-cart"></i>
+									</button>
+									<button type="button" class="btn btn-primary" ng-click="showCourseSections = !showCourseSections">
+										<i class="fa" ng-class="{'fa-angle-down': !showCourseSections, 'fa-angle-up': showCourseSections}"></i>
+									</button>
+								</div>
 								<h4 class="list-group-item-heading">{{course.search}}:</h4>
-								<ul class="list-group">
+								<p class="list-group-item-text">{{getSelectedSectionCount(course)}} selected</p>
+								<ul class="list-group" ng-if="showCourseSections">
 									<li class="list-group-item repeat-item" ng-repeat="section in course.sections | filter:{selected: true}">
 										<button class="btn pull-right btn-danger visible-md visible-lg" ng-click="section.selected = !section.selected">
 											<i class="fa fa-minus"></i> <i class="fa fa-shopping-cart"></i>
@@ -226,7 +188,7 @@ global $CURRENT_QUARTER;
 								</ul>
 							</li>
 						</ul>
-						<div class="alert animate-show-hide" ng-switch-when="false">Add courses to your cart and make a schedule with them. They will show up here.</div>
+						<div class="alert" ng-switch-when="false">Add courses to your cart and make a schedule with them. They will show up here.</div>
 					</div>
 				</div>
 				<div class="panel-footer" ng-class="{'hidden-xs':showCourseCart, 'hidden-sm': showCourseCart}">
@@ -391,6 +353,5 @@ global $CURRENT_QUARTER;
 			</div>
 		</div>
 	</div>
-	<div id="schedules"></div>
 </div>
 <? require "./inc/footer.inc"; ?>

@@ -41,7 +41,7 @@ function getMeetingInfo($sectionData) {
         "curenroll"  => $sectionData['curenroll'],
         "maxenroll"  => $sectionData['maxenroll'],
         "courseNum"  => "{$sectionData['department']}-{$sectionData['course']}-{$sectionData['section']}",
-        "sectionId"  => $sectionData['id'],
+        "id"         => $sectionData['id'],
         "online"     => $sectionData['type'] == "O"
         );
 

@@ -443,7 +443,7 @@ switch($_POST['action']) {
 			} else {
 				// Process each course. It's crazy simple now.
 				$query = "INSERT INTO schedulecourses (schedule, section)" .
-						" VALUES('{$schedId}', '{$item['sectionId']}')";
+						" VALUES('{$schedId}', '{$item['id']}')";
 				$result = mysql_query($query);
 				if(!$result) {
 					die(json_encode(array("error" => "mysql", "msg" => "Storing a course '{$item['courseNum']}' failed: " . mysql_error($dbConn))));
