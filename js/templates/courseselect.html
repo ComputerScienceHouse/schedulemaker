@@ -4,7 +4,7 @@
 			<label class="col-sm-3 col-xs-12 control-label" for="courses{{index}}">Course {{index}}:</label>
 			<div class="col-sm-9 col-xs-12">
 				<div class="input-group">
-					<input autocomplete="off" courses{{index}}" class="form-control searchField mousetrap" ng-model="item.search" type="text" name="courses{{index}}" maxlength="17" placeholder="DEPT-CRS-SECT" /> <span class="input-group-btn">
+					<input autocomplete="off" id="courses{{index}}" class="form-control searchField mousetrap" ng-model="item.search" type="text" name="courses{{index}}" maxlength="17" placeholder="DEPT-CRS-SECT" /> <span class="input-group-btn">
 						<button type="button" ng-class="{'btn-danger':delHover}" ng-blur="delHover = false" ng-focus="delHover = true" ng-mouseenter="delHover = true" ng-mouseleave="delHover = false" class="btn btn-default" ng-mousedown="remove()">
 							<i class="fa fa-spin fa-refresh" ng-show="item.status == 'L'"></i> <i class="fa fa-times" ng-show="item.status == 'D'"></i>
 						</button>

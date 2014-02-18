@@ -46,7 +46,7 @@ require_once('./inc/timeFunctions.php');
     </script>
 	</head>
 
-	<body ng-app="sm">
+	<body ng-app="sm" ng-init="defaultTerm = '<?=$CURRENT_QUARTER?>'">
 		<div id='superContainer'>
 		<div class="navbar navbar-fixed-top navbar-default ng-scope" ng-controller="MainMenuCtrl">
             <div class="container">
@@ -68,7 +68,7 @@ require_once('./inc/timeFunctions.php');
                 </div>
             </div>
 		</div>
-		<div id="container" ng-cloak ng-controller="AppCtrl" ng-init="defaultTerm = <?=$CURRENT_QUARTER?>">
+		<div id="container" ng-cloak ng-controller="AppCtrl">
 				<?php if($SERVER_TYPE != 'production') { ?>
 			<!-- Leaving this disabled until merge with develop after feature lock 
 				<div class='alert alert-warning'>

@@ -160,11 +160,10 @@ app.controller("AppCtrl", function($scope, sessionStorage, debounce, $window) {
 		};
 
 		$scope.state.requestOptions = {
-			term: $scope.defaultTerm,
+			term: +$scope.defaultTerm,
 			ignoreFull: false
 		};
 	};
-	
 	$scope.resetState = function() {
 		$scope.initState();
 		$window.location.reload();
@@ -200,12 +199,54 @@ app.controller("AppCtrl", function($scope, sessionStorage, debounce, $window) {
 		return count;
 	};
 	
-	$scope.removeCourse = function removeCourse(course) {
-		$scope.state.courses.splice($scope.state.courses.indexOf(course), 1);
+	$scope.getSelectedCount = function() {
+		var count = 0;
+		for(var i = 0; i < $scope.state.courses.length; i++) {
+			count += $scope.getSelectedSectionCount($scope.state.courses[i]);
+		}
+		return count;
+	};
+	
+	if($scope.state.courses.length > 0) {
+		var id = $scope.state.courses[$scope.state.courses.length - 1].id + 1;
+	} else {
+		var id = 0;
+	}
+	$scope.courses_helpers = {
+		add: function() {
+			var newCourse = {
+				id: ++id,
+				search: '',
+				sections: [],
+				status: 'D'
+			}
+			$scope.state.courses.push(newCourse);
+			$scope.$broadcast('addedCourse');
+		},
+		remove: function(index) {
+			$scope.state.courses.splice(index - 1, 1);
+			if($scope.state.courses.length == 0) {
+				$scope.courses_helpers.add();
+			}
+		},
+		removeThis: function(course) {
+			$scope.state.courses.splice($scope.state.courses.indexOf(course), 1);
+		},
+		clear: function(index) {
+			index = index - 1;
+			var id = $scope.state.courses[index].id,
+			status = $scope.state.courses[index].status;
+			$scope.state.courses[index] = {
+				id: id,
+				search: '',
+				sections: [],
+				status: status
+			};
+		}
 	};
 });
 
-app.controller("GenerateCtrl", function($scope, globalKbdShortcuts, $http) {
+app.controller("GenerateCtrl", function($scope, globalKbdShortcuts, $http, $filter) {
 
 	$scope.ui = {
 		optionLists: {
@@ -213,6 +254,7 @@ app.controller("GenerateCtrl", function($scope, globalKbdShortcuts, $http) {
 			times: {
 				keys: [0, 60, 120, 180, 240, 300, 360, 420, 480, 540, 600, 660, 720, 780, 840, 900, 960, 1020, 1080, 1140, 1200, 1260, 1320, 1380, 1440],
 				values: {
+					'': 'Choose',
 					0: '12:00am',
 					60: '1:00am',
 					120: '2:00am',
@@ -318,6 +360,27 @@ app.controller("GenerateCtrl", function($scope, globalKbdShortcuts, $http) {
     		
     	}
     	
+    	var formatTime = $filter('formatTime');
+    	
+    	for(var nonCourseIndex = 0; nonCourseIndex < $scope.state.nonCourses.length; nonCourseIndex++) {
+    		var nonCourse = $scope.state.nonCourses[nonCourseIndex];
+    		var index = (nonCourseIndex + 1);
+    		var fieldName = 'nonCourse';
+    		requestData[fieldName + 'Title' + index] = nonCourse.title;
+    		requestData[fieldName + 'StartTime' + index] = formatTime(nonCourse.start_time); // This is dumb
+    		requestData[fieldName + 'EndTime' + index] = formatTime(nonCourse.end_time);
+    		requestData[fieldName + 'Days' + index + '[]'] = nonCourse.days;
+    	}
+    	
+    	for(var noCourseIndex = 0; noCourseIndex < $scope.state.noCourses.length; noCourseIndex++) {
+    		var noCourse = $scope.state.noCourses[noCourseIndex];
+    		var index = (noCourseIndex + 1);
+    		var fieldName = 'noCourse';
+    		requestData[fieldName + 'StartTime' + index] = formatTime(noCourse.start_time); // This is still dumb
+    		requestData[fieldName + 'EndTime' + index] = formatTime(noCourse.end_time);
+    		requestData[fieldName + 'Days' + index + '[]'] = noCourse.days;
+    	}
+    	
     	$http.post('./js/scheduleAjax.php',$.param(requestData), {
 	    	requestType:'json',
 	    	headers: {
@@ -418,48 +481,6 @@ app.controller( "MainMenuCtrl", function( $scope) {
 });
 
 app.controller( "scheduleCoursesCtrl", function( $scope, $http, $q, $timeout) {
-	if($scope.state.courses.length > 0) {
-		var id = $scope.state.courses[$scope.state.courses.length - 1].id + 1;
-	} else {
-		var id = 0;
-	}
-  $scope.courses_helpers = {
-	  add: function() {
-		var newCourse = {
-	    	id: ++id,
-	        search: '',
-	        sections: [],
-	        color: '#fff',
-	        status: 'D'
-	    }
-	    $scope.state.courses.push(newCourse);
-		var colorIndex = $scope.state.courses.length;
-		$timeout(function() {
-			//newCourse.color = $scope.ui.colors[colorIndex % 10];
-		}, 250);
-        $scope.$broadcast('addedCourse');
-	  },
-	  remove: function(index) {
-	        $scope.state.courses.splice(index - 1, 1);
-	  },
-	  clear: function(index) {
-		index = index - 1;
-		var id = $scope.state.courses[index].id,
-		color = $scope.state.courses[index].color,
-		status = $scope.state.courses[index].status;
-		$scope.state.courses[index] = {
-			id: id,
-			color: '#fff',
-			search: '',
-			sections: [],
-			status: status
-		};
-		var colorIndex = $scope.state.courses.length;
-		$timeout(function() {
-			//$scope.state.courses[index].color = $scope.ui.colors[colorIndex % 10];
-		}, 250);
-	  }
-  };
   if($scope.state.courses.length == 0) {
 	  $scope.courses_helpers.add();  
   }
@@ -544,6 +565,63 @@ app.controller( "scheduleCoursesCtrl", function( $scope, $http, $q, $timeout) {
   }, true);
 });
 
+app.controller('nonCourseItemsCtrl', function($scope) {
+	
+	$scope.addNonC = function() {
+		$scope.state.nonCourses.push({
+			title: '',
+			start_time: '',
+			end_time: '',
+			days: []
+		});
+	};
+	
+	$scope.removeNonC = function(index) {
+		$scope.state.nonCourses.splice(index, 1);
+		if($scope.state.nonCourses.length == 0) {
+			$scope.addNonC();
+		}
+	};
+	
+	$scope.ensureCorrectEndTime = function(index) {
+		if($scope.state.nonCourses[index].start_time >= $scope.state.nonCourses[index].end_time) {
+			$scope.state.nonCourses[index].end_time = $scope.state.nonCourses[index].start_time + 60;
+		}
+	};
+	
+	if($scope.state.nonCourses.length == 0) {
+		$scope.addNonC();
+	}
+});
+
+app.controller('noCourseItemsCtrl', function($scope) {
+	
+	$scope.addNoC = function() {
+		$scope.state.noCourses.push({
+			start_time: '',
+			end_time: '',
+			days: []
+		});
+	};
+	
+	$scope.removeNoC = function(index) {
+		$scope.state.noCourses.splice(index, 1);
+		if($scope.state.noCourses.length == 0) {
+			$scope.add();
+		}
+	};
+	
+	$scope.ensureCorrectEndTime = function(index) {
+		if($scope.state.noCourses[index].start_time >= $scope.state.noCourses[index].end_time) {
+			$scope.state.noCourses[index].end_time = $scope.state.noCourses[index].start_time + 60;
+		}
+	};
+	
+	if($scope.state.noCourses.length == 0) {
+		$scope.addNoC();
+	}
+});
+
 
 app.directive('professorLookup', function($http) {
 	return {
@@ -618,6 +696,40 @@ app.directive('professorLookup', function($http) {
 	};
 });
 
+app.factory('uiDayFactory', function() {
+	var days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+	
+	return function() {
+		return days;
+	};
+});
+
+app.directive("dowSelectFields", function(uiDayFactory) {
+	return {
+		restrict: 'A',
+		scope: {
+			select: '=dowSelectFields'
+		},
+		template: '<div class="btn-group btn-group-dow"><button type="button" ng-repeat="day in days" ng-click="toggle(day)" class="btn btn-default btn-dow" ng-class="{\'btn-success\':isSelected(day)}" ng-bind="day.substring(0 ,2)"></button></div>',
+		link: {
+			pre: function(scope) {
+				scope.days = uiDayFactory();
+				scope.isSelected = function(day) {
+					return scope.select.indexOf(day) != -1;
+				};
+				scope.toggle = function(day) {
+					var index = scope.select.indexOf(day);
+					if(index == -1) {
+						scope.select.push(day);
+					} else {
+						scope.select.splice(index, 1);
+					}
+				};
+			}
+		}
+	};
+});
+
 app.directive("scheduleCourse", function(){
 	  return {
 	    restrict: "C",
@@ -644,18 +756,18 @@ app.directive("dynamicItems", function($compile,$timeout, globalKbdShortcuts){
 	    		pre: function(scope, elm, attrs) {
                     scope.$parent.$on('addedCourse',function() {
                         $timeout(function() {
-                            elm.find('input:last').focus();
+                            elm.find('input.searchField:last').focus();
                         }, 0, false);
                     });
 		    		elm.append($compile('<div class="'+scope.useClass+' repeat-item" ng-repeat="item in dynamicItems" dynamic-item></div>')(scope));
 	    		},
 	    		post: function(scope, elm, attrs) {
 	    			globalKbdShortcuts.bindSelectCourses(function() {
-	    				if($("input.searchField:focus").length == 0) {
+	    				if(elm.find("input.searchField:focus").length == 0) {
 	            			$('html, body').animate({
 	            		        scrollTop:0
 	            		    }, 500, null, function() {
-	            		    	elm.find('input:first').focus();
+	            		    	elm.find('input.searchField:first').focus();
 	            		    });
 	    				}
 	    			
@@ -673,24 +785,19 @@ app.directive("dynamicItem", function($timeout){
     link: { pre: function(scope, elm, attrs, dynamicItems) {
     		scope.$watch('$index', function(newVal) {
     			scope.index =  newVal + 1;
-    			scope.item.color = scope.colors[scope.index % 10];
     	        if(scope.index == 1) {   
     	            $timeout(function() {
     	            	elm.addClass('no-repeat-item-animation');
-    	                elm.find("input").focus();
+    	                elm.find("input.searchField").focus();
     	            }, 0, false);
     	        }
     		});
 	    	
 	        scope.remove = function() {
-	            if(scope.index == 1 && dynamicItems.items.length == 1) {
-	            	dynamicItems.clear(scope.index);
-	            } else {
-	            	if(scope.index == 1) {
-	            		elm.removeClass('no-repeat-item-animation');
-	            	}
-	            	dynamicItems.remove(scope.index);
-	            }
+            	if(scope.index == 1 && dynamicItems.items.length == 1) {
+            		elm.removeClass('no-repeat-item-animation');
+            	}
+            	dynamicItems.remove(scope.index);
 	        };
     	}, post: function(scope, elm, attrs, dynamicItems) {
 	        var ident = 'input.searchField',
@@ -770,7 +877,7 @@ app.directive("dynamicItem", function($timeout){
 	        	return kbdResult;
 	        });
             $timeout(function() {
-                elm.find("input").focus();
+                elm.find("input.searchField").focus();
             }, 0, false);
     	}
     }
@@ -949,13 +1056,21 @@ app.directive('schedule', function($timeout, $filter) {
 			timeTop = timeTop * 20;
 			timeTop += 19;					// Offset for the header
 			
-			var building = (this.scope.state.drawOptions.building_style == 'code') ? time.bldg.code : time.bldg.number;
+			if(course.courseNum != 'non') {
+				var location = ((this.scope.state.drawOptions.building_style == 'code') ? time.bldg.code : time.bldg.number) + "-" + time.room,
+				instructor = course.instructor,
+				courseNum = course.courseNum;
+			} else {
+				var location = '',
+				instructor = '',
+				courseNum = '';
+			}
 			this.scope.scheduleItems.push({
 				title:course.title,
 				content: {
-				    location: building + "-" + time.room,
-				    courseNum: course.courseNum,
-				    instructor: course.instructor
+				    location: location ,
+				    courseNum: courseNum,
+				    instructor: instructor
 				},
 				boundry: {
 					x: grid.days[time.day - this.scope.state.drawOptions.start_day].offset,
@@ -997,7 +1112,7 @@ app.directive('schedule', function($timeout, $filter) {
 				scope.itemEnter = function($event) {
 					$target = $($event.target);
 					$scope = $target.scope();
-					if($scope.item.boundry.height < 70) {
+					if($scope.item.boundry.height < 70 && $scope.item.courseNum) {
 						$scope.item.boundry.orig_height = $scope.item.boundry.height;
 						$scope.item.boundry.height = 70;
 					}

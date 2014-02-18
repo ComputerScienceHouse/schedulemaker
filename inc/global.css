@@ -944,6 +944,19 @@ div[schedule] {
 .btn {
 	transition: background-color .25s ease, box-shadow .125s ease;
 }
+
+.btn-group-dow {
+	width: 100%;
+}
+select.ng-invalid {
+	color:#ccc;
+	font-style: italic;
+}
+
+.btn-dow {
+	padding: 11px 9px;
+	width: 14.28%;
+}
 .vert-spacer-sm {
 	margin-bottom:10px;
 	width:1px;
@@ -1123,7 +1136,10 @@ svg g.item:hover rect {
 	.animate-show-hide.ng-hide-remove.ng-hide-remove-active {
 		opacity:1;
 	}
+	
+
 	.repeat-item.ng-enter {
+
 	  -webkit-animation:0.25s repeat-item-enter;
 	  -moz-animation:0.25s repeat-item-enter;
 	  -o-animation:0.25s repeat-item-enter;
