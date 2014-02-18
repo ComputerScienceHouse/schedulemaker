@@ -30,29 +30,29 @@ function parseTerm($term) {
         // Semesters
         switch($termType) {
             case 1:
-                return ["Fall", $year];
+                return array("Fall", $year);
             case 3:
-                return ["Winter Intersession", $nextYear];
+                return array("Winter Intersession", $nextYear);
             case 5:
-                return ["Spring", $nextYear];
+                return array("Spring", $nextYear);
             case 8:
-                return ["Summer", $nextYear];
+                return array("Summer", $nextYear);
             default:
-                return ["Unknown", ""];
+                return array("Unknown", "");
         }
     } else {
         // Based on the last number of the quarter, return a title
         switch($termType) {
             case 1:
-                return ["Fall", $year];
+                return array("Fall", $year);
             case 2:
-                return ["Winter", $year];
+                return array("Winter", $year);
             case 3:
-                return ["Spring", $nextYear];
+                return array("Spring", $nextYear);
             case 4:
-                return ["Summer", $nextYear];
+                return array("Summer", $nextYear);
             default:
-                return ["Unknown", ""];
+                return array("Unknown", "");
         }
     }
 }

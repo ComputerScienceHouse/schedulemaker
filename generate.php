@@ -17,184 +17,186 @@ global $CURRENT_QUARTER;
 <script type='text/javascript' src='./js/schedule.js'></script>
 <script type='text/javascript' src='./js/jquery.timepicker.min.js'></script>-->
 <div ng-controller="GenerateCtrl">
-	<form novalidate id="scheduleForm" name="schedule" class="container" method="POST">
-		<div class="col-md-8">
-			<div class="panel panel-default form-horizontal" ng-controller="scheduleCoursesCtrl">
-				<div class="panel-heading">
-					<h2 class="panel-title">Select Courses</h2>
-				</div>
-				<div class="panel-body">
-					<div id="scheduleCourses">
-						<div dynamic-items="state.courses" colors="ui.colors" use-class="scheduleCourse" helpers="courses_helpers"></div>
+	<form novalidate id="scheduleForm" name="schedule" class="container">
+		<div class="row">
+			<div class="col-md-8">
+				<div class="panel panel-default form-horizontal" ng-controller="scheduleCoursesCtrl">
+					<div class="panel-heading">
+						<h2 class="panel-title">Select Courses</h2>
 					</div>
-					<!-- <pre>{{state.courses | json}}</pre> -->
-				</div>
-				<div class="panel-footer">
-					<input type="hidden" value="{{state.courses.length}}" name="courseCount" id="courseCount">
-					<div class="row">
-						<div class="col-md-3">
-							<button class="btn btn-primary btn-block visible-xs visible-sm" type="button" ng-click="courses_helpers.add()">
-								<i class="fa fa-plus"></i> Add Course
-							</button>
-							<span class="visible-md visible-lg">
-								<button class="btn btn-primary" type="button" ng-click="courses_helpers.add()">
+					<div class="panel-body">
+						<div id="scheduleCourses">
+							<div dynamic-items="state.courses" colors="ui.colors" use-class="scheduleCourse" helpers="courses_helpers"></div>
+						</div>
+						<!-- <pre>{{state.courses | json}}</pre> -->
+					</div>
+					<div class="panel-footer">
+						<input type="hidden" value="{{state.courses.length}}" name="courseCount" id="courseCount">
+						<div class="row">
+							<div class="col-md-3">
+								<button class="btn btn-primary btn-block visible-xs visible-sm" type="button" ng-click="courses_helpers.add()">
 									<i class="fa fa-plus"></i> Add Course
 								</button>
-							</span>
-						</div>
-						<div class="col-md-5 col-xs-12">
-							<div class="row">
-								<label for="term" class="col-md-4 control-label">Term:</label>
-								<div class="col-md-8">
-									<?= getTermField('state.requestOptions.term', $CURRENT_QUARTER) ?>
-								</div>
+								<span class="visible-md visible-lg">
+									<button class="btn btn-primary" type="button" ng-click="courses_helpers.add()">
+										<i class="fa fa-plus"></i> Add Course
+									</button>
+								</span>
 							</div>
-						</div>
-						<div class="visible-sm visible-xs">&nbsp;</div>
-						<div class="col-md-4 col-xs-12">
-							<button type="button" class="ng-class: {'btn-success': state.requestOptions.ignoreFull}; btn-default btn btn-block" ng-click="state.requestOptions.ignoreFull = !state.requestOptions.ignoreFull">{{state.requestOptions.ignoreFull?"Show":"Hide"}} filled up courses</button>
-						</div>
-					</div>
-				</div>
-			</div>
-			<div>&nbsp;</div>
-			<div>
-				<div class="panel panel-default" ng-controller="nonCourseItemsCtrl">
-					<div class="panel-heading">
-						<h2 class="panel-title">Non-Course Schedule Items</h2>
-					</div>
-					<div class="panel-body">
-						<div class="container row form-group repeat-item" ng-repeat="nonCourse in state.nonCourses">
-							<div class="col-lg-2 col-md-12">
-								<div class="container-fluid">
-									<input autocomplete="off" id="nonCourses{{$index}}" class="form-control" ng-model="nonCourse.title" type="text" name="nonCourses{{$index}}"  placeholder="Title" />
-								</div>
-							</div>
-							<div class="hidden-lg vert-spacer-static-md"></div>
-							<div class="col-lg-5 col-md-6 col-sm-6">
-								<div class="row form-inline">
-									<div class="col-xs-12">
-										<div class="form-group">
-											<select id="options-start_time" ng-change="ensureCorrectEndTime($index)" class="form-control" ng-model="nonCourse.start_time" ng-options="key as ui.optionLists.times.values[key] for key in ui.optionLists.times.keys"><option value="">Start</option></select>
-										</div>
-										<div class="form-group"> to </div> 
-										<div class="form-group">
-											<select id="options-end_time" class="form-control" ng-model="nonCourse.end_time" ng-options="key as ui.optionLists.times.values[key] for key in ui.optionLists.times.keys | startFrom: ui.optionLists.times.keys.indexOf(nonCourse.start_time) + 1"><option value="">End</option></select>
-										</div>
+							<div class="col-md-5 col-xs-12">
+								<div class="row">
+									<label for="term" class="col-md-4 control-label">Term:</label>
+									<div class="col-md-8">
+										<?= getTermField('state.requestOptions.term', $CURRENT_QUARTER) ?>
 									</div>
 								</div>
 							</div>
-							<div class="hidden-lg vert-spacer-static-md"></div>
-							<div class="col-lg-4 col-sm-5">
-								<div class="container-fluid">
-									<div dow-select-fields="nonCourse.days"></div>
-								</div>
-							</div>
-							<div class="hidden-md hidden-lg vert-spacer-static-md"></div>
-							<div class="col-sm-1">
-								<div class="container-fluid">
-									<button type="button" class="btn btn-danger hidden-xs" ng-click="removeNonC($index)"><i class="fa fa-times"></i></button>
-									<button type="button" class="btn btn-danger btn-block visible-xs" ng-click="removeNonC($index)"><i class="fa fa-times"></i> Delete</button>
-								</div>
+							<div class="visible-sm visible-xs">&nbsp;</div>
+							<div class="col-md-4 col-xs-12">
+								<button type="button" class="ng-class: {'btn-success': state.requestOptions.ignoreFull}; btn-default btn btn-block" ng-click="state.requestOptions.ignoreFull = !state.requestOptions.ignoreFull">{{state.requestOptions.ignoreFull?"Show":"Hide"}} filled up courses</button>
 							</div>
 						</div>
 					</div>
-					<div class="panel-footer">
-						<button type="button" class="btn btn-default" ng-click="addNonC()">Add Item</button>
-					</div>
 				</div>
-				<div class="panel panel-default" ng-controller="noCourseItemsCtrl">
-					<div class="panel-heading">
-						<h2 class="panel-title">Times You Don't Want Classes</h2>
-					</div>
-					<div class="panel-body">
-						<div class="container row form-group repeat-item" ng-repeat="noCourse in state.noCourses">
-							<div class="col-sm-6">
-								<div class="row form-inline">
-									<div class="col-xs-12">
-										<div class="form-group">
-											<select id="options-start_time" ng-change="ensureCorrectEndTime($index)" class="form-control" ng-model="noCourse.start_time" ng-options="key as ui.optionLists.times.values[key] for key in ui.optionLists.times.keys"><option value="">Start</option></select>
-										</div>
-										<div class="form-group"> to </div> 
-										<div class="form-group">
-											<select id="options-end_time" class="form-control" ng-model="noCourse.end_time" ng-options="key as ui.optionLists.times.values[key] for key in ui.optionLists.times.keys | startFrom: ui.optionLists.times.keys.indexOf(noCourse.start_time) + 1"><option value="">End</option></select>
+				<div>&nbsp;</div>
+				<div>
+					<div class="panel panel-default" ng-controller="nonCourseItemsCtrl">
+						<div class="panel-heading">
+							<h2 class="panel-title">Non-Course Schedule Items</h2>
+						</div>
+						<div class="panel-body">
+							<div class="container row form-group repeat-item" ng-repeat="nonCourse in state.nonCourses">
+								<div class="col-lg-2 col-md-12">
+									<div class="container-fluid">
+										<input autocomplete="off" id="nonCourses{{$index}}" class="form-control" ng-model="nonCourse.title" type="text" name="nonCourses{{$index}}"  placeholder="Title" />
+									</div>
+								</div>
+								<div class="hidden-lg vert-spacer-static-md"></div>
+								<div class="col-lg-5 col-md-6 col-sm-6">
+									<div class="row form-inline">
+										<div class="col-xs-12">
+											<div class="form-group">
+												<select id="options-start_time" ng-change="ensureCorrectEndTime($index)" class="form-control" ng-model="nonCourse.start_time" ng-options="key as ui.optionLists.times.values[key] for key in ui.optionLists.times.keys"><option value="">Start</option></select>
+											</div>
+											<div class="form-group"> to </div> 
+											<div class="form-group">
+												<select id="options-end_time" class="form-control" ng-model="nonCourse.end_time" ng-options="key as ui.optionLists.times.values[key] for key in ui.optionLists.times.keys | startFrom: ui.optionLists.times.keys.indexOf(nonCourse.start_time) + 1"><option value="">End</option></select>
+											</div>
 										</div>
 									</div>
 								</div>
-							</div>
-							<div class="col-sm-5">
-								<div class="container-fluid">
-									<div dow-select-fields="noCourse.days"></div>
+								<div class="hidden-lg vert-spacer-static-md"></div>
+								<div class="col-lg-4 col-sm-5">
+									<div class="container-fluid">
+										<div dow-select-fields="nonCourse.days"></div>
+									</div>
 								</div>
-							</div>
-							<div class="hidden-md hidden-lg vert-spacer-static-md"></div>
-							<div class="col-sm-1">
-								<div class="container-fluid">
-									<button type="button" class="btn btn-danger hidden-xs" ng-click="removeNoC($index)"><i class="fa fa-times"></i></button>
-									<button type="button" class="btn btn-danger btn-block visible-xs" ng-click="removeNoC($index)"><i class="fa fa-times"></i> Delete</button>
+								<div class="hidden-md hidden-lg vert-spacer-static-md"></div>
+								<div class="col-sm-1">
+									<div class="container-fluid">
+										<button type="button" class="btn btn-danger hidden-xs" ng-click="removeNonC($index)"><i class="fa fa-times"></i></button>
+										<button type="button" class="btn btn-danger btn-block visible-xs" ng-click="removeNonC($index)"><i class="fa fa-times"></i> Delete</button>
+									</div>
 								</div>
 							</div>
 						</div>
+						<div class="panel-footer">
+							<button type="button" class="btn btn-default" ng-click="addNonC()">Add Item</button>
+						</div>
 					</div>
-					<div class="panel-footer">
-						<button type="button" class="btn btn-default" ng-click="addNoC()">Add Time</button>
-					</div>
-				</div>
-			</div>
-			<input name="action" value="getMatchingSchedules" type="hidden"> <input type="hidden" value="true" name="verbose" id="verbose">
-			<div class="center" role="toolbar">
-				<div class="btn-group">
-					<button type="button" class="btn-lg btn btn-primary btn-default" ng-click="generateSchedules()">Show Matching Schedules</button>
-				</div>
-				<div class="btn-group">
-					<button type="button" class="btn-lg btn btn-default btn-danger" ng-click="resetState()">Reset</button>
-				</div>
-			</div>
-		</div>
-		<div class="col-md-4" ng-init="showCourseCart = true">
-			<div class="visible-xs visible-sm vert-spacer-static-md"></div>
-			<div class="panel panel-default course-cart">
-				<div class="panel-heading">
-					<h2 class="panel-title clearfix">
-						Course Cart
-						<button type="button" class="btn btn-xs btn-primary hidden-md hidden-lg pull-right" ng-click="showCourseCart = !showCourseCart">
-							<i class="fa" ng-class="{'fa-angle-down': showCourseCart, 'fa-angle-up': !showCourseCart}"></i>
-						</button>
-					</h2>
-				</div>
-				<div class="panel-body" ng-class="{'hidden-xs':showCourseCart, 'hidden-sm': showCourseCart}">
-					<div class="course-cart-window animate-show-hide" ng-switch="getSelectedCount() > 0">
-						<ul ng-switch-when="true" class="list-group">
-							<li class="list-group-item repeat-item course-cart-item" ng-style="{'border-left-color':course.color}" ng-if="course.sections.length > 0 && !course.sections[0].isError" ng-repeat="course in state.courses">
-								<div class="btn-group pull-right">
-									<button type="button" class="btn btn-danger" ng-click="courses_helpers.removeThis(course)">
-										<i class="fa fa-minus"></i> <i class="fa fa-shopping-cart"></i>
-									</button>
-									<button type="button" class="btn btn-primary" ng-click="showCourseSections = !showCourseSections">
-										<i class="fa" ng-class="{'fa-angle-down': !showCourseSections, 'fa-angle-up': showCourseSections}"></i>
-									</button>
+					<div class="panel panel-default" ng-controller="noCourseItemsCtrl">
+						<div class="panel-heading">
+							<h2 class="panel-title">Times You Don't Want Classes</h2>
+						</div>
+						<div class="panel-body">
+							<div class="container row form-group repeat-item" ng-repeat="noCourse in state.noCourses">
+								<div class="col-sm-6">
+									<div class="row form-inline">
+										<div class="col-xs-12">
+											<div class="form-group">
+												<select id="options-start_time" ng-change="ensureCorrectEndTime($index)" class="form-control" ng-model="noCourse.start_time" ng-options="key as ui.optionLists.times.values[key] for key in ui.optionLists.times.keys"><option value="">Start</option></select>
+											</div>
+											<div class="form-group"> to </div> 
+											<div class="form-group">
+												<select id="options-end_time" class="form-control" ng-model="noCourse.end_time" ng-options="key as ui.optionLists.times.values[key] for key in ui.optionLists.times.keys | startFrom: ui.optionLists.times.keys.indexOf(noCourse.start_time) + 1"><option value="">End</option></select>
+											</div>
+										</div>
+									</div>
 								</div>
-								<h4 class="list-group-item-heading">{{course.search}}:</h4>
-								<p class="list-group-item-text">{{getSelectedSectionCount(course)}} selected</p>
-								<ul class="list-group" ng-if="showCourseSections">
-									<li class="list-group-item repeat-item" ng-repeat="section in course.sections | filter:{selected: true}">
-										<button type="button" class="btn pull-right btn-danger visible-md visible-lg" ng-click="section.selected = !section.selected">
-											<i class="fa fa-minus"></i> <i class="fa fa-shopping-cart"></i>
-										</button>
-										<h4 class="list-group-item-heading">{{section.courseNum}}</h4>
-										<p class="list-group-item-text">{{section.instructor}}</p>
-										<button type="button" class="btn btn-danger btn-block visible-xs visible-sm" ng-click="section.selected = !section.selected">
-											<i class="fa fa-minus"></i> <i class="fa fa-shopping-cart"></i>
-										</button>
-									</li>
-								</ul>
-							</li>
-						</ul>
-						<div class="alert" ng-switch-when="false">Add courses to your cart and make a schedule with them. They will show up here.</div>
+								<div class="col-sm-5">
+									<div class="container-fluid">
+										<div dow-select-fields="noCourse.days"></div>
+									</div>
+								</div>
+								<div class="hidden-md hidden-lg vert-spacer-static-md"></div>
+								<div class="col-sm-1">
+									<div class="container-fluid">
+										<button type="button" class="btn btn-danger hidden-xs" ng-click="removeNoC($index)"><i class="fa fa-times"></i></button>
+										<button type="button" class="btn btn-danger btn-block visible-xs" ng-click="removeNoC($index)"><i class="fa fa-times"></i> Delete</button>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="panel-footer">
+							<button type="button" class="btn btn-default" ng-click="addNoC()">Add Time</button>
+						</div>
 					</div>
 				</div>
-				<div class="panel-footer" ng-class="{'hidden-xs':showCourseCart, 'hidden-sm': showCourseCart}">
-					<button type="button" class="btn btn-primary btn-block" ng-click="generateSchedules()">Show Matching Schedules</button>
+				<input name="action" value="getMatchingSchedules" type="hidden"> <input type="hidden" value="true" name="verbose" id="verbose">
+				<div class="center" role="toolbar">
+					<div class="btn-group">
+						<button type="button" class="btn-lg btn btn-primary btn-default" ng-click="generateSchedules()">Show Matching Schedules</button>
+					</div>
+					<div class="btn-group">
+						<button type="button" class="btn-lg btn btn-default btn-danger" ng-click="resetState()">Reset</button>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-4" ng-init="showCourseCart = true">
+				<div class="visible-xs visible-sm vert-spacer-static-md"></div>
+				<div class="panel panel-default course-cart">
+					<div class="panel-heading">
+						<h2 class="panel-title clearfix">
+							Course Cart
+							<button type="button" class="btn btn-xs btn-primary hidden-md hidden-lg pull-right" ng-click="showCourseCart = !showCourseCart">
+								<i class="fa" ng-class="{'fa-angle-down': showCourseCart, 'fa-angle-up': !showCourseCart}"></i>
+							</button>
+						</h2>
+					</div>
+					<div class="panel-body" ng-class="{'hidden-xs':showCourseCart, 'hidden-sm': showCourseCart}">
+						<div class="course-cart-window animate-show-hide" ng-switch="getSelectedCount() > 0">
+							<ul ng-switch-when="true" class="list-group">
+								<li class="list-group-item repeat-item course-cart-item" ng-style="{'border-left-color':course.color}" ng-if="course.sections.length > 0 && !course.sections[0].isError" ng-repeat="course in state.courses">
+									<div class="btn-group pull-right">
+										<button type="button" class="btn btn-danger" ng-click="courses_helpers.removeThis(course)">
+											<i class="fa fa-minus"></i> <i class="fa fa-shopping-cart"></i>
+										</button>
+										<button type="button" class="btn btn-primary" ng-click="showCourseSections = !showCourseSections">
+											<i class="fa" ng-class="{'fa-angle-down': !showCourseSections, 'fa-angle-up': showCourseSections}"></i>
+										</button>
+									</div>
+									<h4 class="list-group-item-heading">{{course.search}}:</h4>
+									<p class="list-group-item-text">{{getSelectedSectionCount(course)}} selected</p>
+									<ul class="list-group" ng-if="showCourseSections">
+										<li class="list-group-item repeat-item" ng-repeat="section in course.sections | filter:{selected: true}">
+											<button type="button" class="btn pull-right btn-danger visible-md visible-lg" ng-click="section.selected = !section.selected">
+												<i class="fa fa-minus"></i> <i class="fa fa-shopping-cart"></i>
+											</button>
+											<h4 class="list-group-item-heading">{{section.courseNum}}</h4>
+											<p class="list-group-item-text">{{section.instructor}}</p>
+											<button type="button" class="btn btn-danger btn-block visible-xs visible-sm" ng-click="section.selected = !section.selected">
+												<i class="fa fa-minus"></i> <i class="fa fa-shopping-cart"></i>
+											</button>
+										</li>
+									</ul>
+								</li>
+							</ul>
+							<div class="alert" ng-switch-when="false">Add courses to your cart and make a schedule with them. They will show up here.</div>
+						</div>
+					</div>
+					<div class="panel-footer" ng-class="{'hidden-xs':showCourseCart, 'hidden-sm': showCourseCart}">
+						<button type="button" class="btn btn-primary btn-block" ng-click="generateSchedules()">Show Matching Schedules</button>
+					</div>
 				</div>
 			</div>
 		</div>

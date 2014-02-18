@@ -32,14 +32,14 @@ require "./inc/header.inc";
 		</div>
 		<div class="col-xs-4">
 			<div class='navItem'>
-				<a href='browse.php'><i class="fa fa-search"></i></a>
+				<a href='browse.php'><i class="fa fa-list"></i></a>
 				<div><a href='browse.php'>Browse Courses</a></div>
 			</div>
 		</div>
 		<div class="col-xs-4">
 			<div class='navItem'>
-				<a href='roulette.php'><i class="fa fa-bolt"></i></a>
-				<div><a href='roulette.php'>Course Roulette</a></div>
+				<a href='roulette.php'><i class="fa fa-search"></i></a>
+				<div><a href='roulette.php'>Search Courses</a></div>
 			</div>
 		</div>
 	</div>
