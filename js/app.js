@@ -207,6 +207,14 @@ app.controller("AppCtrl", function($scope, sessionStorage, debounce, $window) {
 		return count;
 	};
 	
+	$scope.deleteCart = function() {
+		for(var i = 0; i < $scope.state.courses.length; i++) {
+			for(var s = 0; s < $scope.state.courses[i].sections.length; s++) {
+				$scope.state.courses[i].sections[s].selected = false;
+			}
+		}
+	};
+	
 	if($scope.state.courses.length > 0) {
 		var id = $scope.state.courses[$scope.state.courses.length - 1].id + 1;
 	} else {
@@ -244,10 +252,7 @@ app.controller("AppCtrl", function($scope, sessionStorage, debounce, $window) {
 			};
 		}
 	};
-});
-
-app.controller("GenerateCtrl", function($scope, globalKbdShortcuts, $http, $filter) {
-
+	
 	$scope.ui = {
 		optionLists: {
 			days: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
@@ -295,6 +300,10 @@ app.controller("GenerateCtrl", function($scope, globalKbdShortcuts, $http, $filt
 		         "#B29144",
 		        ]
 	};
+});
+
+app.controller("GenerateCtrl", function($scope, globalKbdShortcuts, $http, $filter) {
+
 	$scope.colorSearch = function(search) {
 		var foundColor = null;
 		$scope.state.courses.forEach(function(e) {
@@ -578,9 +587,6 @@ app.controller('nonCourseItemsCtrl', function($scope) {
 	
 	$scope.removeNonC = function(index) {
 		$scope.state.nonCourses.splice(index, 1);
-		if($scope.state.nonCourses.length == 0) {
-			$scope.addNonC();
-		}
 	};
 	
 	$scope.ensureCorrectEndTime = function(index) {
@@ -588,10 +594,6 @@ app.controller('nonCourseItemsCtrl', function($scope) {
 			$scope.state.nonCourses[index].end_time = $scope.state.nonCourses[index].start_time + 60;
 		}
 	};
-	
-	if($scope.state.nonCourses.length == 0) {
-		$scope.addNonC();
-	}
 });
 
 app.controller('noCourseItemsCtrl', function($scope) {
@@ -606,9 +608,6 @@ app.controller('noCourseItemsCtrl', function($scope) {
 	
 	$scope.removeNoC = function(index) {
 		$scope.state.noCourses.splice(index, 1);
-		if($scope.state.noCourses.length == 0) {
-			$scope.add();
-		}
 	};
 	
 	$scope.ensureCorrectEndTime = function(index) {
@@ -616,10 +615,6 @@ app.controller('noCourseItemsCtrl', function($scope) {
 			$scope.state.noCourses[index].end_time = $scope.state.noCourses[index].start_time + 60;
 		}
 	};
-	
-	if($scope.state.noCourses.length == 0) {
-		$scope.addNoC();
-	}
 });
 
 
@@ -703,7 +698,12 @@ app.factory('uiDayFactory', function() {
 		return days;
 	};
 });
-
+app.directive("courseCart", function() {
+	return {
+		restrict: 'A',
+		templateUrl: '/js/templates/cart.html'
+	};
+});
 app.directive("dowSelectFields", function(uiDayFactory) {
 	return {
 		restrict: 'A',

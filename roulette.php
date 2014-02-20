@@ -107,51 +107,7 @@ require "./inc/header.inc";
 		</form>
 	</div>
 	<div class="col-md-4" ng-init="showCourseCart = true">
-		<div class="visible-xs visible-sm vert-spacer-static-md"></div>
-		<div class="panel panel-default course-cart">
-			<div class="panel-heading">
-				<h2 class="panel-title clearfix">
-					Course Cart
-					<button type="button" class="btn btn-xs btn-primary hidden-md hidden-lg pull-right" ng-click="showCourseCart = !showCourseCart">
-						<i class="fa" ng-class="{'fa-angle-down': showCourseCart, 'fa-angle-up': !showCourseCart}"></i>
-					</button>
-				</h2>
-			</div>
-			<div class="panel-body" ng-class="{'hidden-xs':showCourseCart, 'hidden-sm': showCourseCart}">
-				<div class="course-cart-window animate-show-hide" ng-switch="getSelectedCount() > 0">
-					<ul ng-switch-when="true" class="list-group">
-						<li class="list-group-item repeat-item course-cart-item" ng-style="{'border-left-color':course.color}" ng-if="course.sections.length > 0 && !course.sections[0].isError" ng-repeat="course in state.courses">
-							<div class="btn-group pull-right">
-								<button type="button" class="btn btn-danger" ng-click="courses_helpers.removeThis(course)">
-									<i class="fa fa-minus"></i> <i class="fa fa-shopping-cart"></i>
-								</button>
-								<button type="button" class="btn btn-primary" ng-click="showCourseSections = !showCourseSections">
-									<i class="fa" ng-class="{'fa-angle-down': !showCourseSections, 'fa-angle-up': showCourseSections}"></i>
-								</button>
-							</div>
-							<h4 class="list-group-item-heading">{{course.search}}:</h4>
-							<p class="list-group-item-text">{{getSelectedSectionCount(course)}} selected</p>
-							<ul class="list-group" ng-if="showCourseSections">
-								<li class="list-group-item repeat-item" ng-repeat="section in course.sections | filter:{selected: true}">
-									<button type="button" class="btn pull-right btn-danger visible-md visible-lg" ng-click="section.selected = !section.selected">
-										<i class="fa fa-minus"></i> <i class="fa fa-shopping-cart"></i>
-									</button>
-									<h4 class="list-group-item-heading">{{section.courseNum}}</h4>
-									<p class="list-group-item-text">{{section.instructor}}</p>
-									<button type="button" class="btn btn-danger btn-block visible-xs visible-sm" ng-click="section.selected = !section.selected">
-										<i class="fa fa-minus"></i> <i class="fa fa-shopping-cart"></i>
-									</button>
-								</li>
-							</ul>
-						</li>
-					</ul>
-					<div class="alert" ng-switch-when="false">Add courses to your cart and make a schedule with them. They will show up here.</div>
-				</div>
-			</div>
-			<div class="panel-footer" ng-class="{'hidden-xs':showCourseCart, 'hidden-sm': showCourseCart}">
-				<button type="button" class="btn btn-primary btn-block" ng-click="generateSchedules()">Show Matching Schedules</button>
-			</div>
-		</div>
+		<div course-cart></div>
 	</div>
 	</div>
 </div>

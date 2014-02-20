@@ -976,6 +976,29 @@ select.ng-invalid {
 	margin-bottom:20px;
 	width:1px;
 }
+
+@media screen and (min-width:767px) {
+	
+	.panel-control-overlap .panel-heading .panel-title {
+		padding-top: 10px;
+		padding-bottom: 10px;
+	}
+	
+	.panel-control-overlap .panel-footer {
+		transition: background-color .25s;
+	}
+
+	.panel-control-overlap .panel-body.ng-hide + .panel-footer {
+		background: none;
+	    height: 0;
+	    padding-bottom: 0;
+	    padding-top: 0;
+	    transform: translate(0px, -50px);
+	    border: 0;
+	}
+
+}
+
 .popover {
 	color: #333 !important;
 	width:300px;

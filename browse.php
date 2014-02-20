@@ -177,28 +177,7 @@ require "./inc/header.inc";
 			</div>
 		</div>
 		<div class="col-md-4">
-			<div pinned class="panel panel-default course-cart">
-				<div class="panel-heading">
-					<h2 class="panel-title">Course Cart</h2>
-				</div>
-				<div class="panel-body">
-					<div class="course-cart-window" ng-switch="cart.length > 0">
-						<ul ng-switch-when="true" class="list-group animate-show-hide">
-							<li class="list-group-item repeat-item" ng-repeat="(id, item) in cart.listItems()">
-								<button class="btn pull-right btn-danger" ng-click="cart.toggleSection(item)">
-									<i class="fa fa-minus"></i> <i class="fa fa-shopping-cart"></i>
-								</button>
-								<h4 class="list-group-item-heading">{{item.department.code}}-{{item.course}}-{{item.section}}</h4>
-								<p class="list-group-item-text">{{item.title}}</p>
-							</li>
-						</ul>
-						<div class="alert animate-show-hide" ng-switch-when="false">Add courses to your cart and make a schedule with them. They will show up here.</div>
-					</div>
-				</div>
-				<div class="panel-footer">
-					<button type="button" class="btn btn-primary btn-block">Make a schedule with these</button>
-				</div>
-			</div>
+			<div course-cart></div>
 		</div>
 	</div>
 </div>
