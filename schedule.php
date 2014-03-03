@@ -8,38 +8,63 @@
 // @descrip	Loads up the requested schedule from the database.
 ////////////////////////////////////////////////////////////////////////////
 
+// REQUIRED FILES //////////////////////////////////////////////////////////
+require_once('./inc/config.php');
+require_once('./inc/databaseConn.php');
+require_once('./inc/timeFunctions.php');
+
 // FUNCTIONS ///////////////////////////////////////////////////////////////
 
 function drawCourse($course, $startTime, $endTime, $startDay, $endDay, $color, $bldg) {
 	$code = "";
 
-	// Iterate over the times that the couse has session
+	// Iterate over the times that the course has session
+    if(empty($course['times'])) { return ""; }
 	foreach($course['times'] as $time) {
 		// Skip times that aren't part of the displayed days
 		if($time['day'] < $startDay || $time['day'] > $endDay) {
 			continue;
 		}
 
-		// Skip times that aren't part of displayed hours
-		if($time['start'] < $startTime || $time['start'] > $endTime || $time['end'] > $endTime) {
-			continue;
-		}
+        // Shorten classes that lie across the displayed hours
+        if($time['start'] < $startTime) {
+            if($time['end'] > $startTime) {
+                echo("short!");
+                $time['start'] = $startTime;    // Class starts before schedule but ends after sched starts. Shorten it.
+                $shortenStart = true;
+            } else {
+                continue;                       // Class starts and ends before schedule. Skip it.
+            }
+        }
+
+        if($time['end'] > $endTime) {
+            if($time['start'] < $endTime) {
+                $time['end'] = $endTime;        // Class ends after schedule starts, but starts before sched ends. Shorten it.
+                $shortenEnd = true;
+            } else {
+                continue;                       // Class starts and ends after the schedule. Skip it.
+            }
+        }
 
 		// Add a div for the time
-		$code .= "<div class='day" . ($time['day'] - $startDay) . " color{$color} timeContainer' style = '";
+        // Build out the classes to use
+        $classes = "day" . (($time['day']) - $startDay);
+        $classes .= " color{$color}";
+        $classes .= " timeContainer";
+        $classes .= (!empty($shortenStart)) ? " shortenTop" : "";
+        $classes .= (!empty($shortenEnd)) ? " shortenBottom" : "";
 
-		$height    = (ceil(($time['end'] - $time['start']) / 30) * 20) - 1;
-		$topOffset = (floor(($time['start'] - $startTime) / 30) * 20) + 20;
-		$code .= "height: {$height}px; top: {$topOffset}px";
-		$code .= "'>";
+        // Build out the style for positioning/size
+        $height    = (ceil(($time['end'] - $time['start']) / 30) * 20) - 1;
+        $topOffset = (floor(($time['start'] - $startTime) / 30) * 20) + 20;
+        $style = "height: {$height}px; top: {$topOffset}px";
+
+		$code .= "<div class='{$classes}' style = '{$style}'>";
 		
 		// Add information about the course
-		$code .= "<h4";
-		if($height <= 40) {
-			// Include code to shorten the header for short classes
-			$code .= " class='shortHeader'";
-		}
-		$code .= ">{$course['title']}</h4><div>";
+        $shortHeader = ($height <= 40) ? "class='shortHeader'" : "";
+		$code .= "<h4 {$shortHeader}>{$course['title']}</h4>";
+		$code .= "<div>";
 		if($course['courseNum'] != "non") {
 		    $code .= $course['courseNum'] . "<br />";
 			$code .= $course['instructor'] . "<br />";
@@ -233,8 +258,11 @@ function getScheduleFromId($id) {
 	$query = "UPDATE schedules SET datelastaccessed = NOW() WHERE id={$id}";
 	$result = mysql_query($query);
 	
-	$query = "SELECT startday, endday, starttime, endtime, building, quarter FROM schedules WHERE id={$id}";
+	$query = "SELECT startday, endday, starttime, endtime, building, `quarter`, `image` FROM schedules WHERE id={$id}";
 	$result = mysql_query($query);
+    if(!$result) {
+        return NULL;
+    }
 	$scheduleInfo = mysql_fetch_assoc($result);
 	if(!$scheduleInfo) {
 		return NULL;
@@ -247,6 +275,7 @@ function getScheduleFromId($id) {
 	$endTime   = (int)$scheduleInfo['endtime'];
 	$building  = $scheduleInfo['building'];
 	$term      = $scheduleInfo['quarter'];
+    $image     = $scheduleInfo['image'] == 1;
 
 	// Create storage for the courses that will be returned
 	$schedule = array();
@@ -284,7 +313,8 @@ function getScheduleFromId($id) {
 			"startDay"   => $startDay,
 			"endDay"     => $endDay,
 			"bldgStyle"  => $building,
-			"term"       => $term
+			"term"       => $term,
+            "image"      => $image
 			);
 }
 
@@ -441,11 +471,13 @@ switch($mode) {
 
 	case "schedule":
 		// DEFAULT SCHEDULE FORMAT /////////////////////////////////////////
-		require "./inc/header.inc";
-		
-		$schedule = getScheduleFromId(hexdec($_GET['id']));
+        $id = hexdec($_GET['id']);
+        $schedule = getScheduleFromId($id);
+
+        // Make sure the schedule exists
 		if($schedule == NULL) {
             // Schedule does not exist. Error out and die.
+            require "./inc/header.inc";
 			?>
 			<div class='schedUrl error'>
 				<p><span style='font-weight:bold'>Fatal Error:</span> The requested schedule does not exist!</p>
@@ -456,6 +488,15 @@ switch($mode) {
 		}
 
         // Schedule exists! Output it.
+
+        // Set image location (if it exists)
+        if($schedule['image']) {
+            $IMGURL = "{$HTTPROOTADDRESS}img/schedules/{$id}.png";
+        }
+        $TITLE = "My Schedule"; //@TODO: Generate this with term titles
+
+        require "./inc/header.inc";
+
         echo generateScheduleFromCourses($schedule);
 
 		// Translate the schedule into json and escape '

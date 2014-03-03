@@ -244,31 +244,42 @@ function drawCourse(parent, course, startDay, endDay, startTime, endTime, colorN
 		var time = course.times[t];
 		
 		// Skip times that aren't part of the displayed days
+        var skip = false;
+        var shortenTop = false;
+        var shortenBottom = false;
 		if(time.day < startDay || time.day > endDay) {
-			if($.inArray(course.courseNum, hiddenCourses) == -1) {
-				hiddenCourses.push(course.courseNum);
-			}
-			continue;
-		}
+            skip = true;
+		} else {
+            // Skip times that aren't part of the displayed hours
+            if(time.start < startTime) {
+                if(time.end > startTime) {
+                    shortenTop = true;         // Class starts before schedule but ends after sched starts. Shorten it.
+                } else {
+                    skip = true;               // Class starts and ends before schedule. Skip it.
+                }
+            }
+            if(time.end > endTime) {
+                if(time.start < endTime) {
+                    shortenBottom = true;         // Class ends after schedule starts, but starts before sched ends. Shorten it.
+                } else {
+                    skip = true                // Class starts and ends after the schedule. Skip it.
+                }
+            }
+        }
 
-		// Skip times that aren't part of the displayed hours
-		if(time.start < startTime || time.start > endTime || time.end > endTime) {
-			// Shorten up the boxes of times that extend into
-			// the visible spectrum
-			if(time.start < startTime && time.end > startTime) {
-				time.start = startTime;
-				time.shorten = "top";
-			} else if(time.end > endTime && time.start < endTime) {
-				time.end = endTime;
-				time.shorten = "bottom";
-			} else {
-				// The course is completely hidden
-				if($.inArray(course.courseNum, hiddenCourses) == -1) {
-					hiddenCourses.push(course.courseNum);
-				}
-				continue;
-			}
-		}
+        // Add a message for skipped classes
+        if(skip) {
+            var nameToPush = course.courseNum == 'non' ? course.title : course.courseNum;
+            if($.inArray(nameToPush, hiddenCourses) == -1) {
+                hiddenCourses.push(nameToPush);
+            }
+            continue;
+        }
+
+        // Determine the true start/end times for the class
+        // Note: This is done with separate vars to avoid incorrectly storing non-course items in the database upon save
+        var classStart = shortenTop ? startTime : parseInt(time.start);
+        var classEnd = shortenBottom ? endTime : parseInt(time.end);
 
 		// Add a div for the time
 		var timeDiv = $("<div>");
@@ -281,13 +292,13 @@ function drawCourse(parent, course, startDay, endDay, startTime, endTime, colorN
 		}
 		
 		// Calculate the height
-		var timeHeight = parseInt(time.end) - parseInt(time.start);
+		var timeHeight = classEnd - classStart;
 		timeHeight = timeHeight / 30;
 		timeHeight = Math.ceil(timeHeight);
 		timeHeight = (timeHeight * 20) - 1;
 
 		// Calculate the top offset
-		var timeTop = parseInt(time.start) - startTime;
+		var timeTop = classStart - startTime;
 		timeTop = timeTop / 30;
 		timeTop = Math.floor(timeTop);
 		timeTop = timeTop * 20;
@@ -333,18 +344,18 @@ function drawCourse(parent, course, startDay, endDay, startTime, endTime, colorN
 			    courseInfo.appendTo(timeDiv);
             }
 		}
-		if(time.shorten == "top") {
-			var curHeight = timeDiv.css("height");
-			curHeight = curHeight.substring(0, curHeight.length - 2); 
-			var newHeight = curHeight - 1;
-			timeDiv.css("height", newHeight + "px");
+		if(shortenTop) {
+//			var curHeight = timeDiv.css("height");
+//			curHeight = curHeight.substring(0, curHeight.length - 2);
+//			var newHeight = curHeight - 1;
+//			timeDiv.css("height", newHeight + "px");
 			timeDiv.addClass("shortenTop");
 		}
-		if(time.shorten == "bottom") {
-			var curHeight = timeDiv.css("height");
-			curHeight = curHeight.substring(0, curHeight.length - 2); 
-			var newHeight = curHeight - 1;
-			timeDiv.css("height", newHeight + "px");
+		if(shortenBottom) {
+//			var curHeight = timeDiv.css("height");
+//			curHeight = curHeight.substring(0, curHeight.length - 2);
+//			var newHeight = curHeight - 1;
+//			timeDiv.css("height", newHeight + "px");
 			timeDiv.addClass("shortenBottom");
 		}
 		
@@ -460,6 +471,9 @@ function drawPage(pageNum, print) {
 			.attr("name", "url")
 			.val("none")
 			.appendTo(saveForm);
+        $("<input>").attr("type", "hidden")
+            .attr("name", "svg")
+            .appendTo(saveForm);
 		$("<input>").attr("type", "hidden")
 			.attr("name", "scheduleId")
 			.val("sched" + schedId)
@@ -742,7 +756,7 @@ function getScheduleUrl(button) {
 	var urlInput = $(button.parent().children()[1]);
 	if(urlInput.val() == "none") {
         // Grab the id of the schedule
-        var scheduleId = $(button.parent().children()[2]).val();
+        var scheduleId = $(button.parent().children()[3]).val();
 
 		// Grab the field for the json
 		var jsonObj = $(button.parent().children()[0]).val();
@@ -755,12 +769,19 @@ function getScheduleUrl(button) {
 				"building":  $("#buildingStyle").val(),
 				"term":      $("#term").val()	// This /could/ be incorrect... just sayin
 				};
+        var svgVal = $(button.parent().children()[2]).val();
 		// We don't have a url already, so get one!
-		$.post("./js/scheduleAjax.php", {action: "saveSchedule", data: JSON.stringify(jsonModified)}, function(data) {
+        var params = {
+            "action":   "saveSchedule",
+            "data":     JSON.stringify(jsonModified),
+            "svg":      svgVal
+        };
+
+		$.post("./js/scheduleAjax.php", params, function(data) {
 			// Error checking. Display a error. URL will remain NONE on error.
 			if(data.error != null && data.error != undefined) {
                 // Get the URL div
-                var scheduleId = $(button.parent().children()[2]).val();
+                var scheduleId = $(button.parent().children()[3]).val();
                 var urlDiv = $("#" + scheduleId + "Url");
                 if(urlDiv.length) {
                     // URL Div exists, so empty it
@@ -862,7 +883,7 @@ function saveSchedule(button) {
 	}
 
     // Grab the schedule we're adding this to
-    var scheduleId = $(button.parent().children()[2]).val();
+    var scheduleId = $(button.parent().children()[3]).val();
     var schedule = $("#" + scheduleId);
 
     // Disable the button
