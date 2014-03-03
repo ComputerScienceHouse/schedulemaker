@@ -177,7 +177,7 @@ require "./inc/header.inc";
 			</div>
 		</div>
 		<div class="col-md-4">
-			<div course-cart></div>
+			<div pinned course-cart></div>
 		</div>
 	</div>
 </div>

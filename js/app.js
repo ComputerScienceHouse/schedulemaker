@@ -239,6 +239,9 @@ app.controller("AppCtrl", function($scope, sessionStorage, debounce, $window) {
 		},
 		removeThis: function(course) {
 			$scope.state.courses.splice($scope.state.courses.indexOf(course), 1);
+			if($scope.state.courses.length == 0) {
+				$scope.courses_helpers.add();
+			}
 		},
 		clear: function(index) {
 			index = index - 1;
