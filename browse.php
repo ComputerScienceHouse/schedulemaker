@@ -114,19 +114,19 @@ require "./inc/header.inc";
 										</div>
 										<div class="browse-sublist" ng-show="department.courses.length > 0 && department.ui.expanded">
 											<div class="list-group">
-												<div browse-list="course" class="list-group-item" ng-repeat="course in department.courses" ng-class="{'active-nostyle': course.ui.expanded && course.sections.length > 0}" ng-init="course.selected = cart.courseInCart(course)">
+												<div browse-list="course" class="list-group-item" ng-repeat="course in department.courses" ng-class="{'active-nostyle': course.ui.expanded && course.sections.length > 0}" ng-init="course.selected = courseCart.selection.course.is(course)">
 													<div class="browse-heading" ng-click="course.ui.toggleDisplay()">
 														<button class="btn pull-right btn-default">
 															<i class="fa" ng-class="course.ui.buttonClass"></i>
 														</button>
-														<h4 class="list-group-item-heading">{{department.code?department.code:department.number}}-{{course.course}}</h4>
+														<h4 class="list-group-item-heading">{{course | courseNum}}</h4>
 														<p class="list-group-item-text">{{course.title}}</p>
 													</div>
 													<div ng-init="showDesc = true" ng-show="course.sections.length > 0 && course.ui.expanded">
 														<button type="button" class="btn btn-block btn-default visible-sm visible-xs" ng-click="showDesc = !showDesc" style="margin-bottom: 10px;">Toggle Desciption</button>
 														<p ng-class="{'hidden-xs':showDesc, 'hidden-sm': showDesc}" class="course-description">{{course.description}}</p>
 														<div class="center">
-															<button type="button" class="btn" ng-click="cart.toggleCourse(course)" ng-class="{'btn-danger':course.selected, 'btn-success':!course.selected}">
+															<button type="button" class="btn" ng-click="courseCart.selection.course.toggle(course); course.selected = !course.selected" ng-class="{'btn-danger':course.selected, 'btn-success':!course.selected}">
 																<i class="fa" ng-class="{'fa-minus':course.selected, 'fa-plus':!course.selected}"></i> <i class="fa fa-shopping-cart"></i> 
 																{{course.selected ? 'Remove all sections from cart':'Add all sections to cart'}}
 															</button>
@@ -135,11 +135,11 @@ require "./inc/header.inc";
 														</div>
 														<div class="course-results-cont row">
 															<div class="inline-col col-md-6" ng-repeat="section in course.sections">
-																<ul class="list-group" ng-init="section.selected = cart.sectionInCart(section); section.courseId = course.id">
+																<ul class="list-group" ng-init="section.selected = section.selected?true:courseCart.selection.section.isByCourse(course, section)">
 																	<li class="list-group-item course-info">
 																		<div class="row">
 																			<div class="col-sm-8">
-																				<h4 class="list-group-item-heading">{{$index + 1}}. {{course.department.code?course.department.code:course.department.number}}-{{course.course}}-{{section.section}}</h4>
+																				<h4 class="list-group-item-heading">{{$index + 1}}. {{course | courseNum}}-{{section.section}}</h4>
 																				<small>{{section.title}}</small>
 																				<p class="list-group-item-text label-line ">
 																					<span class="label label-default" professor-lookup="section.instructor"></span>
@@ -153,7 +153,7 @@ require "./inc/header.inc";
 																			<div class="col-sm-4">
 																				<div class="row">
 																					<div class="col-xs-12">
-																						<button type="button" class="btn btn-block" ng-click="cart.toggleSection(section)" ng-class="{'btn-danger':section.selected, 'btn-success':!section.selected}">
+																						<button type="button" class="btn btn-block" ng-click="courseCart.selection.section.toggleByCourse(course, section)" ng-class="{'btn-danger':section.selected, 'btn-success':!section.selected}">
 																							<i class="fa" ng-class="{'fa-minus':section.selected, 'fa-plus':!section.selected}"></i> <i class="fa fa-shopping-cart"></i>
 																						</button>
 																					</div>

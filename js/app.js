@@ -85,6 +85,15 @@ app.filter("parseTime", function() {
 	};
 });
 
+app.filter("courseNum", function() {
+	return function(course) {
+		if(course) {
+			return (course.department.code? course.department.code:
+				course.department.number) + "-" + course.course;
+		}
+	};
+});
+
 app.factory('debounce', ['$timeout', function ($timeout) {
     return function(fn, timeout, apply){
         timeout = angular.isUndefined(timeout) ? 0 : timeout;
@@ -137,11 +146,12 @@ app.factory("sessionStorage", function($window) {
 	};
 });
 
-app.controller("AppCtrl", function($scope, sessionStorage, debounce, $window) {
+app.controller("AppCtrl", function($scope, sessionStorage, debounce, $window, $filter) {
 	
 	$scope.initState = function() {
 		$scope.state = {};
 		$scope.state.courses = [];
+		$scope.state.courseMap = {};
 		$scope.state.nonCourses = [];
 		$scope.state.noCourses = [];
 		$scope.state.schedules =[];
@@ -191,70 +201,271 @@ app.controller("AppCtrl", function($scope, sessionStorage, debounce, $window) {
 		sessionStorage.setItem('state', $scope.state);
 	};
 	
-	$scope.getSelectedSectionCount = function(course) {
-		var count = 0;
-		for(var i = 0; i < course.sections.length; i++) {
-			if(course.sections[i].selected) count++;
-		}
-		return count;
-	};
+	var courseNumFilter = $filter('courseNum');
 	
-	$scope.getSelectedCount = function() {
-		var count = 0;
-		for(var i = 0; i < $scope.state.courses.length; i++) {
-			count += $scope.getSelectedSectionCount($scope.state.courses[i]);
-		}
-		return count;
-	};
-	
-	$scope.deleteCart = function() {
-		for(var i = 0; i < $scope.state.courses.length; i++) {
-			for(var s = 0; s < $scope.state.courses[i].sections.length; s++) {
-				$scope.state.courses[i].sections[s].selected = false;
+	// Course cart tools for non-generate pages.
+	$scope.courseCart = {
+		nextId: 0,
+		init: function() {
+			// Reset id if loaded from state
+			if($scope.state.courses.length > 0) {
+				$scope.courseCart.nextId = $scope.state.courses[$scope.state.courses.length - 1].id + 1;
 			}
-		}
-	};
-	
-	if($scope.state.courses.length > 0) {
-		var id = $scope.state.courses[$scope.state.courses.length - 1].id + 1;
-	} else {
-		var id = 0;
-	}
-	$scope.courses_helpers = {
-		add: function() {
-			var newCourse = {
-				id: ++id,
+		},
+		count: {
+			all: {
+				selectedSections: function() {
+					var count = 0;
+					for(var i = 0; i < $scope.state.courses.length; i++) {
+						count += $scope.courseCart.count.course.
+							selectedSections($scope.state.courses[i]);
+					}
+					return count;
+				},
+			},
+			course: {
+				selectedSections: function(course) {
+					var count = 0;
+					for(var i = 0; i < course.sections.length; i++) {
+						if(course.sections[i].selected) count++;
+					}
+					return count;
+				}
+			}
+		},
+		selection: {
+			all: {
+				
+				/**
+				 * Unselects everything in the cart
+				 */
+				unselect: function() {
+					for(var i = 0; i < $scope.state.courses.length; i++) {
+						for(var s = 0; 
+							s < $scope.state.courses[i].sections.length; s++) {
+							$scope.state.courses[i].sections[s].selected = 
+								false;
+						}
+					}
+				}
+			},
+			section: {
+				
+				/**
+				 * Toggle the selection status of a section, but check if its
+				 * course is in the cart already, if not, add it.
+				 * 
+				 * @param course {Object} The course the section belongs to
+				 * @param section {Object} The section to toggle
+				 */
+				toggleByCourse: function(course, section) {
+					if(!$scope.courseCart.contains.course(course)) {
+						$scope.courseCart.create.fromExistingCourse(course);
+					} else {
+						if(course.selected && section.selected) {
+							course.selected = false;
+						}
+					}
+					section.selected = !section.selected;
+				},
+				
+				/**
+				 * Toggle the selected status of a selection
+				 * 
+				 * Pre-condition: The section is already in the cart
+				 * 
+				 * @param section {Object} The section to toggle
+				 */
+				toggle: function(section) {
+					section.selected = !section.selected;
+				},
+				
+				/**
+				 * Checks if section is selected, but first checks if course is
+				 * in the cart -- if not, add it.
+				 * 
+				 * @param course {Object} The course the section belongs to
+				 * @param section {Object} The section to toggle
+				 */
+				isByCourse: function(course, section) {
+					return $scope.courseCart.contains.course(course) && 
+						section.selected;
+				}
+			},
+			course: {
+				/**
+				 * Toggles the current course's sections selcted state 
+				 */
+				toggle: function(course) {
+					
+					// If new this load or not
+					var Ecourse = $scope.courseCart.ensure.course(course);
+
+					course.selected = !$scope.courseCart.selection.course
+						.toggleAllSections(Ecourse);
+				},
+				
+				is: function(course) {
+					if($scope.courseCart.contains.course(course)) {
+						return $scope.courseCart.selection.course
+						.allSections($scope.courseCart.ensure.course(course));
+					} else {
+						return false;
+					}
+				},
+				
+				/**
+				 * Toggles all sections in the course
+				 * 
+				 * Pre-condition: the course exists in the cart
+				 */
+				toggleAllSections: function(course) {
+					var setTo = !$scope.courseCart.selection.course
+						.allSections(course);
+					course.sections.forEach(function(section) {
+						section.selected = setTo;
+					});
+					
+					return setTo;
+				},
+				
+				/**
+				 * Returns true if all sections are selected
+				 */
+				allSections: function(course) {
+					return course.sections.reduce(
+						function(total, section) { 
+							return total && section.selected;
+					});
+				},
+				
+				/**
+				 * Unselects all sections
+				 */
+				unselect: function(course) {
+					course.sections.forEach(function(section) {
+						section.selected = false;
+					});
+				}
+			}
+		},
+		
+		ensure: {
+			/**
+			 * Gets the course for the selected id
+			 * 
+			 *  @param id {String} The course id
+			 */
+			course: function(course) {
+				
+				if($scope.courseCart.contains.course(course)) {
+					var foundCourse = false;
+					for(var i = 0; i < $scope.state.courses.length; i++) {
+						if(course.id == $scope.state.courses[i].id) {
+							foundCourse = $scope.state.courses[i];
+							break;
+						}
+					}
+					return foundCourse;
+				} else {
+					
+					if($scope.state.courses.indexOf(course) != -1) {
+						return course;
+					} else {
+						return $scope.courseCart.create
+							.fromExistingCourse(course);
+					}
+					
+					return false;
+				}
+			}
+		},
+		
+		contains: {
+			
+			/**
+			 * Checks if the provided course is in the cart
+			 * @param course {Object} The course to check
+			 * @returns {Boolean} The course is in the cart?
+			 */
+			course: function(course) {
+				return $scope.state.courseMap.hasOwnProperty(course.id);
+			}
+		},
+		remove: {
+			
+			/**
+			 * Remove a course completely by index
+			 * @param index The index to remove
+			 */
+			byIndex: function(index) {
+				$scope.state.courses.splice(index, 1);
+			}
+		},
+		add: {
+			sectionToCourse: function(section, course) {
+				//TODO: impliment this
+			},
+			
+			/**
+			 * Add a pre-created course to the cart
+			 * @param course An already formatted course ready for adding
+			 * @returns {Object} The created course
+			 */
+			courseToCart: function(course) {
+				$scope.state.courses.push(course);
+				$scope.$broadcast('addedCourse');
+				
+				return course;
+			}
+		},
+		create: {
+			
+			/**
+			 * Creates and adds a new blank course and the adds it to the cart
+			 * 
+			 * @returns {Object} The newly created course
+			 */
+			blankCourse: function() {
+				 return $scope.courseCart.add.courseToCart(
+					 $scope.courseCart.getBlankCourse(true));
+			},
+			
+			/**
+			 * Creates and adds a pre-existing course from the database to the
+			 * cart
+			 * 
+			 * @param existingCourse {Object} A course from the database
+			 * @returns {Object} The newly created course
+			 */
+			fromExistingCourse: function(course) {
+				var mockCourse = $scope.courseCart.getBlankCourse(false);
+				
+				course.fromSelect = false;
+				course.search = courseNumFilter(course);
+				$scope.state.courseMap[course.id] = true;
+				return $scope.courseCart.add.courseToCart(course);
+			}
+		},
+		
+		/**
+		 * Returns a POJO with a correct id and other features
+		 * 
+		 * @param fromSelect
+		 * @returns {Object} A new course
+		 */
+		getBlankCourse: function(fromSelect) {
+			return {
+				id: ++$scope.courseCart.nextId,
 				search: '',
 				sections: [],
-				status: 'D'
-			}
-			$scope.state.courses.push(newCourse);
-			$scope.$broadcast('addedCourse');
-		},
-		remove: function(index) {
-			$scope.state.courses.splice(index - 1, 1);
-			if($scope.state.courses.length == 0) {
-				$scope.courses_helpers.add();
-			}
-		},
-		removeThis: function(course) {
-			$scope.state.courses.splice($scope.state.courses.indexOf(course), 1);
-			if($scope.state.courses.length == 0) {
-				$scope.courses_helpers.add();
-			}
-		},
-		clear: function(index) {
-			index = index - 1;
-			var id = $scope.state.courses[index].id,
-			status = $scope.state.courses[index].status;
-			$scope.state.courses[index] = {
-				id: id,
-				search: '',
-				sections: [],
-				status: status
+				status: 'D',
+				fromSelect: fromSelect
 			};
 		}
+			
 	};
+	$scope.courseCart.init();
 	
 	$scope.ui = {
 		optionLists: {
@@ -306,6 +517,16 @@ app.controller("AppCtrl", function($scope, sessionStorage, debounce, $window) {
 });
 
 app.controller("GenerateCtrl", function($scope, globalKbdShortcuts, $http, $filter) {
+	
+	$scope.courses_helpers = {
+		add: $scope.courseCart.create.blankCourse,
+		remove: function(index) {
+			$scope.courseCart.remove.byIndex(index - 1);
+			if($scope.state.courses.length == 0) {
+				$scope.courses_helpers.add();
+			}
+		},
+	};
 
 	$scope.colorSearch = function(search) {
 		var foundColor = null;
@@ -404,6 +625,7 @@ app.controller("GenerateCtrl", function($scope, globalKbdShortcuts, $http, $filt
 	    			data.schedules[i].number = i + 1;
 		    	}
 		    	$scope.state.schedules = data.schedules;
+		    	$scope.state.displayOptions.currentPage = 0;
 		    	$scope.scrollToSchedules();
 	    	} else {
 	    		alert('There will be better error handling, but this happened: \n'+data.msg);
@@ -752,7 +974,6 @@ app.directive("dynamicItems", function($compile,$timeout, globalKbdShortcuts){
 	    	this.items = $scope.dynamicItems;
 	    	this.add = $scope.helpers.add;
 	    	this.remove = $scope.helpers.remove;
-	    	this.clear = $scope.helpers.clear;
 	    },
 	    compile: function(telm, tattrs) {
 	    	return {
@@ -762,7 +983,7 @@ app.directive("dynamicItems", function($compile,$timeout, globalKbdShortcuts){
                             elm.find('input.searchField:last').focus();
                         }, 0, false);
                     });
-		    		elm.append($compile('<div class="'+scope.useClass+' repeat-item" ng-repeat="item in dynamicItems" dynamic-item></div>')(scope));
+		    		elm.append($compile('<div class="'+scope.useClass+' repeat-item" ng-repeat="item in dynamicItems" dynamic-item ng-if="item.fromSelect"></div>')(scope));
 	    		},
 	    		post: function(scope, elm, attrs) {
 	    			globalKbdShortcuts.bindSelectCourses(function() {
@@ -1400,6 +1621,22 @@ app.directive('browseList', function($http, browseRequest) {
 						if(scope[itemName].ui.expanded && scope[itemName][childrenName].length == 0) {
 							scope[itemName].ui.loading = true;
 							scope[itemName].ui.buttonClass = 'fa-refresh fa-spin';
+							if(itemName == "course") {
+								if(scope.courseCart.contains.course(scope.course)) {
+									var sections = [];
+									for(var i = 0; i < scope.state.courses.length; i++) {
+										if(scope.course.id == scope.state.courses[i].id) {
+											sections = scope.state.courses[i].sections;
+											break;
+										}
+									}
+									if(sections.length > 0) {
+										scope.course.sections = sections;
+										scope[itemName].ui.buttonClass = 'fa-minus';
+										return;
+									}
+								}
+							}
 							browseRequest[browseRequestMethodName]({term: scope.state.requestOptions.term, param: scope[itemName].id}).success(function(data, status) {
 								if(status == 200 && typeof data.error == 'undefined') {
 									scope[itemName][childrenName] = data[childrenName];

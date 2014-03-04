@@ -7,7 +7,7 @@
 					<h2 class="panel-title control-label pull-left">Course Cart</h2>
 				</div>
 				<div class="col-md-4">
-					<button type="button" class="btn btn-danger pull-right" ng-click="deleteCart()" ng-disabled="getSelectedCount() == 0"><i class="fa fa-trash-o"></i></button>
+					<button type="button" class="btn btn-danger pull-right" ng-click="courseCart.selection.all.unselect()" ng-disabled="courseCart.count.all.selectedSections() == 0"><i class="fa fa-trash-o"></i></button>
 				</div>
 			</div>
 			<h2 class="panel-title visible-sm visible-xs">Course Cart</h2>
@@ -17,11 +17,11 @@
 		</h2>
 	</div>
 	<div class="panel-body" ng-class="{'hidden-xs':showCourseCart, 'hidden-sm': showCourseCart}">
-		<div class="course-cart-window animate-show-hide" ng-switch="getSelectedCount() > 0">
+		<div class="course-cart-window animate-show-hide" ng-switch="courseCart.count.all.selectedSections() > 0">
 			<ul ng-switch-when="true" class="list-group">
-				<li class="list-group-item repeat-item course-cart-item" ng-style="{'border-left-color':ui.colors[$index + 1 % 10]}" ng-if="course.sections.length > 0 && !course.sections[0].isError" ng-repeat="course in state.courses">
+				<li class="list-group-item repeat-item course-cart-item" ng-style="{'border-left-color':ui.colors[$index + 1 % 10]}" ng-if="course.sections.length > 0 && !course.sections[0].isError && courseCart.count.course.selectedSections(course) > 0" ng-repeat="course in state.courses">
 					<div class="btn-group pull-right">
-						<button type="button" class="btn btn-danger" ng-click="courses_helpers.removeThis(course)">
+						<button type="button" class="btn btn-danger" ng-click="courseCart.selection.course.unselect(course)">
 							<i class="fa fa-minus"></i> <i class="fa fa-shopping-cart"></i>
 						</button>
 						<button type="button" class="btn btn-primary" ng-click="showCourseSections = !showCourseSections">
@@ -29,13 +29,13 @@
 						</button>
 					</div>
 					<h4 class="list-group-item-heading">{{course.search}}:</h4>
-					<p class="list-group-item-text">{{getSelectedSectionCount(course)}} selected</p>
+					<p class="list-group-item-text">{{courseCart.count.course.selectedSections(course)}} selected</p>
 					<ul class="list-group" ng-if="showCourseSections">
 						<li class="list-group-item repeat-item" ng-repeat="section in course.sections | filter:{selected: true}">
 							<button type="button" class="btn pull-right btn-danger visible-md visible-lg" ng-click="section.selected = !section.selected">
 								<i class="fa fa-minus"></i> <i class="fa fa-shopping-cart"></i>
 							</button>
-							<h4 class="list-group-item-heading">{{section.courseNum}}</h4>
+							<h4 class="list-group-item-heading">{{section.courseNum?section.courseNum:(course | courseNum)+'-'+section.section}}</h4>
 							<p class="list-group-item-text">{{section.instructor}}</p>
 							<button type="button" class="btn btn-danger btn-block visible-xs visible-sm" ng-click="section.selected = !section.selected">
 								<i class="fa fa-minus"></i> <i class="fa fa-shopping-cart"></i>
