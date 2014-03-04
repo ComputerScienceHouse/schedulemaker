@@ -319,7 +319,7 @@ global $CURRENT_QUARTER;
 								<div ng-if="onlineCourses.length > 0" class="row">
 									<div class="col-xs-12">
 										<div class="alert alert-info">
-											Online Course{{onlineCourses.length != 1?'s':''}}: <span ng-repeat="course in onlineCourses">{{course}}{{$last?'':','}}</span>
+											Online Course{{onlineCourses.length != 1?'s':''}}: <span ng-repeat="course in onlineCourses">{{course.courseNum}} ({{course.title}}){{$last?'':','}}</span>
 										</div>
 									</div>
 								</div>
