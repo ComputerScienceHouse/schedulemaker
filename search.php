@@ -11,7 +11,6 @@
 
 require "./inc/header.inc";
 ?>
-<script type='text/javascript' src='./js/roulette.js'></script>
 <div class="container">
 	<div class="row">
 		<div class="col-md-8">
@@ -111,9 +110,6 @@ require "./inc/header.inc";
 	</div>
 	</div>
 </div>
-<script src='js/handlebars.js' type="text/javascript"></script>
-<script src='js/translateFunctions.js' type="text/javascript"></script>
-
 <?
 require "inc/footer.inc";
 ?>

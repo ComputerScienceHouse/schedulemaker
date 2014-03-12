@@ -173,6 +173,10 @@ app.controller("AppCtrl", function($scope, sessionStorage, debounce, $window, $f
 			term: +$scope.defaultTerm,
 			ignoreFull: false
 		};
+		
+		$scope.state.ui = {
+			betaHide: false
+		};
 	};
 	$scope.resetState = function() {
 		$scope.initState();
