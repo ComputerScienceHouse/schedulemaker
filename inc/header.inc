@@ -59,7 +59,7 @@ require_once('./inc/timeFunctions.php');
 			<?php if($SERVER_TYPE != 'production') { ?>
 			<div class="container" ng-show="!state.ui.betaHide">
 				<div class="alert alert-info alert-dismissable hidden-xs">
-					<strong>Thanks</strong> for testing the new beta of ScheduleMaker! Please report any bugs on our github page <a href="http://github.com/benrr101/schedulemaker/issues">here</a>. Reports are greatly apreciated!
+					<strong>Thanks</strong> for testing the new beta of ScheduleMaker! Please report any bugs on our github page <a target="_blank" href="https://github.com/ComputerScienceHouse/schedulemaker/issues">here</a>. Reports are greatly apreciated!
 					<button type="button" class="close" data-dismiss="alert" aria-hidden="true" ng-click="state.ui.betaHide = true"><i class="fa fa-times"></i></button>
 				</div>
 			</div>

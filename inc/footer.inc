@@ -1,11 +1,12 @@
 			</div>
 			<div id="footer">
-				<div class="csh"><a href="http://www.csh.rit.edu/"><img src="./img/csh.png" alt="CSH" /></a></div>
-				<a href='status.php'>Status</a> | <a href="http://github.com/benrr101/schedulemaker/issues">Report Issues</a>
+				<div class="csh"><a target="_blank" href="http://www.csh.rit.edu/"><img src="<?=$HTTPROOTADDRESS?>img/csh.png" alt="CSH" /></a></div>
+				<a href='status.php'>Status</a> | <a target="_blank" href="https://github.com/ComputerScienceHouse/schedulemaker/issues">Report Issues</a>
 				<div>
-					Idea: John Resig (phytar at csh.rit.edu)<br />
-					Development: Ben Russell (benrr101 at csh.rit.edu),<br> Ben Grawi (bgrawi at csh.rit.edu)<br />
-					Hosting: <a href="http://www.csh.rit.edu/">Computer Science House</a><br />
+					Idea: John Resig (phytar at csh.rit.edu)<br>
+					Development v2: Ben Russell (benrr101 at csh.rit.edu),<br>
+					Development v3: Ben Grawi (bgrawi at csh.rit.edu)<br>
+					Hosting: <a href="http://www.csh.rit.edu/">Computer Science House</a><br>
 				</div>
 			</div>
 		</div>
