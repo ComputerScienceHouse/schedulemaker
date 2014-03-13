@@ -162,7 +162,7 @@ switch($_POST['action']) {
 		// @todo: store this in session to avoid lengthy and costly queries
 
 		// Loop through all results and fill them out
-        $matchingCourses = [];
+        $matchingCourses = array();
         foreach($courses as $sectionId) {
             
             // Look up the course
