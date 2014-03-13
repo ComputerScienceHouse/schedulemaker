@@ -20,7 +20,7 @@ require "./inc/header.inc";
 ?>
 <div class="container">
 	<div class="alert alert-success alert-dismissable hidden-xs" ng-show="state.ui.alert_newFeatures">
-		<button type="button" class="close" data-dismiss="alert" aria-hidden="true" ng-click="state.ui.alert_newFeatures = true"><i class="fa fa-times"></i></button>
+		<button type="button" class="close" data-dismiss="alert" aria-hidden="true" ng-click="state.ui.alert_newFeatures = false"><i class="fa fa-times"></i></button>
 		Welcome to the new ScheduleMaker! This version bring lots of new functionality to the website, including full mobile support, a brand-new interface, a new course cart and search system, and RateMyProfessors integration. Enjoy!
 	</div>
 	<div id="mainMenu" class="row">

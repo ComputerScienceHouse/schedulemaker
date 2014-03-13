@@ -99,7 +99,7 @@ require "./inc/header.inc";
 								<button class="btn pull-right btn-default">
 									<i class="fa" ng-class="school.ui.buttonClass"></i>
 								</button>
-								<h4 class="list-group-item-heading">{{school.code}}</h4>
+								<h4 class="list-group-item-heading">{{school | codeOrNumber}}</h4>
 								<p class="list-group-item-text">{{school.title?school.title:"&nbsp;"}}</p>
 							</div>
 							<div class="browse-sublist" ng-show="school.departments.length > 0 && school.ui.expanded">
@@ -177,6 +177,7 @@ require "./inc/header.inc";
 			</div>
 		</div>
 		<div class="col-md-4">
+			<div class="pinned-sizer"></div>
 			<div pinned course-cart></div>
 		</div>
 	</div>

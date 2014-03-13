@@ -10,12 +10,7 @@
 ////////////////////////////////////////////////////////////////////////////
 
 require "./inc/header.inc";
-global $CURRENT_QUARTER;
-
 ?>
-<!-- <script type='text/javascript' src='./js/reloadSchedule.js'></script>
-<script type='text/javascript' src='./js/schedule.js'></script>
-<script type='text/javascript' src='./js/jquery.timepicker.min.js'></script>-->
 <div ng-controller="GenerateCtrl">
 	<form novalidate id="scheduleForm" name="schedule" class="container">
 		<div class="row">
@@ -23,10 +18,10 @@ global $CURRENT_QUARTER;
 				<div class="panel panel-default form-horizontal" ng-controller="scheduleCoursesCtrl">
 					<div class="panel-heading">
 						<div class="row form-horizontal">
-							<div class="col-md-6">
+							<div class="col-sm-6">
 								<h2 class="panel-title control-label pull-left">Select Courses</h2>
 							</div>
-							<div class="col-md-6">
+							<div class="col-sm-6">
 								<div class="control-group">
 									<label class="col-sm-6 control-label" for="term">Term:</label>
 									<div class="col-sm-6">
@@ -62,7 +57,7 @@ global $CURRENT_QUARTER;
 				<div>
 					<div class="panel panel-default panel-control-overlap" ng-controller="nonCourseItemsCtrl">
 						<div class="panel-heading form-horizontal">
-						<div class="form-horizontal row">
+							<div class="form-horizontal row">
 								<div class="col-xs-12">
 									<h2 class="panel-title">Non-Course Schedule Items</h2>
 								</div>
@@ -180,7 +175,7 @@ global $CURRENT_QUARTER;
 					</div>
 				</div>
 			</div>
-			<div class="col-md-4" ng-init="showCourseCart = true">
+			<div class="col-md-4 pinned-track" ng-init="showCourseCart = true">
 				<div course-cart></div>
 			</div>
 		</div>
@@ -219,7 +214,7 @@ global $CURRENT_QUARTER;
 									<div class="form-group">
 										<select id="options-end_day" class="form-control" ng-model="state.drawOptions.end_day" ng-options="ui.optionLists.days.indexOf(value) as value for (key, value) in ui.optionLists.days | startFrom: state.drawOptions.start_day"></select>
 									</div>
-									<div class="form-group pull-right" schedule-pagination="state.displayOptions" total-length="state.schedules.length"></div>
+									<div class="form-group pull-right" pagination-controls="state.displayOptions" pagination-length="state.schedules.length"></div>
 								</div>
 							</div>
 							<div class="visible-xs visible-sm">
@@ -279,36 +274,43 @@ global $CURRENT_QUARTER;
 				<div class="row" ng-repeat="schedule in state.schedules | startFrom:state.displayOptions.currentPage*state.displayOptions.pageSize | limitTo:state.displayOptions.pageSize">
 					<div class="col-md-12">
 						<div class="panel panel-default">
-							<div id="matchingSchedules" class="panel-heading">
-								<h2 class="panel-title">Schedule {{state.schedules.indexOf(schedule) + 1}}:</h2>
-							</div>
-							<div class="panel-body">
-								<div class="row">
-									<div class="col-md-9 col-lg-10">
-										<div schedule></div>
+							<div class="panel-heading">
+								<div class="row form-horizontal">
+									<div class="col-sm-6">
+										<h2 class="panel-title control-label pull-left">Schedule {{state.schedules.indexOf(schedule) + 1}}</h2>
 									</div>
-									<div class="col-md-3 col-lg-2">
-										<div class="panel panel-default">
-											<div class="panel-heading">
-												<h2 class="panel-title">Options</h2>
+									<div class="col-sm-6">
+										<div class="btn-group pull-right-sm">
+											<div class="btn-group">
+												<button type="button" class="btn btn-primary"><i class="fa fa-save"></i> Save</button>
+												<button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+													<span class="caret"></span> <span class="sr-only">Toggle Dropdown</span>
+												</button>
+												<ul class="dropdown-menu" role="menu">
+													<li><a href="#"><i class="fa fa-calendar-o"></i> iCal</a></li>
+													<li><a href="#"><i class="fa fa-picture-o"></i> Image</a></li>
+												</ul>
 											</div>
-											<div class="panel-body">
-												<button type="button" class="btn btn-block btn-info hidden-xs hidden-sm">Print Schedule</button>
-												<button type="button" class="btn btn-block btn-default">Save Schedule</button>
-												<button type="button" class="btn btn-block btn-default">Download iCal</button>
-												<button type="button" class="btn btn-block btn-primary">
-													Share to <i class="fa fa-facebook"></i>
+											<button type="button" class="btn btn-default hidden-xs hidden-sm"><i class="fa fa-print"></i> Print</button>
+											<div class="btn-group">
+												<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+													<i class="fa fa-share"></i> Share to... <span class="caret"></span>
 												</button>
-												<button type="button" class="btn btn-block btn-primary">
-													Share to <i class="fa fa-google-plus"></i>
-												</button>
-												<button type="button" class="btn btn-block btn-primary">
-													Share to <i class="fa fa-twitter"></i>
-												</button>
+												<ul class="dropdown-menu" role="menu">
+													<li><a href="#"><i class="fa fa-facebook"></i> Facebook</a></li>
+													<li><a href="#"><i class="fa fa-google-plus"></i> Google+</a></li>
+													<li><a href="#"><i class="fa fa-twitter"></i> Twitter</a></li>
+													<li class="divider"></li>
+													<li><a href="#"><i class="fa fa-envelope"></i> Email</a></li>
+													<li><a href="#"><i class="fa fa-link"></i> Direct link</a></li>
+												</ul>
 											</div>
 										</div>
 									</div>
 								</div>
+							</div>
+							<div class="panel-body">
+								<div schedule></div>
 								<div ng-if="hiddenCourses.length > 0" class="row">
 									<div class="col-xs-12">
 										<div class="alert alert-warning">
@@ -334,7 +336,7 @@ global $CURRENT_QUARTER;
 				<div class="col-xs-12">
 					<div class="panel panel-default">
 						<div class="panel-heading">
-							<div class="center" schedule-pagination="state.displayOptions" total-length="state.schedules.length" schedule-pagination-callback="scrollToSchedules()"></div>
+							<div class="center" pagination-controls="state.displayOptions" pagination-length="state.schedules.length" pagination-callback="scrollToSchedules()"></div>
 						</div>
 					</div>
 				</div>

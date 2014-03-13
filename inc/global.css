@@ -232,10 +232,13 @@ option {
 	position:relative;
 	text-align:center;
 }
+#mainMenu .navItem a:hover i {
+	background: rgba(225, 225, 225, .1);
+}
 #mainMenu .navItem i {
-		margin-left:auto;
-		margin-right:auto;
-		display:block;
+		padding: 10px;
+		border-radius: 10px;
+		display:inline-block;
 	}
 @media only screen and (max-width:767px) {
 	#mainMenu .navItem i {
@@ -939,6 +942,11 @@ div[schedule] {
 	margin: 0 auto;
     overflow-x: scroll;
    }  
+   
+   
+.btn-xs-block {
+	display: block;	
+}
 }
 /* BOOTSTRAP EXTENSIONS */
 .btn {
@@ -948,6 +956,7 @@ div[schedule] {
 .btn-group-dow {
 	width: 100%;
 }
+
 select.ng-invalid {
 	color:#ccc;
 	font-style: italic;
@@ -995,6 +1004,10 @@ select.ng-invalid {
 	    padding-top: 0;
 	    transform: translate(0px, -50px);
 	    border: 0;
+	}
+	
+	.pull-right-sm {
+		float: right;
 	}
 
 }
@@ -1078,6 +1091,17 @@ span[professor-lookup] {
 	color: rgb(44, 62, 80);
 }
 
+.form-inline-label {
+	display: inline-block;
+	padding: 10px 15px;
+	margin-bottom: 0px;
+	font-size: 15px;
+	font-weight: normal;
+	line-height: 1.42857;
+	text-align: center;
+	white-space: nowrap;
+	vertical-align: middle;
+}
 /* SVG Schedule Rendering */
 svg rect {
 	shape-rendering: crispEdges;
@@ -1091,8 +1115,6 @@ svg g.item {
 svg g.item:hover rect {
 	fill-opacity: 1;
 }
-
-
 @media screen and (min-width: 991px) and (max-width: 1199px)  {
 	.course-cart {
 		width: 293px;
@@ -1104,10 +1126,25 @@ svg g.item:hover rect {
 		width: 360px;
 	}
 }
-@media screen and (min-width: 991px) {
-	.course-cart .course-cart-window {
-		max-height: 350px;
+@media screen and (min-width: 940px) {
+		
+	
+	.course-cart-window {
 		overflow-y: auto;
+		height: 350px;
+		height: calc(100% - 124px);
+	}
+	
+	.course-cart {
+		height: calc(100% - 20px);
+	}
+	
+	.pinned-sizer {
+		position: fixed;
+		height: calc(100% - 250px);
+	}
+	.pinned {
+		position: fixed;
 	}
 }
 

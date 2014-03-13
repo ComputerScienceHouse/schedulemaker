@@ -1,10 +1,10 @@
 <?php
 ////////////////////////////////////////////////////////////////////////////
-// BROWSE AJAX CALLS
+// SCHEDULE DATA CALLS
 //
 // @author	Ben Russell (benrr101@csh.rit.edu)
 //
-// @file	js/browseAjax.php
+// @file	api/entityData.php
 // @descrip	Provides standalone JSON object retrieval for the course
 //			browsing page
 ////////////////////////////////////////////////////////////////////////////
@@ -151,10 +151,10 @@ switch($_POST['action']) {
     	// Determine if term was before quarters
 		if ($term > 20130) {
 			// School codes
-			$query = "SELECT id, code AS code, title FROM schools WHERE code IS NOT NULL ORDER BY code";
+			$query = "SELECT id, code AS code, title FROM schools WHERE code IS NOT NULL AND title !='' ORDER BY code";
 		} else {
 			// School numbers
-			$query = "SELECT id, number AS code, title FROM schools WHERE number IS NOT NULL ORDER BY number";
+			$query = "SELECT id, number AS code, title FROM schools WHERE number IS NOT NULL AND title !='' ORDER BY number";
 		}
 		// Query for the schools
         $result = mysql_query($query);
@@ -229,10 +229,10 @@ switch($_POST['action']) {
                         'start'    => $time['start'],
                         'end'      => $time['end'],
                         'day'      => $time['day'],
-                        'building' => array(
+                        'bldg' => array(
                             'code'    => $time['code'],
                             'number'  => $time['number'],
-                            'offSite' => $time['off'] == '1'
+                            'off_campus' => $time['off'] == '1'
                         ),
                         'room'     => $time['room']
                     );

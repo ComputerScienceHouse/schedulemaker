@@ -41,6 +41,8 @@ function getMeetingInfo($sectionData) {
         "curenroll"  => $sectionData['curenroll'],
         "maxenroll"  => $sectionData['maxenroll'],
         "courseNum"  => "{$sectionData['department']}-{$sectionData['course']}-{$sectionData['section']}",
+        "courseParentNum" => "{$sectionData['department']}-{$sectionData['course']}",
+        "courseId"   => $sectionData['courseId'],
         "id"         => $sectionData['id'],
         "online"     => $sectionData['type'] == "O"
         );
@@ -84,6 +86,7 @@ function getCourseBySectionId($id) {
 	// Build the query to get section info
 	$query = "SELECT s.id,
                 (CASE WHEN (s.title != '') THEN s.title ELSE c.title END) AS title,
+                c.id AS courseId,
                 s.instructor, s.curenroll, s.maxenroll, s.type, c.quarter, c.course, s.section, d.number, d.code
                 FROM sections AS s
                   JOIN courses AS c ON s.course = c.id

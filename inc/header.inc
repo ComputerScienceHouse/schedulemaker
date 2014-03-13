@@ -34,7 +34,7 @@ require_once('./inc/timeFunctions.php');
 	</head>
 
 	<body ng-app="sm" ng-init="defaultTerm = '<?=$CURRENT_QUARTER?>'">
-		<div id='superContainer'>
+		<div id="superContainer">
 		<div class="navbar navbar-fixed-top navbar-default ng-scope" ng-controller="MainMenuCtrl">
             <div class="container">
                 <div class="navbar-header">
@@ -57,10 +57,10 @@ require_once('./inc/timeFunctions.php');
 		</div>
 		<div id="container" ng-cloak ng-controller="AppCtrl">
 			<?php if($SERVER_TYPE != 'production') { ?>
-			<div class="container" ng-show="!state.ui.betaHide">
+			<div class="container" ng-show="state.ui.alert_betaInfo">
 				<div class="alert alert-info alert-dismissable hidden-xs">
 					<strong>Thanks</strong> for testing the new beta of ScheduleMaker! Please report any bugs on our github page <a target="_blank" href="https://github.com/ComputerScienceHouse/schedulemaker/issues">here</a>. Reports are greatly apreciated!
-					<button type="button" class="close" data-dismiss="alert" aria-hidden="true" ng-click="state.ui.betaHide = true"><i class="fa fa-times"></i></button>
+					<button type="button" class="close" aria-hidden="true" ng-click="state.ui.alert_betaInfo = false"><i class="fa fa-times"></i></button>
 				</div>
 			</div>
 			<? } ?>

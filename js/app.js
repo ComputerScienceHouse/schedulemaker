@@ -175,7 +175,9 @@ app.controller("AppCtrl", function($scope, sessionStorage, debounce, $window, $f
 		};
 		
 		$scope.state.ui = {
-			betaHide: false
+			alert_betaInfo: true,
+			alert_newFeatures: true,
+			action_generateSchedules: false
 		};
 	};
 	$scope.resetState = function() {
@@ -221,8 +223,10 @@ app.controller("AppCtrl", function($scope, sessionStorage, debounce, $window, $f
 				selectedSections: function() {
 					var count = 0;
 					for(var i = 0; i < $scope.state.courses.length; i++) {
+						if($scope.state.courses[i]) {
 						count += $scope.courseCart.count.course.
 							selectedSections($scope.state.courses[i]);
+						}
 					}
 					return count;
 				},
@@ -263,13 +267,25 @@ app.controller("AppCtrl", function($scope, sessionStorage, debounce, $window, $f
 				 * @param section {Object} The section to toggle
 				 */
 				toggleByCourse: function(course, section) {
-					if(!$scope.courseCart.contains.course(course)) {
-						$scope.courseCart.create.fromExistingCourse(course);
-					} else {
-						if(course.selected && section.selected) {
-							course.selected = false;
-						}
+					
+					course = $scope.courseCart.ensure.course(course);
+					
+					if(course.selected && section.selected) {
+						course.selected = false;
 					}
+					section.selected = !section.selected;
+				},
+				
+				/**
+				 * Toggle the selection status of a section, but check if its
+				 * an orphaned section or not before doing so
+				 * 
+				 * @param section {Object} The section to toggle
+				 */
+				toggleByOrphanedSection: function(section) {
+					
+					section = $scope.courseCart.ensure.section(section);
+					
 					section.selected = !section.selected;
 				},
 				
@@ -356,31 +372,65 @@ app.controller("AppCtrl", function($scope, sessionStorage, debounce, $window, $f
 		
 		ensure: {
 			/**
-			 * Gets the course for the selected id
+			 * Ensure the provided course is in the cart
 			 * 
-			 *  @param id {String} The course id
+			 *  @param course {Object} The course to ensure
 			 */
 			course: function(course) {
 				
-				if($scope.courseCart.contains.course(course)) {
+				var ensuredCourse = false;
+				
+				if($scope.state.courses.indexOf(course) == -1) {
+					// The course object was not found in the cart
+
+					if($scope.courseCart.contains.course(course)) {
+						// The course object has been added previously
+						
+						// Find it by matching ids
+						for(var i = 0; i < $scope.state.courses.length; i++) {
+							if(course.id == $scope.state.courses[i].id) {
+								ensuredCourse = $scope.state.courses[i];
+								break;
+							}
+						}
+						
+						// The course *must* have been found and broken out
+						// of the loop
+						
+					} else {
+						// The course has never been added and is not in the
+						//cart, so create a new course object
+						
+						ensuredCourse = $scope.courseCart.create
+						.fromExistingCourse(course);
+					}
+				} else {
+					
+					// The course object is already in the cart.
+					ensuredCourse = course
+				}
+				
+				// Return the ensuredCourse
+				return ensuredCourse;
+			},
+			
+			section: function(section) {
+				if($scope.courseCart.contains.section(section)) {
+					
 					var foundCourse = false;
 					for(var i = 0; i < $scope.state.courses.length; i++) {
-						if(course.id == $scope.state.courses[i].id) {
+						if(section.courseId == $scope.state.courses[i].id) {
 							foundCourse = $scope.state.courses[i];
 							break;
 						}
 					}
-					return foundCourse;
+					
+					return $scope.courseCart.add
+						.sectionToCourse(section, foundCourse);
+					
 				} else {
-					
-					if($scope.state.courses.indexOf(course) != -1) {
-						return course;
-					} else {
-						return $scope.courseCart.create
-							.fromExistingCourse(course);
-					}
-					
-					return false;
+					return $scope.courseCart.create
+						.fromExistingSection(section);
 				}
 			}
 		},
@@ -394,7 +444,17 @@ app.controller("AppCtrl", function($scope, sessionStorage, debounce, $window, $f
 			 */
 			course: function(course) {
 				return $scope.state.courseMap.hasOwnProperty(course.id);
-			}
+			},
+			
+			/**
+			 * Checks if the provided section (with courseId) is in the cart
+			 * @param section {Object} The course to check
+			 * @returns {Boolean} The course is in the cart?
+			 */
+			section: function(section) {
+				return $scope.state.courseMap.hasOwnProperty(section.courseId);
+			},
+
 		},
 		remove: {
 			
@@ -407,8 +467,25 @@ app.controller("AppCtrl", function($scope, sessionStorage, debounce, $window, $f
 			}
 		},
 		add: {
+			
+			/**
+			 * Adds a given section to the provided course if it's not there
+			 */
 			sectionToCourse: function(section, course) {
-				//TODO: impliment this
+				
+				var foundSection = false;
+				for(var i = 0; i < course.sections.length; i++) {
+					if(section.id == course.sections[i].id) {
+						course.sections[i] = section;
+						foundSection = true;
+						break;
+					}
+				}
+				
+				if(foundSection === false) {
+					course.sections.push(section);
+				} 
+				return section;
 			},
 			
 			/**
@@ -447,8 +524,30 @@ app.controller("AppCtrl", function($scope, sessionStorage, debounce, $window, $f
 				
 				course.fromSelect = false;
 				course.search = courseNumFilter(course);
+				
 				$scope.state.courseMap[course.id] = true;
 				return $scope.courseCart.add.courseToCart(course);
+			},
+			
+			/**
+			 * Creates and adds a pre-existing section from the database to the
+			 * cart
+			 * 
+			 * @param existingSection {Object} A section from the database
+			 * @returns {Object} The section now added to the course
+			 */
+			fromExistingSection: function(section) {
+				var course = $scope.courseCart.getBlankCourse(false);
+				
+				course.id = section.courseId;
+				course.search = section.courseParentNum;
+				
+				course.sections.push(section);
+				
+				$scope.state.courseMap[course.id] = true;
+				$scope.courseCart.add.courseToCart(course);
+				
+				return section;
 			}
 		},
 		
@@ -470,6 +569,11 @@ app.controller("AppCtrl", function($scope, sessionStorage, debounce, $window, $f
 			
 	};
 	$scope.courseCart.init();
+	
+	$scope.generateSchedules = function() {
+		$scope.state.ui.action_generateSchedules = true;
+		window.location = "/generate.php";
+	};
 	
 	$scope.ui = {
 		optionLists: {
@@ -506,8 +610,8 @@ app.controller("AppCtrl", function($scope, sessionStorage, debounce, $window, $f
 				}
 			}
 		},
-		colors: ["#B97D9C",
-		         "#629E6D",
+		colors: ["#629E6D",
+		         "#B97D9C",
 		         "#D47F55",
 		         "#8C9AC3",
 		         "#D07A7B",
@@ -575,6 +679,8 @@ app.controller("GenerateCtrl", function($scope, globalKbdShortcuts, $http, $filt
 		    }, 500);
 		}, 100);
 	};
+	
+	// Overwrite app-level generateController
     $scope.generateSchedules = function() {
     	var requestData = {
     		'action': 'getMatchingSchedules',
@@ -702,7 +808,7 @@ app.controller("GenerateCtrl", function($scope, globalKbdShortcuts, $http, $filt
     		
     	}*/
     };
-    globalKbdShortcuts.bindGenerateSchedules($scope.generateSchedules);
+    globalKbdShortcuts.bindCtrlEnter($scope.generateSchedules);
     globalKbdShortcuts.bindPagination(function() {
     	if (this.keyCode == 39 && $scope.state.displayOptions.currentPage + 1 < $scope.numberOfPages()) {
     		$scope.state.displayOptions.currentPage++;
@@ -712,6 +818,11 @@ app.controller("GenerateCtrl", function($scope, globalKbdShortcuts, $http, $filt
     		$scope.scrollToSchedules();
     	}
     });
+    
+    if($scope.state.ui.action_generateSchedules) {
+    	$scope.state.ui.action_generateSchedules = false;
+    	$scope.generateSchedules();
+    }
 });
 
 app.controller( "MainMenuCtrl", function( $scope) {
@@ -1112,13 +1223,13 @@ app.directive("dynamicItem", function($timeout){
   };
 });
 
-app.directive('schedulePagination', function() {
+app.directive('paginationControls', function() {
 	return {
 		restrict: 'A',
 		scope: {
-			displayOptions: '=schedulePagination',
-			totalLength: '=totalLength',
-			schedulePaginationCallback: '&'
+			displayOptions: '=paginationControls',
+			totalLength: '=paginationLength',
+			paginationCallback: '&'
 		},
 		template: '<button class="btn btn-default" ng-disabled="displayOptions.currentPage == 0" ng-click="displayOptions.currentPage=displayOptions.currentPage-1">Previous</button>' +
 				  ' {{displayOptions.currentPage+1}}/{{numberOfPages()}} ' +
@@ -1130,9 +1241,9 @@ app.directive('schedulePagination', function() {
 				};
 			},
 			post: function(scope, elm, attrs) {
-				if(scope.schedulePaginationCallback) {
+				if(scope.paginationCallback) {
 					elm.find('button').click(function() {
-						scope.schedulePaginationCallback();
+						scope.paginationCallback();
 					});
 				}
 			}
@@ -1144,7 +1255,21 @@ app.directive('pinned', function() {
 	return {
 		restrict: 'A',
 		link: function(scope, elm, attrs) {
-			elm.affix();
+			
+			var $window = $(window),
+			sizer = elm.parent().parent().find(".pinned-sizer"),
+			$footer = $("#footer"),
+			fO, sO;
+			var updateHeight = function() {
+				fO = $window.height() - $footer.offset().top - $footer.outerHeight();
+				sO = sizer.height();
+				elm.css('height', (fO > 0)?(sO - fO):(sO));
+			};
+			$(window).on("resize", updateHeight);
+			
+			updateHeight();
+
+			elm.addClass("pinned");
 		}
 	};
 });
@@ -1393,14 +1518,14 @@ app.directive('svgTextLine', function() {
 });
 app.factory('globalKbdShortcuts', function($rootScope) {
 	var globalKbdShortcuts = {
-		'bindGenerateSchedules': function(callback) {
+		'bindCtrlEnter': function(callback) {
 			Mousetrap.bind('mod+enter', function(e) {
 			    $rootScope.$apply(callback);
 			    return true;
 			});
 			
 			// Only allow to bind once, so mock function after first use
-			this.bindGenerateSchedules = function() {};
+			this.bindCtrlEnter = function() {};
 		},
 		'bindPagination': function(callback) {
 			Mousetrap.bind('mod+right', function(e) {
@@ -1439,9 +1564,9 @@ app.filter('parseSectionTimes', function($filter) {
             var found = false;
             var time = times[e];
             
-            if(byLocation) {
-        		time.location =  time.building.code
-                + ": " + time.building.number + " "
+            if(byLocation && typeof time.bldg != "undefined") {
+        		time.location =  time.bldg.code
+                + "(" + time.bldg.number + ")"
                 + "-" + time.room;
         	} else {
         		time.location = false;
@@ -1496,95 +1621,27 @@ app.filter('translateDay', function() {
 }
 });
 
+app.filter('cartFilter', function() {
+	return function(input) {
+		var parsed = [];
+		var SSFN = this.courseCart.count.course.selectedSections;
+		angular.forEach(input, function(course) {
+			if(course && course.sections.length > 0 && !course.sections[0].isError && SSFN(course) > 0) {
+				parsed.push(course);
+			}
+		});		
+		return parsed;
+	};
+});
+
 
 // BROWSE PAGE
-app.controller("BrowseCtrl", function($scope, browseRequest) {
+app.controller("BrowseCtrl", function($scope, entityDataRequest) {
+	
 	$scope.schools = [];
 	
-	/*$scope.toggleDisplay = function(type, $event) {
-		var scope = angular.element($event.target).scope();
-		if(typeof scope.expanded == 'undefined') {
-			scope.expanded = true;
-		} else {
-			scope.expanded = !scope.expanded;
-		}
-	};*/
-	$scope.cart = {
-		items: {},
-		sortOrder: [],
-		courses: {},
-		length: 0,
-		sectionInCart: function(section) {
-			return  $scope.cart.items.hasOwnProperty(section.id);
-		},
-		courseInCart: function(course) {
-			if(!$scope.cart.courses.hasOwnProperty(course.id)) {
-				return false;
-			} else {
-				var isInCart = true;
-				angular.forEach(course.sections, function(section) {
-					isInCart = isInCart && $scope.cart.sectionInCart(section);
-				});
-				if(isInCart) {
-					return true;
-				} else {
-					delete $scope.cart.courses[course.id];
-					return false;
-				}
-			}
-		},
-		addSection: function(section) {
-			$scope.cart.length++;
-			$scope.cart.items[section.id] = section;
-			$scope.cart.sortOrder.push(section.id);
-			section.selected = true;
-		},
-		removeSection: function(section) {
-			$scope.cart.length--;
-			delete $scope.cart.items[section.id];
-			$scope.cart.sortOrder.splice($scope.cart.sortOrder.indexOf(section.id), 1);
-			section.selected = false;
-		},
-		toggleSection: function(section) {
-			if(!$scope.cart.sectionInCart(section)) {
-				$scope.cart.addSection(section);
-			} else {
-				$scope.cart.removeSection(section);
-				if($scope.cart.courses.hasOwnProperty(section.courseId)) {
-					$scope.cart.courses[section.courseId].selected = false;
-					delete $scope.cart.courses[section.courseId];
-				}
-			}
-		},
-		toggleCourse: function(course) {
-			if($scope.cart.courseInCart(course)) {
-				angular.forEach(course.sections, function(section) {
-					if($scope.cart.sectionInCart(section)) {
-						$scope.cart.removeSection(section);
-					}
-				});
-				delete $scope.cart.courses[course.id];
-			} else {
-				angular.forEach(course.sections, function(section) {
-					if(!$scope.cart.sectionInCart(section)) {
-						$scope.cart.addSection(section);
-					}
-				});
-				$scope.cart.courses[course.id] = course;
-			}
-			course.selected = !course.selected;
-		},
-		listItems: function() {
-			var items = [];
-			for(var i = 0, length = $scope.cart.sortOrder.length; i < length; i++) {
-				items.push($scope.cart.items[$scope.cart.sortOrder[i]]);
-			}
-			return items;
-		}
-	};
-	
 	$scope.$watch('state.requestOptions.term', function(newTerm) {
-		browseRequest.getSchoolsForTerm({term:newTerm}).success(function(data, status) {
+		entityDataRequest.getSchoolsForTerm({term: newTerm}).success(function(data, status) {
 			if(status == 200 && typeof data.error == 'undefined') {
 				$scope.schools = data;
 			} else if(data.error) {
@@ -1596,7 +1653,7 @@ app.controller("BrowseCtrl", function($scope, browseRequest) {
 });
 
 
-app.directive('browseList', function($http, browseRequest) {
+app.directive('browseList', function($http, entityDataRequest) {
 	var hierarchy = ['school', 'department', 'course', 'section'];
 	var capitalize = function(string) {
 		return string.charAt(0).toUpperCase() + string.slice(1);
@@ -1613,7 +1670,7 @@ app.directive('browseList', function($http, browseRequest) {
 				}
 				var itemName = hierarchy[hIndex],
 				childrenName = hierarchy[hIndex + 1] + 's',
-				browseRequestMethodName = 'get' + capitalize(childrenName) + 'For' + capitalize(itemName);
+				entityDataRequestMethodName = 'get' + capitalize(childrenName) + 'For' + capitalize(itemName);
 				scope[itemName][childrenName] = [];
 				scope[itemName].ui = {
 					expanded: false,
@@ -1641,7 +1698,7 @@ app.directive('browseList', function($http, browseRequest) {
 									}
 								}
 							}
-							browseRequest[browseRequestMethodName]({term: scope.state.requestOptions.term, param: scope[itemName].id}).success(function(data, status) {
+							entityDataRequest[entityDataRequestMethodName]({term: scope.state.requestOptions.term, param: scope[itemName].id}).success(function(data, status) {
 								if(status == 200 && typeof data.error == 'undefined') {
 									scope[itemName][childrenName] = data[childrenName];
 								} else if(data.error) {
@@ -1663,9 +1720,9 @@ app.directive('browseList', function($http, browseRequest) {
 });
 
 		
-app.factory('browseRequest', function($http) {
-	var browseRequest = function(params, callback) {
-		return $http.post('js/browseAjax.php', $.param(params), {
+app.factory('entityDataRequest', function($http) {
+	var entityDataRequest = function(params, callback) {
+		return $http.post('js/entityAjax.php', $.param(params), {
 			requestType:'json',
 			headers: {
 				'Content-Type': 'application/x-www-form-urlencoded'
@@ -1675,31 +1732,255 @@ app.factory('browseRequest', function($http) {
 	};
 	return {
 		getSchoolsForTerm: function(opts) {
-			return browseRequest({
+			return entityDataRequest({
 				action:'getSchoolsForTerm',
 				term: opts.term
 			});
 		},
 		getDepartmentsForSchool: function(opts) {
-			return browseRequest({
+			return entityDataRequest({
 				action:'getDepartments',
 				term: opts.term,
 				school: opts.param
 			});
 		},
 		getCoursesForDepartment: function(opts) {
-			return browseRequest({
+			return entityDataRequest({
 				action:'getCourses',
 				term: opts.term,
 				department: opts.param
 			});
 		},
 		getSectionsForCourse: function(opts) {
-			return browseRequest({
+			return entityDataRequest({
 				action:'getSections',
 				course: opts.param
 			});
 		}
 	};
+});
+
+/**
+ * Return either the code or number if it set
+ */
+app.filter('codeOrNumber', function() {
+	return function(input) {
+		return (!!input.code)? input.code: input.number;
+	};
+});
+
+// SEARCH PAGE
+
+/**
+ * The controller holding all the logic for the search page
+ */
+app.controller('SearchCtrl', function($scope, $http, entityDataRequest, globalKbdShortcuts) {
+	
+	var defaultOptions = {
+		college: {id: "any", code: "any", number: null, title: "Any College"},
+		department: {id: "any", code: "any", number: null, title: "Any Department"}
+	};
+	
+	$scope.searchResults = [];
+	
+	$scope.search =  {
+		params: {
+			action: 'find'
+		},
+		options: {
+			colleges: [defaultOptions.college],
+			departments: [defaultOptions.department]
+		}
+	};
+	
+	// Init the search parmeters without changing their object identity
+	($scope.initSearch = function() {
+			var sP = $scope.search.params;
+			sP.term = $scope.state.requestOptions.term;
+			sP.college = "any";
+			sP.department = "any";
+			sP.level = "any";
+			sP.credits = "";
+			sP.professor = "";
+			sP.daysAny = true;
+			sP.days = [];
+			sP.timesAny = true;
+			sP.times = {
+				'morn': false,
+				'aftn': false,
+				'even': false
+			};
+			sP.online = true;
+			sP.honors = true;
+			sP.offCampus = true;
+			
+			sP.title = "";
+			sP.description = "";
+	})();
+	
+	
+	// Listen for term changes
+	$scope.$watch('state.requestOptions.term', function (newTerm) {
+		
+		
+		// Set the new term in our params
+		$scope.search.params.term = newTerm;
+		
+		// Reset our selected options
+		$scope.search.params.college = "any";
+		$scope.search.params.department = "any";
+		
+		// Get a list of schools for the term
+		entityDataRequest.getSchoolsForTerm({term: newTerm})
+		.success(function(data, status) {
+			if(status == 200 && typeof data.error == 'undefined') {
+				
+				// Push the default to the top and set it as the option list
+				data.unshift(defaultOptions.college);
+				$scope.search.options.colleges = data;
+			} else if(data.error) {
+				
+				// TODO: Better error checking
+				alert(data.msg);
+			}
+		});
+	});
+	
+	// Reload the departments when a college is selected
+	$scope.$watch('search.params.college', function(newCollege) {
+		
+		if(newCollege != "" && newCollege !="any") {
+			
+			// Reset selected department
+			$scope.search.params.department = "any";
+			
+			// Get a list of departments
+			entityDataRequest.getDepartmentsForSchool({
+				term: $scope.search.params.term, 
+				param: newCollege
+			}).success(function(data, status) {
+				
+				if(status == 200 && typeof data.error == 'undefined') {
+					
+					// Push the default to the top and set it as the option list
+					data.departments.unshift(defaultOptions.department);
+					$scope.search.options.departments = data.departments;
+				} else if(data.error) {
+					
+					// TODO: Better error checking
+					alert(data.msg);
+				}
+			});
+		} else if ($scope.search.options.departments.length > 1) {
+			
+			// Reset if there were more than one options already out
+			$scope.search.options.departments = [defaultOptions.department];
+		}
+	});
+	
+	// 'D'one loading
+	$scope.searchStatus = "D";
+	
+	$scope.findMatches = function() {
+		
+		// Only search if a current search is not in progress 
+		if($scope.searchStatus == "L") return;
+		
+		
+		// 'L'oading
+		$scope.searchStatus = "L";
+		
+		var params = angular.copy($scope.search.params);
+	
+		// Remove uneeded data
+		if(params.timesAny == true) {
+			delete params['times'];
+		} else {
+			var times = [];
+			for(var time in params.times) {
+				if(params.times[time] == true) {
+					times.push(time);
+				}
+			}
+			
+			if(times.length == 0) {
+				delete params['times'];
+			} else {
+				params.times = times;
+			}
+		}
+		delete params['timesAny'];
+		
+		if(params.daysAny == true || params.days.length == 0) {
+			delete params['days'];
+		}
+		delete params['daysAny'];
+		
+		
+		$http.post('js/searchAjax.php', $.param(params), {
+			requestType:'json',
+			headers: {
+				'Content-Type': 'application/x-www-form-urlencoded'
+			}, 
+			withCredentials: true
+		}).success(function(data, status) {
+			
+			
+			// 'D'one loading
+			$scope.searchStatus = "D";
+			
+			if(status == 200 && typeof data.error == 'undefined') {
+				
+				// Set the results
+				$scope.searchResults = data;
+				
+				// Reset to the first page and scroll
+				$scope.searchPagination.currentPage = 0;
+				$scope.scrollToResults();
+				
+				// Remove any errors if they were present
+				if($scope.resultError) {
+					$scope.resultError = null;
+				}
+			} else if(data.error) {
+				
+				$scope.resultError = data.msg;
+				
+				// Clear result
+				$scope.searchResults = [];
+			}
+		});
+	};
+	
+	$scope.searchPagination = {
+		pageSize: 10,
+		currentPage: 0
+	};
+	
+	$scope.numberOfPages = function() {
+		return Math.ceil($scope.searchResults.length / $scope.searchPagination.pageSize);
+	};
+	
+	$scope.scrollToResults = function() {
+		
+		// Again, I know this is bad, but I'm lazy
+		setTimeout(function() {
+			$('input:focus').blur();
+			$('html, body').animate({
+		        scrollTop: $("#search_results").offset().top - 65
+		    }, 500);
+		}, 100);
+	};
+	
+	globalKbdShortcuts.bindCtrlEnter($scope.findMatches);
+    globalKbdShortcuts.bindPagination(function() {
+    	if (this.keyCode == 39 && $scope.searchPagination.currentPage + 1 < $scope.numberOfPages()) {
+    		$scope.searchPagination.currentPage++;
+    		$scope.scrollToResults();
+    	} else if(this.keyCode == 37 && $scope.searchPagination.currentPage - 1 >= 0) {
+    		$scope.searchPagination.currentPage--;
+    		$scope.scrollToResults();
+    	}
+    });
 });
 
