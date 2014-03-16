@@ -16,7 +16,7 @@ require_once('./inc/timeFunctions.php');
 		<meta name="apple-mobile-web-app-capable" content="yes">
 		
 		<!-- STYLE SHEETS -->
-		<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:300">
+		<link rel="stylesheet" href="//brick.a.ssl.fastly.net/Roboto:300,700">
 		<link rel="stylesheet" href="<?=$HTTPROOTADDRESS?>inc/bootstrap.css">
 		<link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.1/css/font-awesome.css">
 		<link rel="stylesheet" href="<?=$HTTPROOTADDRESS?>inc/global.css">
@@ -48,19 +48,11 @@ require_once('./inc/timeFunctions.php');
                 </div>
                 <div class="collapse navbar-collapse navbar-right navbar-ex1-collapse">
                     <ul class="nav navbar-nav">
-                        <li ng-class="{active: path=='/generate.php'}"><a href="generate.php"><i class="fa fa-calendar-o fa-fw"></i> Make a Schedule</a></li>
-                        <li ng-class="{active: path=='/browse.php'}"><a href="browse.php"><i class="fa fa-list fa-fw"></i> Browse Courses</a></li>
-                        <li ng-class="{active: path=='/roulette.php'}"><a href="search.php"><i class="fa fa-search fa-fw"></i> Search Courses</a></li>
+                        <li ng-class="{active: path=='/generate.php'}"><a href="/generate.php"><i class="fa fa-calendar-o fa-fw"></i> Make a Schedule</a></li>
+                        <li ng-class="{active: path=='/browse.php'}"><a href="/browse.php"><i class="fa fa-list fa-fw"></i> Browse Courses</a></li>
+                        <li ng-class="{active: path=='/roulette.php'}"><a href="/search.php"><i class="fa fa-search fa-fw"></i> Search Courses</a></li>
                     </ul>
                 </div>
             </div>
 		</div>
 		<div id="container" ng-cloak ng-controller="AppCtrl">
-			<?php if($SERVER_TYPE != 'production') { ?>
-			<div class="container" ng-show="state.ui.alert_betaInfo">
-				<div class="alert alert-info alert-dismissable hidden-xs">
-					<strong>Thanks</strong> for testing the new beta of ScheduleMaker! Please report any bugs on our github page <a target="_blank" href="https://github.com/ComputerScienceHouse/schedulemaker/issues">here</a>. Reports are greatly apreciated!
-					<button type="button" class="close" aria-hidden="true" ng-click="state.ui.alert_betaInfo = false"><i class="fa fa-times"></i></button>
-				</div>
-			</div>
-			<? } ?>

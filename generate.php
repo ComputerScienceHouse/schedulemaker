@@ -18,10 +18,10 @@ require "./inc/header.inc";
 				<div class="panel panel-default form-horizontal" ng-controller="scheduleCoursesCtrl">
 					<div class="panel-heading">
 						<div class="row form-horizontal">
-							<div class="col-sm-6">
+							<div class="col-sm-4">
 								<h2 class="panel-title control-label pull-left">Select Courses</h2>
 							</div>
-							<div class="col-sm-6">
+							<div class="col-sm-8">
 								<div class="control-group">
 									<label class="col-sm-6 control-label" for="term">Term:</label>
 									<div class="col-sm-6">
@@ -42,7 +42,7 @@ require "./inc/header.inc";
 						<div class="row">
 							<div class="col-md-4 col-xs-6">
 								<button type="button" class="ng-class: {'btn-success': state.requestOptions.ignoreFull}; btn-default btn btn-block" ng-click="state.requestOptions.ignoreFull = !state.requestOptions.ignoreFull">
-									<i class="fa" ng-class="{'fa-check-square-o': state.requestOptions.ignoreFull, 'fa-square-o': !state.requestOptions.ignoreFull}"></i> Ignore full courses
+									<i class="fa" ng-class="{'fa-check-square-o': state.requestOptions.ignoreFull, 'fa-square-o': !state.requestOptions.ignoreFull}"></i> Ignore full
 								</button>
 							</div>
 							<div class="col-md-4 col-md-offset-4 col-xs-6">
@@ -272,61 +272,7 @@ require "./inc/header.inc";
 		<div ng-class="{container: !state.displayOptions.fullscreen}">
 			<div ng-class="{'col-sm-12': state.displayOptions.fullscreen}">
 				<div class="row" ng-repeat="schedule in state.schedules | startFrom:state.displayOptions.currentPage*state.displayOptions.pageSize | limitTo:state.displayOptions.pageSize">
-					<div class="col-md-12">
-						<div class="panel panel-default">
-							<div class="panel-heading">
-								<div class="row form-horizontal">
-									<div class="col-sm-6">
-										<h2 class="panel-title control-label pull-left">Schedule {{state.schedules.indexOf(schedule) + 1}}</h2>
-									</div>
-									<div class="col-sm-6">
-										<div class="btn-group pull-right-sm">
-											<div class="btn-group">
-												<button type="button" class="btn btn-primary"><i class="fa fa-save"></i> Save</button>
-												<button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
-													<span class="caret"></span> <span class="sr-only">Toggle Dropdown</span>
-												</button>
-												<ul class="dropdown-menu" role="menu">
-													<li><a href="#"><i class="fa fa-calendar-o"></i> iCal</a></li>
-													<li><a href="#"><i class="fa fa-picture-o"></i> Image</a></li>
-												</ul>
-											</div>
-											<button type="button" class="btn btn-default hidden-xs hidden-sm"><i class="fa fa-print"></i> Print</button>
-											<div class="btn-group">
-												<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-													<i class="fa fa-share"></i> Share to... <span class="caret"></span>
-												</button>
-												<ul class="dropdown-menu" role="menu">
-													<li><a href="#"><i class="fa fa-facebook"></i> Facebook</a></li>
-													<li><a href="#"><i class="fa fa-google-plus"></i> Google+</a></li>
-													<li><a href="#"><i class="fa fa-twitter"></i> Twitter</a></li>
-													<li class="divider"></li>
-													<li><a href="#"><i class="fa fa-envelope"></i> Email</a></li>
-													<li><a href="#"><i class="fa fa-link"></i> Direct link</a></li>
-												</ul>
-											</div>
-										</div>
-									</div>
-								</div>
-							</div>
-							<div class="panel-body">
-								<div schedule></div>
-								<div ng-if="hiddenCourses.length > 0" class="row">
-									<div class="col-xs-12">
-										<div class="alert alert-warning">
-											<strong>Warning!</strong> The following course{{hiddenCourses.length != 1?'s are':' is'}} not displayed: <span ng-repeat="course in hiddenCourses">{{course}}{{$last?'':', '}}</span>
-										</div>
-									</div>
-								</div>
-								<div ng-if="onlineCourses.length > 0" class="row">
-									<div class="col-xs-12">
-										<div class="alert alert-info">
-											Online Course{{onlineCourses.length != 1?'s':''}}: <span ng-repeat="course in onlineCourses">{{course.courseNum}} ({{course.title}}){{$last?'':','}}</span>
-										</div>
-									</div>
-								</div>
-							</div>
-						</div>
+					<div class="col-md-12" schedule>
 					</div>
 				</div>
 			</div>

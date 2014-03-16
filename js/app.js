@@ -94,27 +94,6 @@ app.filter("courseNum", function() {
 	};
 });
 
-app.factory('debounce', ['$timeout', function ($timeout) {
-    return function(fn, timeout, apply){
-        timeout = angular.isUndefined(timeout) ? 0 : timeout;
-        apply = angular.isUndefined(apply) ? true : apply; // !!default is true! most suitable to my experience
-        var nthCall = 0;
-        return function(){ // intercepting fn
-            var that = this;
-            var argz = arguments;
-            nthCall++;
-            var later = (function(version){
-                return function(){
-                    if (version === nthCall){
-                        return fn.apply(that, argz);
-                    }
-                };
-            })(nthCall);
-            return $timeout(later, timeout, apply);
-        };
-    };
-}]);
-
 app.factory("sessionStorage", function($window) {
 	
 	var sessionStorage = $window.sessionStorage;
@@ -146,7 +125,7 @@ app.factory("sessionStorage", function($window) {
 	};
 });
 
-app.controller("AppCtrl", function($scope, sessionStorage, debounce, $window, $filter) {
+app.controller("AppCtrl", function($scope, sessionStorage, $window, $filter, $location) {
 	
 	$scope.initState = function() {
 		$scope.state = {};
@@ -195,18 +174,25 @@ app.controller("AppCtrl", function($scope, sessionStorage, debounce, $window, $f
 		
 	}
 	
-	$scope.saveState = debounce(function() {
-		console.log('saving state');
-		sessionStorage.setItem('state', $scope.state);
-	}, 2000, false);
-	
-	
 	$window.onbeforeunload = function() {
-		
 		// Force save on close
 		sessionStorage.setItem('state', $scope.state);
 	};
 	
+	$scope.noStateSaveOnUnload = function() {
+		$window.onbeforeunload = function() {};
+	};
+	
+	/*
+	if($location.search("mode") == 'fork') {
+		var reloadSchedule = sessionStorage.get('reloadSchedule');
+		if(reloadSchedule) {
+			console.log(reloadSchedule);
+		}
+		alert('yey');
+		sessionStorage.set('reloadSchedule', null); 
+	}
+	*/
 	var courseNumFilter = $filter('courseNum');
 	
 	// Course cart tools for non-generate pages.
@@ -611,15 +597,15 @@ app.controller("AppCtrl", function($scope, sessionStorage, debounce, $window, $f
 			}
 		},
 		colors: ["#629E6D",
-		         "#B97D9C",
+		         "#B29144",
 		         "#D47F55",
 		         "#8C9AC3",
 		         "#D07A7B",
 		         "#808591",
 		         "#4D9F9E",
+		         "#B97D9C",
 		         "#A37758",
 		         "#87944F",
-		         "#B29144",
 		        ]
 	};
 });
@@ -823,8 +809,8 @@ app.controller("GenerateCtrl", function($scope, globalKbdShortcuts, $http, $filt
     	$scope.state.ui.action_generateSchedules = false;
     	$scope.generateSchedules();
     }
+ 
 });
-
 app.controller( "MainMenuCtrl", function( $scope) {
   $scope.path = window.location.pathname;
 });
@@ -1265,11 +1251,109 @@ app.directive('pinned', function() {
 				sO = sizer.height();
 				elm.css('height', (fO > 0)?(sO - fO):(sO));
 			};
-			$(window).on("resize", updateHeight);
 			
-			updateHeight();
+			setTimeout(function() {
+				updateHeight();
+				$(window).on("resize", updateHeight);
+			}, 100);
 
 			elm.addClass("pinned");
+		}
+	};
+});
+
+/**
+ * Several endpoint abstractions for the schedules
+ */
+app.directive('scheduleActions', function($http, $q) {
+	
+	var serializer = new XMLSerializer();
+	
+	function scheduleActions(scope, elm) {
+		
+		/**
+		 * Gets the save info for the schedule. Only will save once per-schedule
+		 * 
+		 * @returns Promise
+		 */
+		function getSaveInfo() {
+
+			// See if we already have saved info
+			if(scope.saveInfo) {
+				return $q.defer().resolve(scope.saveInfo);
+			}
+			// If not create it
+			var schedule = angular.copy(scope.schedule);
+			
+			// Create the request params
+			var params = {
+				data: JSON.stringify({
+					startday:  '' + scope.state.drawOptions.start_day,
+					endday:    '' + scope.state.drawOptions.end_day,
+					starttime: scope.state.drawOptions.start_time,
+					endtime:   scope.state.drawOptions.end_time,
+					building:  scope.state.drawOptions.building_style,
+					term:      scope.state.requestOptions.term,
+					schedule:  schedule,
+				}),
+				svg: serializer.serializeToString(elm.find("svg").get(0)),
+				action: "saveSchedule"
+			};
+			
+			
+			// Post the schedule and return a promise
+			return $http.post('js/scheduleAjax.php', $.param(params), {
+				requestType:'json',
+				headers: {
+					'Content-Type': 'application/x-www-form-urlencoded'
+				}, 
+				withCredentials: true
+			}).then(function(request) {
+				if(request.status == 200 && typeof request.data.error == 'undefined') {
+					
+					// save the saveInfo and return it
+					
+					scope.saveInfo = request.data;
+					return request.data;
+				} else {
+					
+					console.log(data);
+					
+					// TODO: Better error checking
+					alert(request.data.msg);
+					
+					return $q.reject("Error:" + request.data.msg);
+				}
+			});
+		};
+		
+		
+		scope.scheduleActions = {
+			
+			save: function(saveType) {
+				
+				if(saveType == "create") {
+					getSaveInfo().then(function(data) {
+						scope.notification = "This schedule can be accessed at " +
+						"<a href=\""+ data.url + "\" target=\"_blank\">"
+						+ data.url + "</a><br><em>This schedule will be removed" +
+						" after 3 months of inactivity</em>";
+					});
+				} else {
+					sessionStorage.setItem('reloadSchedule', scope.schedule);
+				}
+			} 
+		}
+	};
+	
+	
+	return {
+		
+		/**
+		 * Save a schedule, given the respective parameters
+		 */
+		link: {
+			pre: scheduleActions
 		}
 	};
 });
@@ -1432,7 +1516,7 @@ app.directive('schedule', function($timeout, $filter) {
 					width: grid.opts.daysWidth,
 					height:timeHeight
 				},
-				color: this.scope.ui.colors[this.courseDrawIndex % 10]
+				color: this.scope.ui.colors[this.courseDrawIndex - 1 % 10]
 			});
 			
 		}
@@ -1458,7 +1542,7 @@ app.directive('schedule', function($timeout, $filter) {
 
 	return {
 		restrict: 'A',
-		templateUrl: './js/templates/schedule.html',
+		templateUrl: '/js/templates/schedule.html',
 		link: {
 			pre: function(scope, elm, attrs) {
 				scope.scheduleController = new Schedule(scope);
@@ -1477,6 +1561,13 @@ app.directive('schedule', function($timeout, $filter) {
 						$scope.item.boundry.height = $scope.item.boundry.orig_height;
 					}
 				};
+				
+				if(typeof attrs.existing === "undefined") {
+					scope.saveAction = "create";
+				} else {
+					scope.saveAction = "fork";
+				}
+				
 			},
 			post: function(scope, elm) {
 				scope.$watchCollection('state.drawOptions', function() {	
@@ -1516,6 +1607,21 @@ app.directive('svgTextLine', function() {
 		}
 	};
 });
+
+app.controller("scheduleCtrl", function($scope, $window) {
+	
+	$scope.schedule = $window.schedule.courses;
+	
+	$scope.state.drawOptions.start_time = $window.schedule.startTime;
+	$scope.state.drawOptions.end_time = $window.schedule.endTime;
+	$scope.state.drawOptions.start_day = $window.schedule.startDay;
+	$scope.state.drawOptions.end_day = $window.schedule.endDay;
+	$scope.state.drawOptions.building_style = $scope.state.bldgStyle;
+	$scope.state.requestOptions.term = +$window.schedule.term;
+		
+	$scope.noStateSaveOnUnload();
+})
+
 app.factory('globalKbdShortcuts', function($rootScope) {
 	var globalKbdShortcuts = {
 		'bindCtrlEnter': function(callback) {

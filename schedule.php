@@ -259,6 +259,7 @@ function getScheduleFromId($id) {
 	$result = mysql_query($query);
 	
 	$query = "SELECT startday, endday, starttime, endtime, building, `quarter`, `image` FROM schedules WHERE id={$id}";
+
 	$result = mysql_query($query);
     if(!$result) {
         return NULL;
@@ -306,8 +307,8 @@ function getScheduleFromId($id) {
 	}
 
 	return array(
-			//@TODO: Fix this hackish error below
-			"courses"    => array($schedule),
+			//REMOVED WEIRD NESTED ARRAY FOR 'courses'??????
+			"courses"    => $schedule,
 			"startTime"  => $startTime,
 			"endTime"    => $endTime,
 			"startDay"   => $startDay,
@@ -479,8 +480,10 @@ switch($mode) {
             // Schedule does not exist. Error out and die.
             require "./inc/header.inc";
 			?>
-			<div class='schedUrl error'>
-				<p><span style='font-weight:bold'>Fatal Error:</span> The requested schedule does not exist!</p>
+			<div class="container">
+				<div class="alert alert-error">
+					<p><strong>Fatal Error:</strong> The requested schedule does not exist!</p>
+				</div>
 			</div>
 			<?
             require "./inc/footer.inc";
@@ -497,21 +500,16 @@ switch($mode) {
 
         require "./inc/header.inc";
 
-        echo generateScheduleFromCourses($schedule);
-
 		// Translate the schedule into json and escape '
 		$json = json_encode($schedule);
-		$json = htmlentities($json, ENT_COMPAT);
+		//$json = htmlentities($json, ENT_COMPAT);
 		?>
-		<div id='savedControls'>
-			<input type='hidden' id='schedJson' value="<?= $json ?>" name='schedJson' />
-			<button type='button' id='forkButton'>Copy and Edit</button>
-			<button type='button' id='printButton'>Print Schedule</button>
-            <button type='button' id='iCalButton'>Download iCal</button>
+		<script>var schedule = <?=$json?>;</script>
+		<div class="container" ng-controller="scheduleCtrl">
+			<div schedule existing="true"></div>
 		</div>
-		<script src='js/savedSchedule.js' type='text/javascript'></script>
+		
 		<?
-
 		require "./inc/footer.inc";
 		break;
 		

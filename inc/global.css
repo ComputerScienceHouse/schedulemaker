@@ -25,11 +25,10 @@ table {
 img {
 	border: 0;
 }
-
 #superContainer {
 	/*  nothing */
     background-color:#2B4E69;
-    padding-top:20px;
+    padding-top:40px;
 	
 }
 
@@ -1003,6 +1002,7 @@ select.ng-invalid {
 	    padding-bottom: 0;
 	    padding-top: 0;
 	    transform: translate(0px, -50px);
+	    -webkit-transform: translate(0px, -50px);
 	    border: 0;
 	}
 	
@@ -1057,6 +1057,10 @@ span[professor-lookup] {
 #master_schedule_results {
 	padding-top: 10px;
 }
+
+.schedule-notification {
+	text-align: center;
+}
 /* Browse Courses */
 
 #browse-contents .list-group-item {
@@ -1108,6 +1112,10 @@ svg rect {
 	pointer-events: all;
 }
 
+svg text {
+	cursor: default;
+}
+
 svg g.item {
 	pointer-events: all;
 }
@@ -1151,10 +1159,11 @@ svg g.item:hover rect {
 
 @media screen and (max-width:767px) {
 	.schedule-cont {
-		width:1000px;
+		overflow-x: scroll;
+		-webkit-overflow-scrolling: touch;
 	}
-	div[schedule] {
-		overflow-x:scroll;
+	.schedule-track {
+		width:1000px;
 	}
 	.course-cart-item {
 		border-left-width: 0px;

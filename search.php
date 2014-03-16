@@ -18,10 +18,10 @@ require "./inc/header.inc";
 			<div class="panel panel-default">
 				<div class="panel-heading">
 					<div class="row form-horizontal">
-						<div class="col-md-6">
+						<div class="col-md-4">
 							<h2 class="panel-title control-label pull-left">Search Courses</h2>
 						</div>
-						<div class="col-md-6">
+						<div class="col-md-8">
 							<div class="control-group">
 								<label class="col-sm-6 control-label" for="term">Term:</label>
 								<div class="col-sm-6">

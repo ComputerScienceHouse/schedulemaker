@@ -441,8 +441,8 @@ switch($_POST['action']) {
         }
 
 		// Start the storing process with storing the data about the schedule
-		$query = "INSERT INTO schedules (startday, endday, starttime, endtime, building, quarter)" .
-				" VALUES('{$json['startday']}', '{$json['endday']}', '{$json['starttime']}', '{$json['endtime']}', '{$json['building']}', " .
+		$query = "INSERT INTO schedules (oldid, startday, endday, starttime, endtime, building, quarter)" .
+				" VALUES('', '{$json['startday']}', '{$json['endday']}', '{$json['starttime']}', '{$json['endtime']}', '{$json['building']}', " .
 				" '{$json['term']}')";
 		$result = mysql_query($query);
 		if(!$result) {
@@ -486,7 +486,7 @@ switch($_POST['action']) {
 		// Everything was successful, return a nice, simple URL to the schedule
 		// To make it cool, let's make it a hex id
 		$hexId = dechex($schedId);
-		$url = "{$HTTPROOTADDRESS}schedule.php?id={$hexId}";
+		$url = "{$HTTPROOTADDRESS}schedule/{$hexId}";
 		
 		echo json_encode(array("url" => $url, "id" => $hexId));
 
