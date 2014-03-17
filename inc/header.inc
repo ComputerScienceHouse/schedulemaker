@@ -7,7 +7,7 @@ require_once('./inc/timeFunctions.php');
 <!DOCTYPE html>
 <html prefix="og: http://ogp.me/ns#">
 	<head>
-		<title><?= (!empty($TITLE)) ? $TITLE . " " : "" ?>Schedule Maker</title>
+		<title><?= (!empty($TITLE)) ? $TITLE . " - " : "" ?>Schedule Maker</title>
 		
 		<!-- META DATA -->
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -32,8 +32,14 @@ require_once('./inc/timeFunctions.php');
         <meta property="og:image" content="<?= $HTTPROOTADDRESS ?>img/csh_og.png">
         <? } ?>
 	</head>
-
-	<body ng-app="sm" ng-init="defaultTerm = '<?=$CURRENT_QUARTER?>'">
+	<? if(!empty($LAYOUT_MODE)) {
+		$BODY_CLASS = " class=\"".$LAYOUT_MODE."\"";
+	} else {
+		$BODY_CLASS = "";
+	}
+	?>
+	<body<?=$BODY_CLASS?> ng-app="sm" ng-init="defaultTerm = '<?=$CURRENT_QUARTER?>'">
+		<? if(empty($LAYOUT_MODE)) { ?>
 		<div id="superContainer">
 		<div class="navbar navbar-fixed-top navbar-default ng-scope" ng-controller="MainMenuCtrl">
             <div class="container">
@@ -56,3 +62,6 @@ require_once('./inc/timeFunctions.php');
             </div>
 		</div>
 		<div id="container" ng-cloak ng-controller="AppCtrl">
+	<? } elseif($LAYOUT_MODE == 'print') { ?>
+	<div ng-cloak ng-controller="AppCtrl">
+	<? } ?>

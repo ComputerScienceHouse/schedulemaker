@@ -1,4 +1,5 @@
 			</div>
+			<? if(empty($LAYOUT_MODE)) { ?>
 			<div id="footer">
 				<div class="csh"><a target="_blank" href="http://www.csh.rit.edu/"><img src="<?=$HTTPROOTADDRESS?>img/csh.png" alt="CSH" /></a></div>
 				<a href='status.php'>Status</a> | <a target="_blank" href="https://github.com/ComputerScienceHouse/schedulemaker/issues">Report Issues</a>
@@ -9,6 +10,13 @@
 					Hosting: <a href="http://www.csh.rit.edu/">Computer Science House</a><br>
 				</div>
 			</div>
+			<? } elseif($LAYOUT_MODE == 'print') { ?>
+			<div id="print_footer">
+				Made Using <a href='<?= $HTTPROOTADDRESS ?>'>CSH ScheduleMaker</a>
+				<a href="http://www.csh.rit.edu/"><img src="/img/csh_print.png"></a>
+			</div> 
+			
+			<? } ?>
 		</div>
 		<!-- LOAD SCRIPTS LAST -->
 		<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>

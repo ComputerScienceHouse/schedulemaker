@@ -35,7 +35,6 @@ require "./inc/header.inc";
 						<div id="scheduleCourses">
 							<div dynamic-items="state.courses" colors="ui.colors" use-class="scheduleCourse" helpers="courses_helpers"></div>
 						</div>
-						<!-- <pre>{{state.courses | json}}</pre> -->
 					</div>
 					<div class="panel-footer">
 						<input type="hidden" value="{{state.courses.length}}" name="courseCount" id="courseCount">

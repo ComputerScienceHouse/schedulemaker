@@ -352,10 +352,14 @@ switch($_POST['action']) {
 			$courseSubSet = array();
 			foreach($_POST["courses{$i}Opt"] as $course) {
 				// Do a query to get the course specified
-				$courseSubSet[] = getCourseBySectionId($course);
+				 $courseInfo = getCourseBySectionId($course);
+				 $courseInfo['courseIndex'] = $i;
+				 $courseSubSet[] = $courseInfo;
 			}
 			$courseSet[] = $courseSubSet;
 		}
+		
+		$courseIndex = $i;
 
 		// Process the list of nonCourse Items
 		$nonCourseSet = array();
@@ -367,14 +371,15 @@ switch($_POST['action']) {
 			$nonCourse = array();
 			$nonCourse['title'] = $_POST["nonCourseTitle{$i}"];
 			$nonCourse['courseNum'] = "non";
+			$nonCourse['courseIndex'] = $courseIndex++;
 			$nonCourse['times'] = array();
 
             // Create a time entry for each
 			foreach($_POST["nonCourseDays{$i}"] as $day) {
 				$nonCourse['times'][] = array(
 					"day"   => translateDay($day),
-					"start" => timeStringToMinutes($_POST["nonCourseStartTime{$i}"]),
-					"end"   => timeStringToMinutes($_POST["nonCourseEndTime{$i}"])
+					"start" => intval($_POST["nonCourseStartTime{$i}"]),
+					"end"   => intval($_POST["nonCourseEndTime{$i}"])
 					);
 			}
 			$nonCourseSet[] = $nonCourse;
@@ -397,8 +402,8 @@ switch($_POST['action']) {
 			foreach($_POST["noCourseDays{$i}"] as $day) {
 				$noCourse['times'][] = array(
 					"day"   => translateDay($day),
-					"start" => timeStringToMinutes($_POST["noCourseStartTime{$i}"]),
-					"end"   => timeStringToMinutes($_POST["noCourseEndTime{$i}"])
+					"start" => intval($_POST["noCourseStartTime{$i}"]),
+					"end"   => intval($_POST["noCourseEndTime{$i}"])
 					);
 			}
 			$noCourseSet[] = $noCourse;

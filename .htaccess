@@ -1,2 +1,2 @@
 RewriteEngine On
-RewriteRule ^schedule/([^/]*)$ /schedule.php?id=$1 [L]
+RewriteRule ^schedule/([^/]*)(?:/([^/]*))?$ /schedule.php?id=$1&mode=$2 [L]

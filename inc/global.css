@@ -8,6 +8,12 @@ body {
 	overflow-y: scroll;
 }
 
+body.print {
+	margin: 0;
+	background-color:#fff;
+	overflow-y: auto;
+}
+
 @-webkit-viewport   { width: device-width; }
 @-moz-viewport      { width: device-width; }
 @-ms-viewport       { width: device-width; }
@@ -131,6 +137,20 @@ label {
 	font-size:16px;
 	margin-bottom:10px;
 	text-shadow: 0 1px 1px black;
+}
+
+#print_footer {
+	height:50px;
+	text-align:center;
+	line-height:50px;
+}
+
+#print_footer img {
+	vertical-align:middle;
+}
+
+#print_footer a {
+	color: #000;
 }
 
 input[type=text] {
@@ -930,6 +950,19 @@ input {
 	cursor: pointer;
 }
 /* NEW SCHEDULES */
+
+body.print div[schedule] > .panel {
+	box-shadow: none;
+	border: none;
+	width: 720px;
+	margin: 0 auto;
+}
+@media print {
+  body.print a[href]:after {
+    content: "";
+  }
+}
+
 div[schedule] .canvas-cont {
 	height:500px;
 	width:700px;

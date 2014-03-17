@@ -181,13 +181,17 @@ app.controller("AppCtrl", function($scope, sessionStorage, $window, $filter) {
 	}
 	
 	
-	// Force save on close
-	$window.onbeforeunload = function() {
+	$scope.saveState = function() {
 		sessionStorage.setItem('state', $scope.state);
 	};
 	
+	// Force save on close
+	$window.onbeforeunload = function() {
+		$scope.saveState();
+	};
+	
 	$scope.noStateSaveOnUnload = function() {
-		$window.onbeforeunload = function() {};
+		$window.onbeforeunload = null;
 	};
 	
 	/**
@@ -216,24 +220,23 @@ app.controller("AppCtrl", function($scope, sessionStorage, $window, $filter) {
 		// Set the correct term
 		$scope.state.requestOptions.term = +schedule.term;
 		
+		
 		// Don't save these state settings
 		$scope.noStateSaveOnUnload();
 	}
 	
 	// Check if we need to load a schedule
-	if(sessionStorage.hasKey('reloadSchedule')){
+	if(typeof $window.reloadSchedule !== 'undefined') {
 		
+		// The schedule was set as a global variable
+		$scope.reloadSchedule($window.reloadSchedule);
+	} else if(sessionStorage.hasKey('reloadSchedule')){
 		// Get the schedule from sessions storage
 		var reloadSchedule = sessionStorage.getItem('reloadSchedule');
 		if(reloadSchedule != null) {
 			$scope.reloadSchedule(reloadSchedule);
-			sessionStorage.setItem('reloadSchedule', null);
 		}
 		
-	} else if(typeof $window.reloadSchedule !== 'undefined') {
-		
-		// The schedule was set as a global variable
-		$scope.reloadSchedule($window.reloadSchedule);
 	}
 	
 
@@ -640,7 +643,7 @@ app.controller("AppCtrl", function($scope, sessionStorage, $window, $filter) {
 				}
 			}
 		},
-		colors: ["#629E6D",
+		colors: /*["#629E6D",
 		         "#B29144",
 		         "#D47F55",
 		         "#8C9AC3",
@@ -650,7 +653,17 @@ app.controller("AppCtrl", function($scope, sessionStorage, $window, $filter) {
 		         "#B97D9C",
 		         "#A37758",
 		         "#87944F",
-		        ]
+		        ]*/
+			["#7BA270",
+			 "#85B4C2",
+			 "#CD9161",
+			 "#74B79F",
+			 "#AA9E5B",
+			 "#769E9F",
+			 "#9D987A",
+			 "#658B76",
+			 "#92838F",
+			 "#A9ABC3"]
 	};
 });
 
@@ -720,28 +733,37 @@ app.controller("GenerateCtrl", function($scope, globalKbdShortcuts, $http, $filt
     		'noCourseCount': $scope.state.noCourses.length
     	};
     	
+    	
+    	var actualCourseIndex = 1;
     	for(var courseIndex = 0; courseIndex < $scope.state.courses.length; courseIndex++) {
     		var course = $scope.state.courses[courseIndex];
-    		var fieldName = 'courses' + (courseIndex + 1) + 'Opt[]';
-    		requestData['courses' + (courseIndex + 1)] = course.search;
+    		var fieldName = 'courses' + (actualCourseIndex) + 'Opt[]';
+    		requestData['courses' + actualCourseIndex] = course.search;
     		requestData[fieldName] = [];
+    		var sectionCount = 0;
     		for(var sectionIndex = 0; sectionIndex < course.sections.length; sectionIndex++) {
     			if(course.sections[sectionIndex].selected) {
     				requestData[fieldName].push(course.sections[sectionIndex].id);
+    				sectionCount++;
     			}
+    		}
+    		if(sectionCount == 0) {
+    			requestData.courseCount--;
+    			delete requestData['courses' + actualCourseIndex];
+    			delete requestData[fieldName];
+    		} else {
+    			actualCourseIndex++;
     		}
     		
     	}
-    	
-    	var formatTime = $filter('formatTime');
     	
     	for(var nonCourseIndex = 0; nonCourseIndex < $scope.state.nonCourses.length; nonCourseIndex++) {
     		var nonCourse = $scope.state.nonCourses[nonCourseIndex];
     		var index = (nonCourseIndex + 1);
     		var fieldName = 'nonCourse';
     		requestData[fieldName + 'Title' + index] = nonCourse.title;
-    		requestData[fieldName + 'StartTime' + index] = formatTime(nonCourse.startTime); // This is dumb
-    		requestData[fieldName + 'EndTime' + index] = formatTime(nonCourse.endTime);
+    		requestData[fieldName + 'StartTime' + index] = nonCourse.startTime;
+    		requestData[fieldName + 'EndTime' + index] = nonCourse.endTime;
     		requestData[fieldName + 'Days' + index + '[]'] = nonCourse.days;
     	}
     	
@@ -749,8 +771,8 @@ app.controller("GenerateCtrl", function($scope, globalKbdShortcuts, $http, $filt
     		var noCourse = $scope.state.noCourses[noCourseIndex];
     		var index = (noCourseIndex + 1);
     		var fieldName = 'noCourse';
-    		requestData[fieldName + 'StartTime' + index] = formatTime(noCourse.startTime); // This is still dumb
-    		requestData[fieldName + 'EndTime' + index] = formatTime(noCourse.endTime);
+    		requestData[fieldName + 'StartTime' + index] = noCourse.startTime
+    		requestData[fieldName + 'EndTime' + index] = noCourse.endTime;
     		requestData[fieldName + 'Days' + index + '[]'] = noCourse.days;
     	}
     	
@@ -1364,7 +1386,7 @@ app.factory('shareServiceInfo', function() {
 /**
  * Several endpoint abstractions for the schedules
  */
-app.directive('scheduleActions', function($http, $q, shareServiceInfo, openPopup) {
+app.directive('scheduleActions', function($http, $q, shareServiceInfo, openPopup, sessionStorage) {
 	
 	var serializer = new XMLSerializer();
 	
@@ -1481,16 +1503,39 @@ app.directive('scheduleActions', function($http, $q, shareServiceInfo, openPopup
 				scope.scheduleActions.save('create');
 			},
 			
-			print: function($event) {
+			downloadiCal: function($event) {
 				
 				$event.preventDefault();
 				
-				alert("Not implimented yet, but will be before release.");
-				//var popup = openPopup(800, 600);
+				getSavedInfo().then(function(data) {
+
+					window.location.href= data.url + "/ical";
+				});
+			},
+			
+			downloadImage: function($event) {
 				
-				//popup.document.title = "My Schedule";
-				//popup.document.write("Not implimented yet, but will be before release");
-				//sessionStorage.setItem('reloadSchedule', scope.schedule);
+				$event.preventDefault();
+				
+				getSavedInfo().then(function(data) {
+
+					 window.open("http://" + window.location.hostname +
+					'/img/schedules/' + parseInt(data.id, 16) + '.png','_blank');
+				});
+			},
+			
+			print: function() {
+				
+				
+				var reloadSchedule = angular.copy(scope.state.drawOptions);
+				reloadSchedule.term = scope.state.requestOptions.term,
+				reloadSchedule.courses = scope.schedule;
+				
+				var popup = openPopup(780, 600);
+				
+				popup.sessionStorage.setItem('reloadSchedule', angular.toJson(reloadSchedule));
+				popup.document.title = "My Schedule";
+				popup.location = "http://" + window.location.hostname + '/schedule/render/print';	
 			}
 		}
 	};
@@ -1665,7 +1710,7 @@ app.directive('schedule', function($timeout, $filter) {
 					width: grid.opts.daysWidth,
 					height:timeHeight
 				},
-				color: this.scope.ui.colors[this.courseDrawIndex - 1 % 10]
+				color: this.scope.ui.colors[course.courseIndex?(course.courseIndex - 1):this.courseDrawIndex % 10]
 			});
 			
 		}
@@ -1717,12 +1762,19 @@ app.directive('schedule', function($timeout, $filter) {
 					scope.saveAction = "fork";
 				}
 				
+				if(typeof attrs.print === "undefined") {
+					scope.print = false;
+				} else {
+					scope.print = true;
+				}
+				
 			},
 			post: function(scope, elm) {
 				scope.$watchCollection('state.drawOptions', function() {	
 					if(scope.scheduleController.init()) {
 						// Only redraw if valid options
 						scope.scheduleController.draw();
+					
 						
 						// Fix the pixel issues after DOM updates
 						$timeout(function() {
@@ -1758,14 +1810,52 @@ app.directive('svgTextLine', function() {
 });
 
 app.controller("scheduleCtrl", function($scope, $location) {
-	var id = $location.path().split('/');
+	
+	var id = window.location.pathname.split('/');
 	id = id[id.length - 1];
 	$scope.saveInfo = {
 		url: $location.absUrl(),
 		id: id
 	};
 	
+	$scope.noStateSaveOnUnload();
+	
 });
+
+
+app.controller("printScheduleCtrl", function($scope, $location, sessionStorage) {
+	
+	if($scope.schedule) {	
+		var pTerm ='' + $scope.state.requestOptions.term;
+		
+		var year = parseInt(pTerm.substring(0,4));
+        var term = pTerm.substring(4);
+        if(year >= 2013) {
+            switch(term) {
+                case '1': term = "Fall"; break;
+                case '3': term = "Winter Intersession"; break;
+                case '5': term = "Spring"; break;
+                case '8': term = "Summer"; break;
+                default:  term = "Unknown";
+            }
+        } else {
+            switch(term) {
+                case '1': term = "Fall"; break;
+                case '2': term = "Winter"; break;
+                case '3': term = "Spring"; break;
+                case '4': term = "Summer"; break;
+                default:  term = "Unknown";
+            }
+        }
+        
+        $scope.heading = "My " + year + "-" + (year+1) + " " + term  + " Schedule";
+	}
+	
+	$scope.noStateSaveOnUnload();
+	
+	window.print();
+});
+
 
 app.factory('globalKbdShortcuts', function($rootScope) {
 	var globalKbdShortcuts = {

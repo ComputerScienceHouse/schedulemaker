@@ -349,76 +349,31 @@ switch($mode) {
 		// PRINTABLE SCHEDULE //////////////////////////////////////////////
 		// No header, no footer, just the schedule
 	
+		$LAYOUT_MODE = 'print';
+		require "./inc/header.inc";
+		
+		if($_GET['id'] != 'render') {
+			$id = hexdec($_GET['id']);
+			if($id > 0) {
+				$schedule = getScheduleFromId($id);
+				// Translate the schedule into json
+				$json = json_encode($schedule);
+		
 		?>
-		<html>
-		<head>
-			<title>Your Schedule - Schedule Maker</title>
-			<link href='./inc/style_print.css' rel='stylesheet' type='text/css' />
-			<script src='./js/jquery.js' type='text/javascript'></script>
-			<script src='./js/schedule.js' type='text/javascript'></script>
-		</head>
-		<body>
-			<h1 id='header' style='text-align:center'></h1>
-			<div id='schedules'></div>
-			<? require "inc/footer_print.inc"; ?>
-		</body>
-		<script type='text/javascript'>
-			// Load the data out of the local storage and store it in the
-			// global fields
-			data = eval("(" + window.sessionStorage.getItem("scheduleJson") + ")");
-			schedules   = data.courses;
-			startday    = data.startDay;
-			endday      = data.endDay;
-			starttime   = data.startTime;
-			endtime     = data.endTime;
-			SCHEDPERPAGE= 1;
-
-			// Calculate the term for header purposes
-            // Split it up and store it as the header
-            var year = parseInt(data.term.substring(0,4));
-            var term = data.term.substring(4);
-            if(year >= 2013) {
-                switch(term) {
-                    case '1': term = "Fall"; break;
-                    case '3': term = "Winter Intersession"; break;
-                    case '5': term = "Spring"; break;
-                    case '8': term = "Summer"; break;
-                    default:  term = "Unknown";
-                }
-            } else {
-                switch(term) {
-                    case '1': term = "Fall"; break;
-                    case '2': term = "Winter"; break;
-                    case '3': term = "Spring"; break;
-                    case '4': term = "Summer"; break;
-                    default:  term = "Unknown";
-                }
-            }
-            $("#header").html("My " + year + "-" + (year+1) + " " + term  + " Schedule");
-
-            // Add a super-jank building style hidden element so the buildings
-            // will always be what the user requested, not the default
-            // @TODO: This is SUPER JANK. And really, I don't like the print/schedule javascript.
-            var bldgHidden = $("<input type='hidden' id='buildingStyle'/>");
-            bldgHidden.val(data.bldgStyle);
-            bldgHidden.appendTo($("body"));
-
-			// Calculate the schedule height and width
-			schedHeight = (Math.floor((endtime - starttime) / 30) * 20) + 20;
-			schedWidth  = ((endday - startday) * 100) + 200;
-
-			// Run the show schedules thing
-			drawPage(0, true);
-	
-			// Load the print dialog
-			$(document).ready(function() {
-				if($("div").length) {
-					window.print();
-				}
-			});
-		</script>	
-		</html>
+			<script>var reloadSchedule = <?=$json?>;</script>		
 		<?
+			}
+		}
+		?>
+		<div ng-controller="printScheduleCtrl">
+			<h1 class="center" ng-bind="heading"></h1>
+			<div schedule print="true"></div>
+		</div>
+				
+		<?
+		require "./inc/footer.inc";
+		
+		
 		break;
 	
 	case "ical":
@@ -450,22 +405,23 @@ switch($mode) {
 		$schedule = getScheduleFromOldId($_GET['id']);
 		if($schedule == NULL) {
 			?>
-			<div class="alert alert-danger">
-				<i class="fa fa-exclamation-circle"></i> <span style='font-weight:bold'>Fatal Error:</span> The requested schedule does not exist!
+			<div class="container">
+				<div class="alert alert-danger">
+					<i class="fa fa-exclamation-circle"></i> <strong>Fatal Error:</strong> The requested schedule does not exist!
+				</div>
 			</div>
 			<?
 		} else {
+			$json = json_encode($schedule);
 			?>
-			<div class='schedUrl'>
-				<p>This schedule was created using the old schedule maker!</p>
-				<p>You should now access this schedule at:
-					<a href="<?= $HTTPROOTADDRESS ?>schedule.php?id=<?= dechex($schedule['id']) ?>">
-						<?= $HTTPROOTADDRESS ?>schedule.php?id=<?= dechex($schedule['id']) ?>
-					</a>
-				</p>
+			<script>var reloadSchedule = <?=$json?>;</script>
+			<div class="container" ng-controller="scheduleCtrl">
+				<div class="alert alert-info">
+					<i class="fa fa-exclamation-circle"></i> This schedule was created with a really old version of ScheduleMaker
+				</div>
+				<div schedule existing="true"></div>
 			</div>
 			<?
-			echo generateScheduleFromCourses($schedule);
 		}
 		require "./inc/footer.inc";
 		break;
@@ -499,9 +455,9 @@ switch($mode) {
 
         require "./inc/header.inc";
 
-		// Translate the schedule into json and escape '
+		// Translate the schedule into json
 		$json = json_encode($schedule);
-		//$json = htmlentities($json, ENT_COMPAT);
+
 		?>
 		<script>var reloadSchedule = <?=$json?>;</script>
 		<div class="container" ng-controller="scheduleCtrl">
