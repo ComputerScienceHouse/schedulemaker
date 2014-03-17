@@ -168,8 +168,14 @@ require "./inc/header.inc";
 												</div>
 											</div>
 										</div>
+										<div class="browse-sublist" ng-show="department.ui.noResults && department.ui.expanded">
+											<div class="alert alert-info">No courses available</div>
+										</div>
 									</div>
 								</div>
+							</div>
+							<div class="browse-sublist" ng-show="school.ui.noResults && school.ui.expanded">
+								<div class="alert alert-info">No departments available</div>
 							</div>
 						</div>
 					</div>

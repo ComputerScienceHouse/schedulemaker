@@ -2172,7 +2172,11 @@ app.directive('browseList', function($http, entityDataRequest) {
 							}
 							entityDataRequest[entityDataRequestMethodName]({term: scope.state.requestOptions.term, param: scope[itemName].id}).success(function(data, status) {
 								if(status == 200 && typeof data.error == 'undefined') {
-									scope[itemName][childrenName] = data[childrenName];
+									if(data[childrenName].length > 0) {
+										scope[itemName][childrenName] = data[childrenName];
+									} else {
+										scope[itemName].ui.noResults = true;
+									}
 								} else if(data.error) {
 									// TODO: Better error checking
 									alert(data.msg);

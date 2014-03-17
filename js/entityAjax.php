@@ -151,10 +151,10 @@ switch($_POST['action']) {
     	// Determine if term was before quarters
 		if ($term > 20130) {
 			// School codes
-			$query = "SELECT id, code AS code, title FROM schools WHERE code IS NOT NULL AND title !='' ORDER BY code";
+			$query = "SELECT id, code AS code, title FROM schools WHERE code IS NOT NULL ORDER BY code";
 		} else {
 			// School numbers
-			$query = "SELECT id, number AS code, title FROM schools WHERE number IS NOT NULL AND title !='' ORDER BY number";
+			$query = "SELECT id, number AS code, title FROM schools WHERE number IS NOT NULL ORDER BY number";
 		}
 		// Query for the schools
         $result = mysql_query($query);

@@ -37,7 +37,7 @@ require "./inc/header.inc";
 							<div class="form-group">
 								<label class="control-label col-sm-4" for="search.params.college">College:</label>
 								<div class="col-sm-8">
-						            <select id="search.params.college" name="college" ng-model="search.params.college" ng-options="opt.id as (((opt.id != 'any')?((opt | codeOrNumber) + ' - '):'') + opt.title) for opt in search.options.colleges" class="mousetrap form-control">
+						            <select id="search.params.college" name="college" ng-model="search.params.college" ng-options="opt.id as (((opt.id != 'any')?((opt | codeOrNumber) + ((opt.title !='')?' - ' + opt.title: '')): opt.title)) for opt in search.options.colleges" class="mousetrap form-control">
 						            </select>
 						        </div>
 							</div>
@@ -46,7 +46,7 @@ require "./inc/header.inc";
 							<div class="form-group">
 								<label class="control-label col-sm-4" for="search.params.department">Department:</label>
 								<div class="col-sm-8">
-						            <select id="search.params.department" ng-model="search.params.department" ng-options="opt.id as (((opt.id != 'any')?((opt | codeOrNumber) + ' - '):'') + opt.title) for opt in search.options.departments" name="department" class=" mousetrap form-control">
+						            <select id="search.params.department" ng-model="search.params.department" ng-options="opt.id as (((opt.id != 'any')?((opt | codeOrNumber) + ((opt.title !='')?' - ' + opt.title: '')): opt.title)) for opt in search.options.departments" name="department" class=" mousetrap form-control">
 						            </select>
 								</div>
 							</div>
