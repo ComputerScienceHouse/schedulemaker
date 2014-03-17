@@ -115,6 +115,13 @@ app.factory("sessionStorage", function($window) {
 				return false;
 			}
 		},
+		hasKey: function(key) {
+			if(sessionStorage) {
+				return sessionStorage.hasOwnProperty(key);
+			} else {
+				return false;
+			}
+		},
 		clear: function() {
 			if(sessionStorage) {
 				return sessionStorage.clear();
@@ -125,7 +132,7 @@ app.factory("sessionStorage", function($window) {
 	};
 });
 
-app.controller("AppCtrl", function($scope, sessionStorage, $window, $filter, $location) {
+app.controller("AppCtrl", function($scope, sessionStorage, $window, $filter) {
 	
 	$scope.initState = function() {
 		$scope.state = {};
@@ -135,11 +142,11 @@ app.controller("AppCtrl", function($scope, sessionStorage, $window, $filter, $lo
 		$scope.state.noCourses = [];
 		$scope.state.schedules =[];
 		$scope.state.drawOptions = {
-			start_time: 480,
-			end_time: 1320,
-			start_day: 1,
-			end_day: 6,
-			building_style: 'code'
+			startTime: 480,
+			endTime: 1320,
+			startDay: 1,
+			endDay: 6,
+			bldgStyle: 'code'
 		};
 
 		$scope.state.displayOptions = {
@@ -164,18 +171,18 @@ app.controller("AppCtrl", function($scope, sessionStorage, $window, $filter, $lo
 		$window.location.reload();
 	};
 	
+	
+	// Reload the state if it exists
 	var storedState = sessionStorage.getItem('state');
 	if(storedState != null) {
 		$scope.state = storedState;
-		
-		
 	} else {
-		$scope.initState();
-		
+		$scope.initState();	
 	}
 	
+	
+	// Force save on close
 	$window.onbeforeunload = function() {
-		// Force save on close
 		sessionStorage.setItem('state', $scope.state);
 	};
 	
@@ -183,16 +190,53 @@ app.controller("AppCtrl", function($scope, sessionStorage, $window, $filter, $lo
 		$window.onbeforeunload = function() {};
 	};
 	
-	/*
-	if($location.search("mode") == 'fork') {
-		var reloadSchedule = sessionStorage.get('reloadSchedule');
-		if(reloadSchedule) {
-			console.log(reloadSchedule);
+	/**
+	 * Set the correct drawOptions and term as well as a global schedule var
+	 * for displaying any single schedule alone
+	 */
+	$scope.reloadSchedule = function(schedule) {
+		
+		// Set a globally scoped schedule with the courses 
+		if(schedule.hasOwnProperty('courses')) {
+			
+			$scope.schedule = schedule.courses;
+		} else if(schedule.hasOwnProperty('schedule')) {
+			
+			$scope.schedule = schedule.schedule;
+		} else {
+			
+			return false;
 		}
-		alert('yey');
-		sessionStorage.set('reloadSchedule', null); 
+		
+		// Set the correct draw options
+		for(var key in $scope.state.drawOptions) {
+			$scope.state.drawOptions[key] = schedule[key];
+		}
+		
+		// Set the correct term
+		$scope.state.requestOptions.term = +schedule.term;
+		
+		// Don't save these state settings
+		$scope.noStateSaveOnUnload();
 	}
-	*/
+	
+	// Check if we need to load a schedule
+	if(sessionStorage.hasKey('reloadSchedule')){
+		
+		// Get the schedule from sessions storage
+		var reloadSchedule = sessionStorage.getItem('reloadSchedule');
+		if(reloadSchedule != null) {
+			$scope.reloadSchedule(reloadSchedule);
+			sessionStorage.setItem('reloadSchedule', null);
+		}
+		
+	} else if(typeof $window.reloadSchedule !== 'undefined') {
+		
+		// The schedule was set as a global variable
+		$scope.reloadSchedule($window.reloadSchedule);
+	}
+	
+
 	var courseNumFilter = $filter('courseNum');
 	
 	// Course cart tools for non-generate pages.
@@ -632,13 +676,13 @@ app.controller("GenerateCtrl", function($scope, globalKbdShortcuts, $http, $filt
 		return foundColor;
 	};
 	$scope.ensureCorrectEndDay = function() {
-		if($scope.state.drawOptions.start_day > $scope.state.drawOptions.end_day) {
-			$scope.state.drawOptions.end_day = $scope.state.drawOptions.start_day;
+		if($scope.state.drawOptions.startDay > $scope.state.drawOptions.endDay) {
+			$scope.state.drawOptions.endDay = $scope.state.drawOptions.startDay;
 		}
 	};
 	$scope.ensureCorrectEndTime = function() {
-		if($scope.state.drawOptions.start_time >= $scope.state.drawOptions.end_time) {
-			$scope.state.drawOptions.end_time = $scope.state.drawOptions.start_time + 60;
+		if($scope.state.drawOptions.startTime >= $scope.state.drawOptions.endTime) {
+			$scope.state.drawOptions.endTime = $scope.state.drawOptions.startTime + 60;
 		}
 	};
 	/*days: {
@@ -696,8 +740,8 @@ app.controller("GenerateCtrl", function($scope, globalKbdShortcuts, $http, $filt
     		var index = (nonCourseIndex + 1);
     		var fieldName = 'nonCourse';
     		requestData[fieldName + 'Title' + index] = nonCourse.title;
-    		requestData[fieldName + 'StartTime' + index] = formatTime(nonCourse.start_time); // This is dumb
-    		requestData[fieldName + 'EndTime' + index] = formatTime(nonCourse.end_time);
+    		requestData[fieldName + 'StartTime' + index] = formatTime(nonCourse.startTime); // This is dumb
+    		requestData[fieldName + 'EndTime' + index] = formatTime(nonCourse.endTime);
     		requestData[fieldName + 'Days' + index + '[]'] = nonCourse.days;
     	}
     	
@@ -705,8 +749,8 @@ app.controller("GenerateCtrl", function($scope, globalKbdShortcuts, $http, $filt
     		var noCourse = $scope.state.noCourses[noCourseIndex];
     		var index = (noCourseIndex + 1);
     		var fieldName = 'noCourse';
-    		requestData[fieldName + 'StartTime' + index] = formatTime(noCourse.start_time); // This is still dumb
-    		requestData[fieldName + 'EndTime' + index] = formatTime(noCourse.end_time);
+    		requestData[fieldName + 'StartTime' + index] = formatTime(noCourse.startTime); // This is still dumb
+    		requestData[fieldName + 'EndTime' + index] = formatTime(noCourse.endTime);
     		requestData[fieldName + 'Days' + index + '[]'] = noCourse.days;
     	}
     	
@@ -724,12 +768,13 @@ app.controller("GenerateCtrl", function($scope, globalKbdShortcuts, $http, $filt
 		    	$scope.state.displayOptions.currentPage = 0;
 		    	$scope.scrollToSchedules();
 	    	} else {
-	    		alert('There will be better error handling, but this happened: \n'+data.msg);
+	    		$scope.resultError = data.msg;
+	    		console.log("Schedule Generation Error:", data);
 	    	}
 	    }).
 	    error(function(data, status, headers, config) {
 	    	course.status = 'D';
-	    // Most likely typed too fast
+	    	// Most likely typed too fast
 	    });
     	
     	/*
@@ -905,8 +950,8 @@ app.controller('nonCourseItemsCtrl', function($scope) {
 	$scope.addNonC = function() {
 		$scope.state.nonCourses.push({
 			title: '',
-			start_time: '',
-			end_time: '',
+			startTime: '',
+			endTime: '',
 			days: []
 		});
 	};
@@ -916,8 +961,8 @@ app.controller('nonCourseItemsCtrl', function($scope) {
 	};
 	
 	$scope.ensureCorrectEndTime = function(index) {
-		if($scope.state.nonCourses[index].start_time >= $scope.state.nonCourses[index].end_time) {
-			$scope.state.nonCourses[index].end_time = $scope.state.nonCourses[index].start_time + 60;
+		if($scope.state.nonCourses[index].startTime >= $scope.state.nonCourses[index].endTime) {
+			$scope.state.nonCourses[index].endTime = $scope.state.nonCourses[index].startTime + 60;
 		}
 	};
 });
@@ -926,8 +971,8 @@ app.controller('noCourseItemsCtrl', function($scope) {
 	
 	$scope.addNoC = function() {
 		$scope.state.noCourses.push({
-			start_time: '',
-			end_time: '',
+			startTime: '',
+			endTime: '',
 			days: []
 		});
 	};
@@ -937,8 +982,8 @@ app.controller('noCourseItemsCtrl', function($scope) {
 	};
 	
 	$scope.ensureCorrectEndTime = function(index) {
-		if($scope.state.noCourses[index].start_time >= $scope.state.noCourses[index].end_time) {
-			$scope.state.noCourses[index].end_time = $scope.state.noCourses[index].start_time + 60;
+		if($scope.state.noCourses[index].startTime >= $scope.state.noCourses[index].endTime) {
+			$scope.state.noCourses[index].endTime = $scope.state.noCourses[index].startTime + 60;
 		}
 	};
 });
@@ -1262,38 +1307,98 @@ app.directive('pinned', function() {
 	};
 });
 
+app.factory('openPopup', function($window) {
+	
+	/**
+	 * A utility to get top/left with a given width and height
+	 */
+	var getPosition = function(width, height) {
+		
+		// Set defaults if either not set
+		if(!width || !height) {
+			width = 550;
+			height = 450;
+		}
+		
+		// Return an object and calculate correct position
+		return {
+			width:  width,
+			height: height,
+			top:    Math.round((screen.height / 2) - (height / 2)),
+			left:   Math.round((screen.width / 2) - (width / 2))
+		};
+	};
+	
+	return function(width, height) {
+		
+		var pos = getPosition(width, height);
+		
+		return $window.open(
+			'about:blank',
+			'Loading...',
+			'left=' + pos.left + 
+			',top=' + pos.top + 
+			',width=' + pos.width +
+			',height=' + pos.height + 
+			',personalbar=0,toolbar=0,scrollbars=1,resizable=1'
+		);
+	}
+});
+
+app.factory('shareServiceInfo', function() {
+	
+	// Define the services and their common functions
+	return {
+		googlep: {
+			getURL: function(url) {
+				return 'https://plus.google.com/share?url=' + encodeURIComponent(url);
+			},
+			title: "Share on Google+"
+		},
+		twitter: {
+			getURL: function(url) {
+				return 'http://twitter.com/share?url=' + encodeURIComponent(url) + '&text=My%20Class%20Schedule';
+			},
+			title: "Share on Twitter"
+		},
+		facebook: {
+			getURL: function(url) {
+				return 'http://www.facebook.com/sharer.php?u=' + encodeURIComponent(url);
+			},
+			title: "Share on Facebook"
+		}
+	}
+});
+
 /**
  * Several endpoint abstractions for the schedules
  */
-app.directive('scheduleActions', function($http, $q) {
+app.directive('scheduleActions', function($http, $q, shareServiceInfo, openPopup) {
 	
 	var serializer = new XMLSerializer();
 	
 	function scheduleActions(scope, elm) {
 		
-		/**
-		 * Gets the save info for the schedule. Only will save once per-schedule
-		 * 
-		 * @returns Promise
-		 */
-		function getSaveInfo() {
+		var getSavedInfo = function() {
 
 			// See if we already have saved info
 			if(scope.saveInfo) {
-				return $q.defer().resolve(scope.saveInfo);
+				var defferred = $q.defer();
+				defferred.resolve(scope.saveInfo);
+				return defferred.promise;
 			}
 			// If not create it
 			var schedule = angular.copy(scope.schedule);
 			
-			// Create the request params
+			// Create the request params as all strings with correct keys
 			var params = {
 				data: JSON.stringify({
-					startday:  '' + scope.state.drawOptions.start_day,
-					endday:    '' + scope.state.drawOptions.end_day,
-					starttime: scope.state.drawOptions.start_time,
-					endtime:   scope.state.drawOptions.end_time,
-					building:  scope.state.drawOptions.building_style,
-					term:      scope.state.requestOptions.term,
+					startday:  '' + scope.state.drawOptions.startDay,
+					endday:    '' + scope.state.drawOptions.endDay,
+					starttime: '' + scope.state.drawOptions.startTime,
+					endtime:   '' + scope.state.drawOptions.endTime,
+					building:  '' + scope.state.drawOptions.bldgStyle,
+					term:      '' + scope.state.requestOptions.term,
 					schedule:  schedule,
 				}),
 				svg: serializer.serializeToString(elm.find("svg").get(0)),
@@ -1312,37 +1417,81 @@ app.directive('scheduleActions', function($http, $q) {
 				if(request.status == 200 && typeof request.data.error == 'undefined') {
 					
 					// save the saveInfo and return it
-					
 					scope.saveInfo = request.data;
+					
 					return request.data;
 				} else {
 					
-					console.log(data);
-					
-					// TODO: Better error checking
-					alert(request.data.msg);
-					
-					return $q.reject("Error:" + request.data.msg);
+					return $q.reject("Save Error:" + request.data.msg);
 				}
 			});
 		};
-		
-		
+
 		scope.scheduleActions = {
 			
 			save: function(saveType) {
 				
 				if(saveType == "create") {
-					getSaveInfo().then(function(data) {
+					getSavedInfo().then(function(data) {
 						scope.notification = "This schedule can be accessed at " +
 						"<a href=\""+ data.url + "\" target=\"_blank\">"
 						+ data.url + "</a><br><em>This schedule will be removed" +
 						" after 3 months of inactivity</em>";
+					},  function(error) {
+						console.log(error);
+						scope.notification = error;
 					});
 				} else {
-					sessionStorage.setItem('reloadSchedule', scope.schedule);
+					
+					// TODO: Impliment this
+					alert("Not implimented yet, but will be before release.");
+					//sessionStorage.setItem('reloadSchedule', scope.schedule);
 				}
-			} 
+			},
+			
+			shareToService: function($event, serviceName) {
+				
+				$event.preventDefault();
+				
+				if(serviceName && serviceName in shareServiceInfo) {
+					
+					var service = shareServiceInfo[serviceName];
+					
+					// Create a popup in click context to workaround blockers
+					var popup = openPopup();
+					
+					getSavedInfo().then(function(data) {
+						popup.location = service.getURL(data.url);
+						popup.document.title = service.title;
+					});
+				} 
+			},
+			
+			shareToEmail: function($event) {
+				
+				$event.preventDefault();
+				
+				getSavedInfo().then(function(data) {
+					
+					var body = "Check out my schedule at: " + data.url;
+					
+					//Open a mailto link
+					window.location.href= "mailto:?body=" + 
+					encodeURIComponent(body);
+				});
+			},
+			
+			print: function($event) {
+				
+				$event.preventDefault();
+				
+				alert("Not implimented yet, but will be before release.");
+				//var popup = openPopup(800, 600);
+				
+				//popup.document.title = "My Schedule";
+				//popup.document.write("Not implimented yet, but will be before release");
+				//sessionStorage.setItem('reloadSchedule', scope.schedule);
+			}
 		}
 	};
 	
@@ -1368,8 +1517,8 @@ app.directive('schedule', function($timeout, $filter) {
 	}
 	Schedule.prototype.init = function() {
 		
-		this.drawOptions.parsedTime.start = parseInt(this.scope.state.drawOptions.start_time);
-		this.drawOptions.parsedTime.end = parseInt(this.scope.state.drawOptions.end_time);
+		this.drawOptions.parsedTime.start = parseInt(this.scope.state.drawOptions.startTime);
+		this.drawOptions.parsedTime.end = parseInt(this.scope.state.drawOptions.endTime);
 		if(!this.drawOptions.parsedTime.start || !this.drawOptions.parsedTime.end) return false;
         
 		this.scope.hiddenCourses = [];
@@ -1393,7 +1542,7 @@ app.directive('schedule', function($timeout, $filter) {
     	}
 
 		// Generate grid
-        var numDays = this.scope.state.drawOptions.end_day - this.scope.state.drawOptions.start_day + 1;
+        var numDays = this.scope.state.drawOptions.endDay - this.scope.state.drawOptions.startDay + 1;
 		// Set up grid
 		var rawHeight = (hourArray.length * 40),
 		globalOpts = {
@@ -1413,7 +1562,7 @@ app.directive('schedule', function($timeout, $filter) {
 		var dayArray = [];
 		//Generate days
 		
-		var dayIndex = this.scope.state.drawOptions.start_day;
+		var dayIndex = this.scope.state.drawOptions.startDay;
 		for(var i=0; i < numDays; i++) {
 			var offset = globalOpts.hoursWidth + ( 2 * dayOpts.padding) + ((dayOpts.rawWidth - dayOpts.padding) * i);
 			dayArray.push({
@@ -1450,7 +1599,7 @@ app.directive('schedule', function($timeout, $filter) {
 			// Make it easier for the developer
 			var time = course.times[t];
 			// Skip times that aren't part of the displayed days
-			if(time.day < this.scope.state.drawOptions.start_day || time.day > this.scope.state.drawOptions.end_day) {
+			if(time.day < this.scope.state.drawOptions.startDay || time.day > this.scope.state.drawOptions.endDay) {
 				if($.inArray(course.courseNum, this.scope.hiddenCourses) == -1) {
 					this.scope.hiddenCourses.push(course.courseNum);
 				}
@@ -1494,7 +1643,7 @@ app.directive('schedule', function($timeout, $filter) {
 			timeTop += 19;					// Offset for the header
 			
 			if(course.courseNum != 'non') {
-				var location = ((this.scope.state.drawOptions.building_style == 'code') ? time.bldg.code : time.bldg.number) + "-" + time.room,
+				var location = ((this.scope.state.drawOptions.bldgStyle == 'code') ? time.bldg.code : time.bldg.number) + "-" + time.room,
 				instructor = course.instructor,
 				courseNum = course.courseNum;
 			} else {
@@ -1510,7 +1659,7 @@ app.directive('schedule', function($timeout, $filter) {
 				    instructor: instructor
 				},
 				boundry: {
-					x: grid.days[time.day - this.scope.state.drawOptions.start_day].offset,
+					x: grid.days[time.day - this.scope.state.drawOptions.startDay].offset,
 					y: timeTop,
 					shorten: shorten,
 					width: grid.opts.daysWidth,
@@ -1610,17 +1759,8 @@ app.directive('svgTextLine', function() {
 
 app.controller("scheduleCtrl", function($scope, $window) {
 	
-	$scope.schedule = $window.schedule.courses;
 	
-	$scope.state.drawOptions.start_time = $window.schedule.startTime;
-	$scope.state.drawOptions.end_time = $window.schedule.endTime;
-	$scope.state.drawOptions.start_day = $window.schedule.startDay;
-	$scope.state.drawOptions.end_day = $window.schedule.endDay;
-	$scope.state.drawOptions.building_style = $scope.state.bldgStyle;
-	$scope.state.requestOptions.term = +$window.schedule.term;
-		
-	$scope.noStateSaveOnUnload();
-})
+});
 
 app.factory('globalKbdShortcuts', function($rootScope) {
 	var globalKbdShortcuts = {

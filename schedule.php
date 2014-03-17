@@ -504,7 +504,7 @@ switch($mode) {
 		$json = json_encode($schedule);
 		//$json = htmlentities($json, ENT_COMPAT);
 		?>
-		<script>var schedule = <?=$json?>;</script>
+		<script>var reloadSchedule = <?=$json?>;</script>
 		<div class="container" ng-controller="scheduleCtrl">
 			<div schedule existing="true"></div>
 		</div>

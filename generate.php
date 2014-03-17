@@ -75,11 +75,11 @@ require "./inc/header.inc";
 									<div class="row form-inline">
 										<div class="col-xs-12">
 											<div class="form-group">
-												<select id="options-start_time" ng-change="ensureCorrectEndTime($index)" class="form-control" ng-model="nonCourse.start_time" ng-options="key as ui.optionLists.times.values[key] for key in ui.optionLists.times.keys"><option value="">Start</option></select>
+												<select id="options-startTime" ng-change="ensureCorrectEndTime($index)" class="form-control" ng-model="nonCourse.startTime" ng-options="key as ui.optionLists.times.values[key] for key in ui.optionLists.times.keys"><option value="">Start</option></select>
 											</div>
 											<div class="form-group">to</div>
 											<div class="form-group">
-												<select id="options-end_time" class="form-control" ng-model="nonCourse.end_time" ng-options="key as ui.optionLists.times.values[key] for key in ui.optionLists.times.keys | startFrom: ui.optionLists.times.keys.indexOf(nonCourse.start_time) + 1"><option value="">End</option></select>
+												<select id="options-endTime" class="form-control" ng-model="nonCourse.endTime" ng-options="key as ui.optionLists.times.values[key] for key in ui.optionLists.times.keys | startFrom: ui.optionLists.times.keys.indexOf(nonCourse.startTime) + 1"><option value="">End</option></select>
 											</div>
 										</div>
 									</div>
@@ -127,11 +127,11 @@ require "./inc/header.inc";
 									<div class="row form-inline">
 										<div class="col-xs-12">
 											<div class="form-group">
-												<select id="options-start_time" ng-change="ensureCorrectEndTime($index)" class="form-control" ng-model="noCourse.start_time" ng-options="key as ui.optionLists.times.values[key] for key in ui.optionLists.times.keys"><option value="">Start</option></select>
+												<select id="options-startTime" ng-change="ensureCorrectEndTime($index)" class="form-control" ng-model="noCourse.startTime" ng-options="key as ui.optionLists.times.values[key] for key in ui.optionLists.times.keys"><option value="">Start</option></select>
 											</div>
 											<div class="form-group">to</div>
 											<div class="form-group">
-												<select id="options-end_time" class="form-control" ng-model="noCourse.end_time" ng-options="key as ui.optionLists.times.values[key] for key in ui.optionLists.times.keys | startFrom: ui.optionLists.times.keys.indexOf(noCourse.start_time) + 1"><option value="">End</option></select>
+												<select id="options-endTime" class="form-control" ng-model="noCourse.endTime" ng-options="key as ui.optionLists.times.values[key] for key in ui.optionLists.times.keys | startFrom: ui.optionLists.times.keys.indexOf(noCourse.startTime) + 1"><option value="">End</option></select>
 											</div>
 										</div>
 									</div>
@@ -174,6 +174,15 @@ require "./inc/header.inc";
 						<button type="button" class="btn-lg btn btn-default btn-danger" ng-click="resetState()">Reset</button>
 					</div>
 				</div>
+				<div class="vert-spacer-static-md"></div>
+				<div ng-show="!!resultError">
+					<div class="alert alert-danger">
+						<button type="button" class="close" aria-hidden="true" ng-click="resultError = null">
+							<i class="fa fa-times"></i>
+						</button>
+						<i class="fa fa-exclamation-circle"></i> {{resultError}}
+					</div>
+				</div>
 			</div>
 			<div class="col-md-4 pinned-track" ng-init="showCourseCart = true">
 				<div course-cart></div>
@@ -200,19 +209,19 @@ require "./inc/header.inc";
 									</div>
 									<div class="form-group">Display from</div>
 									<div class="form-group">
-										<select id="options-start_time" ng-change="ensureCorrectEndTime()" class="form-control" ng-model="state.drawOptions.start_time" ng-options="key as ui.optionLists.times.values[key] for key in ui.optionLists.times.keys"></select>
+										<select id="options-startTime" ng-change="ensureCorrectEndTime()" class="form-control" ng-model="state.drawOptions.startTime" ng-options="key as ui.optionLists.times.values[key] for key in ui.optionLists.times.keys"></select>
 									</div>
 									<div class="form-group">to</div>
 									<div class="form-group">
-										<select id="options-end_time" class="form-control" ng-model="state.drawOptions.end_time" ng-options="key as ui.optionLists.times.values[key] for key in ui.optionLists.times.keys | startFrom: ui.optionLists.times.keys.indexOf(state.drawOptions.start_time) + 1"></select>
+										<select id="options-endTime" class="form-control" ng-model="state.drawOptions.endTime" ng-options="key as ui.optionLists.times.values[key] for key in ui.optionLists.times.keys | startFrom: ui.optionLists.times.keys.indexOf(state.drawOptions.startTime) + 1"></select>
 									</div>
 									<div class="form-group">and from</div>
 									<div class="form-group">
-										<select id="options-start_day" ng-change="ensureCorrectEndDay()" class="form-control" ng-model="state.drawOptions.start_day" ng-options="ui.optionLists.days.indexOf(value) as value for (key, value) in ui.optionLists.days"></select>
+										<select id="options-startDay" ng-change="ensureCorrectEndDay()" class="form-control" ng-model="state.drawOptions.startDay" ng-options="ui.optionLists.days.indexOf(value) as value for (key, value) in ui.optionLists.days"></select>
 									</div>
 									<div class="form-group">to</div>
 									<div class="form-group">
-										<select id="options-end_day" class="form-control" ng-model="state.drawOptions.end_day" ng-options="ui.optionLists.days.indexOf(value) as value for (key, value) in ui.optionLists.days | startFrom: state.drawOptions.start_day"></select>
+										<select id="options-endDay" class="form-control" ng-model="state.drawOptions.endDay" ng-options="ui.optionLists.days.indexOf(value) as value for (key, value) in ui.optionLists.days | startFrom: state.drawOptions.startDay"></select>
 									</div>
 									<div class="form-group pull-right" pagination-controls="state.displayOptions" pagination-length="state.schedules.length"></div>
 								</div>
@@ -227,9 +236,9 @@ require "./inc/header.inc";
 								<div class="row form-horizontal">
 									<div class="col-md-4">
 										<div class="form-group">
-											<label for="options-building_style" class="col-sm-4 control-label">Buildings</label>
+											<label for="options-bldgStyle" class="col-sm-4 control-label">Buildings:</label>
 											<div class="col-sm-8">
-												<select id="options-building_style" class="form-control" ng-model="state.drawOptions.building_style">
+												<select id="options-bldgStyle" class="form-control" ng-model="state.drawOptions.bldgStyle">
 													<option value="code">Codes (eg. GOL)</option>
 													<option value="number">Number (eg. 70)</option>
 												</select>
@@ -238,7 +247,7 @@ require "./inc/header.inc";
 									</div>
 									<div class="col-md-4">
 										<div class="form-group hidden-xs">
-											<label for="options-fullscreen" class="col-sm-4 control-label">Width</label>
+											<label for="options-fullscreen" class="col-sm-4 control-label">Width:</label>
 											<div class="col-sm-8">
 												<div class="checkbox">
 													<label> <input id="options-fullscreen" type="checkbox" ng-model="state.displayOptions.fullscreen"> Fullscreen
@@ -249,7 +258,7 @@ require "./inc/header.inc";
 									</div>
 									<div class="col-md-4">
 										<div class="form-group">
-											<label for="displayOptions-pageSize" class="col-sm-4 control-label">Page Size</label>
+											<label for="displayOptions-pageSize" class="col-sm-4 control-label">Page Size:</label>
 											<div class="col-sm-8">
 												<select id="displayOptions-pageSize" class="form-control" ng-model="state.displayOptions.pageSize">
 													<option value="3">3</option>
@@ -272,8 +281,7 @@ require "./inc/header.inc";
 		<div ng-class="{container: !state.displayOptions.fullscreen}">
 			<div ng-class="{'col-sm-12': state.displayOptions.fullscreen}">
 				<div class="row" ng-repeat="schedule in state.schedules | startFrom:state.displayOptions.currentPage*state.displayOptions.pageSize | limitTo:state.displayOptions.pageSize">
-					<div class="col-md-12" schedule>
-					</div>
+					<div class="col-md-12" schedule></div>
 				</div>
 			</div>
 		</div>

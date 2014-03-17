@@ -25,6 +25,11 @@ table {
 img {
 	border: 0;
 }
+
+label {
+	font-weight: normal !important;
+}
+
 #superContainer {
 	/*  nothing */
     background-color:#2B4E69;
