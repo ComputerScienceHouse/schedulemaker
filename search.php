@@ -184,7 +184,7 @@ require "./inc/header.inc";
 											<h4 class="list-group-item-heading">{{($index + 1) + (searchPagination.currentPage*searchPagination.pageSize)}}. {{section.courseNum}}</h4>
 											<small>{{section.title}}</small>
 											<p class="list-group-item-text label-line ">
-												<span class="label label-default" professor-lookup="section.instructor"></span>
+												<span class="label label-default" ng-bind-html="section.instructor | RMPUrl"></span>
 											</p>
 											<div ng-init="parsedTimes = (section.times | parseSectionTimes:true)">
 												<div ng-repeat="time in parsedTimes" style="font-size: small">

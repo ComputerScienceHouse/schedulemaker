@@ -48,7 +48,7 @@
 		<div ng-if="hiddenCourses.length > 0" class="row">
 			<div class="col-xs-12">
 				<div class="alert alert-warning">
-					<strong>Warning!</strong> The following course{{hiddenCourses.length != 1?'s are':' is'}} not displayed: <span ng-repeat="course in hiddenCourses">{{course}}{{$last?'':', '}}</span>
+					<strong>Warning!</strong> The following item{{hiddenCourses.length != 1?'s are':' is'}} not displayed: <span ng-repeat="course in hiddenCourses">{{course.courseNum != 'non'?course.courseNum+': ':''}}{{course.title}}{{$last?'':', '}}</span>
 				</div>
 			</div>
 		</div>

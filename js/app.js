@@ -101,9 +101,11 @@ app.factory("sessionStorage", function($window) {
 	return {
 		setItem: function(key, value) {
 			if(sessionStorage) {
-				setTimeout(function() {
+				if(value != null) {
 					sessionStorage.setItem(key, angular.toJson(value));
-				}, 10);
+				} else {
+					sessionStorage.setItem(key, null);
+				}
 			} else {
 				return false;
 			}
@@ -223,7 +225,7 @@ app.controller("AppCtrl", function($scope, sessionStorage, $window, $filter) {
 		
 		// Don't save these state settings
 		$scope.noStateSaveOnUnload();
-	}
+	};
 	
 	// Check if we need to load a schedule
 	if(typeof $window.reloadSchedule !== 'undefined') {
@@ -236,7 +238,6 @@ app.controller("AppCtrl", function($scope, sessionStorage, $window, $filter) {
 		if(reloadSchedule != null) {
 			$scope.reloadSchedule(reloadSchedule);
 		}
-		
 	}
 	
 
@@ -253,12 +254,29 @@ app.controller("AppCtrl", function($scope, sessionStorage, $window, $filter) {
 		},
 		count: {
 			all: {
+				
+				/**
+				 * Returns the total number of selected sections in the cart
+				 */
 				selectedSections: function() {
 					var count = 0;
 					for(var i = 0; i < $scope.state.courses.length; i++) {
 						if($scope.state.courses[i]) {
 						count += $scope.courseCart.count.course.
 							selectedSections($scope.state.courses[i]);
+						}
+					}
+					return count;
+				},
+				
+				/**
+				 * Returns the total number of courses from the selectCoursesCtrl
+				 */
+				coursesFromSelect: function() {
+					var count = 0;
+					for(var i = 0; i < $scope.state.courses.length; i++) {
+						if($scope.state.courses[i].fromSelect) {
+							count++;
 						}
 					}
 					return count;
@@ -549,7 +567,7 @@ app.controller("AppCtrl", function($scope, sessionStorage, $window, $filter) {
 			 * Creates and adds a pre-existing course from the database to the
 			 * cart
 			 * 
-			 * @param existingCourse {Object} A course from the database
+			 * @param course {Object} A course from the database
 			 * @returns {Object} The newly created course
 			 */
 			fromExistingCourse: function(course) {
@@ -560,6 +578,24 @@ app.controller("AppCtrl", function($scope, sessionStorage, $window, $filter) {
 				
 				$scope.state.courseMap[course.id] = true;
 				return $scope.courseCart.add.courseToCart(course);
+			},
+			
+			/**
+			 * Creates and adds a pre-existing course from a schedule
+			 * 
+			 * @param scheduleCourse {Object} A course from the database
+			 * @returns {Object} The newly created course
+			 */
+			fromExistingScheduleCourse: function(scheduleCourse) {
+				var course = $scope.courseCart.getBlankCourse(true);
+				
+				course.search = scheduleCourse.courseNum;
+				scheduleCourse.selected = true;
+				course.sections.push(scheduleCourse);
+
+				$scope.courseCart.add.courseToCart(course);
+				
+				return course;
 			},
 			
 			/**
@@ -641,19 +677,63 @@ app.controller("AppCtrl", function($scope, sessionStorage, $window, $filter) {
 					1380: '11:00pm',
 					1440: '12:00am'
 				}
+			},
+			timesHalfHours: {
+				keys:[0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330, 360, 390, 420, 450, 480, 510, 540, 570, 600, 630, 660, 690, 720, 750, 780, 810, 840, 870, 900, 930, 960, 990, 1020, 1050, 1080, 1110, 1140, 1170, 1200, 1230, 1260, 1290, 1320, 1350, 1380, 1410, 1440],
+				values: {
+					0: '12:00am',
+					30: '12:30am',
+					60: '1:00am',
+					90: '1:30am',
+					120: '2:00am',
+					150: '2:30am',
+					180: '3:00am',
+					210: '3:30am',
+					240: '4:00am',
+					270: '4:30am',
+					300: '5:00am',
+					330: '5:30am',
+					360: '6:00am',
+					390: '6:30am',
+					420: '7:00am',
+					450: '7:30am',
+					480: '8:00am',
+					510: '8:30am',
+					540: '9:00am',
+					570: '9:30am',
+					600: '10:00am',
+					630: '10:30am',
+					660: '11:00am',
+					690: '11:30am',
+					720: '12:00pm',
+					750: '12:30pm',
+					780: '1:00pm',
+					810: '1:30pm',
+					840: '2:00pm',
+					870: '2:30pm',
+					900: '3:00pm',
+					930: '3:30pm',
+					960: '4:00pm',
+					990: '4:30pm',
+					1020: '5:00pm',
+					1050: '5:30pm',
+					1080: '6:00pm',
+					1110: '6:30pm',
+					1140: '7:00pm',
+					1170: '7:30pm',
+					1200: '8:00pm',
+					1230: '8:30pm',
+					1260: '9:00pm',
+					1290: '9:30pm',
+					1320: '10:00pm',
+					1350: '10:30pm',
+					1380: '11:00pm',
+					1410: '11:30pm',
+					1440: '12:00am',
+				}
 			}
 		},
-		colors: /*["#629E6D",
-		         "#B29144",
-		         "#D47F55",
-		         "#8C9AC3",
-		         "#D07A7B",
-		         "#808591",
-		         "#4D9F9E",
-		         "#B97D9C",
-		         "#A37758",
-		         "#87944F",
-		        ]*/
+		colors:
 			["#7BA270",
 			 "#85B4C2",
 			 "#CD9161",
@@ -667,8 +747,66 @@ app.controller("AppCtrl", function($scope, sessionStorage, $window, $filter) {
 	};
 });
 
-app.controller("GenerateCtrl", function($scope, globalKbdShortcuts, $http, $filter) {
+app.controller("GenerateCtrl", function($scope, globalKbdShortcuts, $http, $filter, sessionStorage, uiDayFactory) {
 	
+	
+	//Check if we are forking a schedule
+	if(sessionStorage.hasKey('forkSchedule')){
+		
+		// Get the schedule from sessions storage
+		var forkSchedule = sessionStorage.getItem('forkSchedule');
+		if(forkSchedule != null) {
+			
+			// Clear it so we don't fork again
+			sessionStorage.setItem('forkSchedule', null);
+			
+			var days = uiDayFactory();
+			
+			// Init state
+			$scope.initState();
+			
+			for(var i = forkSchedule.length; i--;) {
+				var course = forkSchedule[i];
+				
+				// If it's a real course
+				if(course.courseNum != 'non') {
+					$scope.courseCart.create.fromExistingScheduleCourse(course);
+				} else {
+					
+					// Make a non-course item
+					var nonCourse = {
+						title: course.title,
+						days: [days[parseInt(course.times[0].day)]],
+						startTime: parseInt(course.times[0].start),
+						endTime: parseInt(course.times[0].end)
+					};
+					console.log(nonCourse);
+					var mergedNonCourse = false;
+					
+					// Try to merge this non course with other similar ones
+					for(var n = 0, l = $scope.state.nonCourses.length; n < l; n++) {
+						var otherNonCourse = $scope.state.nonCourses[n];
+						if(otherNonCourse.title == nonCourse.title &&
+						   otherNonCourse.startTime == nonCourse.startTime &&
+						   otherNonCourse.endTime == nonCourse.endTime) {
+							otherNonCourse.days = otherNonCourse.days.concat(nonCourse.days);
+							mergedNonCourse = true;
+							break;
+						}
+					}
+					
+					if(!mergedNonCourse) {
+						$scope.state.nonCourses.push(nonCourse);
+					}
+				}
+				
+			}
+			
+		}
+		
+	}
+	
+	// Decorate some course helpers for our dynamic items directive
 	$scope.courses_helpers = {
 		add: $scope.courseCart.create.blankCourse,
 		remove: function(index) {
@@ -679,15 +817,6 @@ app.controller("GenerateCtrl", function($scope, globalKbdShortcuts, $http, $filt
 		},
 	};
 
-	$scope.colorSearch = function(search) {
-		var foundColor = null;
-		$scope.state.courses.forEach(function(e) {
-			if(e.search.search(search) >= 0) {
-				foundColor =  e.color;
-			}
-		});
-		return foundColor;
-	};
 	$scope.ensureCorrectEndDay = function() {
 		if($scope.state.drawOptions.startDay > $scope.state.drawOptions.endDay) {
 			$scope.state.drawOptions.endDay = $scope.state.drawOptions.startDay;
@@ -698,15 +827,6 @@ app.controller("GenerateCtrl", function($scope, globalKbdShortcuts, $http, $filt
 			$scope.state.drawOptions.endTime = $scope.state.drawOptions.startTime + 60;
 		}
 	};
-	/*days: {
-		0: "Sunday",
-		1: "Monday",
-		2: "Tuesday",
-		3: "Wednesday",
-		4: "Thursday",
-		5: "Friday",
-		6: "Saturday"
-	}*/
 	
 	$scope.numberOfPages = function() {
 		return Math.ceil($scope.state.schedules.length / $scope.state.displayOptions.pageSize);
@@ -733,20 +853,28 @@ app.controller("GenerateCtrl", function($scope, globalKbdShortcuts, $http, $filt
     		'noCourseCount': $scope.state.noCourses.length
     	};
     	
-    	
+    	// Set the actual number of courses being sent
     	var actualCourseIndex = 1;
+    	
+    	// Loop through the course cart
     	for(var courseIndex = 0; courseIndex < $scope.state.courses.length; courseIndex++) {
+    		
+    		// Set up our variables
     		var course = $scope.state.courses[courseIndex];
     		var fieldName = 'courses' + (actualCourseIndex) + 'Opt[]';
     		requestData['courses' + actualCourseIndex] = course.search;
     		requestData[fieldName] = [];
     		var sectionCount = 0;
+    		
+    		// Add selected sections to the request
     		for(var sectionIndex = 0; sectionIndex < course.sections.length; sectionIndex++) {
     			if(course.sections[sectionIndex].selected) {
     				requestData[fieldName].push(course.sections[sectionIndex].id);
     				sectionCount++;
     			}
     		}
+    		
+    		// If no sections are selected, remove the course info and decrease the actual course index
     		if(sectionCount == 0) {
     			requestData.courseCount--;
     			delete requestData['courses' + actualCourseIndex];
@@ -757,6 +885,7 @@ app.controller("GenerateCtrl", function($scope, globalKbdShortcuts, $http, $filt
     		
     	}
     	
+    	// Set the request data for the non courses
     	for(var nonCourseIndex = 0; nonCourseIndex < $scope.state.nonCourses.length; nonCourseIndex++) {
     		var nonCourse = $scope.state.nonCourses[nonCourseIndex];
     		var index = (nonCourseIndex + 1);
@@ -766,7 +895,8 @@ app.controller("GenerateCtrl", function($scope, globalKbdShortcuts, $http, $filt
     		requestData[fieldName + 'EndTime' + index] = nonCourse.endTime;
     		requestData[fieldName + 'Days' + index + '[]'] = nonCourse.days;
     	}
-    	
+
+    	// Set the request data for the no courses stuff
     	for(var noCourseIndex = 0; noCourseIndex < $scope.state.noCourses.length; noCourseIndex++) {
     		var noCourse = $scope.state.noCourses[noCourseIndex];
     		var index = (noCourseIndex + 1);
@@ -776,92 +906,53 @@ app.controller("GenerateCtrl", function($scope, globalKbdShortcuts, $http, $filt
     		requestData[fieldName + 'Days' + index + '[]'] = noCourse.days;
     	}
     	
-    	$http.post('./js/scheduleAjax.php',$.param(requestData), {
+    	// Actually make the request
+    	$http.post('/js/scheduleAjax.php',$.param(requestData), {
 	    	requestType:'json',
 	    	headers: {
 	            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
 	        }
 	    }).success(function(data, status, headers, config) {
-	    	if(!data.error) {
-	    		for(var i = 0; i < data.schedules.length; i++) {
-	    			data.schedules[i].number = i + 1;
+	    	
+	    	// If no errors happened
+	    	if(!data.error && !data.errors) {
+	    		
+	    		// Check if any schedules were generated
+		    	if(data.schedules == undefined || data.schedules == null || data.schedules.length == 0) {
+		    		$scope.resultError = 'There are no matching schedules!';
+		    	} else {
+		    		
+		    		// Otherwise reset page, scroll to schedules and clear errors
+			    	$scope.state.displayOptions.currentPage = 0;
+			    	$scope.scrollToSchedules();
+			    	$scope.state.schedules = data.schedules;
+			    	$scope.resultError =  '';
 		    	}
-		    	$scope.state.schedules = data.schedules;
-		    	$scope.state.displayOptions.currentPage = 0;
-		    	$scope.scrollToSchedules();
+
+	    	} else if(!data.error && data.errors) {
+	    		
+	    		// Display errors
+	    		$scope.resultError = data.errors.reduce(function(totals, error){return totals + ', ' + error.msg;}, '');
+	    		console.log("Schedule Generation Errors:", data);
 	    	} else {
+	    		
+	    		// Display errors
 	    		$scope.resultError = data.msg;
 	    		console.log("Schedule Generation Error:", data);
 	    	}
 	    }).
 	    error(function(data, status, headers, config) {
-	    	course.status = 'D';
-	    	// Most likely typed too fast
+	    	
+	    	// Display errors
+	    	$scope.resultError =  'Fatal Error: An internal server error occurred';
+	    	console.log("Fatal Schedule Generation Error:", data);
 	    });
-    	
-    	/*
-    	// Serialize the form and store it if it changed
-        var form = $("#scheduleForm");
-    	if(serialForm != form.serialize()) {
-    		serialForm = form.serialize();
-    		
-    		// Clear out the schedules and errors
-    		$("#schedules").find("> :not(:first-child)").remove();
-
-    		// Now we need to submit all the data to the ajax caller
-    		$.post("./js/scheduleAjax.php", $('#scheduleForm').serialize(), function(data) {
-                var scheduleDiv = $("#schedules");
-
-    			// If there was a single, non-recoverable error, show it and die
-    			if(data.error != null && data.error != undefined) {
-    				$("<div>").attr("id", "errorDiv")
-    						.addClass("scheduleError")
-    						.html("<b>Fatal Error: </b>" + data.msg)
-    						.appendTo(scheduleDiv);
-    				scheduleDiv.slideDown();
-    				return;
-    			}
-
-    			// Store the data for pagination later
-    			$scope.state.schedules = data.schedules;
-    			if(data.errors != null && data.errors != undefined) {
-    				errorDiv = $("<div id='errorDiv' class='scheduleWarning'>");
-    				var errorHTML = "<div class='subheader'><h3>Schedule Generator Warnings</h3><input id='errorControl' type='button' value='Collapse' onClick='collapseErrors();' /></div>";
-    				errorHTML = "<div class='subheader'><h3>Schedule Generator Warnings</h3><input id='errorControl' type='button' value='Collapse' onClick='collapseErrors();' /></div>";
-    				errorHTML += "<div id='errorContents'>";
-    				for(var i = 0; i < data.errors.length; i++) {
-    					errorHTML += data.errors[i].msg + "<br />";
-    				}
-    				errorHTML += "</div>";
-    				errorDiv.html(errorHTML);
-    				$('#schedules').append(errorDiv);
-    			}
-    			// If there are no matching schedules, display an error
-    			if(data.schedules == undefined || data.schedules == null || data.schedules.length == 0) {
-    				var errorDiv = $("<div id='errorDiv' class='scheduleError'>").html("There are no matching schedules!");
-    				scheduleDiv.append(errorDiv);
-    				scheduleDiv.slideDown();
-    				return;
-    			}
-    			// Unhide the schedules page
-    			scheduleDiv.show();
-    			$scope.$broadcast('generatedSchedules');
-    			
-    			$scope.scrollToSchedules();
-    			
-    		}).error( function() {
-                var scheduleDiv = $("#schedules");
-    			var errorDiv = $("<div>");
-    			errorDiv.attr("id", "errorDiv");
-    			errorDiv.addClass("scheduleError");
-    			errorDiv.html("Fatal Error: An internal server error occurred");
-    			errorDiv.appendTo(scheduleDiv);
-    			scheduleDiv.slideDown();
-    		});
-    		
-    	}*/
     };
+    
+    // Bind keyboard shortcuts
     globalKbdShortcuts.bindCtrlEnter($scope.generateSchedules);
+    
+    // Bind arrow key pagination
     globalKbdShortcuts.bindPagination(function() {
     	if (this.keyCode == 39 && $scope.state.displayOptions.currentPage + 1 < $scope.numberOfPages()) {
     		$scope.state.displayOptions.currentPage++;
@@ -872,6 +963,7 @@ app.controller("GenerateCtrl", function($scope, globalKbdShortcuts, $http, $filt
     	}
     });
     
+    // If the previous page set to generate schedules
     if($scope.state.ui.action_generateSchedules) {
     	$scope.state.ui.action_generateSchedules = false;
     	$scope.generateSchedules();
@@ -879,92 +971,131 @@ app.controller("GenerateCtrl", function($scope, globalKbdShortcuts, $http, $filt
  
 });
 app.controller( "MainMenuCtrl", function( $scope) {
-  $scope.path = window.location.pathname;
+	$scope.path = window.location.pathname;
 });
 
 app.controller( "scheduleCoursesCtrl", function( $scope, $http, $q, $timeout) {
-  if($scope.state.courses.length == 0) {
-	  $scope.courses_helpers.add();  
-  }
-  var canceler = {};
-  $scope.search = function(course) {
-	  if (canceler.hasOwnProperty(course.id)) {
-		  canceler[course.id].resolve();
-	  }
-      canceler[course.id] = $q.defer();
-      course.status = 'L';
-	    var searchRequest = $http.post('./js/scheduleAjax.php',$.param({
-    		'action'     : 'getCourseOpts',
-            'course'     : course.search,
-            'term'       : $scope.state.requestOptions.term,
-            'ignoreFull' : $scope.state.requestOptions.ignoreFull
-	    }), {
-	    	requestType:'json',
-	    	headers: {
-	            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
-	        }, 
-	        timeout: canceler[course.id].promise
-	    }).success(function(d, status, headers, config) {
-	    	course.status = 'D';
-	    	if(!d.error) {
-		    	for(var c = 0; c < d.length; ++c) {
-		    		
-		            d[c].isError = false;
-		            d[c].selected = true;
-		            
-		        }
-		    	course.sections = d;
-	    	} else {
-	    		course.sections = [{isError:true,error:d}];
-	    	}
-	    }).
-	    error(function(data, status, headers, config) {
-	    	course.status = 'D';
-	    // Most likely typed too fast
-	    });
-  };
-  $scope.$watch('state.requestOptions', function(newRO, oldRO) {
-	  if(angular.equals(newRO, oldRO)) {
-		  return;
-	  }
-	for(var i = 0, l = $scope.state.courses.length; i < l; i++) {
-		var course = $scope.state.courses[i];
-		if(course.search.length > 3) {
-			$scope.search(course);
+
+	// Check if a course needs to be added
+	if($scope.state.courses.length == 0 || $scope.courseCart.count.all.coursesFromSelect() == 0) {
+		$scope.courses_helpers.add();  
+	}
+	
+	// Create a way to cancel repeated searches
+	var canceler = {};
+	$scope.search = function(course) {
+		
+		// Check if the course id already has an ajax request and end it.
+		if (canceler.hasOwnProperty(course.id)) {
+			canceler[course.id].resolve();
 		}
-	  }
-  }, true);
-  $scope.$watch('state.displayOptions.pageSize', function(newPS, oldPS) {
-	  if(newPS === oldPS) {
-		  return;
-	  }
-	  if($scope.state.displayOptions.currentPage + 1 > $scope.numberOfPages()) {
-		  $scope.state.displayOptions.currentPage = $scope.numberOfPages() - 1;
-	  }
-  });
-  $scope.$watch('state.courses', function(newCourses, oldCourses) {
-	for(var i = 0, l = newCourses.length; i < l; i++){
-		var newCourse = newCourses[i],
+		
+		// Create a new request
+		canceler[course.id] = $q.defer();
+		
+		// Set the course to loading status
+		course.status = 'L';
+		
+		// Create the new search request
+		var searchRequest = $http.post('/js/scheduleAjax.php', $.param({
+			'action'     : 'getCourseOpts',
+			'course'     : course.search,
+			'term'       : $scope.state.requestOptions.term,
+			'ignoreFull' : $scope.state.requestOptions.ignoreFull
+		}), {
+			requestType:'json',
+			headers: {
+				'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+			}, 
+			// Here is where the request gets canceled from above
+			timeout: canceler[course.id].promise
+		}).success(function(data, status, headers, config) {
+			
+			// Set loading status to done
+			course.status = 'D';
+			
+			// If there has been no error
+			if(!d.error) {
+				
+				//set isError and selected to their defaults
+				for(var c = 0; c < data.length; ++c) {
+					data[c].isError = false;
+					data[c].selected = true;
+				}
+				
+				// Set the data to course's sections
+				course.sections = data;
+			} else {
+				
+				// Make a faux-result with isError being true
+				course.sections = [{isError: true, error: data}];
+			}
+		}).
+		error(function(data, status, headers, config) {
+			// Most likely typed too fast, ignore and set status to done.
+			course.status = 'D';
+		});
+	};
+	
+	// Listen for changes in request options
+	$scope.$watch('state.requestOptions', function(newRO, oldRO) {
+		if(angular.equals(newRO, oldRO)) {
+			return;
+		}
+		for(var i = 0, l = $scope.state.courses.length; i < l; i++) {
+			var course = $scope.state.courses[i];
+			
+			// Only re-search if the search field was valid anyways
+			if(course.search.length > 3) {
+				$scope.search(course);
+			}
+		}
+	}, true);
+	
+	// Reset the page size if the new size leaves the current page out of range
+	$scope.$watch('state.displayOptions.pageSize', function(newPS, oldPS) {
+		if(newPS === oldPS) {
+			return;
+		}
+		if($scope.state.displayOptions.currentPage + 1 > $scope.numberOfPages()) {
+			$scope.state.displayOptions.currentPage = $scope.numberOfPages() - 1;
+		}
+	});
+	
+	// Watch for changes in the course cart
+	$scope.$watch('state.courses', function(newCourses, oldCourses) {
+		for(var i = 0, l = newCourses.length; i < l; i++){
+			var newCourse = newCourses[i],
+			
+			// find the old course that the new one came from
 			oldCourse = oldCourses.filter(function (filterCourse) {
 				return filterCourse.id === newCourse.id;
 			})[0];
-		if(typeof oldCourse === 'undefined') {
-			oldCourse = {
-				search: '',
-				sections: []
-			};
-		}
-		if(newCourse.search != oldCourse.search && newCourse.search.length > 5) {
-			$scope.search(newCourse);
-		} else if(newCourse.search != oldCourse.search) {
-			newCourse.sections = [];
-			if (canceler.hasOwnProperty(newCourse.id)) {
-				canceler[newCourse.id].resolve();
-				newCourse.status = 'D';
+			
+			// It's a new course, so mock an old one for comparisons sake
+			if(typeof oldCourse === 'undefined') {
+				oldCourse = {
+					search: '',
+					sections: []
+				};
+			}
+			
+			// Check to see if the search field changed, or was valid
+			if(newCourse.search != oldCourse.search && newCourse.search.length > 3) {
+				
+				// Find the new results!
+				$scope.search(newCourse);
+			} else if(newCourse.search != oldCourse.search) {
+				
+				// The search field has been changed to be too short, remove sections
+				newCourse.sections = [];
+				if (canceler.hasOwnProperty(newCourse.id)) {
+					canceler[newCourse.id].resolve();
+					newCourse.status = 'D';
+				}
 			}
 		}
-	}
-  }, true);
+	}, true);
 });
 
 app.controller('nonCourseItemsCtrl', function($scope) {
@@ -1457,9 +1588,9 @@ app.directive('scheduleActions', function($http, $q, shareServiceInfo, openPopup
 					});
 				} else {
 					
-					// TODO: Impliment this
-					alert("Not implimented yet, but will be before release.");
-					//sessionStorage.setItem('reloadSchedule', scope.schedule);
+					sessionStorage.setItem('forkSchedule', scope.schedule);
+					
+					window.location = "/generate.php";
 				}
 			},
 			
@@ -1645,8 +1776,8 @@ app.directive('schedule', function($timeout, $filter) {
 			var time = course.times[t];
 			// Skip times that aren't part of the displayed days
 			if(time.day < this.scope.state.drawOptions.startDay || time.day > this.scope.state.drawOptions.endDay) {
-				if($.inArray(course.courseNum, this.scope.hiddenCourses) == -1) {
-					this.scope.hiddenCourses.push(course.courseNum);
+				if(this.scope.hiddenCourses.indexOf(course) == -1) {
+					this.scope.hiddenCourses.push(course);
 				}
 				continue;
 			}
@@ -1667,8 +1798,8 @@ app.directive('schedule', function($timeout, $filter) {
 					shorten = 1;
 				} else {
 					// The course is completely hidden
-					if($.inArray(course.courseNum, this.scope.hiddenCourses) == -1) {
-						this.scope.hiddenCourses.push(course.courseNum);
+					if(this.scope.hiddenCourses.indexOf(course) == -1) {
+						this.scope.hiddenCourses.push(course);
 					}
 					continue;
 				}

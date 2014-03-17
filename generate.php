@@ -74,11 +74,11 @@ require "./inc/header.inc";
 									<div class="row form-inline">
 										<div class="col-xs-12">
 											<div class="form-group">
-												<select id="options-startTime" ng-change="ensureCorrectEndTime($index)" class="form-control" ng-model="nonCourse.startTime" ng-options="key as ui.optionLists.times.values[key] for key in ui.optionLists.times.keys"><option value="">Start</option></select>
+												<select id="options-startTime" ng-change="ensureCorrectEndTime($index)" class="form-control" ng-model="nonCourse.startTime" ng-options="key as ui.optionLists.timesHalfHours.values[key] for key in ui.optionLists.timesHalfHours.keys"><option value="">Start</option></select>
 											</div>
 											<div class="form-group">to</div>
 											<div class="form-group">
-												<select id="options-endTime" class="form-control" ng-model="nonCourse.endTime" ng-options="key as ui.optionLists.times.values[key] for key in ui.optionLists.times.keys | startFrom: ui.optionLists.times.keys.indexOf(nonCourse.startTime) + 1"><option value="">End</option></select>
+												<select id="options-endTime" class="form-control" ng-model="nonCourse.endTime" ng-options="key as ui.optionLists.timesHalfHours.values[key] for key in ui.optionLists.timesHalfHours.keys | startFrom: ui.optionLists.timesHalfHours.keys.indexOf(nonCourse.startTime) + 1"><option value="">End</option></select>
 											</div>
 										</div>
 									</div>
@@ -126,11 +126,11 @@ require "./inc/header.inc";
 									<div class="row form-inline">
 										<div class="col-xs-12">
 											<div class="form-group">
-												<select id="options-startTime" ng-change="ensureCorrectEndTime($index)" class="form-control" ng-model="noCourse.startTime" ng-options="key as ui.optionLists.times.values[key] for key in ui.optionLists.times.keys"><option value="">Start</option></select>
+												<select id="options-startTime" ng-change="ensureCorrectEndTime($index)" class="form-control" ng-model="noCourse.startTime" ng-options="key as ui.optionLists.timesHalfHours.values[key] for key in ui.optionLists.timesHalfHours.keys"><option value="">Start</option></select>
 											</div>
 											<div class="form-group">to</div>
 											<div class="form-group">
-												<select id="options-endTime" class="form-control" ng-model="noCourse.endTime" ng-options="key as ui.optionLists.times.values[key] for key in ui.optionLists.times.keys | startFrom: ui.optionLists.times.keys.indexOf(noCourse.startTime) + 1"><option value="">End</option></select>
+												<select id="options-endTime" class="form-control" ng-model="noCourse.endTime" ng-options="key as ui.optionLists.timesHalfHours.values[key] for key in ui.optionLists.timesHalfHours.keys | startFrom: ui.optionLists.timesHalfHours.keys.indexOf(noCourse.startTime) + 1"><option value="">End</option></select>
 											</div>
 										</div>
 									</div>
