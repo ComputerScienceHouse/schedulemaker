@@ -195,16 +195,16 @@ function renderSvg($svg, $id) {
     try {
     	
     	// Prepend parsing info
-    	$svg = '<?xml version="1.0" encoding="UTF-8" standalone="no"?>' . $svg;
-    	$svg = preg_replace('/(.*<svg[^>]* width=")([\d.]+)(.*)/', '', $svg);
-    	
+    	$svg = preg_replace('/(.*<svg[^>]* width=")(100\%)(.*)/', '${1}1000px${3}', $svg);
+    	$svg = '<?xml version="1.1" encoding="UTF-8" standalone="no"?>' . $svg;
         // Load the image into an ImageMagick object
         $im = new Imagick();
         $im->readimageblob($svg);
 
         // Convert it to png
         $im->setImageFormat("png24");
-        $im->scaleimage(600, 600);
+ 
+        $im->scaleimage(1000, 600, true);
 
 
         // Write it to the filesystem

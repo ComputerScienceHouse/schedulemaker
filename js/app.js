@@ -1399,7 +1399,7 @@ app.directive('scheduleActions', function($http, $q, shareServiceInfo, openPopup
 			
 			
 			// Post the schedule and return a promise
-			return $http.post('js/scheduleAjax.php', $.param(params), {
+			return $http.post('/js/scheduleAjax.php', $.param(params), {
 				requestType:'json',
 				headers: {
 					'Content-Type': 'application/x-www-form-urlencoded'
@@ -1444,7 +1444,6 @@ app.directive('scheduleActions', function($http, $q, shareServiceInfo, openPopup
 			shareToService: function($event, serviceName) {
 				
 				$event.preventDefault();
-				
 				scope.status = "L";
 				if(serviceName && serviceName in shareServiceInfo) {
 					
@@ -1455,6 +1454,7 @@ app.directive('scheduleActions', function($http, $q, shareServiceInfo, openPopup
 					
 					getSavedInfo().then(function(data) {
 						scope.status = "D";
+						console.log(data);
 						popup.location = service(data.url);
 					});
 				} 
@@ -1757,8 +1757,13 @@ app.directive('svgTextLine', function() {
 	};
 });
 
-app.controller("scheduleCtrl", function($scope, $window) {
-	
+app.controller("scheduleCtrl", function($scope, $location) {
+	var id = $location.path().split('/');
+	id = id[id.length - 1];
+	$scope.saveInfo = {
+		url: $location.absUrl(),
+		id: id
+	};
 	
 });
 

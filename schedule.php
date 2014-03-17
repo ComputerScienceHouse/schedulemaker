@@ -258,7 +258,7 @@ function getScheduleFromId($id) {
 	$query = "UPDATE schedules SET datelastaccessed = NOW() WHERE id={$id}";
 	$result = mysql_query($query);
 	
-	$query = "SELECT startday, endday, starttime, endtime, building, `quarter`, `image` FROM schedules WHERE id={$id}";
+	$query = "SELECT startday, endday, starttime, endtime, building, `quarter`, CAST(`image` AS unsigned int) AS `image` FROM schedules WHERE id={$id}";
 
 	$result = mysql_query($query);
     if(!$result) {
@@ -491,7 +491,6 @@ switch($mode) {
 		}
 
         // Schedule exists! Output it.
-
         // Set image location (if it exists)
         if($schedule['image'] == 1) {
             $IMGURL = "{$HTTPROOTADDRESS}img/schedules/{$id}.png";
