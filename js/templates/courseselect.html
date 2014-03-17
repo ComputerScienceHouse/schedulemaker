@@ -17,7 +17,7 @@
 		<div ng-show="!item.sections[0].isError" class="form-group course-result" ng-class="{'hidden-xs':item.sections.length == 0, 'hidden-sm': item.sections.length == 0}">
 			<div class="col-xs-12">
 				<button type="button" class="btn btn-primary btn-block" ng-click="showResults = !showResults" ng-disabled="!item.sections.length">
-					<i class="fa" ng-class="{'fa-angle-down':!showResults && item.sections.length > 0,'fa-angle-up':showResults && item.sections.length > 0}"></i> {{item.search.length > 5?(item.sections.length > 0?(showResults?"Hide ":"Show ") + item.sections.length + " Result" + (item.sections.length != 1?"s":"") :"No Results"):"Please enter a course"}}
+					<i class="fa" ng-class="{'fa-angle-down':!showResults && item.sections.length > 0,'fa-angle-up':showResults && item.sections.length > 0}"></i> {{item.search.length > 3?(item.sections.length > 0?(showResults?"Hide ":"Show ") + item.sections.length + " Result" + (item.sections.length != 1?"s":"") :"No Results"):"Please enter a course"}}
 				</button>
 			</div>
 		</div>

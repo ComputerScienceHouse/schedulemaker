@@ -37,7 +37,7 @@
 								<i class="fa fa-minus"></i> <i class="fa fa-shopping-cart"></i>
 							</button>
 							<h4 class="list-group-item-heading">{{section.courseNum?section.courseNum:(course | courseNum)+'-'+section.section}}</h4>
-							<p class="list-group-item-text">{{section.instructor}}</p>
+							<p class="list-group-item-text" ng-bind-html="section.instructor | RMPUrl"></p>
 							<button type="button" class="btn btn-danger btn-block visible-xs visible-sm" ng-click="section.selected = !section.selected">
 								<i class="fa fa-minus"></i> <i class="fa fa-shopping-cart"></i>
 							</button>

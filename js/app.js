@@ -1015,7 +1015,7 @@ app.controller( "scheduleCoursesCtrl", function( $scope, $http, $q, $timeout) {
 			course.status = 'D';
 			
 			// If there has been no error
-			if(!d.error) {
+			if(!data.error) {
 				
 				//set isError and selected to their defaults
 				for(var c = 0; c < data.length; ++c) {
