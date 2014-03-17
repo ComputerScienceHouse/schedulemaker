@@ -493,7 +493,7 @@ switch($mode) {
         // Schedule exists! Output it.
 
         // Set image location (if it exists)
-        if($schedule['image']) {
+        if($schedule['image'] == 1) {
             $IMGURL = "{$HTTPROOTADDRESS}img/schedules/{$id}.png";
         }
         $TITLE = "My Schedule"; //@TODO: Generate this with term titles

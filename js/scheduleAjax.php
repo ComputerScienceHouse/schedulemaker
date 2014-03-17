@@ -196,7 +196,7 @@ function renderSvg($svg, $id) {
     	
     	// Prepend parsing info
     	$svg = '<?xml version="1.0" encoding="UTF-8" standalone="no"?>' . $svg;
-    	//preg_replace('/\t|\n|<!--(.*?)-->/', '', $svg);
+    	$svg = preg_replace('/(.*<svg[^>]* width=")([\d.]+)(.*)/', '', $svg);
     	
         // Load the image into an ImageMagick object
         $im = new Imagick();
@@ -204,7 +204,7 @@ function renderSvg($svg, $id) {
 
         // Convert it to png
         $im->setImageFormat("png24");
-        $im->scaleimage(600, 600, true);
+        $im->scaleimage(600, 600);
 
 
         // Write it to the filesystem
@@ -216,7 +216,6 @@ function renderSvg($svg, $id) {
         return true;
 
     } catch(Exception $e) {
-    	echo $e;
         return false;
     }
 }
