@@ -4,6 +4,9 @@
 # Ignore configuration files
 inc/config.php
 
+# Ignore schedule images
+img/schedules/*.png
+
 $ Ignore Eclipse files
 .settings
 .project

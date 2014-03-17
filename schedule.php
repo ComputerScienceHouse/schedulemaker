@@ -450,8 +450,8 @@ switch($mode) {
 		$schedule = getScheduleFromOldId($_GET['id']);
 		if($schedule == NULL) {
 			?>
-			<div class='schedUrl error'>
-				<p><span style='font-weight:bold'>Fatal Error:</span> The requested schedule does not exist!</p>
+			<div class="alert alert-danger">
+				<i class="fa fa-exclamation-circle"></i> <span style='font-weight:bold'>Fatal Error:</span> The requested schedule does not exist!
 			</div>
 			<?
 		} else {
@@ -481,8 +481,8 @@ switch($mode) {
             require "./inc/header.inc";
 			?>
 			<div class="container">
-				<div class="alert alert-error">
-					<p><strong>Fatal Error:</strong> The requested schedule does not exist!</p>
+				<div class="alert alert-danger">
+					<i class="fa fa-exclamation-circle"></i> <strong>Fatal Error:</strong> The requested schedule does not exist!
 				</div>
 			</div>
 			<?

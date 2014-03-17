@@ -193,6 +193,11 @@ function timeStringToMinutes($str) {
  */
 function renderSvg($svg, $id) {
     try {
+    	
+    	// Prepend parsing info
+    	$svg = '<?xml version="1.0" encoding="UTF-8" standalone="no"?>' . $svg;
+    	//preg_replace('/\t|\n|<!--(.*?)-->/', '', $svg);
+    	
         // Load the image into an ImageMagick object
         $im = new Imagick();
         $im->readimageblob($svg);
@@ -211,6 +216,7 @@ function renderSvg($svg, $id) {
         return true;
 
     } catch(Exception $e) {
+    	echo $e;
         return false;
     }
 }
@@ -486,7 +492,7 @@ switch($_POST['action']) {
 		// Everything was successful, return a nice, simple URL to the schedule
 		// To make it cool, let's make it a hex id
 		$hexId = dechex($schedId);
-		$url = "{$HTTPROOTADDRESS}schedule.php?id={$hexId}";
+		$url = "{$HTTPROOTADDRESS}schedule/{$hexId}";
 		
 		echo json_encode(array("url" => $url, "id" => $hexId));
 

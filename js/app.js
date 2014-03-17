@@ -1349,23 +1349,14 @@ app.factory('shareServiceInfo', function() {
 	
 	// Define the services and their common functions
 	return {
-		googlep: {
-			getURL: function(url) {
-				return 'https://plus.google.com/share?url=' + encodeURIComponent(url);
-			},
-			title: "Share on Google+"
+		googlep: function(url) {
+			return 'https://plus.google.com/share?url=' + encodeURIComponent(url);
 		},
-		twitter: {
-			getURL: function(url) {
+		twitter: function(url) {
 				return 'http://twitter.com/share?url=' + encodeURIComponent(url) + '&text=My%20Class%20Schedule';
-			},
-			title: "Share on Twitter"
 		},
-		facebook: {
-			getURL: function(url) {
-				return 'http://www.facebook.com/sharer.php?u=' + encodeURIComponent(url);
-			},
-			title: "Share on Facebook"
+		facebook: function(url) {
+			return 'http://www.facebook.com/sharer.php?u=' + encodeURIComponent(url);
 		}
 	}
 });
@@ -1389,6 +1380,7 @@ app.directive('scheduleActions', function($http, $q, shareServiceInfo, openPopup
 			}
 			// If not create it
 			var schedule = angular.copy(scope.schedule);
+			
 			
 			// Create the request params as all strings with correct keys
 			var params = {
@@ -1453,6 +1445,7 @@ app.directive('scheduleActions', function($http, $q, shareServiceInfo, openPopup
 				
 				$event.preventDefault();
 				
+				scope.status = "L";
 				if(serviceName && serviceName in shareServiceInfo) {
 					
 					var service = shareServiceInfo[serviceName];
@@ -1461,8 +1454,8 @@ app.directive('scheduleActions', function($http, $q, shareServiceInfo, openPopup
 					var popup = openPopup();
 					
 					getSavedInfo().then(function(data) {
-						popup.location = service.getURL(data.url);
-						popup.document.title = service.title;
+						scope.status = "D";
+						popup.location = service(data.url);
 					});
 				} 
 			},
@@ -1479,6 +1472,13 @@ app.directive('scheduleActions', function($http, $q, shareServiceInfo, openPopup
 					window.location.href= "mailto:?body=" + 
 					encodeURIComponent(body);
 				});
+			},
+			
+			shareToDirectLink: function($event) {
+				
+				$event.preventDefault();
+				
+				scope.scheduleActions.save('create');
 			},
 			
 			print: function($event) {
