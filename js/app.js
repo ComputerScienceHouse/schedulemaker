@@ -1484,17 +1484,21 @@ app.factory('openPopup', function($window) {
 	
 	return function(width, height) {
 		
-		var pos = getPosition(width, height);
+		var settings = ['about:blank'];
 		
-		return $window.open(
-			'about:blank',
-			'Loading...',
-			'left=' + pos.left + 
+		if(width !== true) {
+			var pos = getPosition(width, height);
+			settings.push('Loading...');
+			settings.push('left=' + pos.left + 
 			',top=' + pos.top + 
 			',width=' + pos.width +
 			',height=' + pos.height + 
-			',personalbar=0,toolbar=0,scrollbars=1,resizable=1'
-		);
+			',personalbar=0,toolbar=0,scrollbars=1,resizable=1');
+		} else {
+			settings.push('_blank');
+		}
+		
+		return $window.open.apply($window, settings);
 	}
 });
 
@@ -1594,7 +1598,7 @@ app.directive('scheduleActions', function($http, $q, shareServiceInfo, openPopup
 				}
 			},
 			
-			shareToService: function($event, serviceName) {
+			shareToService: function($event, serviceName, newWindow) {
 				
 				$event.preventDefault();
 				scope.status = "L";
@@ -1603,11 +1607,10 @@ app.directive('scheduleActions', function($http, $q, shareServiceInfo, openPopup
 					var service = shareServiceInfo[serviceName];
 					
 					// Create a popup in click context to workaround blockers
-					var popup = openPopup();
+					var popup = openPopup(newWindow);
 					
 					getSavedInfo().then(function(data) {
 						scope.status = "D";
-						console.log(data);
 						popup.location = service(data.url);
 					});
 				} 
@@ -1648,10 +1651,12 @@ app.directive('scheduleActions', function($http, $q, shareServiceInfo, openPopup
 				
 				$event.preventDefault();
 				
+				var popup = openPopup(true);
+				
 				getSavedInfo().then(function(data) {
 
-					 window.open("http://" + window.location.hostname +
-					'/img/schedules/' + parseInt(data.id, 16) + '.png','_blank');
+					popup.location = ("http://" + window.location.hostname +
+					'/img/schedules/' + parseInt(data.id, 16) + '.png');
 				});
 			},
 			
@@ -1925,14 +1930,16 @@ app.directive('svgTextLine', function() {
 	return {
 		link: function(scope, elm, attrs) {
 			var text = attrs.svgTextLine;
+			var adjust = (scope.print)? 1: 0;
+			var cutoff = 25 + (adjust * -7);
 			if(scope.grid.days.length > 3) {
-				if(text.length > 16) {
+				if(text.length > 14) {
 					element = elm.get(0);
-					element.setAttribute("textLength", (parseFloat(scope.grid.opts.daysWidth) + 1 )+ "%");
+					element.setAttribute("textLength", (parseFloat(scope.grid.opts.daysWidth) + 1 - adjust )+ "%");
 					element.setAttribute("lengthAdjust", "spacingAndGlyphs");
 				}
-				if(text.length > 25) {
-					text = text.slice(0, 22) + '...';
+				if(text.length > cutoff) {
+					text = text.slice(0, cutoff - 3) + '...';
 				}
 			}
 			elm.text(text);

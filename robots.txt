@@ -1,4 +1,4 @@
 User-agent: *
 Disallow: /schedule.php
 Disallow: /browse.php
-Disallow: /roulette.php
+Disallow: /search.php

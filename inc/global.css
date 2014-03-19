@@ -33,7 +33,7 @@ img {
 }
 
 label {
-	font-weight: normal !important;
+	font-weight: 300 !important;
 }
 
 #superContainer {
@@ -1023,6 +1023,24 @@ select.ng-invalid {
 	width:1px;
 }
 
+@media screen and (max-width:768px) {
+	.smaller-sm {
+		font-size: smaller;
+	}
+	
+	.margin-bottom-sm {
+		margin-bottom: 15px;
+	}
+	
+	.inline-sm {
+		display: inline-block;
+	}
+	
+	#browse-contents .list-group-item {
+	padding: 10px 8px
+	}
+}
+
 @media screen and (min-width:767px) {
 	
 	.panel-control-overlap .panel-heading .panel-title {
@@ -1108,6 +1126,12 @@ span[professor-lookup] {
 
 #browse-contents .browse-heading {
 	cursor: pointer;
+}
+
+#browse-contents .browse-heading .list-group-item-heading,
+#browse-contents .browse-heading .list-group-item-text {
+	overflow: hidden;
+	padding-left: 5px;
 }
 
 #browse-contents .browse-sublist {

@@ -1,7 +1,6 @@
-<div class="row">
+<div class="row margin-bottom-sm">
 	<div class="col-md-8">
-		<div class="form-group mobile-no-bottom-padding" ng-class="{'has-error':item.sections[0].isError == true}">
-<!-- 			<label class="col-sm-3 col-xs-12 control-label" for="courses{{index}}">Course {{index}}:</label> -->
+		<div class="form-group" ng-class="{'has-error':item.sections[0].isError == true}">
 			<div class="col-sm-12 col-xs-12">
 				<div class="input-group">
 					<input autocapitalize="off" autocorrect="off" spellcheck="off" autocomplete="off" id="courses{{index}}" class="form-control searchField mousetrap" ng-model="item.search" type="text" name="courses{{index}}" placeholder="DEPT-CRS-SECT, DEPT-CRS-SECT..." /> <span class="input-group-btn">
@@ -53,6 +52,6 @@
 			</ul>
 		</div>
 	</div>
+	<div class="visible-xs visible-sm vert-spacer-md"></div>
 </div>
-<div class="visible-xs visible-sm vert-spacer-md"></div>
 

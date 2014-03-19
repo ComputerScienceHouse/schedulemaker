@@ -2,8 +2,8 @@
 	<div ng-show="!print" class="panel-heading">
 		<div class="row form-horizontal">
 			<div class="col-xs-12">
-				<h2 class="panel-title control-label pull-left">{{saveAction == "create"?("Schedule " + (state.schedules.indexOf(schedule) + 1)):"My Schedule"}}</h2>
-				<div class="btn-group pull-right-sm">
+				<h2 class="panel-title control-label pull-left smaller-sm">{{saveAction == "create"?("Schedule " + (state.schedules.indexOf(schedule) + 1)):"My Schedule"}}</h2>
+				<div class="btn-group pull-right hidden-xs hidden-sm">
 					<div class="btn-group">
 						<button ng-click="scheduleActions.save(saveAction)" type="button" class="btn btn-primary"><i class="fa" ng-class="{'fa-save': saveAction == 'create', 'fa-copy': saveAction == 'fork'}"></i> {{saveAction == "create"?"Save":"Copy and Edit"}} </button>
 						<button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
@@ -14,7 +14,7 @@
 							<li><a ng-click="scheduleActions.downloadImage($event)" href="#"><i class="fa fa-picture-o"></i> Image</a></li>
 						</ul>
 					</div>
-					<button ng-click="scheduleActions.print()" type="button" class="btn btn-info hidden-xs hidden-sm"><i class="fa fa-print"></i> Print</button>
+					<button ng-click="scheduleActions.print()" type="button" class="btn btn-info hidden-xs"><i class="fa fa-print"></i> Print</button>
 					<div class="btn-group">
 						<button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown">
 							<i class="fa fa-share"></i> Share to... <span class="caret"></span>
@@ -23,6 +23,31 @@
 							<li><a ng-click="scheduleActions.shareToService($event, 'facebook')" href="#"><i class="fa fa-facebook"></i> Facebook</a></li>
 							<li><a ng-click="scheduleActions.shareToService($event, 'twitter')" href="#"><i class="fa fa-twitter"></i> Twitter</a></li>
 							<li><a ng-click="scheduleActions.shareToService($event, 'googlep')" href="#"><i class="fa fa-google-plus"></i> Google+</a></li>
+							<li class="divider"></li>
+							<li><a ng-click="scheduleActions.shareToEmail($event)" href="#"><i class="fa fa-envelope"></i> Email</a></li>
+							<li><a ng-click="scheduleActions.shareToDirectLink($event)" href="#"><i class="fa fa-link"></i> Direct link</a></li>
+						</ul>
+					</div>
+				</div>
+				<div class="btn-group pull-right visible-xs visible-sm">
+					<div class="btn-group">
+						<button ng-click="scheduleActions.save(saveAction)" type="button" class="btn btn-primary btn-sm"><i class="fa" ng-class="{'fa-save': saveAction == 'create', 'fa-copy': saveAction == 'fork'}"></i> {{saveAction == "create"?"Save":"Copy and Edit"}} </button>
+						<button type="button" class="btn btn-primary dropdown-toggle btn-sm" data-toggle="dropdown">
+							<span class="caret"></span>
+						</button>
+						<ul class="dropdown-menu" role="menu">
+							<li><a ng-click="scheduleActions.downloadiCal($event)" href="#"><i class="fa fa-calendar-o"></i> iCal</a></li>
+							<li><a ng-click="scheduleActions.downloadImage($event)" href="#"><i class="fa fa-picture-o"></i> Image</a></li>
+						</ul>
+					</div>
+					<div class="btn-group">
+						<button type="button" class="btn btn-info dropdown-toggle btn-sm" data-toggle="dropdown">
+							<i class="fa fa-share"></i> Share to... <span class="caret"></span>
+						</button>
+						<ul class="dropdown-menu" role="menu">
+							<li><a ng-click="scheduleActions.shareToService($event, 'facebook', true)" href="#"><i class="fa fa-facebook"></i> Facebook</a></li>
+							<li><a ng-click="scheduleActions.shareToService($event, 'twitter', true)" href="#"><i class="fa fa-twitter"></i> Twitter</a></li>
+							<li><a ng-click="scheduleActions.shareToService($event, 'googlep', true)" href="#"><i class="fa fa-google-plus"></i> Google+</a></li>
 							<li class="divider"></li>
 							<li><a ng-click="scheduleActions.shareToEmail($event)" href="#"><i class="fa fa-envelope"></i> Email</a></li>
 							<li><a ng-click="scheduleActions.shareToDirectLink($event)" href="#"><i class="fa fa-link"></i> Direct link</a></li>

@@ -367,7 +367,12 @@ switch($mode) {
 		?>
 		<div ng-controller="printScheduleCtrl">
 			<h1 class="center" ng-bind="heading"></h1>
-			<div schedule print="true"></div>
+			<div ng-switch="schedule.length > 0">
+				<div ng-switch-when="true" schedule print="true"></div>
+				<div ng-switch-when="false" class="alert alert-info">
+					<i class="fa fa-exclamation-circle"></i> Please press the print button in the previous window if you wish to print a schedule.
+				</div>
+			</div>
 		</div>
 				
 		<?

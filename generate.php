@@ -73,11 +73,11 @@ require "./inc/header.inc";
 								<div class="col-lg-5 col-md-6 col-sm-6">
 									<div class="row form-inline">
 										<div class="col-xs-12">
-											<div class="form-group">
+											<div class="form-group inline-sm">
 												<select id="options-startTime" ng-change="ensureCorrectEndTime($index)" class="form-control" ng-model="nonCourse.startTime" ng-options="key as ui.optionLists.timesHalfHours.values[key] for key in ui.optionLists.timesHalfHours.keys"><option value="">Start</option></select>
 											</div>
-											<div class="form-group">to</div>
-											<div class="form-group">
+											<div class="form-group inline-sm">to</div>
+											<div class="form-group inline-sm">
 												<select id="options-endTime" class="form-control" ng-model="nonCourse.endTime" ng-options="key as ui.optionLists.timesHalfHours.values[key] for key in ui.optionLists.timesHalfHours.keys | startFrom: ui.optionLists.timesHalfHours.keys.indexOf(nonCourse.startTime) + 1"><option value="">End</option></select>
 											</div>
 										</div>
@@ -125,11 +125,11 @@ require "./inc/header.inc";
 								<div class="col-sm-6">
 									<div class="row form-inline">
 										<div class="col-xs-12">
-											<div class="form-group">
+											<div class="form-group inline-sm">
 												<select id="options-startTime" ng-change="ensureCorrectEndTime($index)" class="form-control" ng-model="noCourse.startTime" ng-options="key as ui.optionLists.timesHalfHours.values[key] for key in ui.optionLists.timesHalfHours.keys"><option value="">Start</option></select>
 											</div>
-											<div class="form-group">to</div>
-											<div class="form-group">
+											<div class="form-group inline-sm">to</div>
+											<div class="form-group inline-sm">
 												<select id="options-endTime" class="form-control" ng-model="noCourse.endTime" ng-options="key as ui.optionLists.timesHalfHours.values[key] for key in ui.optionLists.timesHalfHours.keys | startFrom: ui.optionLists.timesHalfHours.keys.indexOf(noCourse.startTime) + 1"><option value="">End</option></select>
 											</div>
 										</div>
@@ -164,14 +164,18 @@ require "./inc/header.inc";
 						</div>
 					</div>
 				</div>
-				<input name="action" value="getMatchingSchedules" type="hidden"> <input type="hidden" value="true" name="verbose" id="verbose">
-				<div class="center" role="toolbar">
+				<div class="hidden-xs hidden-sm center" role="toolbar">
 					<div class="btn-group">
 						<button type="button" class="btn-lg btn btn-primary btn-default" ng-click="generateSchedules()">Show Matching Schedules</button>
 					</div>
 					<div class="btn-group">
-						<button type="button" class="btn-lg btn btn-default btn-danger" ng-click="resetState()">Reset</button>
+						<button type="button" class="btn-lg btn btn-default btn-danger" ng-click="resetState()">Reset Everything</button>
 					</div>
+				</div>
+				<div class="visible-xs visible-sm center">
+						<button type="button" class="btn-lg btn btn-primary btn-default btn-block" ng-click="generateSchedules()">Show Matching Schedules</button>
+						<div class="vert-spacer-static-sm"></div>
+						<button type="button" class="btn-lg btn btn-default btn-danger btn-block" ng-click="resetState()">Reset Everything</button>
 				</div>
 				<div class="vert-spacer-static-md"></div>
 				<div ng-show="!!resultError">

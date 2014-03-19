@@ -96,7 +96,7 @@ require "./inc/header.inc";
 						</div>
 						<div browse-list="school" ng-repeat="school in schools" class="list-group-item" ng-class="{active: school.ui.expanded && school.departments.length > 0}">
 							<div class="browse-heading" ng-click="school.ui.toggleDisplay()">
-								<button class="btn pull-right btn-default">
+								<button class="btn pull-left btn-default">
 									<i class="fa" ng-class="school.ui.buttonClass"></i>
 								</button>
 								<h4 class="list-group-item-heading">{{school | codeOrNumber}}</h4>
@@ -106,7 +106,7 @@ require "./inc/header.inc";
 								<div class="list-group">
 									<div browse-list="department" class="list-group-item" ng-repeat="department in school.departments" ng-class="{active: department.ui.expanded && department.courses.length > 0}">
 										<div class="browse-heading" ng-click="department.ui.toggleDisplay()">
-											<button class="btn pull-right btn-default">
+											<button class="btn pull-left btn-default">
 												<i class="fa" ng-class="department.ui.buttonClass"></i>
 											</button>
 											<h4 class="list-group-item-heading">{{department.code?department.code:department.number}}</h4>
@@ -116,7 +116,7 @@ require "./inc/header.inc";
 											<div class="list-group">
 												<div browse-list="course" class="list-group-item" ng-repeat="course in department.courses" ng-class="{'active-nostyle': course.ui.expanded && course.sections.length > 0}" ng-init="course.selected = courseCart.selection.course.is(course)">
 													<div class="browse-heading" ng-click="course.ui.toggleDisplay()">
-														<button class="btn pull-right btn-default">
+														<button class="btn pull-left btn-default">
 															<i class="fa" ng-class="course.ui.buttonClass"></i>
 														</button>
 														<h4 class="list-group-item-heading">{{course | courseNum}}</h4>
@@ -128,7 +128,7 @@ require "./inc/header.inc";
 														<div class="center">
 															<button type="button" class="btn" ng-click="courseCart.selection.course.toggle(course); course.selected = !course.selected" ng-class="{'btn-danger':course.selected, 'btn-success':!course.selected}">
 																<i class="fa" ng-class="{'fa-minus':course.selected, 'fa-plus':!course.selected}"></i> <i class="fa fa-shopping-cart"></i> 
-																{{course.selected ? 'Remove all sections from cart':'Add all sections to cart'}}
+																{{course.selected ? 'Remove all':'Add all'}}
 															</button>
 														</div>
 														<div class="vert-spacer-static-sm clearfix">
