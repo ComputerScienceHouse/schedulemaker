@@ -1,0 +1,43 @@
+<?php
+////////////////////////////////////////////////////////////////////////////
+// SCHEDULE MAKER
+//
+// @author	Ben Russell (benrr101@csh.rit.edu)
+//
+// @file	roulette.php
+// @descrip	Course roulette -- specify a few things to refine the course list
+//			then spin the wheel! Get a totally random course each time!
+////////////////////////////////////////////////////////////////////////////
+
+require "./inc/header.inc";
+?>
+<div class="container">
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			<h2 class="panel-title">Help</h2>
+		</div>
+		<div class="panel-body">
+			<h4>How to Use</h4>
+			<p>Use the "Make a Schedule" page to enter in courses by their course number to find them. All results from each search are added to your course cart automatically. You can manually remove classes if you want. You can also separate different courses by including a comma in the select field. The resulting schedules will contain EITHER course, never both.</p>
+			<p>You can use the "Browse Courses" page to see all available courses and sections for any given term. This is useful for seeing what type of classes are available to take. You can add courses and sections to the course cart that will also be used to generate your schedules.</p>
+			<p>The new "Course Search" page allows you to search through titles and descriptions, as well as a variety of other parameters. You can add any of your results to your cart and make a schedule with them as well!</p>
+			<h4>Keyboard Shortcuts</h4>
+			<strong>Make a Schedule Page</strong>
+			<ul>
+				<li><kbd>Ctrl</kbd> + <kbd>Enter</kbd>: Generate schedules</li>
+				<li><kbd>Ctrl</kbd> + <kbd>Up</kbd> or <kbd>Down</kbd>: Move between course search fields</li>
+				<li><kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>Down</kbd>: Toggle display of searh results
+				<li><kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>1-9</kbd>: Toggle selection of course result by index</li>
+				<li><kbd>Ctrl</kbd> + <kbd>Left</kbd> or <kbd>Right</kbd>: Move between pages of schedules</li>
+			</ul>
+			<strong>Search Page</strong>
+			<ul>
+				<li><kbd>Ctrl</kbd> + <kbd>Enter</kbd>: Search</li>
+				<li><kbd>Ctrl</kbd> + <kbd>Left</kbd> or <kbd>Right</kbd>: Move between pages of results</li>
+			</ul>
+		</div>
+	</div>
+</div>
+<?
+require "inc/footer.inc";
+?>

@@ -2,7 +2,7 @@
 			<? if(empty($LAYOUT_MODE)) { ?>
 			<div id="footer">
 				<div class="csh"><a target="_blank" href="http://www.csh.rit.edu/"><img src="<?=$HTTPROOTADDRESS?>img/csh.png" alt="CSH" /></a></div>
-				<a href='status.php'>Status</a> | <a target="_blank" href="https://github.com/ComputerScienceHouse/schedulemaker/issues">Report Issues</a>
+				<a href="/help.php">Help</a> | <a href="/status.php">Status</a> | <a target="_blank" href="https://github.com/ComputerScienceHouse/schedulemaker/issues">Report Issues</a>
 				<div>
 					Idea: John Resig (phytar at csh.rit.edu)<br>
 					Development v2: Ben Russell (benrr101 at csh.rit.edu),<br>
