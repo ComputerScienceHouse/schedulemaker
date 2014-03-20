@@ -96,7 +96,7 @@ app.filter("courseNum", function() {
 
 app.factory("sessionStorage", function($window) {
 	
-	var sessionStorage = $window.sessionStorage;
+	var sessionStorage = $window.localStorage;
 	
 	return {
 		setItem: function(key, value) {
@@ -1879,7 +1879,7 @@ app.directive('schedule', function($timeout, $filter) {
 				scope.itemEnter = function($event) {
 					$target = $($event.target);
 					$scope = $target.scope();
-					if($scope.item.boundry.height < 70 && $scope.item.courseNum) {
+					if($scope.item.boundry.height < 70) {
 						$scope.item.boundry.orig_height = $scope.item.boundry.height;
 						$scope.item.boundry.height = 70;
 					}
