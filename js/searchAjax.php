@@ -1,10 +1,10 @@
 <?php
 ////////////////////////////////////////////////////////////////////////////
-// ROULETTE AJAX CALLS
+// SEARCH AJAX CALLS
 //
 // @author	Ben Russell (benrr101@csh.rit.edu)
 //
-// @file	js/rouletteAjax.php
+// @file	js/searchAjax.php
 // @descrip	Provides standalone JSON object retreival via ajax for the course
 //			roulette page
 ////////////////////////////////////////////////////////////////////////////
@@ -42,7 +42,7 @@ $_POST = sanitize($_POST);
 header('Content-type: application/json');
 
 switch($_POST['action']) {
-	case "rouletteSpin":
+	case "find":
 		// Check that the required fields are provided
         $term = $_POST['term'];
 		if(empty($term)) {
@@ -55,6 +55,8 @@ switch($_POST['action']) {
 		$school     = (!empty($_POST['college']) && $_POST['college'] != 'any') ? $_POST['college'] : null;
 		$credits    = (!empty($_POST['credits'])) ? $_POST['credits'] : null;
 		$professor  = (!empty($_POST['professor'])) ? $_POST['professor'] : null;
+		$title  = (!empty($_POST['title'])) ? $_POST['title'] : null;
+		$description  = (!empty($_POST['description'])) ? explode(',', $_POST['description']) : array();
 		$level      = (!empty($_POST['level']) && $_POST['level'] != 'any') ? $_POST['level'] : null;
 		if(!empty($_POST['department']) && $_POST['department'] != 'any') {
 			$department = $_POST['department'];
@@ -62,7 +64,18 @@ switch($_POST['action']) {
 		} else {
 			$department = null;
 		}
-
+		
+		if(count($description) > 0) {
+			$keyword_SQL = 'AND (';
+			foreach ($description as $keyword) {
+				$keyword = trim($keyword);
+				$keyword_SQL .= "c.description LIKE '%{$keyword}%' OR ";
+			}
+			$keyword_SQL = substr($keyword_SQL, 0, -4) . ")";
+		} else {
+			$keyword_SQL = null;
+		}
+		
 		// Validate the numerical arguments we got
 		assertNumeric($term, "term");
 		assertNumeric($school, "school");
@@ -103,6 +116,8 @@ switch($_POST['action']) {
 		$query .= ($department) ? " AND c.department = '{$department}'" : "";
 		$query .= ($credits)    ? " AND c.credits = '{$credits}'" : "";
 		$query .= ($professor)  ? " AND s.instructor LIKE '%{$professor}%'" : "";
+		$query .= ($title)  ? " AND c.title LIKE '%{$title}%'" : "";
+		$query .= ($keyword_SQL)  ? $keyword_SQL : "";
 		if($level) { // Process the course level
 			if($level == 'beg') { $query .= " AND c.course < 300"; }
 			if($level == 'int') { $query .= " AND c.course >= 300 AND c.course < 600"; }
@@ -146,15 +161,12 @@ switch($_POST['action']) {
 		}
 		// @todo: store this in session to avoid lengthy and costly queries
 
-		// Now pick a course at random, grab it's times
-        // This loop selects a course at random, then loops around the list of courses until
-        // it finds a match or it ends up where it starts
-        $matchFound = false;
-        $matchingCourse = null;
-        $startingI = rand(0, count($courses) - 1);
-        for($i = ($startingI + 1) % count($courses); $i != $startingI; $i = ($i + 1) % count($courses)) {
+		// Loop through all results and fill them out
+        $matchingCourses = array();
+        foreach($courses as $sectionId) {
+            
             // Look up the course
-            $course = getCourseBySectionId($courses[$i]);
+            $course = getCourseBySectionId($sectionId);
 
             // Do we need to exclude it because it's online?
             if($course['online'] == true && (!isset($_POST['online']) || $_POST['online'] != true)) {
@@ -176,15 +188,15 @@ switch($_POST['action']) {
             // Do we need to exclude this course?
             if((isset($_POST['offCampus']) && $_POST['offCampus'] == 'true') || !$offCampus) {
                 // No need to exclude it -- match found
-                $matchingCourse = $course;
+                $matchingCourses[] = $course;
             }
         }
 
-        // There's no match if the matching course is null
-        if($matchingCourse == null) {
+        // Courses will be empty if there are no results
+        if(count($matchingCourses) == 0) {
             echo json_encode(array("error" => "result", "msg" => "No courses matched your criteria"));
         } else {
-        	echo json_encode($matchingCourse);
+        	echo json_encode($matchingCourses);
         }
 		break;
 

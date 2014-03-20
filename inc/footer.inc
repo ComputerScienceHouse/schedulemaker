@@ -1,16 +1,51 @@
-	</div>
-	<div id='footer'>
-		<div class='logo'><a href='index.php'>ScheduleMaker</a></div>
-		<div class='csh'><a href="http://www.csh.rit.edu/"><img src="./img/csh.png" alt="CSH" /></a></div>
-		<div class='nav'><a href='generate.php'>Build Schedules</a> | <a href='browse.php'>Browse Courses</a> | <a href='roulette.php'>Course Roulette</a> | <a href='status.php'>Status</a> | <a href='http://github.com/benrr101/schedulemaker'>Report Issues</a></div>
-		<div>
-			Idea: John Resig (phytar at csh.rit.edu)<br />
-			Development: Ben Russell (benrr101 at csh.rit.edu)<br />
-			Hosting: <a href="http://www.csh.rit.edu/">Computer Science House</a><br />
-			Uses <a href="http://somerandomdude.com/work/iconic/">iconic icon set by P.J. Onori</a>, 
-			licensed under <a href="http://creativecommons.org/licenses/by-sa/3.0/us/">CC BY-SA 3.0</a>
+			</div>
+			<? if(empty($LAYOUT_MODE)) { ?>
+			<div id="footer">
+				<div class="csh"><a target="_blank" href="http://www.csh.rit.edu/"><img src="<?=$HTTPROOTADDRESS?>img/csh.png" alt="CSH" /></a></div>
+				<a href='status.php'>Status</a> | <a target="_blank" href="https://github.com/ComputerScienceHouse/schedulemaker/issues">Report Issues</a>
+				<div>
+					Idea: John Resig (phytar at csh.rit.edu)<br>
+					Development v2: Ben Russell (benrr101 at csh.rit.edu),<br>
+					Development v3: Ben Grawi (bgrawi at csh.rit.edu)<br>
+					Hosting: <a href="http://www.csh.rit.edu/">Computer Science House</a><br>
+				</div>
+			</div>
+			<? } elseif($LAYOUT_MODE == 'print') { ?>
+			<div id="print_footer">
+				Made Using <a href='<?= $HTTPROOTADDRESS ?>'>CSH ScheduleMaker</a>
+				<a href="http://www.csh.rit.edu/"><img src="/img/csh_print.png"></a>
+			</div> 
+			
+			<? } ?>
 		</div>
-	</div>
-	</div>
+		<!-- LOAD SCRIPTS LAST -->
+		<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+		<script src="//cdnjs.cloudflare.com/ajax/libs/mousetrap/1.4.6/mousetrap.min.js"></script>
+		<script src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.0.3/js/bootstrap.min.js"></script>
+		<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.14/angular.min.js"></script>
+		<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.14/angular-animate.min.js"></script>
+		<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.14/angular-sanitize.min.js"></script>
+		<script src="<?=$HTTPROOTADDRESS?>js/app.js?v=<?=$APP_VERSION?>"></script>
+		<script>
+		  // GOOGLE ANALYTICS CODE
+		  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+		  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+		  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+		  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+		
+		  ga('create', '<?= $GOOGLEANALYTICS ?>', 'rit.edu');
+		  ga('send', 'pageview');
+	
+		  //IE 10 MOBILE FIX
+	      if (navigator.userAgent.match(/IEMobile\/10\.0/)) {
+		  var msViewportStyle = document.createElement("style")
+		  msViewportStyle.appendChild(
+		    document.createTextNode(
+		      "@-ms-viewport{width:auto!important}"
+		    )
+		  )
+		  document.getElementsByTagName("head")[0].appendChild(msViewportStyle)
+		}
+	    </script>
 	</body>
 </html>

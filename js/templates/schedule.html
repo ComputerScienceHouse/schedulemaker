@@ -1,0 +1,88 @@
+<div class="panel panel-default" schedule-actions>
+	<div ng-show="!print" class="panel-heading">
+		<div class="row form-horizontal">
+			<div class="col-xs-12">
+				<h2 class="panel-title control-label pull-left smaller-sm">{{saveAction == "create"?("Schedule " + (state.schedules.indexOf(schedule) + 1)):"My Schedule"}}</h2>
+				<div class="btn-group pull-right hidden-xs hidden-sm">
+					<div class="btn-group">
+						<button ng-click="scheduleActions.save(saveAction)" type="button" class="btn btn-primary"><i class="fa" ng-class="{'fa-save': saveAction == 'create', 'fa-copy': saveAction == 'fork'}"></i> {{saveAction == "create"?"Save":"Copy and Edit"}} </button>
+						<button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+							<span class="caret"></span>
+						</button>
+						<ul class="dropdown-menu" role="menu">
+							<li><a ng-click="scheduleActions.downloadiCal($event)" href="#"><i class="fa fa-calendar-o"></i> iCal</a></li>
+							<li><a ng-click="scheduleActions.downloadImage($event)" href="#"><i class="fa fa-picture-o"></i> Image</a></li>
+						</ul>
+					</div>
+					<button ng-click="scheduleActions.print()" type="button" class="btn btn-info hidden-xs"><i class="fa fa-print"></i> Print</button>
+					<div class="btn-group">
+						<button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown">
+							<i class="fa fa-share"></i> Share to... <span class="caret"></span>
+						</button>
+						<ul class="dropdown-menu" role="menu">
+							<li><a ng-click="scheduleActions.shareToService($event, 'facebook')" href="#"><i class="fa fa-facebook"></i> Facebook</a></li>
+							<li><a ng-click="scheduleActions.shareToService($event, 'twitter')" href="#"><i class="fa fa-twitter"></i> Twitter</a></li>
+							<li><a ng-click="scheduleActions.shareToService($event, 'googlep')" href="#"><i class="fa fa-google-plus"></i> Google+</a></li>
+							<li class="divider"></li>
+							<li><a ng-click="scheduleActions.shareToEmail($event)" href="#"><i class="fa fa-envelope"></i> Email</a></li>
+							<li><a ng-click="scheduleActions.shareToDirectLink($event)" href="#"><i class="fa fa-link"></i> Direct link</a></li>
+						</ul>
+					</div>
+				</div>
+				<div class="btn-group pull-right visible-xs visible-sm">
+					<div class="btn-group">
+						<button ng-click="scheduleActions.save(saveAction)" type="button" class="btn btn-primary btn-sm"><i class="fa" ng-class="{'fa-save': saveAction == 'create', 'fa-copy': saveAction == 'fork'}"></i> {{saveAction == "create"?"Save":"Copy and Edit"}} </button>
+						<button type="button" class="btn btn-primary dropdown-toggle btn-sm" data-toggle="dropdown">
+							<span class="caret"></span>
+						</button>
+						<ul class="dropdown-menu" role="menu">
+							<li><a ng-click="scheduleActions.downloadiCal($event)" href="#"><i class="fa fa-calendar-o"></i> iCal</a></li>
+							<li><a ng-click="scheduleActions.downloadImage($event)" href="#"><i class="fa fa-picture-o"></i> Image</a></li>
+						</ul>
+					</div>
+					<div class="btn-group">
+						<button type="button" class="btn btn-info dropdown-toggle btn-sm" data-toggle="dropdown">
+							<i class="fa fa-share"></i> Share to... <span class="caret"></span>
+						</button>
+						<ul class="dropdown-menu" role="menu">
+							<li><a ng-click="scheduleActions.shareToService($event, 'facebook', true)" href="#"><i class="fa fa-facebook"></i> Facebook</a></li>
+							<li><a ng-click="scheduleActions.shareToService($event, 'twitter', true)" href="#"><i class="fa fa-twitter"></i> Twitter</a></li>
+							<li><a ng-click="scheduleActions.shareToService($event, 'googlep', true)" href="#"><i class="fa fa-google-plus"></i> Google+</a></li>
+							<li class="divider"></li>
+							<li><a ng-click="scheduleActions.shareToEmail($event)" href="#"><i class="fa fa-envelope"></i> Email</a></li>
+							<li><a ng-click="scheduleActions.shareToDirectLink($event)" href="#"><i class="fa fa-link"></i> Direct link</a></li>
+						</ul>
+					</div>
+				</div>
+				<div ng-show="status == 'L'" class="control-label pull-right-sm">
+					<i class="fa fa-spin fa-refresh"></i> 
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="panel-body">
+		<div ng-show="notification.length > 0" class="schedule-notification alert alert-info">
+			<button type="button" class="close" aria-hidden="true" ng-click="notification = ''"><i class="fa fa-times"></i></button>
+			<div ng-bind-html="notification"></div>
+		</div>
+		<div class="schedule-cont">
+			<div class="schedule-track" onload="alignToPixels()">
+<svg version="1.1" ng-attr-height="{{grid.opts.height}}" width="100%" xmlns="http://www.w3.org/2000/svg"><defs><pattern vector-effect="non-scaling-stroke" id="day" width="100%" x="0" height="40" patternUnits="userSpaceOnUse"><line vector-effect="non-scaling-stroke" x1="0" y1="19.5" x2="100%" y2="19.5" style="stroke:#bbb;stroke-width:1" /></pattern></defs><rect x="0" y="0" width="100%" height="100%" fill="#ffffff" /><g ng-attr-transform="{{grid.opts.pixelAlignment}}" font-family="Roboto" font-size="15"><g><text fill="#aaa" text-anchor="end" ng-repeat="hour in grid.hours track by $index" ng-attr-x="{{print?'41':'5%'}}" ng-attr-y="{{($index * 40) + 25}}">{{hour}}</text></g><g ng-repeat="day in grid.days"><text y="12" ng-attr-x="{{day.offset}}" ng-attr-width="{{grid.opts.daysWidth}}" fill="#aaa" ng-bind="day.name"></text><rect y="19" ng-attr-x="{{day.offset}}" ng-attr-width="{{grid.opts.daysWidth}}" ng-attr-height="{{grid.opts.daysHeight}}" fill="url(#day)" /></g><g svg-schedule-item class="item" ng-mouseenter="itemEnter($event)" ng-mouseleave="itemLeave($event)" ng-repeat="item in scheduleItems"><rect ng-attr-x="{{item.boundry.x}}" ng-attr-y="{{item.boundry.y}}" ng-attr-width="{{item.boundry.width}}" ng-attr-height="{{item.boundry.height}}" ng-attr-fill="{{item.color}}" fill-opacity=".8" /><rect ng-if="item.boundry.shorten != 0" ng-attr-x="{{item.boundry.x}}" ng-attr-y="{{item.boundry.shorten < 0 ?item.boundry.y : item.boundry.y + item.boundry.height - 2}}" ng-attr-width="{{item.boundry.width}}" height="2" fill="#ffff00" /><text svg-text-line="{{item.title}}" ng-attr-x="{{item.boundry.x}}" ng-attr-y="{{item.boundry.y + 16}}" transform="translate(3,0)" font-weight="bold" fill="white"></text><text ng-if="item.boundry.height > 32 && item.content.courseNum" svg-text-line="{{item.content.courseNum}}" ng-attr-x="{{item.boundry.x}}" ng-attr-y="{{item.boundry.y + 32}}" transform="translate(3,0)" fill="#fff"></text><text ng-if="item.boundry.height > 48 && item.content.instructor" svg-text-line="{{item.content.instructor}}" ng-attr-x="{{item.boundry.x}}" ng-attr-y="{{item.boundry.y + 48}}" transform="translate(3,0)" fill="#fff"></text><text ng-if="item.boundry.height > 64 && item.content.location" svg-text-line="{{item.content.location}}" ng-attr-x="{{item.boundry.x}}" ng-attr-y="{{item.boundry.y + 64}}" transform="translate(3,0)" fill="#fff"></text><g svg-text-content="item.content"></g></g></g></svg>
+			</div>
+		</div>
+		<div ng-if="hiddenCourses.length > 0" class="row">
+			<div class="col-xs-12">
+				<div class="alert alert-warning">
+					<strong>Warning!</strong> The following item{{hiddenCourses.length != 1?'s are':' is'}} not displayed: <span ng-repeat="course in hiddenCourses">{{course.courseNum != 'non'?course.courseNum+': ':''}}{{course.title}}{{$last?'':', '}}</span>
+				</div>
+			</div>
+		</div>
+		<div ng-if="onlineCourses.length > 0" class="row">
+			<div class="col-xs-12">
+				<div class="alert alert-info">
+					Online Course{{onlineCourses.length != 1?'s':''}}: <span ng-repeat="course in onlineCourses">{{course.courseNum}} ({{course.title}}){{$last?'':','}}</span>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

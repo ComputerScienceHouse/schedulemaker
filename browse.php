@@ -16,36 +16,43 @@ require_once "./inc/timeFunctions.php";
 
 // FUNCTIONS ///////////////////////////////////////////////////////////////
 
-function getTermType($term) {
+/**
+ * Parses a term and returns an array of the results
+ * @param string $term
+ * @return string[]
+ */
+function parseTerm($term) {
     // Determine the term based on the year
     $termType = substr($term, -1);
+    $year = substr($term, 0, 4);
+    $nextYear = (string) ((int) $year + 1);
     if($term > 20130) {
         // Semesters
         switch($termType) {
             case 1:
-                return "Fall";
+                return array("Fall", $year);
             case 3:
-                return "Winter Intersession";
+                return array("Winter Intersession", $nextYear);
             case 5:
-                return "Spring";
+                return array("Spring", $nextYear);
             case 8:
-                return "Summer";
+                return array("Summer", $nextYear);
             default:
-                return "Unknown";
+                return array("Unknown", "");
         }
     } else {
         // Based on the last number of the quarter, return a title
         switch($termType) {
             case 1:
-                return "Fall";
+                return array("Fall", $year);
             case 2:
-                return "Winter";
+                return array("Winter", $year);
             case 3:
-                return "Spring";
+                return array("Spring", $nextYear);
             case 4:
-                return "Summer";
+                return array("Summer", $nextYear);
             default:
-                return "Unknown";
+                return array("Unknown", "");
         }
     }
 }
@@ -53,42 +60,136 @@ function getTermType($term) {
 // Do we have a term specified?
 $term = (empty($_GET['term']) || !is_numeric($_GET['term'])) ? $CURRENT_QUARTER : $_GET['term'];
 
+$parsedTerm = parseTerm($term);
+
 // MAIN EXECUTION //////////////////////////////////////////////////////////
 require "./inc/header.inc";
 
 // Display the fancy dropdown thingy that allows one to traverse the
 // list of courses
 ?>
-<script src='./js/browse.js' type='text/javascript'></script>
-<h1 id='browseHeader'>Browse Courses &gt; <?= getTermType($term) ?> <?= substr($term, 0, 4) ?></h1>
-
-<div class='subContainer' id='browseQuarter'>
-    <label for='termSelect'>Select a Different Term:</label>
-    <?= getTermField("term", $term); ?>
+<div class="container" ng-controller="BrowseCtrl">
+	<div class="row">
+		<div class="col-md-8">
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<div class="row form-horizontal">
+						<div class="col-md-4">
+							<h2 class="panel-title control-label pull-left">Browse Courses</h2>
+						</div>
+						<div class="col-md-8">
+							<div class="control-group">
+								<label class="col-sm-6 control-label" for="term">Term:</label>
+								<div class="col-sm-6">
+									<?= getTermField("state.requestOptions.term"); ?>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="panel-body">
+					<div id="browse-contents" class="list-group">
+						<div ng-if="schools.length == 0" class="center">
+							<h1>
+								<i class="fa fa-spin fa-refresh"></i>
+							</h1>
+						</div>
+						<div browse-list="school" ng-repeat="school in schools" class="list-group-item" ng-class="{active: school.ui.expanded && school.departments.length > 0}">
+							<div class="browse-heading" ng-click="school.ui.toggleDisplay()">
+								<button class="btn pull-left btn-default">
+									<i class="fa" ng-class="school.ui.buttonClass"></i>
+								</button>
+								<h4 class="list-group-item-heading">{{school | codeOrNumber}}</h4>
+								<p class="list-group-item-text">{{school.title?school.title:"&nbsp;"}}</p>
+							</div>
+							<div class="browse-sublist" ng-show="school.departments.length > 0 && school.ui.expanded">
+								<div class="list-group">
+									<div browse-list="department" class="list-group-item" ng-repeat="department in school.departments" ng-class="{active: department.ui.expanded && department.courses.length > 0}">
+										<div class="browse-heading" ng-click="department.ui.toggleDisplay()">
+											<button class="btn pull-left btn-default">
+												<i class="fa" ng-class="department.ui.buttonClass"></i>
+											</button>
+											<h4 class="list-group-item-heading">{{department.code?department.code:department.number}}</h4>
+											<p class="list-group-item-text">{{department.title?department.title:"&nbsp;"}}</p>
+										</div>
+										<div class="browse-sublist" ng-show="department.courses.length > 0 && department.ui.expanded">
+											<div class="list-group">
+												<div browse-list="course" class="list-group-item" ng-repeat="course in department.courses" ng-class="{'active-nostyle': course.ui.expanded && course.sections.length > 0}" ng-init="course.selected = courseCart.selection.course.is(course)">
+													<div class="browse-heading" ng-click="course.ui.toggleDisplay()">
+														<button class="btn pull-left btn-default">
+															<i class="fa" ng-class="course.ui.buttonClass"></i>
+														</button>
+														<h4 class="list-group-item-heading">{{course | courseNum}}</h4>
+														<p class="list-group-item-text">{{course.title}}</p>
+													</div>
+													<div ng-init="showDesc = true" ng-show="course.sections.length > 0 && course.ui.expanded">
+														<button type="button" class="btn btn-block btn-default visible-sm visible-xs" ng-click="showDesc = !showDesc" style="margin-bottom: 10px;">Toggle Desciption</button>
+														<p ng-class="{'hidden-xs':showDesc, 'hidden-sm': showDesc}" class="course-description">{{course.description}}</p>
+														<div class="center">
+															<button type="button" class="btn" ng-click="courseCart.selection.course.toggle(course); course.selected = !course.selected" ng-class="{'btn-danger':course.selected, 'btn-success':!course.selected}">
+																<i class="fa" ng-class="{'fa-minus':course.selected, 'fa-plus':!course.selected}"></i> <i class="fa fa-shopping-cart"></i> 
+																{{course.selected ? 'Remove all':'Add all'}}
+															</button>
+														</div>
+														<div class="vert-spacer-static-sm clearfix">
+														</div>
+														<div class="course-results-cont row">
+															<div class="inline-col col-md-6" ng-repeat="section in course.sections">
+																<ul class="list-group" ng-init="section.selected = section.selected?true:courseCart.selection.section.isByCourse(course, section)">
+																	<li class="list-group-item course-info">
+																		<div class="row">
+																			<div class="col-sm-8">
+																				<h4 class="list-group-item-heading">{{$index + 1}}. {{course | courseNum}}-{{section.section}}</h4>
+																				<small>{{section.title}}</small>
+																				<p class="list-group-item-text label-line ">
+																					<span class="label label-default" ng-bind-html="section.instructor | RMPUrl"></span>
+																				</p>
+																				<div ng-init="parsedTimes = (section.times | parseSectionTimes:true)">
+																					<div ng-repeat="time in parsedTimes" style="font-size: small">
+																						{{time.days}} <span style="white-space: nowrap">{{time.start | formatTime}}-{{time.end | formatTime}}</span> <span style="font-style: italic; white-space: nowrap">Location: {{time.location}}</span>
+																					</div>
+																				</div>
+																			</div>
+																			<div class="col-sm-4">
+																				<div class="row">
+																					<div class="col-xs-12">
+																						<button type="button" class="btn btn-block" ng-click="courseCart.selection.section.toggleByCourse(course, section)" ng-class="{'btn-danger':section.selected, 'btn-success':!section.selected}">
+																							<i class="fa" ng-class="{'fa-minus':section.selected, 'fa-plus':!section.selected}"></i> <i class="fa fa-shopping-cart"></i>
+																						</button>
+																					</div>
+																				</div>
+																			</div>
+																		</div>
+																	</li>
+																</ul>
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
+										<div class="browse-sublist" ng-show="department.ui.noResults && department.ui.expanded">
+											<div class="alert alert-info">No courses available</div>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="browse-sublist" ng-show="school.ui.noResults && school.ui.expanded">
+								<div class="alert alert-info">No departments available</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="col-md-4">
+			<div class="pinned-sizer"></div>
+			<div pinned course-cart></div>
+		</div>
+	</div>
 </div>
 
-<?
-// Display the list of departments
-if($term > 20130) {
-    // School codes
-    $query = "SELECT id, code AS code, title FROM schools WHERE code IS NOT NULL ORDER BY code";
-} else {
-    // School numbers
-    $query = "SELECT id, number AS code, title FROM schools WHERE number IS NOT NULL ORDER BY number";
-}
-$schoolResult = mysql_query($query);
-if(!$schoolResult) {
-    die("An error occurred!");
-}
-while($school = mysql_fetch_assoc($schoolResult)) {
-    ?>
-    <div class="item school">
-        <button>+</button>
-        <input type='hidden' value="<?= $school['id'] ?>" />
-        <?= $school['code'] ?> - <?= $school['title'] ?>
-    </div>
-    <?
-}
 
+<?
 require "./inc/footer.inc";
 ?>

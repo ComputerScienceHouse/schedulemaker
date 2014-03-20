@@ -193,13 +193,18 @@ function timeStringToMinutes($str) {
  */
 function renderSvg($svg, $id) {
     try {
+    	
+    	// Prepend parsing info
+    	$svg = preg_replace('/(.*<svg[^>]* width=")(100\%)(.*)/', '${1}1000px${3}', $svg);
+    	$svg = '<?xml version="1.1" encoding="UTF-8" standalone="no"?>' . $svg;
         // Load the image into an ImageMagick object
         $im = new Imagick();
         $im->readimageblob($svg);
 
         // Convert it to png
         $im->setImageFormat("png24");
-        $im->scaleimage(600, 600, true);
+ 
+        $im->scaleimage(1000, 600, true);
 
 
         // Write it to the filesystem
@@ -347,10 +352,14 @@ switch($_POST['action']) {
 			$courseSubSet = array();
 			foreach($_POST["courses{$i}Opt"] as $course) {
 				// Do a query to get the course specified
-				$courseSubSet[] = getCourseBySectionId($course);
+				 $courseInfo = getCourseBySectionId($course);
+				 $courseInfo['courseIndex'] = $i;
+				 $courseSubSet[] = $courseInfo;
 			}
 			$courseSet[] = $courseSubSet;
 		}
+		
+		$courseIndex = $i;
 
 		// Process the list of nonCourse Items
 		$nonCourseSet = array();
@@ -362,14 +371,15 @@ switch($_POST['action']) {
 			$nonCourse = array();
 			$nonCourse['title'] = $_POST["nonCourseTitle{$i}"];
 			$nonCourse['courseNum'] = "non";
+			$nonCourse['courseIndex'] = $courseIndex++;
 			$nonCourse['times'] = array();
 
             // Create a time entry for each
 			foreach($_POST["nonCourseDays{$i}"] as $day) {
 				$nonCourse['times'][] = array(
 					"day"   => translateDay($day),
-					"start" => timeStringToMinutes($_POST["nonCourseStartTime{$i}"]),
-					"end"   => timeStringToMinutes($_POST["nonCourseEndTime{$i}"])
+					"start" => intval($_POST["nonCourseStartTime{$i}"]),
+					"end"   => intval($_POST["nonCourseEndTime{$i}"])
 					);
 			}
 			$nonCourseSet[] = $nonCourse;
@@ -392,8 +402,8 @@ switch($_POST['action']) {
 			foreach($_POST["noCourseDays{$i}"] as $day) {
 				$noCourse['times'][] = array(
 					"day"   => translateDay($day),
-					"start" => timeStringToMinutes($_POST["noCourseStartTime{$i}"]),
-					"end"   => timeStringToMinutes($_POST["noCourseEndTime{$i}"])
+					"start" => intval($_POST["noCourseStartTime{$i}"]),
+					"end"   => intval($_POST["noCourseEndTime{$i}"])
 					);
 			}
 			$noCourseSet[] = $noCourse;
@@ -441,8 +451,8 @@ switch($_POST['action']) {
         }
 
 		// Start the storing process with storing the data about the schedule
-		$query = "INSERT INTO schedules (startday, endday, starttime, endtime, building, quarter)" .
-				" VALUES('{$json['startday']}', '{$json['endday']}', '{$json['starttime']}', '{$json['endtime']}', '{$json['building']}', " .
+		$query = "INSERT INTO schedules (oldid, startday, endday, starttime, endtime, building, quarter)" .
+				" VALUES('', '{$json['startday']}', '{$json['endday']}', '{$json['starttime']}', '{$json['endtime']}', '{$json['building']}', " .
 				" '{$json['term']}')";
 		$result = mysql_query($query);
 		if(!$result) {
@@ -475,7 +485,7 @@ switch($_POST['action']) {
 			} else {
 				// Process each course. It's crazy simple now.
 				$query = "INSERT INTO schedulecourses (schedule, section)" .
-						" VALUES('{$schedId}', '{$item['sectionId']}')";
+						" VALUES('{$schedId}', '{$item['id']}')";
 				$result = mysql_query($query);
 				if(!$result) {
 					die(json_encode(array("error" => "mysql", "msg" => "Storing a course '{$item['courseNum']}' failed: " . mysql_error($dbConn))));
@@ -486,7 +496,7 @@ switch($_POST['action']) {
 		// Everything was successful, return a nice, simple URL to the schedule
 		// To make it cool, let's make it a hex id
 		$hexId = dechex($schedId);
-		$url = "{$HTTPROOTADDRESS}schedule.php?id={$hexId}";
+		$url = "{$HTTPROOTADDRESS}schedule/{$hexId}";
 		
 		echo json_encode(array("url" => $url, "id" => $hexId));
 

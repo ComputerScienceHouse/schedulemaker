@@ -10,218 +10,295 @@
 ////////////////////////////////////////////////////////////////////////////
 
 require "./inc/header.inc";
-global $CURRENT_QUARTER;
-
 ?>
-<script type='text/javascript' src='./js/reloadSchedule.js'></script>
-<script type='text/javascript' src='./js/schedule.js'></script>
-<script type='text/javascript' src='./js/jquery.timepicker.min.js'></script>
-<link href='inc/jquery.timepicker.css' rel='stylesheet' type='text/css' />
-<form id='scheduleForm' name='schedule' method='POST'>
-<div class='scheduleForm'>
-	<div class='subheader'>
-		<h2>Courses</h2>
-		<button id='addCourseButton'>Add Course</button>
-	</div>
-	<div class='courseSettings'>
-		<label for='term'>Term:</label> <?= getTermField('term', $CURRENT_QUARTER) ?>
-		<input id='courseCount' type='hidden' name='courseCount' value='5' />
-		
-		<input id='ignoreFull' type='checkbox' name='ignoreFull' value='true' />
-		<label for='ignoreFull'>Ignore full courses</label>
-	</div>
-	<div id='scheduleCourses'>
-        <div class='courseRow'>
-            <div class='courseRowField'>
-                <label for='courses1'>Course 1:</label>
-                <input id='courses1' type='text' name='courses1' class='courseField' placeholder="XXXX-XXX-XXXX" />
-            </div>
-            <div class='courseRowOptions'></div>
-        </div>
-        <div class='courseRow'>
-            <div class='courseRowField'>
-                <label for='courses2'>Course 2:</label>
-                <input id='courses2' type='text' name='courses2' class='courseField' placeholder="XXXX-XXX-XXXX" />
-            </div>
-            <div class='courseRowOptions'></div>
-        </div>
-        <div class='courseRow'>
-            <div class='courseRowField'>
-                <label for='courses3'>Course 3:</label>
-                <input id='courses3' type='text' name='courses3' class='courseField' placeholder="XXXX-XXX-XXXX" />
-            </div>
-            <div class='courseRowOptions'></div>
-        </div>
-        <div class='courseRow'>
-            <div class='courseRowField'>
-                <label for='courses4'>Course 4:</label>
-                <input id='courses4' type='text' name='courses4' class='courseField' placeholder="XXXX-XXX-XXXX" />
-            </div>
-            <div class='courseRowOptions'></div>
-        </div>
-        <div class='courseRow'>
-            <div class='courseRowField'>
-                <label for='courses5'>Course 5:</label>
-                <input id='courses5' type='text' name='courses5' class='courseField' placeholder="XXXX-XXX-XXXX" />
-            </div>
-            <div class='courseRowOptions'></div>
-        </div>
+<div ng-controller="GenerateCtrl">
+	<form novalidate id="scheduleForm" name="schedule" class="container">
+		<div class="row">
+			<div class="col-md-8">
+				<div class="panel panel-default form-horizontal" ng-controller="scheduleCoursesCtrl">
+					<div class="panel-heading">
+						<div class="row form-horizontal">
+							<div class="col-sm-4">
+								<h2 class="panel-title control-label pull-left">Select Courses</h2>
+							</div>
+							<div class="col-sm-8">
+								<div class="control-group">
+									<label class="col-sm-6 control-label" for="term">Term:</label>
+									<div class="col-sm-6">
+									<?= getTermField("state.requestOptions.term"); ?>
+								</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="panel-body">
+						<div id="scheduleCourses">
+							<div dynamic-items="state.courses" colors="ui.colors" use-class="scheduleCourse" helpers="courses_helpers"></div>
+						</div>
+					</div>
+					<div class="panel-footer">
+						<input type="hidden" value="{{state.courses.length}}" name="courseCount" id="courseCount">
+						<div class="row">
+							<div class="col-md-4 col-xs-6">
+								<button type="button" class="ng-class: {'btn-success': state.requestOptions.ignoreFull}; btn-default btn btn-block" ng-click="state.requestOptions.ignoreFull = !state.requestOptions.ignoreFull">
+									<i class="fa" ng-class="{'fa-check-square-o': state.requestOptions.ignoreFull, 'fa-square-o': !state.requestOptions.ignoreFull}"></i> Ignore full
+								</button>
+							</div>
+							<div class="col-md-4 col-md-offset-4 col-xs-6">
+								<button class="btn btn-primary btn-block" type="button" ng-click="courses_helpers.add()">
+									<i class="fa fa-plus"></i> Add Course
+								</button>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div>&nbsp;</div>
+				<div>
+					<div class="panel panel-default panel-control-overlap" ng-controller="nonCourseItemsCtrl">
+						<div class="panel-heading form-horizontal">
+							<div class="form-horizontal row">
+								<div class="col-xs-12">
+									<h2 class="panel-title">Non-Course Schedule Items</h2>
+								</div>
+							</div>
+						</div>
+						<div class="panel-body" ng-show="state.nonCourses.length > 0">
+							<div class="container row form-group repeat-item" ng-repeat="nonCourse in state.nonCourses">
+								<div class="col-lg-2 col-md-12">
+									<div class="container-fluid">
+										<input autocomplete="off" id="nonCourses{{$index}}" class="form-control" ng-model="nonCourse.title" type="text" name="nonCourses{{$index}}" placeholder="Title" />
+									</div>
+								</div>
+								<div class="hidden-lg vert-spacer-static-md"></div>
+								<div class="col-lg-5 col-md-6 col-sm-6">
+									<div class="row form-inline">
+										<div class="col-xs-12">
+											<div class="form-group inline-sm">
+												<select id="options-startTime" ng-change="ensureCorrectEndTime($index)" class="form-control" ng-model="nonCourse.startTime" ng-options="key as ui.optionLists.timesHalfHours.values[key] for key in ui.optionLists.timesHalfHours.keys"><option value="">Start</option></select>
+											</div>
+											<div class="form-group inline-sm">to</div>
+											<div class="form-group inline-sm">
+												<select id="options-endTime" class="form-control" ng-model="nonCourse.endTime" ng-options="key as ui.optionLists.timesHalfHours.values[key] for key in ui.optionLists.timesHalfHours.keys | startFrom: ui.optionLists.timesHalfHours.keys.indexOf(nonCourse.startTime) + 1"><option value="">End</option></select>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div class="hidden-lg vert-spacer-static-md"></div>
+								<div class="col-lg-4 col-sm-5">
+									<div class="container-fluid">
+										<div dow-select-fields="nonCourse.days"></div>
+									</div>
+								</div>
+								<div class="hidden-md hidden-lg vert-spacer-static-md"></div>
+								<div class="col-sm-1">
+									<div class="container-fluid">
+										<button type="button" class="btn btn-danger hidden-xs" ng-click="removeNonC($index)">
+											<i class="fa fa-times"></i>
+										</button>
+										<button type="button" class="btn btn-danger btn-block visible-xs" ng-click="removeNonC($index)">
+											<i class="fa fa-times"></i> Delete
+										</button>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="panel-footer">
+							<div class="row">
+								<div class="col-md-4 col-md-offset-8">
+									<button type="button" class="btn btn-block btn-primary" ng-click="addNonC()">
+										<i class="fa fa-plus"></i> Add Item
+									</button>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="panel panel-default panel-control-overlap" ng-controller="noCourseItemsCtrl">
+						<div class="panel-heading">
+							<div class="form-horizontal row">
+								<div class="col-xs-12">
+									<h2 class="panel-title">Times You Don't Want Classes</h2>
+								</div>
+							</div>
+						</div>
+						<div class="panel-body" ng-show="state.noCourses.length > 0">
+							<div class="container row form-group repeat-item" ng-repeat="noCourse in state.noCourses">
+								<div class="col-sm-6">
+									<div class="row form-inline">
+										<div class="col-xs-12">
+											<div class="form-group inline-sm">
+												<select id="options-startTime" ng-change="ensureCorrectEndTime($index)" class="form-control" ng-model="noCourse.startTime" ng-options="key as ui.optionLists.timesHalfHours.values[key] for key in ui.optionLists.timesHalfHours.keys"><option value="">Start</option></select>
+											</div>
+											<div class="form-group inline-sm">to</div>
+											<div class="form-group inline-sm">
+												<select id="options-endTime" class="form-control" ng-model="noCourse.endTime" ng-options="key as ui.optionLists.timesHalfHours.values[key] for key in ui.optionLists.timesHalfHours.keys | startFrom: ui.optionLists.timesHalfHours.keys.indexOf(noCourse.startTime) + 1"><option value="">End</option></select>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div class="col-sm-5">
+									<div class="container-fluid">
+										<div dow-select-fields="noCourse.days"></div>
+									</div>
+								</div>
+								<div class="hidden-md hidden-lg vert-spacer-static-md"></div>
+								<div class="col-sm-1">
+									<div class="container-fluid">
+										<button type="button" class="btn btn-danger hidden-xs" ng-click="removeNoC($index)">
+											<i class="fa fa-times"></i>
+										</button>
+										<button type="button" class="btn btn-danger btn-block visible-xs" ng-click="removeNoC($index)">
+											<i class="fa fa-times"></i> Delete
+										</button>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="panel-footer">
+							<div class="row">
+								<div class="col-md-4 col-md-offset-8">
+									<button type="button" class="btn btn-primary btn-block" ng-click="addNoC()">
+										<i class="fa fa-plus"></i> Add Time
+									</button>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="hidden-xs hidden-sm center" role="toolbar">
+					<div class="btn-group">
+						<button type="button" class="btn-lg btn btn-primary btn-default" ng-click="generateSchedules()">Show Matching Schedules</button>
+					</div>
+					<div class="btn-group">
+						<button type="button" class="btn-lg btn btn-default btn-danger" ng-click="resetState()">Reset Everything</button>
+					</div>
+				</div>
+				<div class="visible-xs visible-sm center">
+						<button type="button" class="btn-lg btn btn-primary btn-default btn-block" ng-click="generateSchedules()">Show Matching Schedules</button>
+						<div class="vert-spacer-static-sm"></div>
+						<button type="button" class="btn-lg btn btn-default btn-danger btn-block" ng-click="resetState()">Reset Everything</button>
+				</div>
+				<div class="vert-spacer-static-md"></div>
+				<div ng-show="!!resultError">
+					<div class="alert alert-danger">
+						<button type="button" class="close" aria-hidden="true" ng-click="resultError = null">
+							<i class="fa fa-times"></i>
+						</button>
+						<i class="fa fa-exclamation-circle"></i> {{resultError}}
+					</div>
+				</div>
+			</div>
+			<div class="col-md-4 pinned-track" ng-init="showCourseCart = true">
+				<div course-cart></div>
+			</div>
+		</div>
+	</form>
+	<div id="master_schedule_results" ng-show="state.schedules.length > 0" ng-init="showOptions = true">
+		<div class="container">
+			<div class="visible-xs visible-sm form-group">
+				<button class="btn btn-block btn-primary" ng-click="showOptions = !showOptions" type="button">
+					<i class="fa" ng-class="{'fa-chevron-down':showOptions,'fa-chevron-up':!showOptions}"></i> Options
+				</button>
+			</div>
+			<div ng-class="{'hidden-xs':showOptions, 'hidden-sm': showOptions}" class="row">
+				<div class="col-xs-12">
+					<div class="panel panel-default">
+						<div class="panel-body">
+							<div class="row form-inline">
+								<div class="col-xs-12">
+									<div class="form-group">
+										<button class="hidden-xs hidden-sm btn btn-primary" ng-click="showDisplayOptions = !showDisplayOptions" type="button">
+											<i class="fa" ng-class="{'fa-chevron-down':!showDisplayOptions,'fa-chevron-up':showDisplayOptions}"></i>
+										</button>
+									</div>
+									<div class="form-group">Display from</div>
+									<div class="form-group">
+										<select id="options-startTime" ng-change="ensureCorrectEndTime()" class="form-control" ng-model="state.drawOptions.startTime" ng-options="key as ui.optionLists.times.values[key] for key in ui.optionLists.times.keys"></select>
+									</div>
+									<div class="form-group">to</div>
+									<div class="form-group">
+										<select id="options-endTime" class="form-control" ng-model="state.drawOptions.endTime" ng-options="key as ui.optionLists.times.values[key] for key in ui.optionLists.times.keys | startFrom: ui.optionLists.times.keys.indexOf(state.drawOptions.startTime) + 1"></select>
+									</div>
+									<div class="form-group">and from</div>
+									<div class="form-group">
+										<select id="options-startDay" ng-change="ensureCorrectEndDay()" class="form-control" ng-model="state.drawOptions.startDay" ng-options="ui.optionLists.days.indexOf(value) as value for (key, value) in ui.optionLists.days"></select>
+									</div>
+									<div class="form-group">to</div>
+									<div class="form-group">
+										<select id="options-endDay" class="form-control" ng-model="state.drawOptions.endDay" ng-options="ui.optionLists.days.indexOf(value) as value for (key, value) in ui.optionLists.days | startFrom: state.drawOptions.startDay"></select>
+									</div>
+									<div class="form-group pull-right" pagination-controls="state.displayOptions" pagination-length="state.schedules.length"></div>
+								</div>
+							</div>
+							<div class="visible-xs visible-sm">
+								<button class="btn btn-block btn-primary" ng-click="showDisplayOptions = !showDisplayOptions" type="button">
+									<i class="fa" ng-class="{'fa-chevron-down':!showDisplayOptions,'fa-chevron-up':showDisplayOptions}"></i> Advanced Options
+								</button>
+							</div>
+							<div ng-show="showDisplayOptions" ng-init="showDisplayOptions = false">
+								<div class="vert-spacer-static-md"></div>
+								<div class="row form-horizontal">
+									<div class="col-md-4">
+										<div class="form-group">
+											<label for="options-bldgStyle" class="col-sm-4 control-label">Buildings:</label>
+											<div class="col-sm-8">
+												<select id="options-bldgStyle" class="form-control" ng-model="state.drawOptions.bldgStyle">
+													<option value="code">Codes (eg. GOL)</option>
+													<option value="number">Number (eg. 70)</option>
+												</select>
+											</div>
+										</div>
+									</div>
+									<div class="col-md-4">
+										<div class="form-group hidden-xs">
+											<label for="options-fullscreen" class="col-sm-4 control-label">Width:</label>
+											<div class="col-sm-8">
+												<div class="checkbox">
+													<label> <input id="options-fullscreen" type="checkbox" ng-model="state.displayOptions.fullscreen"> Fullscreen
+													</label>
+												</div>
+											</div>
+										</div>
+									</div>
+									<div class="col-md-4">
+										<div class="form-group">
+											<label for="displayOptions-pageSize" class="col-sm-4 control-label">Page Size:</label>
+											<div class="col-sm-8">
+												<select id="displayOptions-pageSize" class="form-control" ng-model="state.displayOptions.pageSize">
+													<option value="3">3</option>
+													<option value="5">5</option>
+													<option value="10">10</option>
+													<option value="15">15</option>
+													<option value="20">20</option>
+													<option value="50">50</option>
+												</select>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div ng-class="{container: !state.displayOptions.fullscreen}">
+			<div ng-class="{'col-sm-12': state.displayOptions.fullscreen}">
+				<div class="row" ng-repeat="schedule in state.schedules | startFrom:state.displayOptions.currentPage*state.displayOptions.pageSize | limitTo:state.displayOptions.pageSize">
+					<div class="col-md-12" schedule></div>
+				</div>
+			</div>
+		</div>
+		<div class="container">
+			<div class="row">
+				<div class="col-xs-12">
+					<div class="panel panel-default">
+						<div class="panel-heading">
+							<div class="center" pagination-controls="state.displayOptions" pagination-length="state.schedules.length" pagination-callback="scrollToSchedules()"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
 	</div>
 </div>
-<div class='scheduleForm'>
-	<div class='subheader'>
-		<h2>Non-Course Schedule Items</h2>
-		<input id='nonCourseCount' class='itemCount' type='hidden' name='nonCourseCount' value='3' />
-		<button id="addNonCourseButton" class='addItemButton'>Add Item</button>
-	</div>
-	<table id='nonCourses'>
-		<tr>
-			<th>Title</th><th>Start Time</th><th>End Time</th><th>U</th><th>M</th><th>T</th><th>W</th><th>R</th><th>F</th><th>S</th>
-		</tr>
-		<tr>
-			<td><input type='text' name='nonCourseTitle1' id='nonCourseTitle1' /></td>
-			<td><input type='text' class='startTimePicker' name='nonCourseStartTime1' id='nonCourseStartTime1' placeholder="12:00pm"/></td>
-			<td><input type='text' class='endTimePicker' name='nonCourseEndTime1' id='nonCourseStartTime1' placeholder="12:00pm"/></td>
-			<td><input type='checkbox' name='nonCourseDays1[]' value='Sun' id='nonCourseDaysSun1' /></td>
-			<td><input type='checkbox' name='nonCourseDays1[]' value='Mon' id='nonCourseDaysMon1' /></td>
-			<td><input type='checkbox' name='nonCourseDays1[]' value='Tue' id='nonCourseDaysTue1' /></td>
-			<td><input type='checkbox' name='nonCourseDays1[]' value='Wed' id='nonCourseDaysWed1' /></td>
-			<td><input type='checkbox' name='nonCourseDays1[]' value='Thu' id='nonCourseDaysThu1' /></td>
-			<td><input type='checkbox' name='nonCourseDays1[]' value='Fri' id='nonCourseDaysFri1' /></td>
-			<td><input type='checkbox' name='nonCourseDays1[]' value='Sat' id='nonCourseDaysSat1' /></td>
-		</tr>
-		<tr>
-			<td><input type='text' name='nonCourseTitle2' id='nonCourseTitle2' /></td>
-            <td><input type='text' class='startTimePicker' name='nonCourseStartTime2' id='nonCourseStartTime2' placeholder="12:00pm"/></td>
-            <td><input type='text' class='endTimePicker' name='nonCourseEndTime2' id='nonCourseStartTime2' placeholder="12:00pm"/></td>
-            <td><input type='checkbox' name='nonCourseDays2[]' value='Sun' id='nonCourseDaysSun2' /></td>
-            <td><input type='checkbox' name='nonCourseDays2[]' value='Mon' id='nonCourseDaysMon2' /></td>
-            <td><input type='checkbox' name='nonCourseDays2[]' value='Tue' id='nonCourseDaysTue2' /></td>
-            <td><input type='checkbox' name='nonCourseDays2[]' value='Wed' id='nonCourseDaysWed2' /></td>
-            <td><input type='checkbox' name='nonCourseDays2[]' value='Thu' id='nonCourseDaysThu2' /></td>
-            <td><input type='checkbox' name='nonCourseDays2[]' value='Fri' id='nonCourseDaysFri2' /></td>
-            <td><input type='checkbox' name='nonCourseDays2[]' value='Sat' id='nonCourseDaysSat2' /></td>
-		</tr>
-		<tr class='lastNonCourseItem'>
-			<td><input type='text' name='nonCourseTitle3' id='nonCourseTitle3' /></td>
-            <td><input type='text' class='startTimePicker' name='nonCourseStartTime3' id='nonCourseStartTime3' placeholder="12:00pm"/></td>
-            <td><input type='text' class='endTimePicker' name='nonCourseEndTime3' id='nonCourseStartTime3' placeholder="12:00pm"/></td>
-			<td><input type='checkbox' name='nonCourseDays3[]' value='Sun' id='nonCourseDaysSun3' /></td>
-			<td><input type='checkbox' name='nonCourseDays3[]' value='Mon' id='nonCourseDaysMon3' /></td>
-			<td><input type='checkbox' name='nonCourseDays3[]' value='Tue' id='nonCourseDaysTue3' /></td>
-			<td><input type='checkbox' name='nonCourseDays3[]' value='Wed' id='nonCourseDaysWed3' /></td>
-			<td><input type='checkbox' name='nonCourseDays3[]' value='Thu' id='nonCourseDaysThu3' /></td>
-			<td><input type='checkbox' name='nonCourseDays3[]' value='Fri' id='nonCourseDaysFri3' /></td>
-			<td><input type='checkbox' name='nonCourseDays3[]' value='Sat' id='nonCourseDaysSat3' /></td>
-		</tr>
-	</table>
-</div>
-<div class='scheduleForm'>
-	<div class='subheader'>
-		<h2>Times You Don't Want Classes</h2>
-		<input id='noCourseCount' class='itemCount' type='hidden' name='noCourseCount' value='3' />
-		<button class='addItemButton'>Add Time</button>
-	</div>
-	<table id='noCourses'>
-		<tr>
-			<th>Start Time</th><th>End Time</th><th>U</th><th>M</th><th>T</th><th>W</th><th>R</th><th>F</th><th>S</th>
-		</tr>
-		<tr>
-			<td><input type='text' class='startTimePicker' name='noCourseStartTime1' id='noCourseStartTime1' placeholder="12:00pm"/></td>
-			<td><input type='text' class='endTimePicker' name='noCourseEndTime1' id='noCourseStartTime1' placeholder="12:00pm"/></td>
-			<td><input type='checkbox' name='noCourseDays1[]' value='Sun' id='noCourseDaysSun1' /></td>
-			<td><input type='checkbox' name='noCourseDays1[]' value='Mon' id='noCourseDaysMon1' /></td>
-			<td><input type='checkbox' name='noCourseDays1[]' value='Tue' id='noCourseDaysTue1' /></td>
-			<td><input type='checkbox' name='noCourseDays1[]' value='Wed' id='noCourseDaysWed1' /></td>
-			<td><input type='checkbox' name='noCourseDays1[]' value='Thu' id='noCourseDaysThu1' /></td>
-			<td><input type='checkbox' name='noCourseDays1[]' value='Fri' id='noCourseDaysFri1' /></td>
-			<td><input type='checkbox' name='noCourseDays1[]' value='Sat' id='noCourseDaysSat1' /></td>
-		</tr>
-		<tr>
-			<td><input type='text' class='startTimePicker' name='noCourseStartTime2' id='noCourseStartTime2' placeholder="12:00pm"/></td>
-            <td><input type='text' class='endTimePicker' name='noCourseEndTime2' id='noCourseStartTime2' placeholder="12:00pm"/></td>
-			<td><input type='checkbox' name='noCourseDays2[]' value='Sun' id='noCourseDaysSun2' /></td>
-			<td><input type='checkbox' name='noCourseDays2[]' value='Mon' id='noCourseDaysMon2' /></td>
-			<td><input type='checkbox' name='noCourseDays2[]' value='Tue' id='noCourseDaysTue2' /></td>
-			<td><input type='checkbox' name='noCourseDays2[]' value='Wed' id='noCourseDaysWed2' /></td>
-			<td><input type='checkbox' name='noCourseDays2[]' value='Thu' id='noCourseDaysThu2' /></td>
-			<td><input type='checkbox' name='noCourseDays2[]' value='Fri' id='noCourseDaysFri2' /></td>
-			<td><input type='checkbox' name='noCourseDays2[]' value='Sat' id='noCourseDaysSat2' /></td>
-		</tr>
-		<tr>
-			<td><input type='text' class='startTimePicker' name='noCourseStartTime3' id='noCourseStartTime3' placeholder="12:00pm"/></td>
-            <td><input type='text' class='endTimePicker' name='noCourseEndTime3' id='noCourseStartTime3' placeholder="12:00pm"/></td>
-			<td><input type='checkbox' name='noCourseDays3[]' value='Sun' id='noCourseDaysSun3' /></td>
-			<td><input type='checkbox' name='noCourseDays3[]' value='Mon' id='noCourseDaysMon3' /></td>
-			<td><input type='checkbox' name='noCourseDays3[]' value='Tue' id='noCourseDaysTue3' /></td>
-			<td><input type='checkbox' name='noCourseDays3[]' value='Wed' id='noCourseDaysWed3' /></td>
-			<td><input type='checkbox' name='noCourseDays3[]' value='Thu' id='noCourseDaysThu3' /></td>
-			<td><input type='checkbox' name='noCourseDays3[]' value='Fri' id='noCourseDaysFri3' /></td>
-			<td><input type='checkbox' name='noCourseDays3[]' value='Sat' id='noCourseDaysSat3' /></td>
-		</tr>
-	</table>
-</div>
-<div class='scheduleForm'>
-	<div class='subheader'>
-		<h2>Advanced Options</h2>
-	</div>
-	<table id='advancedOptions'>
-		<tr>
-			<td class='lbl'><label for='scheduleStart'>Start Time:</label></td>
-			<td><input type='text' id='scheduleStart' value='8:00am' name='scheduleStart' /></td>
-			<td class='lbl'><label for='scheduleEnd'>End Time:</label></td>
-			<td><input type='text' id='scheduleEnd' value='10:00pm' name='scheduleEnd' /></td>
-		</tr>
-		<tr>
-			<td class='lbl'><label for='scheduleStartDay'>First Day:</label></td>
-			<td><?= getDayField("scheduleStartDay", 1, true) ?></td>
-			<td class='lbl'><label for='scheduleEndDay'>End Day:</label></td>
-			<td><?= getDayField("scheduleEndDay", 6, true) ?></td>
-		</tr>
-		<tr>
-			<td class='lbl'>
-				<label class='lbl'>Schedules per Page:</label>
-			</td>
-			<td>
-				<select id='schedPerPage' name='schedPerPage'>
-					<option value='3' selected='selected'>3 per Page</option>
-					<option value='5'>5 per Page</option>
-					<option value='10'>10 per Page</option>
-					<option value='15'>15 per Page</option>
-					<option value='20'>20 per Page</option>
-					<option value='all'>All Schedules</option>
-				</select>
-			</td>
-			<td>
-				<label for='buildingStyle'>Buildings:</label>
-			</td>
-			<td>
-				<select id='buildingStyle' name='buildingStyle'>
-					<option value='code'>Codes (eg. GOL)</option>
-					<option value='number'>Number (eg. 70)</option>
-				</select>
-			</td>
-		</tr>
-		<tr>
-			<td style='text-align:right'>
-				<input id='verbose' type='checkbox' name='verbose' value='true' />
-			</td>
-			<td>
-				<label for='verbose'>Show Error Messages/Course Conflicts</label>
-			</td>
-		</tr>
-	</table>
-</div>
-<input type='hidden' name='action' value='getMatchingSchedules' />
-<div id='formSubmit' class='scheduleForm'>
-    <button class='bigButton' id='showSchedulesButton'>Show Matching Schedules</button>
-</div>
-</form>
-<div id='schedules'>
-	<div id='matchingSchedules' class='subheader'>
-		<h2>Matching Schedules</h2>
-	</div>
-</div>
-<script type='text/javascript' src='js/handlebars.js'></script>
-<script type='text/javascript' src='js/translateFunctions.js'></script>
 <? require "./inc/footer.inc"; ?>

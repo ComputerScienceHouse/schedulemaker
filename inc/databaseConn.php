@@ -41,7 +41,9 @@ function getMeetingInfo($sectionData) {
         "curenroll"  => $sectionData['curenroll'],
         "maxenroll"  => $sectionData['maxenroll'],
         "courseNum"  => "{$sectionData['department']}-{$sectionData['course']}-{$sectionData['section']}",
-        "sectionId"  => $sectionData['id'],
+        "courseParentNum" => "{$sectionData['department']}-{$sectionData['course']}",
+        "courseId"   => $sectionData['courseId'],
+        "id"         => $sectionData['id'],
         "online"     => $sectionData['type'] == "O"
         );
 
@@ -84,6 +86,7 @@ function getCourseBySectionId($id) {
 	// Build the query to get section info
 	$query = "SELECT s.id,
                 (CASE WHEN (s.title != '') THEN s.title ELSE c.title END) AS title,
+                c.id AS courseId,
                 s.instructor, s.curenroll, s.maxenroll, s.type, c.quarter, c.course, s.section, d.number, d.code
                 FROM sections AS s
                   JOIN courses AS c ON s.course = c.id
@@ -164,7 +167,7 @@ function getCourse($term, $dept, $courseNum, $sectNum) {
  */
 function getTermField($fieldName = "term", $selected = null) {
 	// Build the start of the field
-	$return = "<select id='{$fieldName}' name='{$fieldName}'>";
+	$return = "<select ng-model='{$fieldName}' class=\"form-control\" name='{$fieldName}'>";
 	
 	// Query the database for the quarters
 	$query = "SELECT quarter FROM quarters ORDER BY quarter DESC";
@@ -181,18 +184,18 @@ function getTermField($fieldName = "term", $selected = null) {
         $termNum = substr(strval($term), -1);
         if($year >= 2013) {
             switch($termNum) {
-                case 1: $termName = "Fall"; break;
-                case 3: $termName = "Winter Intersession"; break;
-                case 5: $termName = "Spring"; break;
-                case 8: $termName = "Summer"; break;
+                case 1: $termName = "Fall"; $useYear = $year; break;
+                case 3: $termName = "Winter Intersession"; $useYear = (int) $year + 1; break;
+                case 5: $termName = "Spring"; $useYear = (int) $year + 1; break;
+                case 8: $termName = "Summer"; $useYear = (int) $year + 1; break;
                 default: $termName = "Unknown";
             }
         } else {
             switch($termNum) {
-                case 1: $termName = "Fall"; break;
-                case 2: $termName = "Winter"; break;
-                case 3: $termName = "Spring"; break;
-                case 4: $termName = "Summer"; break;
+                case 1: $termName = "Fall"; $useYear = $year; break;
+                case 2: $termName = "Winter"; $useYear = $year; break;
+                case 3: $termName = "Spring"; $useYear = (int) $year + 1; break;
+                case 4: $termName = "Summer"; $useYear = (int) $year + 1; break;
                 default: $termName = "Unknown";
             }
         }
@@ -209,7 +212,7 @@ function getTermField($fieldName = "term", $selected = null) {
         }
 
 		// Now output it
-		$return .= "<option value='{$term}'" . (($selected == $term) ? " selected='selected'" : "") . ">{$year} {$termName}</option>";
+		$return .= "<option value='{$term}'" . (($selected == $term) ? " selected='selected'" : "") . ">{$termName} {$useYear}</option>";
 	}
 
 	// Close it up and return it

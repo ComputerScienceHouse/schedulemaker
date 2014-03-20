@@ -1,0 +1,57 @@
+<div class="row margin-bottom-sm">
+	<div class="col-md-8">
+		<div class="form-group" ng-class="{'has-error':item.sections[0].isError == true}">
+			<div class="col-sm-12 col-xs-12">
+				<div class="input-group">
+					<input autocapitalize="off" autocorrect="off" spellcheck="off" autocomplete="off" id="courses{{index}}" class="form-control searchField mousetrap" ng-model="item.search" type="text" name="courses{{index}}" placeholder="DEPT-CRS-SECT, DEPT-CRS-SECT..." /> <span class="input-group-btn">
+						<button type="button" ng-class="{'btn-danger':delHover}" ng-blur="delHover = false" ng-focus="delHover = true" ng-mouseenter="delHover = true" ng-mouseleave="delHover = false" class="btn btn-default" ng-click="remove()">
+							<i class="fa fa-spin fa-refresh" ng-show="item.status == 'L'"></i> <i class="fa fa-times" ng-show="item.status == 'D'"></i>
+						</button>
+					</span>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="col-md-4">
+		<div ng-show="!item.sections[0].isError" class="form-group course-result" ng-class="{'hidden-xs':item.sections.length == 0, 'hidden-sm': item.sections.length == 0}">
+			<div class="col-xs-12">
+				<button type="button" class="btn btn-primary btn-block" ng-click="showResults = !showResults" ng-disabled="!item.sections.length">
+					<i class="fa" ng-class="{'fa-angle-down':!showResults && item.sections.length > 0,'fa-angle-up':showResults && item.sections.length > 0}"></i> {{item.search.length > 3?(item.sections.length > 0?(showResults?"Hide ":"Show ") + item.sections.length + " Result" + (item.sections.length != 1?"s":"") :"No Results"):"Please enter a course"}}
+				</button>
+			</div>
+		</div>
+		<div ng-show="item.sections[0].isError" class="course-error alert alert-danger alert-sm">{{item.sections[0].error.msg}}</div>
+	</div>
+</div>
+<div ng-if="showResults && !item.sections[0].isError">
+	<div class="visible-xs visible-sm vert-spacer-static-md"></div>
+	<div class="course-results-cont row">
+		<div class="inline-col col-md-6" ng-repeat="section in item.sections">
+			<ul class="list-group">
+				<li class="list-group-item course-info">
+					<div class="row">
+						<div class="col-sm-8">
+							<h4 class="list-group-item-heading">{{$index + 1}}. {{section.courseNum}}</h4>
+							<small>{{section.title}}</small>
+							<p class="list-group-item-text label-line ">
+								<span class="label label-default" ng-bind-html="section.instructor | RMPUrl"></span>
+							</p>
+							<div ng-init="parsedTimes = (section.times | parseSectionTimes)">
+								<div ng-repeat="time in parsedTimes" style="font-size:small">{{time.days}} <span style="white-space:nowrap">{{time.start | formatTime}}-{{time.end | formatTime}}</span></div>
+							</div>
+						</div>
+						<div class="col-sm-4">
+							<div class="row">
+								<div class="col-xs-12">
+									<button type="button" class="btn btn-block" ng-click="section.selected = !section.selected" ng-class="{'btn-danger':section.selected, 'btn-success':!section.selected}"><i class="fa" ng-class="{'fa-minus':section.selected, 'fa-plus':!section.selected}"></i> <i class="fa fa-shopping-cart"></i></button>
+								</div>
+							</div>
+						</div>
+					</div>
+				</li>
+			</ul>
+		</div>
+	</div>
+	<div class="visible-xs visible-sm vert-spacer-md"></div>
+</div>
+
