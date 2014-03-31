@@ -242,31 +242,42 @@ function drawCourse(parent, course, startDay, endDay, startTime, endTime, colorN
 		var time = course.times[t];
 		
 		// Skip times that aren't part of the displayed days
+        var skip = false;
+        var shortenTop = false;
+        var shortenBottom = false;
 		if(time.day < startDay || time.day > endDay) {
-			if($.inArray(course.courseNum, hiddenCourses) == -1) {
-				hiddenCourses.push(course.courseNum);
-			}
-			continue;
-		}
+            skip = true;
+		} else {
+            // Skip times that aren't part of the displayed hours
+            if(time.start < startTime) {
+                if(time.end > startTime) {
+                    shortenTop = true;         // Class starts before schedule but ends after sched starts. Shorten it.
+                } else {
+                    skip = true;               // Class starts and ends before schedule. Skip it.
+                }
+            }
+            if(time.end > endTime) {
+                if(time.start < endTime) {
+                    shortenBottom = true;         // Class ends after schedule starts, but starts before sched ends. Shorten it.
+                } else {
+                    skip = true                // Class starts and ends after the schedule. Skip it.
+                }
+            }
+        }
 
-		// Skip times that aren't part of the displayed hours
-		if(time.start < startTime || time.start > endTime || time.end > endTime) {
-			// Shorten up the boxes of times that extend into
-			// the visible spectrum
-			if(time.start < startTime && time.end > startTime) {
-				time.start = startTime;
-				time.shorten = "top";
-			} else if(time.end > endTime && time.start < endTime) {
-				time.end = endTime;
-				time.shorten = "bottom";
-			} else {
-				// The course is completely hidden
-				if($.inArray(course.courseNum, hiddenCourses) == -1) {
-					hiddenCourses.push(course.courseNum);
-				}
-				continue;
-			}
-		}
+        // Add a message for skipped classes
+        if(skip) {
+            var nameToPush = course.courseNum == 'non' ? course.title : course.courseNum;
+            if($.inArray(nameToPush, hiddenCourses) == -1) {
+                hiddenCourses.push(nameToPush);
+            }
+            continue;
+        }
+
+        // Determine the true start/end times for the class
+        // Note: This is done with separate vars to avoid incorrectly storing non-course items in the database upon save
+        var classStart = shortenTop ? startTime : parseInt(time.start);
+        var classEnd = shortenBottom ? endTime : parseInt(time.end);
 
 		// Add a div for the time
 		var timeDiv = $("<div>");
@@ -279,13 +290,13 @@ function drawCourse(parent, course, startDay, endDay, startTime, endTime, colorN
 		}
 		
 		// Calculate the height
-		var timeHeight = parseInt(time.end) - parseInt(time.start);
+		var timeHeight = classEnd - classStart;
 		timeHeight = timeHeight / 30;
 		timeHeight = Math.ceil(timeHeight);
 		timeHeight = (timeHeight * 20) - 1;
 
 		// Calculate the top offset
-		var timeTop = parseInt(time.start) - startTime;
+		var timeTop = classStart - startTime;
 		timeTop = timeTop / 30;
 		timeTop = Math.floor(timeTop);
 		timeTop = timeTop * 20;
@@ -331,18 +342,18 @@ function drawCourse(parent, course, startDay, endDay, startTime, endTime, colorN
 			    courseInfo.appendTo(timeDiv);
             }
 		}
-		if(time.shorten == "top") {
-			var curHeight = timeDiv.css("height");
-			curHeight = curHeight.substring(0, curHeight.length - 2); 
-			var newHeight = curHeight - 1;
-			timeDiv.css("height", newHeight + "px");
+		if(shortenTop) {
+//			var curHeight = timeDiv.css("height");
+//			curHeight = curHeight.substring(0, curHeight.length - 2);
+//			var newHeight = curHeight - 1;
+//			timeDiv.css("height", newHeight + "px");
 			timeDiv.addClass("shortenTop");
 		}
-		if(time.shorten == "bottom") {
-			var curHeight = timeDiv.css("height");
-			curHeight = curHeight.substring(0, curHeight.length - 2); 
-			var newHeight = curHeight - 1;
-			timeDiv.css("height", newHeight + "px");
+		if(shortenBottom) {
+//			var curHeight = timeDiv.css("height");
+//			curHeight = curHeight.substring(0, curHeight.length - 2);
+//			var newHeight = curHeight - 1;
+//			timeDiv.css("height", newHeight + "px");
 			timeDiv.addClass("shortenBottom");
 		}
 		

@@ -13,33 +13,53 @@
 function drawCourse($course, $startTime, $endTime, $startDay, $endDay, $color, $bldg) {
 	$code = "";
 
-	// Iterate over the times that the couse has session
+	// Iterate over the times that the course has session
+    if(empty($course['times'])) { return ""; }
 	foreach($course['times'] as $time) {
 		// Skip times that aren't part of the displayed days
 		if($time['day'] < $startDay || $time['day'] > $endDay) {
 			continue;
 		}
 
-		// Skip times that aren't part of displayed hours
-		if($time['start'] < $startTime || $time['start'] > $endTime || $time['end'] > $endTime) {
-			continue;
-		}
+        // Shorten classes that lie across the displayed hours
+        if($time['start'] < $startTime) {
+            if($time['end'] > $startTime) {
+                echo("short!");
+                $time['start'] = $startTime;    // Class starts before schedule but ends after sched starts. Shorten it.
+                $shortenStart = true;
+            } else {
+                continue;                       // Class starts and ends before schedule. Skip it.
+            }
+        }
+
+        if($time['end'] > $endTime) {
+            if($time['start'] < $endTime) {
+                $time['end'] = $endTime;        // Class ends after schedule starts, but starts before sched ends. Shorten it.
+                $shortenEnd = true;
+            } else {
+                continue;                       // Class starts and ends after the schedule. Skip it.
+            }
+        }
 
 		// Add a div for the time
-		$code .= "<div class='day" . ($time['day'] - $startDay) . " color{$color} timeContainer' style = '";
+        // Build out the classes to use
+        $classes = "day" . (($time['day']) - $startDay);
+        $classes .= " color{$color}";
+        $classes .= " timeContainer";
+        $classes .= (!empty($shortenStart)) ? " shortenTop" : "";
+        $classes .= (!empty($shortenEnd)) ? " shortenBottom" : "";
 
-		$height    = (ceil(($time['end'] - $time['start']) / 30) * 20) - 1;
-		$topOffset = (floor(($time['start'] - $startTime) / 30) * 20) + 20;
-		$code .= "height: {$height}px; top: {$topOffset}px";
-		$code .= "'>";
+        // Build out the style for positioning/size
+        $height    = (ceil(($time['end'] - $time['start']) / 30) * 20) - 1;
+        $topOffset = (floor(($time['start'] - $startTime) / 30) * 20) + 20;
+        $style = "height: {$height}px; top: {$topOffset}px";
+
+		$code .= "<div class='{$classes}' style = '{$style}'>";
 		
 		// Add information about the course
-		$code .= "<h4";
-		if($height <= 40) {
-			// Include code to shorten the header for short classes
-			$code .= " class='shortHeader'";
-		}
-		$code .= ">{$course['title']}</h4><div>";
+        $shortHeader = ($height <= 40) ? "class='shortHeader'" : "";
+		$code .= "<h4 {$shortHeader}>{$course['title']}</h4>";
+		$code .= "<div>";
 		if($course['courseNum'] != "non") {
 		    $code .= $course['courseNum'] . "<br />";
 			$code .= $course['instructor'] . "<br />";
