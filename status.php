@@ -57,46 +57,52 @@ while($row = mysql_fetch_assoc($result)) {
 
 require "inc/header.inc";
 ?>
-<h1>Scraper Status</h1>
-
-<div class='subContainer'>
-	<h2>Scraper Last Ran: <?= ((count($lastLogs)) ? date("m/d/y h:ia", $lastLogs[0]['timeStarted']) : "Never") ?></h2>
-
-	<h2>Last 20 Scrape Reports</h2>
-	<table id='scraperStatus'>
-		<tr class='separated'>
-			<th>Scrape Started</th>
-			<th>Scrape Finished</th>
-			<th>Time Elapsed</th>
-			<th>Courses Added</th>
-			<th>Courses Updated</th>
-			<th>Sections Added</th>
-			<th>Sections Updated</th>
-			<th>Failures</th>
-		</tr>
-		<? 
-		if(!count($lastLogs)) {
-			// No reports here
-			?><tr><td colspan='7'>No Logs Exist</td></tr><?
-		} else {
-			foreach($lastLogs as $log) { ?>
-			<tr>
-				<td><?= date('m/d/y h:ia', $log['timeStarted']) ?></td>
-				<td><?= date('m/d/y h:ia', $log['timeEnded']) ?></td>
-				<td><?= timeElapsed($log['timeEnded'] - $log['timeStarted']) ?></td>
-				<td><?= $log['coursesAdded'] ?></td>
-				<td><?= $log['coursesUpdated'] ?></td>
-				<td><?= $log['sectionsAdded'] ?></td>
-				<td><?= $log['sectionsUpdated'] ?></td>
-				<? if($log['failures'] > 0) { ?>
-					<td class='failures'><?= $log['failures'] ?></td>
-				<? } else { ?>
-					<td>0</td>
-				<? } ?>
-			</tr>
-			<? }
-		} ?> 
-	</table>
+<div class="container">
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			<h3 class="panel-title">Last 20 Data Scrapes <div class="pull-right">Last run: <?= ((count($lastLogs)) ? date("m/d/y h:ia", $lastLogs[0]['timeStarted']) : "Never") ?></div></h3>
+		</div>
+		<div class="panel-body">
+		<table class="table">
+			<thead>
+				<tr>
+					<th>Scrape Started</th>
+					<th>Scrape Finished</th>
+					<th>Time Elapsed</th>
+					<th>Courses Added</th>
+					<th>Courses Updated</th>
+					<th>Sections Added</th>
+					<th>Sections Updated</th>
+					<th>Failures</th>
+				</tr>
+			</thead>
+			<tbody>
+				<? 
+				if(!count($lastLogs)) {
+					// No reports here
+					?><tr><td colspan='7'>No Logs Exist</td></tr><?
+				} else {
+					foreach($lastLogs as $log) { ?>
+					<tr>
+						<td><?= date('m/d/y h:ia', $log['timeStarted']) ?></td>
+						<td><?= date('m/d/y h:ia', $log['timeEnded']) ?></td>
+						<td><?= timeElapsed($log['timeEnded'] - $log['timeStarted']) ?></td>
+						<td><?= $log['coursesAdded'] ?></td>
+						<td><?= $log['coursesUpdated'] ?></td>
+						<td><?= $log['sectionsAdded'] ?></td>
+						<td><?= $log['sectionsUpdated'] ?></td>
+						<? if($log['failures'] > 0) { ?>
+							<td class='failures'><?= $log['failures'] ?></td>
+						<? } else { ?>
+							<td>0</td>
+						<? } ?>
+					</tr>
+					<? }
+				} ?> 
+			</tbody>
+		</table>
+		</div>
+	</div>
 </div>
 <?
 require "inc/footer.inc";
