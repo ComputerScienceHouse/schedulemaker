@@ -14,6 +14,14 @@ body.print {
 	overflow-y: auto;
 }
 
+@media print{
+    @page {
+    	size: auto; 
+   		margin: auto;
+    }
+
+} 
+
 @-webkit-viewport   { width: device-width; }
 @-moz-viewport      { width: device-width; }
 @-ms-viewport       { width: device-width; }
@@ -140,9 +148,10 @@ label {
 }
 
 #print_footer {
-	height:50px;
-	text-align:center;
-	line-height:50px;
+	height: 50px;
+	text-align: center;
+	line-height: 50px;
+	margin-top: -30px;
 }
 
 #print_footer img {
@@ -151,6 +160,10 @@ label {
 
 #print_footer a {
 	color: #000;
+}
+
+#print_header {
+	margin: 0 0;
 }
 
 input[type=text] {
@@ -954,9 +967,35 @@ input {
 body.print div[schedule] > .panel {
 	box-shadow: none;
 	border: none;
-	width: 720px;
+	min-width: 720px;
 	margin: 0 auto;
 }
+
+body.print div[schedule].bow svg g[svg-schedule-item] rect,
+body.print div[schedule].gow svg g[svg-schedule-item] rect {
+	fill: #FFFFFF !important;
+	fill-opacity: 1 !important;
+	stroke: #000;
+	stroke-width: 1px;
+}
+
+body.print div[schedule].gow svg g[svg-schedule-item] rect {
+	stroke: #555;
+}
+
+body.print div[schedule].bow text,
+body.print div[schedule].boc svg g[svg-schedule-item] text {
+	fill: #000000 !important;
+}
+
+body.print div[schedule].bow svg line {
+	stroke: #000000 !important;
+}
+
+body.print div[schedule].gow svg g[svg-schedule-item] text {
+	fill: #333 !important;
+}
+
 @media print {
   body.print a[href]:after {
     content: "";

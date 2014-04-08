@@ -13,7 +13,7 @@
 			<? } elseif($LAYOUT_MODE == 'print') { ?>
 			<div id="print_footer">
 				Made Using <a href='<?= $HTTPROOTADDRESS ?>'>CSH ScheduleMaker</a>
-				<a href="http://www.csh.rit.edu/"><img src="/img/csh_print.png"></a>
+				<a href="http://www.csh.rit.edu/"><img height="25" src="/img/csh_print.png"></a>
 			</div> 
 			
 			<? } ?>

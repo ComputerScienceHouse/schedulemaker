@@ -15,107 +15,6 @@ require_once('./inc/timeFunctions.php');
 
 // FUNCTIONS ///////////////////////////////////////////////////////////////
 
-function drawCourse($course, $startTime, $endTime, $startDay, $endDay, $color, $bldg) {
-	$code = "";
-
-	// Iterate over the times that the course has session
-    if(empty($course['times'])) { return ""; }
-	foreach($course['times'] as $time) {
-		// Skip times that aren't part of the displayed days
-		if($time['day'] < $startDay || $time['day'] > $endDay) {
-			continue;
-		}
-
-        // Shorten classes that lie across the displayed hours
-        if($time['start'] < $startTime) {
-            if($time['end'] > $startTime) {
-                echo("short!");
-                $time['start'] = $startTime;    // Class starts before schedule but ends after sched starts. Shorten it.
-                $shortenStart = true;
-            } else {
-                continue;                       // Class starts and ends before schedule. Skip it.
-            }
-        }
-
-        if($time['end'] > $endTime) {
-            if($time['start'] < $endTime) {
-                $time['end'] = $endTime;        // Class ends after schedule starts, but starts before sched ends. Shorten it.
-                $shortenEnd = true;
-            } else {
-                continue;                       // Class starts and ends after the schedule. Skip it.
-            }
-        }
-
-		// Add a div for the time
-        // Build out the classes to use
-        $classes = "day" . (($time['day']) - $startDay);
-        $classes .= " color{$color}";
-        $classes .= " timeContainer";
-        $classes .= (!empty($shortenStart)) ? " shortenTop" : "";
-        $classes .= (!empty($shortenEnd)) ? " shortenBottom" : "";
-
-        // Build out the style for positioning/size
-        $height    = (ceil(($time['end'] - $time['start']) / 30) * 20) - 1;
-        $topOffset = (floor(($time['start'] - $startTime) / 30) * 20) + 20;
-        $style = "height: {$height}px; top: {$topOffset}px";
-
-		$code .= "<div class='{$classes}' style = '{$style}'>";
-		
-		// Add information about the course
-        $shortHeader = ($height <= 40) ? "class='shortHeader'" : "";
-		$code .= "<h4 {$shortHeader}>{$course['title']}</h4>";
-		$code .= "<div>";
-		if($course['courseNum'] != "non") {
-		    $code .= $course['courseNum'] . "<br />";
-			$code .= $course['instructor'] . "<br />";
-			$code .= $time['bldg'][$bldg] . "-" . $time['room'];
-		}
-		$code .= "</div>";
-		
-
-		$code .= "</div>";
-	}
-	return $code;
-}
-
-function drawHeaders($startTime, $endTime, $startDay, $endDay) {
-	// Draw the days of the week. We're doing it the fancy way.
-	$code = "";
-	switch($startDay) {
-		case 0:
-			$code .= "<div class='weekday day0'>Sunday</div>";
-			if($endDay == 0) {break;}
-		case 1:
-			$code .= "<div class='weekday day" . (1 - $startDay) . "'>Monday</div>";
-			if($endDay == 1) {break;}
-		case 2:
-			$code .= "<div class='weekday day" . (2 - $startDay) . "'>Tuesday</div>";
-			if($endDay == 2) {break;}
-		case 3:
-			$code .= "<div class='weekday day" . (3 - $startDay) . "'>Wednesday</div>";
-			if($endDay == 3) {break;}
-		case 4:
-			$code .= "<div class='weekday day" . (4 - $startDay) . "'>Thursday</div>";
-			if($endDay == 4) {break;}
-		case 5:
-			$code .= "<div class='weekday day" . (5 - $startDay) . "'>Friday</div>";
-			if($endDay == 5) {break;}
-		case 6:
-			$code .= "<div class='weekday day" . (6 - $startDay) . "'>Saturday</div>";
-			if($endDay == 6) {break;}
-	break;
-	}
-
-	// Draw the time divs
-	for($time = $startTime; $time < $endTime; $time += 30) {
-		$code .= "<div class='daytime' style='top:" . (floor((($time - $startTime) / 30) * 20) + 20) . "px'>";
-		$code .= translateTime($time);
-		$code .= "</div>";
-	}
-
-	return $code;
-}
-
 function icalFormatTime($time) {
 	// Get the GMT difference
 	$gmtDiff = substr(date("O"), 0, 3);
@@ -199,55 +98,6 @@ function generateIcal($schedule) {
 	}
 
 	$code .= "END:VCALENDAR\r\n";
-
-	return $code;
-}
-
-function generateScheduleFromCourses($courses) {
-	// Grab the start/end time/day
-	$courseList = $courses['courses'][0];
-	$startTime  = $courses['startTime'];
-	$endTime    = $courses['endTime'];
-	$startDay   = $courses['startDay'];
-	$endDay     = $courses['endDay'];
-
-	// Do some calculations for height/width
-	$schedHeight = floor(($endTime - $startTime) / 30) * 20 + 20;
-	$schedWidth  = (($endDay - $startDay) * 100) + 200;
-
-	// Start outputting the code
-	$code = "<div class='schedSupaWrapper'>";
-	$code .= "<div class='scheduleWrapper' style='height:{$schedHeight}px; width:{$schedWidth}px'>";
-	$code .= "<div class='schedule' style='height:{$schedHeight}px; width:{$schedWidth}px'>";
-	$code .= "<img src='img/grid.png'>";
-	$code .= drawHeaders($startTime, $endTime, $startDay, $endDay);
-
-	// Storage for potential online courses
-	$onlineCourses = array();
-
-	// Output each of the courses in the schedule
-	for($i = 0; $i < count($courseList); $i++) {
-		if($courseList[$i]['courseNum'] != 'non' && $courseList[$i]['online']) {
-			// Add it to the list of online courses
-			$onlineCourses[] = $courseList[$i];
-			continue;
-		}
-
-		$color = $i % 4;
-		$code .= drawCourse($courseList[$i], $startTime, $endTime, $startDay, $endDay, $color, $courses['bldgStyle']);
-	}
-	$code .= "</div></div>";
-	
-	// Output a notice if there were online courses
-	if(count($onlineCourses)) {
-		$code .= "<div class='schedNotes' style='width:{$schedWidth}px'>";
-		$code .= "<p>Notice: This schedule contains online courses: ";
-		foreach($onlineCourses as $course) {
-			$code .= $course['courseNum'];
-		}
-		$code .= "</p></div>";
-	}
-	$code .= "</div>";
 
 	return $code;
 }
@@ -366,9 +216,40 @@ switch($mode) {
 		}
 		?>
 		<div ng-controller="printScheduleCtrl">
-			<h1 class="center" ng-bind="heading"></h1>
+			<div class="container hidden-print">
+				<div class="vert-spacer-static-md"></div>
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h3 class="panel-title">Print Options <small>For best results, print landscape, turn off headings/footers, and set the margins to .25"</small></h3>
+					</div>
+					<div class="panel-body form-horizontal">
+						<div class="row">
+							<div class="col-sm-5">
+								<div class="form-group">
+									<label for="printOptions-heading" class="col-sm-4 control-label">Heading:</label>
+									<div class="col-sm-8">
+										<input id="printOptions-heading" class="form-control" type="input" ng-model="heading">
+									</div>
+								</div>
+							</div>
+							<div class="col-sm-5">
+								<div class="form-group">
+									<label for="printOptions-theme" class="col-sm-4 control-label">Theme:</label>
+									<div class="col-sm-8">
+										<select id="printOptions-theme" class="form-control" ng-model="printTheme" ng-options="opt.value as opt.label for opt in printThemeOptions"></select>
+									</div>
+								</div>
+							</div>
+							<div class="col-sm-2">
+								<button ng-click="print()" type="button" class="btn btn-info btn-block"><i class="fa fa-print"></i> Print</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<h2 id="print_header" class="center" ng-bind="heading"></h2>
 			<div ng-switch="schedule.length > 0">
-				<div ng-switch-when="true" schedule print="true"></div>
+				<div ng-class="printTheme" ng-switch-when="true" schedule print="true"></div>
 				<div ng-switch-when="false" class="alert alert-info">
 					<i class="fa fa-exclamation-circle"></i> Please press the print button in the previous window if you wish to print a schedule.
 				</div>

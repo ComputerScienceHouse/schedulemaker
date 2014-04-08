@@ -94,39 +94,39 @@ app.filter("courseNum", function() {
 	};
 });
 
-app.factory("sessionStorage", function($window) {
+app.factory("localStorage", function($window) {
 	
-	var sessionStorage = $window.localStorage;
+	var localStorage = $window.localStorage;
 	
 	return {
 		setItem: function(key, value) {
-			if(sessionStorage) {
+			if(localStorage) {
 				if(value != null) {
-					sessionStorage.setItem(key, angular.toJson(value));
+					localStorage.setItem(key, angular.toJson(value));
 				} else {
-					sessionStorage.setItem(key, null);
+					localStorage.setItem(key, null);
 				}
 			} else {
 				return false;
 			}
 		},
 		getItem: function(key) {
-			if(sessionStorage) {
-				return angular.fromJson(sessionStorage.getItem(key));
+			if(localStorage) {
+				return angular.fromJson(localStorage.getItem(key));
 			} else {
 				return false;
 			}
 		},
 		hasKey: function(key) {
-			if(sessionStorage) {
-				return sessionStorage.hasOwnProperty(key);
+			if(localStorage) {
+				return localStorage.hasOwnProperty(key);
 			} else {
 				return false;
 			}
 		},
 		clear: function() {
-			if(sessionStorage) {
-				return sessionStorage.clear();
+			if(localStorage) {
+				return localStorage.clear();
 			} else {
 				return false;
 			}
@@ -134,7 +134,7 @@ app.factory("sessionStorage", function($window) {
 	};
 });
 
-app.controller("AppCtrl", function($scope, sessionStorage, $window, $filter) {
+app.controller("AppCtrl", function($scope, localStorage, $window, $filter) {
 	
 	$scope.initState = function() {
 		$scope.state = {};
@@ -179,7 +179,7 @@ app.controller("AppCtrl", function($scope, sessionStorage, $window, $filter) {
 	};
 	
 	$scope.saveState = function() {
-		sessionStorage.setItem('state', $scope.state);
+		localStorage.setItem('state', $scope.state);
 	};
 	
 	// Force save on close
@@ -188,11 +188,13 @@ app.controller("AppCtrl", function($scope, sessionStorage, $window, $filter) {
 	};
 	
 	$scope.noStateSaveOnUnload = function() {
-		$window.onbeforeunload = null;
+		$window.onbeforeunload = function() {
+			//No-op
+		};
 	};
 	
 	// Reload the state if it exists
-	var storedState = sessionStorage.getItem('state');
+	var storedState = localStorage.getItem('state');
 	if(storedState != null) {
 		
 		// Check if state version exists or is correct
@@ -249,9 +251,9 @@ app.controller("AppCtrl", function($scope, sessionStorage, $window, $filter) {
 		
 		// The schedule was set as a global variable
 		$scope.reloadSchedule($window.reloadSchedule);
-	} else if(sessionStorage.hasKey('reloadSchedule')){
+	} else if(localStorage.hasKey('reloadSchedule')){
 		// Get the schedule from sessions storage
-		var reloadSchedule = sessionStorage.getItem('reloadSchedule');
+		var reloadSchedule = localStorage.getItem('reloadSchedule');
 		if(reloadSchedule != null) {
 			$scope.reloadSchedule(reloadSchedule);
 		}
@@ -764,18 +766,18 @@ app.controller("AppCtrl", function($scope, sessionStorage, $window, $filter) {
 	};
 });
 
-app.controller("GenerateCtrl", function($scope, globalKbdShortcuts, $http, $filter, sessionStorage, uiDayFactory) {
+app.controller("GenerateCtrl", function($scope, globalKbdShortcuts, $http, $filter, localStorage, uiDayFactory) {
 	
 	
 	//Check if we are forking a schedule
-	if(sessionStorage.hasKey('forkSchedule')){
+	if(localStorage.hasKey('forkSchedule')){
 		
 		// Get the schedule from sessions storage
-		var forkSchedule = sessionStorage.getItem('forkSchedule');
+		var forkSchedule = localStorage.getItem('forkSchedule');
 		if(forkSchedule != null) {
 			
 			// Clear it so we don't fork again
-			sessionStorage.setItem('forkSchedule', null);
+			localStorage.setItem('forkSchedule', null);
 			
 			var days = uiDayFactory();
 			
@@ -1538,7 +1540,7 @@ app.factory('shareServiceInfo', function() {
 /**
  * Several endpoint abstractions for the schedules
  */
-app.directive('scheduleActions', function($http, $q, shareServiceInfo, openPopup, sessionStorage) {
+app.directive('scheduleActions', function($http, $q, shareServiceInfo, openPopup, localStorage) {
 	
 	var serializer = new XMLSerializer();
 	
@@ -1609,7 +1611,7 @@ app.directive('scheduleActions', function($http, $q, shareServiceInfo, openPopup
 					});
 				} else {
 					
-					sessionStorage.setItem('forkSchedule', scope.schedule);
+					localStorage.setItem('forkSchedule', scope.schedule);
 					
 					window.location = "/generate.php";
 				}
@@ -1686,7 +1688,7 @@ app.directive('scheduleActions', function($http, $q, shareServiceInfo, openPopup
 				
 				var popup = openPopup(780, 600);
 				
-				popup.sessionStorage.setItem('reloadSchedule', angular.toJson(reloadSchedule));
+				popup.localStorage.setItem('reloadSchedule', angular.toJson(reloadSchedule));
 				popup.document.title = "My Schedule";
 				popup.location = "http://" + window.location.hostname + '/schedule/render/print';	
 			}
@@ -1978,7 +1980,7 @@ app.controller("scheduleCtrl", function($scope, $location) {
 });
 
 
-app.controller("printScheduleCtrl", function($scope, $location, sessionStorage) {
+app.controller("printScheduleCtrl", function($scope, $location, localStorage) {
 	
 	if($scope.schedule) {	
 		var pTerm ='' + $scope.state.requestOptions.term;
@@ -2004,11 +2006,27 @@ app.controller("printScheduleCtrl", function($scope, $location, sessionStorage) 
         }
         
         $scope.heading = "My " + year + "-" + (year+1) + " " + term  + " Schedule";
+        
+        $scope.printTheme = 'woc';
+        
+        $scope.printThemeOptions = [{
+        	value: 'woc',
+        	label: "Modern Colors"
+        }, {
+        	value: 'bow',
+        	label: "Classic B&W"
+        }, {
+        	value: 'gow',
+        	label: "Classic Greyscale"
+        }, {
+        	value: 'boc',
+        	label: "Black Text & Colors"
+        }];
 	}
 	
 	$scope.noStateSaveOnUnload();
 	
-	window.print();
+	$scope.print = window.print.bind(window);
 });
 
 

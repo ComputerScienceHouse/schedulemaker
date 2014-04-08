@@ -7,7 +7,13 @@ inc/config.php
 # Ignore schedule images
 img/schedules/*.png
 
-$ Ignore Eclipse files
+# Ignore Eclipse files
 .settings
 .project
 .buildpath
+
+# Ignore VisualStudio files
+/*.phpproj*
+/*.sln
+/*.suo
+/WebEssentials-Settings.json
