@@ -38,7 +38,7 @@ require_once('./inc/timeFunctions.php');
 		$BODY_CLASS = "";
 	}
 	?>
-	<body<?=$BODY_CLASS?> ng-app="sm" ng-init="defaultTerm = '<?=$CURRENT_QUARTER?>'">
+	<body<?=$BODY_CLASS?> ng-app="sm" ng-init="defaultTerm = '<?=$CURRENT_QUARTER?>'; stateVersion = <?=$JSSTATE_VERSION?>">
 		<? if(empty($LAYOUT_MODE)) { ?>
 		<div id="superContainer">
 		<div class="navbar navbar-fixed-top navbar-default ng-scope" ng-controller="MainMenuCtrl">

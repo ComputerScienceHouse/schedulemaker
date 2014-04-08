@@ -165,23 +165,18 @@ app.controller("AppCtrl", function($scope, sessionStorage, $window, $filter) {
 		$scope.state.ui = {
 			alert_betaInfo: true,
 			alert_newFeatures: true,
-			action_generateSchedules: false
+			action_generateSchedules: false,
+		};
+		
+		$scope.state.meta = {
+			stateVersion: $scope.stateVersion,
+			lastSaved: new Date().getTime()
 		};
 	};
 	$scope.resetState = function() {
 		$scope.initState();
 		$window.location.reload();
 	};
-	
-	
-	// Reload the state if it exists
-	var storedState = sessionStorage.getItem('state');
-	if(storedState != null) {
-		$scope.state = storedState;
-	} else {
-		$scope.initState();	
-	}
-	
 	
 	$scope.saveState = function() {
 		sessionStorage.setItem('state', $scope.state);
@@ -195,6 +190,28 @@ app.controller("AppCtrl", function($scope, sessionStorage, $window, $filter) {
 	$scope.noStateSaveOnUnload = function() {
 		$window.onbeforeunload = null;
 	};
+	
+	// Reload the state if it exists
+	var storedState = sessionStorage.getItem('state');
+	if(storedState != null) {
+		
+		// Check if state version exists or is correct
+		if(storedState.hasOwnProperty('meta') && storedState.meta.stateVersion == $scope.stateVersion) {
+			$scope.state = storedState;
+		} else {
+			
+			// Before state meta
+			if(confirm('We need to clear your session in order to update ScheduleMaker, is that ok? \n If you press cancel, you may run into errors.')) {
+				$scope.resetState();
+			} else {
+				$scope.state = storedState;
+			}
+		}
+	} else {
+		
+		// New session, create new state
+		$scope.initState();	
+	}
 	
 	/**
 	 * Set the correct drawOptions and term as well as a global schedule var
