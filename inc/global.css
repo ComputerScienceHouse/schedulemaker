@@ -1033,6 +1033,7 @@ div[schedule] {
 	width: 100%;
 }
 
+
 select.ng-invalid {
 	color:#ccc;
 	font-style: italic;
@@ -1170,7 +1171,7 @@ span[professor-lookup] {
 #browse-contents .browse-heading .list-group-item-heading,
 #browse-contents .browse-heading .list-group-item-text {
 	overflow: hidden;
-	padding-left: 5px;
+	padding-left: 10px;
 }
 
 #browse-contents .browse-sublist {

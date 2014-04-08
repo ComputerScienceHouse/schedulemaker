@@ -22,7 +22,7 @@ require "./inc/header.inc";
 								<h2 class="panel-title control-label pull-left">Select Courses</h2>
 							</div>
 							<div class="col-sm-8">
-								<div class="control-group">
+								<div class="row">
 									<label class="col-sm-6 control-label" for="term">Term:</label>
 									<div class="col-sm-6">
 									<?= getTermField("state.requestOptions.term"); ?>
@@ -45,7 +45,7 @@ require "./inc/header.inc";
 								</button>
 							</div>
 							<div class="col-md-4 col-md-offset-4 col-xs-6">
-								<button class="btn btn-primary btn-block" type="button" ng-click="courses_helpers.add()">
+								<button class="btn btn-primary btn-block" type="button" ng-click="courses_helpers.add()" title="Shortcut: Enter">
 									<i class="fa fa-plus"></i> Add Course
 								</button>
 							</div>
@@ -164,19 +164,16 @@ require "./inc/header.inc";
 						</div>
 					</div>
 				</div>
-				<div class="hidden-xs hidden-sm center" role="toolbar">
-					<div class="btn-group">
-						<button type="button" class="btn-lg btn btn-primary btn-default" ng-click="generateSchedules()">Show Matching Schedules</button>
-					</div>
-					<div class="btn-group">
-						<button type="button" class="btn-lg btn btn-default btn-danger" ng-click="resetState()">Reset Everything</button>
-					</div>
+				<div class="btn-group">
+					<button type="button" class="btn btn-lg btn-danger pull-left btn-xs-block dropdown-toggle" data-toggle="dropdown">
+						<i class="fa fa-times"></i> Reset... <span class="caret"></span>
+					</button>
+					<ul class="dropdown-menu" role="menu">
+<!-- 						<li><a ng-click="resetGenerate()" href="#">Current Form Fields</a></li> -->
+						<li><a ng-click="resetState()" href="#">Saved Session</a></li>
+					</ul>
 				</div>
-				<div class="visible-xs visible-sm center">
-						<button type="button" class="btn-lg btn btn-primary btn-default btn-block" ng-click="generateSchedules()">Show Matching Schedules</button>
-						<div class="vert-spacer-static-sm"></div>
-						<button type="button" class="btn-lg btn btn-default btn-danger btn-block" ng-click="resetState()">Reset Everything</button>
-				</div>
+				<button type="button" class="pull-right btn-lg btn btn-primary btn-xs-block" loading-button="generationStatus" loading-text="Generating..." ng-click="generateSchedules()" title="Shortcut: Ctrl + Enter"> Show Matching Schedules <i class="fa fa-chevron-right"></i></button>
 				<div class="vert-spacer-static-md"></div>
 				<div ng-show="!!resultError">
 					<div class="alert alert-danger">

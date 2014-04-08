@@ -4,7 +4,7 @@
 			<div class="col-sm-12 col-xs-12">
 				<div class="input-group">
 					<input autocapitalize="off" autocorrect="off" spellcheck="off" autocomplete="off" id="courses{{index}}" class="form-control searchField mousetrap" ng-model="item.search" type="text" name="courses{{index}}" placeholder="DEPT-CRS-SECT, DEPT-CRS-SECT..." /> <span class="input-group-btn">
-						<button type="button" ng-class="{'btn-danger':delHover}" ng-blur="delHover = false" ng-focus="delHover = true" ng-mouseenter="delHover = true" ng-mouseleave="delHover = false" class="btn btn-default" ng-click="remove()">
+						<button title="Shortcut: Esc" type="button" ng-class="{'btn-danger':delHover}" ng-blur="delHover = false" ng-focus="delHover = true" ng-mouseenter="delHover = true" ng-mouseleave="delHover = false" class="btn btn-default" ng-click="remove()">
 							<i class="fa fa-spin fa-refresh" ng-show="item.status == 'L'"></i> <i class="fa fa-times" ng-show="item.status == 'D'"></i>
 						</button>
 					</span>
@@ -15,7 +15,7 @@
 	<div class="col-md-4">
 		<div ng-show="!item.sections[0].isError" class="form-group course-result" ng-class="{'hidden-xs':item.sections.length == 0, 'hidden-sm': item.sections.length == 0}">
 			<div class="col-xs-12">
-				<button type="button" class="btn btn-primary btn-block" ng-click="showResults = !showResults" ng-disabled="!item.sections.length">
+				<button title="Shortcut: Ctrl + Alt + Down" type="button" class="btn btn-primary btn-block" ng-click="showResults = !showResults" ng-disabled="!item.sections.length">
 					<i class="fa" ng-class="{'fa-angle-down':!showResults && item.sections.length > 0,'fa-angle-up':showResults && item.sections.length > 0}"></i> {{item.search.length > 3?(item.sections.length > 0?(showResults?"Hide ":"Show ") + item.sections.length + " Result" + (item.sections.length != 1?"s":"") :"No Results"):"Please enter a course"}}
 				</button>
 			</div>

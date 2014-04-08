@@ -188,6 +188,7 @@ app.controller("AppCtrl", function($scope, localStorage, $window, $filter) {
 	};
 	
 	$scope.noStateSaveOnUnload = function() {
+		console.log('here', arguments);
 		$window.onbeforeunload = function() {
 			//No-op
 		};
@@ -256,6 +257,7 @@ app.controller("AppCtrl", function($scope, localStorage, $window, $filter) {
 		var reloadSchedule = localStorage.getItem('reloadSchedule');
 		if(reloadSchedule != null) {
 			$scope.reloadSchedule(reloadSchedule);
+			localStorage.setItem("reloadSchedule", null);
 		}
 	}
 	
@@ -862,8 +864,13 @@ app.controller("GenerateCtrl", function($scope, globalKbdShortcuts, $http, $filt
 		}, 100);
 	};
 	
+	$scope.generationStatus = 'D';
+	
 	// Overwrite app-level generateController
     $scope.generateSchedules = function() {
+    	
+    	$scope.generationStatus = 'L';
+    	
     	var requestData = {
     		'action': 'getMatchingSchedules',
     		'term': $scope.state.requestOptions.term,
@@ -932,6 +939,7 @@ app.controller("GenerateCtrl", function($scope, globalKbdShortcuts, $http, $filt
 	            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
 	        }
 	    }).success(function(data, status, headers, config) {
+	    	$scope.generationStatus = 'D';
 	    	
 	    	// If no errors happened
 	    	if(!data.error && !data.errors) {
@@ -961,7 +969,7 @@ app.controller("GenerateCtrl", function($scope, globalKbdShortcuts, $http, $filt
 	    	}
 	    }).
 	    error(function(data, status, headers, config) {
-	    	
+	    	$scope.generationStatus = 'D';
 	    	// Display errors
 	    	$scope.resultError =  'Fatal Error: An internal server error occurred';
 	    	console.log("Fatal Schedule Generation Error:", data);
@@ -1273,6 +1281,33 @@ app.directive("dowSelectFields", function(uiDayFactory) {
 	};
 });
 
+app.directive("loadingButton", function(uiDayFactory) {
+	
+	var template = '<i class="fa fa-spin fa-refresh" ></i> ';
+	
+	return {
+		restrict: 'A',
+		scope: {
+			status: '=loadingButton',
+			text: '@loadingText'
+		},
+		link: function(scope, elm) {
+			var prevHTML = elm.html();
+			scope.$watch('status', function(newLoading, prevLoading) {
+				if(newLoading != prevLoading) {
+					if(newLoading == 'L') {
+						elm.html(template + scope.text);
+						elm.attr("disabled", true);
+					} else {
+						elm.html(prevHTML);
+						elm.attr("disabled", false);
+					}
+				}
+			});
+		}
+	};
+});
+
 app.directive("scheduleCourse", function(){
 	  return {
 	    restrict: "C",
@@ -1434,9 +1469,9 @@ app.directive('paginationControls', function() {
 			totalLength: '=paginationLength',
 			paginationCallback: '&'
 		},
-		template: '<button class="btn btn-default" ng-disabled="displayOptions.currentPage == 0" ng-click="displayOptions.currentPage=displayOptions.currentPage-1">Previous</button>' +
+		template: '<button title="Shortcut: Ctrl + Left" class="btn btn-default" ng-disabled="displayOptions.currentPage == 0" ng-click="displayOptions.currentPage=displayOptions.currentPage-1">Previous</button>' +
 				  ' {{displayOptions.currentPage+1}}/{{numberOfPages()}} ' +
-		          '<button class="btn btn-default" ng-disabled="displayOptions.currentPage >= totalLength/displayOptions.pageSize - 1" ng-click="displayOptions.currentPage=displayOptions.currentPage+1">Next</button>',
+		          '<button title="Shortcut: Ctrl + Right" class="btn btn-default" ng-disabled="displayOptions.currentPage >= totalLength/displayOptions.pageSize - 1" ng-click="displayOptions.currentPage=displayOptions.currentPage+1">Next</button>',
 		link: {
 			pre: function(scope) {
 				scope.numberOfPages = function() {
@@ -2025,6 +2060,7 @@ app.controller("printScheduleCtrl", function($scope, $location, localStorage) {
 	}
 	
 	$scope.noStateSaveOnUnload();
+	localStorage.setItem("reloadSchedule", null);
 	
 	$scope.print = window.print.bind(window);
 });

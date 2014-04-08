@@ -216,7 +216,7 @@ switch($mode) {
 		}
 		?>
 		<div ng-controller="printScheduleCtrl">
-			<div class="container hidden-print">
+			<div class="container hidden-print" ng-show="schedule.length > 0">
 				<div class="vert-spacer-static-md"></div>
 				<div class="panel panel-default">
 					<div class="panel-heading">
@@ -250,8 +250,11 @@ switch($mode) {
 			<h2 id="print_header" class="center" ng-bind="heading"></h2>
 			<div ng-switch="schedule.length > 0">
 				<div ng-class="printTheme" ng-switch-when="true" schedule print="true"></div>
-				<div ng-switch-when="false" class="alert alert-info">
-					<i class="fa fa-exclamation-circle"></i> Please press the print button in the previous window if you wish to print a schedule.
+				<div ng-switch-when="false" class="container">
+					<div class="vert-spacer-static-md"></div>
+					<div class="alert alert-info">
+						<i class="fa fa-exclamation-circle"></i> Please press the print button in the previous window if you wish to print a schedule.
+					</div>
 				</div>
 			</div>
 		</div>

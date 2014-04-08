@@ -129,17 +129,18 @@ require "./inc/header.inc";
 					</div>	
 			    </div>
 			</div>
-			<div class="center" role="toolbar">
-				<div class="btn-group">
-					<button type="button" ng-hide="searchStatus == 'L'" class="btn-lg btn btn-primary btn-default btn-xs-block" ng-click="findMatches()">Search for Courses</button>
-					<button type="button" ng-if="searchStatus == 'L'" class="btn-lg btn btn-primary btn-default btn-xs-block" disabled=""><i class="fa fa-spin fa-refresh" ></i> Searching</button>
-				</div>
-				<div class="vert-spacer-static-md visible-xs"></div>
-				<div class="btn-group">
-					<button type="button" class="btn-lg btn btn-default btn-danger btn-xs-block" ng-click="initSearch()">Clear Form</button>
-				</div>
-			</div>
 		</form>
+		<div class="vert-spacer-static-md"></div>
+		<div class="btn-group">
+					<button type="button" class="btn btn-lg btn-danger pull-left btn-xs-block dropdown-toggle" data-toggle="dropdown">
+						<i class="fa fa-times"></i> Reset... <span class="caret"></span>
+					</button>
+					<ul class="dropdown-menu" role="menu">
+<!-- 						<li><a ng-click="resetGenerate()" href="#">Current Form Fields</a></li> -->
+						<li><a ng-click="resetState()" href="#">Saved Session</a></li>
+					</ul>
+				</div>
+				<button type="button" class="pull-right btn-lg btn btn-primary btn-xs-block" loading-button="searchStatus" loading-text="Searching..." ng-click="findMatches()" title="Shortcut: Ctrl + Enter"> Search for Courses <i class="fa fa-search fa-flip-horizontal"></i></button>
 		<div class="vert-spacer-static-md"></div>
 		<div ng-show="!!resultError">
 			<div class="alert alert-danger">
@@ -149,7 +150,7 @@ require "./inc/header.inc";
 		</div>
 		<div id="search_results" ng-show="searchResults.length > 0">
 			<div class="panel panel-default">
-				<div class="panel-body">
+				<div class="panel-heading">
 					<div class="form-inline clearfix">
 						<div class="form-group">
 							<div class="form-inline-label"><strong>{{searchResults.length}}</strong> courses found</div>
@@ -172,8 +173,6 @@ require "./inc/header.inc";
 						</div>
 					</div>
 				</div>
-			</div>
-			<div class="panel panel-default">
 				<div class="panel-body">
 					<div class="course-results-cont row">
 						<div class="inline-col col-md-6" ng-repeat="section in searchResults | startFrom:searchPagination.currentPage*searchPagination.pageSize | limitTo:searchPagination.pageSize">
@@ -207,9 +206,7 @@ require "./inc/header.inc";
 						</div>
 					</div>
 				</div>
-			</div>
-			<div class="panel panel-default">
-				<div class="panel-body">
+				<div class="panel-footer">
 					<div class="center" pagination-controls="searchPagination" pagination-length="searchResults.length" pagination-callback="scrollToResults()"></div>
 				</div>
 			</div>

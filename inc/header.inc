@@ -17,9 +17,9 @@ require_once('./inc/timeFunctions.php');
 		
 		<!-- STYLE SHEETS -->
 		<link rel="stylesheet" href="//brick.a.ssl.fastly.net/Roboto:300,700">
-		<link rel="stylesheet" href="<?=$HTTPROOTADDRESS?>inc/bootstrap.css">
+		<link rel="stylesheet" href="<?=$HTTPROOTADDRESS?>inc/bootstrap.css?v=<?=$APP_VERSION?>">
 		<link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.1/css/font-awesome.css">
-		<link rel="stylesheet" href="<?=$HTTPROOTADDRESS?>inc/global.css">
+		<link rel="stylesheet" href="<?=$HTTPROOTADDRESS?>inc/global.css?v=<?=$APP_VERSION?>">
 		
 		<!-- OPEN GRAPH TAGS -->
         <meta property="og:title" content="<?= (!empty($TITLE)) ? $TITLE . " - " : "" ?>ScheduleMaker" />
@@ -56,7 +56,7 @@ require_once('./inc/timeFunctions.php');
                     <ul class="nav navbar-nav">
                         <li ng-class="{active: path=='/generate.php'}"><a href="/generate.php"><i class="fa fa-calendar-o fa-fw"></i> Make a Schedule</a></li>
                         <li ng-class="{active: path=='/browse.php'}"><a href="/browse.php"><i class="fa fa-list fa-fw"></i> Browse Courses</a></li>
-                        <li ng-class="{active: path=='/roulette.php'}"><a href="/search.php"><i class="fa fa-search fa-fw"></i> Search Courses</a></li>
+                        <li ng-class="{active: path=='/search.php'}"><a href="/search.php"><i class="fa fa-search fa-fw"></i> Search Courses</a></li>
                     </ul>
                 </div>
             </div>
