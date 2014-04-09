@@ -188,7 +188,6 @@ app.controller("AppCtrl", function($scope, localStorage, $window, $filter) {
 	};
 	
 	$scope.noStateSaveOnUnload = function() {
-		console.log('here', arguments);
 		$window.onbeforeunload = function() {
 			//No-op
 		};
@@ -216,6 +215,8 @@ app.controller("AppCtrl", function($scope, localStorage, $window, $filter) {
 		$scope.initState();	
 	}
 	
+	$scope.imageSupport = true;
+	
 	/**
 	 * Set the correct drawOptions and term as well as a global schedule var
 	 * for displaying any single schedule alone
@@ -237,6 +238,13 @@ app.controller("AppCtrl", function($scope, localStorage, $window, $filter) {
 		// Set the correct draw options
 		for(var key in $scope.state.drawOptions) {
 			$scope.state.drawOptions[key] = schedule[key];
+		}
+		
+		// Set image property
+		if(schedule.hasOwnProperty('image')) {
+			$scope.imageSupport = schedule.image;
+		} else {
+			$scope.imageSupport = true;
 		}
 		
 		// Set the correct term
@@ -1966,13 +1974,15 @@ app.directive('schedule', function($timeout, $filter) {
 						scope.scheduleController.draw();
 					
 						
-						// Fix the pixel issues after DOM updates
-						$timeout(function() {
-							var offset = elm.find("svg").offset(),
-							vert = 1 - parseFloat('0.'+('' + offset.top).split('.')[1]);
-							horz = 1 - parseFloat('0.'+('' + offset.left).split('.')[1]);
-							scope.grid.opts.pixelAlignment ='translate('+horz+','+vert+')';
-						},0,true);
+						// Fix the pixel issues after DOM updates (not on Chrome)
+						if(typeof window.chrome == 'undefined') {
+							$timeout(function() {
+								var offset = elm.find("svg").offset(),
+								vert = 1 - parseFloat('0.'+('' + offset.top).split('.')[1]);
+								horz = 1 - parseFloat('0.'+('' + offset.left).split('.')[1]);
+								scope.grid.opts.pixelAlignment ='translate('+horz+','+vert+')';
+							},10,true);
+						}
 					}
 				});
 			}
