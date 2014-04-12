@@ -93,7 +93,7 @@ function halt($messages) {
 function insertOrUpdateCourse($quarter, $departNum, $departCode, $course, $credits, $title, $description) {
 	global $dbConn, $coursesUpdated, $coursesAdded;
 	// Call the stored proc
-	$query = "CALL InsertOrUpdateCourse({$quarter}, {$departNum}, '{$departCode}', {$course}, {$credits}, '{$title}', '{$description}')";
+	$query = "CALL InsertOrUpdateCourse({$quarter}, {$departNum}, '{$departCode}', '{$course}', {$credits}, '{$title}', '{$description}')";
 	$success = mysqli_multi_query($dbConn, $query);
 
 	// Catch errors or return the id
@@ -302,7 +302,7 @@ CREATE TABLE IF NOT EXISTS `classes` (
   `session_code` int(1) UNSIGNED NOT NULL,
   `class_section` varchar(4) NOT NULL,
   `subject` int(4) UNSIGNED ZEROFILL NOT NULL,
-  `catalog_nbr` int(3) UNSIGNED ZEROFILL NOT NULL,
+  `catalog_nbr` VARCHAR(4) NOT NULL,
   `descr` text NOT NULL,
   `topic` text NOT NULL,
   `class_nbr` int(5) UNSIGNED NOT NULL,
@@ -331,7 +331,8 @@ if(mysqli_query($dbConn, $tempQuery)) {
 
 // Process the class file
 function procClassArray($lineSplit) {
-	// Escape class title and description (respectively)
+	// Escape class title, description, and course number (since it needs to be trimmed)
+    $lineSplit[6]  = mysql_real_escape_string(trim($lineSplit[6]));
 	$lineSplit[7]  = mysql_real_escape_string($lineSplit[7]);
 	$lineSplit[8]  = mysql_real_escape_string(trim($lineSplit[8]));
 	$lineSplit[23] = mysql_real_escape_string($lineSplit[23]);

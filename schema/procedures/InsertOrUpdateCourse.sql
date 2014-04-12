@@ -4,7 +4,7 @@ CREATE PROCEDURE InsertOrUpdateCourse(
   IN p_quarter INT,
   IN p_department_num INT,
   IN p_department_code VARCHAR(4),
-  IN p_course INT,
+  IN p_course VARCHAR(4),
   IN p_credits INT,
   IN p_title VARCHAR(50),
   IN p_description TEXT
@@ -52,4 +52,4 @@ BEGIN
 
   -- Return the id of the course
   SELECT c.id FROM courses AS c WHERE c.department = v_department AND c.course = p_course AND c.quarter = p_quarter;
-END//
+END
