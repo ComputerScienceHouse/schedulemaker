@@ -1,5 +1,4 @@
-# Ignore PhpStorm files
-.idea
+#### PROJECT IGNORES ####
 
 # Ignore configuration files
 inc/config.php
@@ -7,13 +6,25 @@ inc/config.php
 # Ignore schedule images
 img/schedules/*.png
 
+# Ignore node_modules dependencies
+node_modules/*
+
+# Ignore built files
+assets/build/*
+!assets/build/.gitkeep
+
+#### EDITOR IGNORES####
+
+# Ignore PhpStorm files
+.idea
+
 # Ignore Eclipse files
 .settings
 .project
 .buildpath
 
 # Ignore VisualStudio files
-/*.phpproj*
-/*.sln
-/*.suo
-/WebEssentials-Settings.json
+*.phpproj*
+*.sln
+*.suo
+WebEssentials-Settings.json

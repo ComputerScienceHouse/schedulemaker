@@ -9,9 +9,9 @@
 ////////////////////////////////////////////////////////////////////////////
 
 // REQUIRED FILES //////////////////////////////////////////////////////////
-require_once('./inc/config.php');
-require_once('./inc/databaseConn.php');
-require_once('./inc/timeFunctions.php');
+require_once('../inc/config.php');
+require_once('../inc/databaseConn.php');
+require_once('../inc/timeFunctions.php');
 
 // FUNCTIONS ///////////////////////////////////////////////////////////////
 
@@ -190,80 +190,15 @@ function queryOldId($id) {
 
 // MAIN EXECUTION //////////////////////////////////////////////////////////
 
+$path = explode('/', $_SERVER['REQUEST_URI']);
+
+$id = (empty($path[3]))? '': hexdec($path[3]);
 // Determine the output mode
-$mode = (empty($_REQUEST['mode'])) ? "schedule" : $_REQUEST['mode'];
+$mode = (empty($path[4])) ? "json" : $path[4];
+
 
 // Switch on the mode
 switch($mode) {
-	case "print":
-		// PRINTABLE SCHEDULE //////////////////////////////////////////////
-		// No header, no footer, just the schedule
-	
-		$LAYOUT_MODE = 'print';
-		require "./inc/header.inc";
-		
-		if($_GET['id'] != 'render') {
-			$id = hexdec($_GET['id']);
-			if($id > 0) {
-				$schedule = getScheduleFromId($id);
-				// Translate the schedule into json
-				$json = json_encode($schedule);
-		
-		?>
-			<script>var reloadSchedule = <?=$json?>;</script>		
-		<?
-			}
-		}
-		?>
-		<div ng-controller="printScheduleCtrl">
-			<div class="container hidden-print" ng-show="schedule.length > 0">
-				<div class="vert-spacer-static-md"></div>
-				<div class="panel panel-default">
-					<div class="panel-heading">
-						<h3 class="panel-title">Print Options <small>For best results, print landscape, turn off headings/footers, and set the margins to .25"</small></h3>
-					</div>
-					<div class="panel-body form-horizontal">
-						<div class="row">
-							<div class="col-sm-5">
-								<div class="form-group">
-									<label for="printOptions-heading" class="col-sm-4 control-label">Heading:</label>
-									<div class="col-sm-8">
-										<input id="printOptions-heading" class="form-control" type="input" ng-model="heading">
-									</div>
-								</div>
-							</div>
-							<div class="col-sm-5">
-								<div class="form-group">
-									<label for="printOptions-theme" class="col-sm-4 control-label">Theme:</label>
-									<div class="col-sm-8">
-										<select id="printOptions-theme" class="form-control" ng-model="printTheme" ng-options="opt.value as opt.label for opt in printThemeOptions"></select>
-									</div>
-								</div>
-							</div>
-							<div class="col-sm-2">
-								<button ng-click="print()" type="button" class="btn btn-info btn-block"><i class="fa fa-print"></i> Print</button>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-			<h2 id="print_header" class="center" ng-bind="heading"></h2>
-			<div ng-switch="schedule.length > 0">
-				<div ng-class="printTheme" ng-switch-when="true" schedule print="true"></div>
-				<div ng-switch-when="false" class="container">
-					<div class="vert-spacer-static-md"></div>
-					<div class="alert alert-info">
-						<i class="fa fa-exclamation-circle"></i> Please press the print button in the previous window if you wish to print a schedule.
-					</div>
-				</div>
-			</div>
-		</div>
-				
-		<?
-		require "./inc/footer.inc";
-		
-		
-		break;
 	
 	case "ical":
 		// iCAL FORMAT SCHEDULE ////////////////////////////////////////////
@@ -317,7 +252,6 @@ switch($mode) {
 
 	case "schedule":
 		// DEFAULT SCHEDULE FORMAT /////////////////////////////////////////
-        $id = hexdec($_GET['id']);
         $schedule = getScheduleFromId($id);
 
         // Make sure the schedule exists
@@ -363,16 +297,12 @@ switch($mode) {
 		header('Content-type: application/json');
 
 		// Required parameters
-		if(empty($_GET['id'])) {
+		if(empty($id)) {
             die(json_encode(array("error"=>true, "msg"=>"You must provide a schedule")));
         }
-
-        // Database connection is required
-        require_once("inc/databaseConn.php");
-        require_once("inc/timeFunctions.php");
-
+        
 		// Pull the schedule and output it as json
-		$schedule = getScheduleFromId(hexdec($_GET['id']));
+		$schedule = getScheduleFromId($id);
 		if ( $schedule == NULL ) {
 			echo json_encode(array(
 					'error' => true,

@@ -1,2 +1,27 @@
 RewriteEngine On
-RewriteRule ^schedule/([^/]*)(?:/([^/]*))?$ /schedule.php?id=$1&mode=$2 [L]
+
+#Legacy Rewrites
+RewriteCond %{QUERY_STRING} ^id=(.*)$ [NC]
+RewriteRule ^schedule.php$ /schedule/%1? [NC,L,R=301]
+
+RewriteRule ^index.php$ / [L,R=301]
+RewriteRule ^generate.php$ /generate [L,R=301]
+RewriteRule ^browse.php$ /browse [L,R=301]
+RewriteRule ^roulette.php$ /search [L,R=301]
+
+
+# Let old ScheduleMaker handle Resig's schedules for now
+RewriteCond %{QUERY_STRING} ^mode=old&id=(.*)$ [NC]
+RewriteRule ^schedule.php$ http://schedule-old.csh.rit.edu/schedule.php [NC,L,R=301]
+
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME}\.php -f
+RewriteRule ^api/([^/]*)(?:/([^/]*))*$ api/$1.php [L]
+
+# Don't rewrite files or directories
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# Rewrite everything else to index.html to allow html5 state links
+RewriteRule ^ index.php [L]

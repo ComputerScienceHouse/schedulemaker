@@ -1,20 +1,7 @@
-<?php
-////////////////////////////////////////////////////////////////////////////
-// SCHEDULE BUILDER
-//
-// @author	Ben Russell (benrr101@csh.rit.edu)
-//
-// @file	schedule.php
-// @descrip	Form for building a schedule. Fill in the information and BAM
-//			a link to the matching schedules page does all the work for you!
-////////////////////////////////////////////////////////////////////////////
-
-require "./inc/header.inc";
-?>
 <div ng-controller="GenerateCtrl">
 	<form novalidate id="scheduleForm" name="schedule" class="container">
 		<div class="row">
-			<div class="col-md-8">
+			<div class="col-md-8 clearfix">
 				<div class="panel panel-default form-horizontal" ng-controller="scheduleCoursesCtrl">
 					<div class="panel-heading">
 						<div class="row form-horizontal">
@@ -25,7 +12,7 @@ require "./inc/header.inc";
 								<div class="row">
 									<label class="col-sm-6 control-label" for="term">Term:</label>
 									<div class="col-sm-6">
-									<?= getTermField("state.requestOptions.term"); ?>
+									<div select-term></div>
 								</div>
 								</div>
 							</div>
@@ -164,8 +151,8 @@ require "./inc/header.inc";
 						</div>
 					</div>
 				</div>
-				<div class="btn-group">
-					<button type="button" class="btn btn-lg btn-danger pull-left btn-xs-block dropdown-toggle" data-toggle="dropdown">
+				<div class="btn-group hidden-xs hidden-sm">
+					<button type="button" class="btn btn-lg btn-danger pull-left-md block-sm dropdown-toggle" data-toggle="dropdown">
 						<i class="fa fa-times"></i> Reset... <span class="caret"></span>
 					</button>
 					<ul class="dropdown-menu" role="menu">
@@ -173,7 +160,19 @@ require "./inc/header.inc";
 						<li><a ng-click="resetState()" href="#">Saved Session</a></li>
 					</ul>
 				</div>
-				<button type="button" class="pull-right btn-lg btn btn-primary btn-xs-block" loading-button="generationStatus" loading-text="Generating..." ng-click="generateSchedules()" title="Shortcut: Ctrl + Enter"> Show Matching Schedules <i class="fa fa-chevron-right"></i></button>
+				<button type="button" class="pull-right-md btn-lg btn btn-primary block-sm" loading-button="generationStatus" loading-text="Generating..." ng-click="generateSchedules()" title="Shortcut: Ctrl + Enter"> Show Matching Schedules <i class="fa fa-chevron-right"></i></button>
+				<div class="vert-spacer-static-md visible-xs visible-sm"></div>
+				<div class="visible-xs visible-sm">
+					<div class="btn-group">
+						<button type="button" class="btn btn-lg btn-danger pull-left-md dropdown-toggle" data-toggle="dropdown">
+							<i class="fa fa-times"></i> Reset... <span class="caret"></span>
+						</button>
+						<ul class="dropdown-menu" role="menu">
+	<!-- 						<li><a ng-click="resetGenerate()" href="#">Current Form Fields</a></li> -->
+							<li><a ng-click="resetState()" href="#">Saved Session</a></li>
+						</ul>
+					</div>
+				</div>
 				<div class="vert-spacer-static-md"></div>
 				<div ng-show="!!resultError">
 					<div class="alert alert-danger">
@@ -207,19 +206,19 @@ require "./inc/header.inc";
 											<i class="fa" ng-class="{'fa-chevron-down':!showDisplayOptions,'fa-chevron-up':showDisplayOptions}"></i>
 										</button>
 									</div>
-									<div class="form-group">Display from</div>
+									<div class="form-group">&nbsp;Display from&nbsp;</div>
 									<div class="form-group">
 										<select id="options-startTime" ng-change="ensureCorrectEndTime()" class="form-control" ng-model="state.drawOptions.startTime" ng-options="key as ui.optionLists.times.values[key] for key in ui.optionLists.times.keys"></select>
 									</div>
-									<div class="form-group">to</div>
+									<div class="form-group">&nbsp;to&nbsp;</div>
 									<div class="form-group">
 										<select id="options-endTime" class="form-control" ng-model="state.drawOptions.endTime" ng-options="key as ui.optionLists.times.values[key] for key in ui.optionLists.times.keys | startFrom: ui.optionLists.times.keys.indexOf(state.drawOptions.startTime) + 1"></select>
 									</div>
-									<div class="form-group">and from</div>
+									<div class="form-group">&nbsp;and from&nbsp;</div>
 									<div class="form-group">
 										<select id="options-startDay" ng-change="ensureCorrectEndDay()" class="form-control" ng-model="state.drawOptions.startDay" ng-options="ui.optionLists.days.indexOf(value) as value for (key, value) in ui.optionLists.days"></select>
 									</div>
-									<div class="form-group">to</div>
+									<div class="form-group">&nbsp;to&nbsp;</div>
 									<div class="form-group">
 										<select id="options-endDay" class="form-control" ng-model="state.drawOptions.endDay" ng-options="ui.optionLists.days.indexOf(value) as value for (key, value) in ui.optionLists.days | startFrom: state.drawOptions.startDay"></select>
 									</div>
@@ -298,4 +297,3 @@ require "./inc/header.inc";
 		</div>
 	</div>
 </div>
-<? require "./inc/footer.inc"; ?>

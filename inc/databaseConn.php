@@ -223,6 +223,64 @@ function getTermField($fieldName = "term", $selected = null) {
 	return $return;
 }
 
+/**
+ * Does a query for all the terms in the database and then dumps them to
+ * JSON. Parses them like term:'Spring ####' for display val.
+ * @return	string	JSON representation of available fields
+ */
+function getTermsJSON() {
+	
+	$terms = array();
+
+	// Query the database for the quarters
+	$query = "SELECT quarter FROM quarters ORDER BY quarter DESC";
+	$result = mysql_query($query);
+
+	// Output the quarters as options
+	$curYear = 0;
+	$termGroupName = "";
+	
+	while($row = mysql_fetch_assoc($result)) {
+		$term = $row['quarter'];
+
+		// Parse it into a year-quarter thingy
+		$year = (int) substr(strval($term), 0, 4);
+		$nextYear = $year + 1;
+		$useYear = $year;
+		$termNum = substr(strval($term), -1);
+		if($year >= 2013) {
+			switch($termNum) {
+				case 1: $termName = "Fall"; break;
+				case 3: $termName = "Winter Intersession"; $useYear = $nextYear; break;
+				case 5: $termName = "Spring"; $useYear = $nextYear; break;
+				case 8: $termName = "Summer"; $useYear = $nextYear; break;
+				default: $termName = "Unknown";
+			}
+		} else {
+			switch($termNum) {
+				case 1: $termName = "Fall"; break;
+				case 2: $termName = "Winter"; break;
+				case 3: $termName = "Spring"; $useYear = $nextYear; break;
+				case 4: $termName = "Summer"; $useYear = $nextYear; break;
+				default: $termName = "Unknown";
+			}
+		}
+		
+		if($curYear != $year) {
+			$curYear = $year;
+			$termGroupName = "{$year} - {$nextYear}";
+		}
+		
+		// Now add it to the array
+		$terms[] = array(
+			"value" => (int) $term,
+			"name" => "{$termName} {$useYear}",
+			"group" => $termGroupName
+		);
+	}
+	return json_encode($terms);
+}
+
 function getCollegeField($fieldname = "school", $selected = null, $any = false) {
 	$return = "<select id='{$fieldname}' name='{$fieldname}'>";
 	$return .= ($any) ? "<option value='any'>Any College</option>" : "";

@@ -1,0 +1,37 @@
+<div class="container hidden-print">
+	<div class="vert-spacer-static-md"></div>
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			<h3 class="panel-title">
+				Print Options <small>For best results, print landscape, turn off headings/footers, and set the margins to .25"</small>
+			</h3>
+		</div>
+		<div class="panel-body form-horizontal">
+			<div class="row">
+				<div class="col-sm-5">
+					<div class="form-group">
+						<label for="printOptions-heading" class="col-sm-4 control-label">Heading:</label>
+						<div class="col-sm-8">
+							<input id="printOptions-heading" class="form-control" type="input" ng-model="heading">
+						</div>
+					</div>
+				</div>
+				<div class="col-sm-5">
+					<div class="form-group">
+						<label for="printOptions-theme" class="col-sm-4 control-label">Theme:</label>
+						<div class="col-sm-8">
+							<select id="printOptions-theme" class="form-control" ng-model="printTheme" ng-options="opt.value as opt.label for opt in printThemeOptions"></select>
+						</div>
+					</div>
+				</div>
+				<div class="col-sm-2">
+					<button ng-click="print()" type="button" class="btn btn-info btn-block">
+						<i class="fa fa-print"></i> Print
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<h2 id="print_header" class="center" ng-bind="heading"></h2>
+<div ng-class="printTheme" schedule print="true"></div>

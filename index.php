@@ -16,40 +16,124 @@ if(isset($_GET['s'])) {
 	die();
 } 
 
-require "./inc/header.inc";
+// REQUIRED FILES
+require_once('./inc/config.php');
+require_once('./inc/databaseConn.php');
+require_once('./inc/timeFunctions.php');
+
+// HACK FOR OPEN-GRAPH TAGS, I KNOW, THIS IS TERRIBLE
+$path = explode('/', $_SERVER['REQUEST_URI']);
+if ($path[1] == 'schedule') {
+	$id = (empty($path[2]))? '': hexdec($path[2]);
+	if(!empty($id)) {
+		
+		// We are making the assumption that only new schedules with images
+		// will be shared. Due relative requires in api/schedule.php, I cannot
+		// check to see if the schedule has an image. #WONTFIX #WORKS4ME
+		$IMGURL = "{$HTTPROOTADDRESS}img/schedules/{$id}.png";
+	}
+}
+//OLD header.inc
 ?>
-<div class="container">
-	<div class="hidden-xs">
-		<?php if($SERVER_TYPE != 'production') { ?>
-		<div class="alert alert-info" ng-show="state.ui.alert_betaInfo">
-			<button type="button" class="close" aria-hidden="true" ng-click="state.ui.alert_betaInfo = false"><i class="fa fa-times"></i></button>
-			<strong>Thanks</strong> for testing the new beta of ScheduleMaker! <strong>Please report any bugs</strong> you find to our github page <a target="_blank" href="https://github.com/ComputerScienceHouse/schedulemaker/issues">here</a> or email <a target="_blank" href="mailto:schedule-issues@csh.rit.edu">schedule-issues@csh.rit.edu</a> (Please try to use github if you can, it makes everything easier for us). Your reports are greatly apreciated!
-		</div>
-		<? } ?>
-		<div class="alert alert-success" ng-show="state.ui.alert_newFeatures">
-			<button type="button" class="close" data-dismiss="alert" aria-hidden="true" ng-click="state.ui.alert_newFeatures = false"><i class="fa fa-times"></i></button>
-			Welcome to the new ScheduleMaker! We've added lots of new functionality to the website, including full mobile support, a brand-new interface, a new course cart and search system, and RateMyProfessors integration. Check out the <a href="/help.php">help</a> page for more info. Enjoy!
-		</div>
-	</div>
-	<div id="mainMenu" class="row">
-		<div class="col-xs-4">
-			<div class="navItem">
-				<a href="generate.php"><i class="fa fa-calendar"></i></a>
-				<div><a href="generate.php">Make a Schedule</a></div>
+<!DOCTYPE html>
+<html prefix="og: http://ogp.me/ns#">
+	<head>
+		<title><?= (!empty($TITLE)) ? $TITLE . " - " : "" ?>Schedule Maker</title>
+		
+		<!-- META DATA -->
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		
+		<!-- STYLE SHEETS -->
+		<link rel="stylesheet" href="//brick.a.ssl.fastly.net/Roboto:300,700">
+		<link rel="stylesheet" href="<?=$HTTPROOTADDRESS?>inc/bootstrap.css?v=<?=$APP_VERSION?>">
+		<link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.1/css/font-awesome.css">
+		<link rel="stylesheet" href="<?=$HTTPROOTADDRESS?>inc/global.css?v=<?=$APP_VERSION?>">
+		
+		<!-- OPEN GRAPH TAGS -->
+		<meta name="twitter:card" content="photo"> 
+        <meta property="og:title" content="<?= (!empty($TITLE)) ? $TITLE . " - " : "" ?>ScheduleMaker" />
+        <meta property="og:type" content="website" />
+        <meta property="og:description" content="CSH ScheduleMaker makes picking your RIT class schedule easy! Preview all permutations of your schedule, browse available courses, and select courses at random, all with ScheduleMaker.">
+        <meta property="og:url" content="http://<?= $_SERVER['HTTP_HOST'] ?><?= $_SERVER['REQUEST_URI'] ?>" />
+        <? if(!empty($IMGURL)) { ?>
+        <meta property="og:image" content="<?= $IMGURL ?>" />
+        <? } else { ?>
+        <meta property="og:image" content="<?= $HTTPROOTADDRESS ?>img/csh_og.png">
+        <? } ?>
+	</head>
+	<body ng-app="sm" ng-init="defaultTerm = '<?=$CURRENT_QUARTER?>'; stateVersion = <?=$JSSTATE_VERSION?>; termList=<?=htmlspecialchars(getTermsJSON())?>;" ng-controller="MasterCtrl" ng-class="globalUI.layoutClass">
+		<div id="superContainer" ng-controller="AppCtrl">
+			<header class="main navbar navbar-fixed-top navbar-default ng-scope">
+	            <div class="container">
+	                <div class="navbar-header">
+	                    <button type="button" class="navbar-toggle btn btn-default" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+	                        <span class="sr-only">Toggle navigation</span>
+	                        <span class="icon-bar"></span>
+	                        <span class="icon-bar"></span>
+	                        <span class="icon-bar"></span>
+	                    </button>
+	                    <a class="navbar-brand" ui-sref="index">ScheduleMaker <?=($SERVER_TYPE != 'production')?"<span class=\"label label-info\">BETA</span>":""?></a>
+	                </div>
+	                <div class="collapse navbar-collapse navbar-right navbar-ex1-collapse">
+	                    <ul class="nav navbar-nav">
+	                        <li ui-sref-active="active"><a ui-sref="generate"><i class="fa fa-calendar-o fa-fw"></i> Make a Schedule</a></li>
+	                        <li ui-sref-active="active"><a ui-sref="browse"><i class="fa fa-list fa-fw"></i> Browse Courses</a></li>
+	                        <li ui-sref-active="active"><a ui-sref="search"><i class="fa fa-search fa-fw"></i> Search Courses</a></li>
+	                    </ul>
+	                </div>
+	            </div>
+			</header>
+			<div id="container" ng-cloak>
+				<div ui-view autoscroll="false"></div>
 			</div>
-		</div>
-		<div class="col-xs-4">
-			<div class="navItem">
-				<a href="browse.php"><i class="fa fa-list"></i></a>
-				<div><a href="browse.php">Browse Courses</a></div>
+			<footer class="main default">
+				<div class="csh"><a target="_blank" href="http://www.csh.rit.edu/"><img src="<?=$HTTPROOTADDRESS?>img/csh.png" alt="CSH" /></a></div>
+				<a ui-sref="help">Help</a> | <a href="/status">Status</a> | <a target="_blank" href="https://github.com/ComputerScienceHouse/schedulemaker/issues">Report Issues</a>
+				<div>
+					Idea: John Resig (phytar at csh.rit.edu)<br>
+					Development v2: Ben Russell (benrr101 at csh.rit.edu),<br>
+					Development v3: Ben Grawi (bgrawi at csh.rit.edu)<br>
+					Hosting: <a href="http://www.csh.rit.edu/">Computer Science House</a><br>
+				</div>
 			</div>
+			<footer class="main print">
+				Made Using <a href='<?= $HTTPROOTADDRESS ?>'>CSH ScheduleMaker</a>
+				<a href="http://www.csh.rit.edu/"><img height="25" src="/img/csh_print.png"></a>
+			</footer> 
 		</div>
-		<div class="col-xs-4">
-			<div class="navItem">
-				<a href="search.php"><i class="fa fa-search"></i></a>
-				<div><a href="search.php">Search Courses</a></div>
-			</div>
-		</div>
-	</div>
-</div>
-<? require "./inc/footer.inc"; ?>
+		<!-- LOAD SCRIPTS LAST -->
+		<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+		<script src="//cdnjs.cloudflare.com/ajax/libs/mousetrap/1.4.6/mousetrap.min.js"></script>
+		<script src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.0.3/js/bootstrap.min.js"></script>
+		<script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.15/angular.min.js"></script>
+		<script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.15/angular-animate.min.js"></script>
+		<script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.15/angular-sanitize.min.js"></script>
+		<script src="//cdnjs.cloudflare.com/ajax/libs/angular-ui-router/0.2.8/angular-ui-router.min.js"></script>
+		<script src="<?=$HTTPROOTADDRESS?>js/app.js?v=<?=$APP_VERSION?>"></script>
+		<script>
+		  // GOOGLE ANALYTICS CODE
+		  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+		  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+		  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+		  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+		
+		  ga('create', '<?= $GOOGLEANALYTICS ?>', 'rit.edu');
+		  ga('send', 'pageview');
+	
+		  //IE 10 MOBILE FIX
+	      if (navigator.userAgent.match(/IEMobile\/10\.0/)) {
+		  var msViewportStyle = document.createElement("style")
+		  msViewportStyle.appendChild(
+		    document.createTextNode(
+		      "@-ms-viewport{width:auto!important}"
+		    )
+		  )
+		  document.getElementsByTagName("head")[0].appendChild(msViewportStyle)
+		}
+	    </script>
+	</body>
+</html>
+	

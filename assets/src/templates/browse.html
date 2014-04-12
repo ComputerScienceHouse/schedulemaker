@@ -1,73 +1,3 @@
-<?php
-////////////////////////////////////////////////////////////////////////////
-// SCHEDULE MAKER
-//
-// @author	Ben Russell (benrr101@csh.rit.edu)
-//
-// @file	roulette.php
-// @descrip	Browse Courses. This page is gonna be awesome. You can browse the
-//			different courses in the database and then do fun things with them
-////////////////////////////////////////////////////////////////////////////
-
-// REQUIRED FILES //////////////////////////////////////////////////////////
-require_once "./inc/config.php";
-require_once "./inc/databaseConn.php";
-require_once "./inc/timeFunctions.php";
-
-// FUNCTIONS ///////////////////////////////////////////////////////////////
-
-/**
- * Parses a term and returns an array of the results
- * @param string $term
- * @return string[]
- */
-function parseTerm($term) {
-    // Determine the term based on the year
-    $termType = substr($term, -1);
-    $year = substr($term, 0, 4);
-    $nextYear = (string) ((int) $year + 1);
-    if($term > 20130) {
-        // Semesters
-        switch($termType) {
-            case 1:
-                return array("Fall", $year);
-            case 3:
-                return array("Winter Intersession", $nextYear);
-            case 5:
-                return array("Spring", $nextYear);
-            case 8:
-                return array("Summer", $nextYear);
-            default:
-                return array("Unknown", "");
-        }
-    } else {
-        // Based on the last number of the quarter, return a title
-        switch($termType) {
-            case 1:
-                return array("Fall", $year);
-            case 2:
-                return array("Winter", $year);
-            case 3:
-                return array("Spring", $nextYear);
-            case 4:
-                return array("Summer", $nextYear);
-            default:
-                return array("Unknown", "");
-        }
-    }
-}
-
-// Do we have a term specified?
-$term = (empty($_GET['term']) || !is_numeric($_GET['term'])) ? $CURRENT_QUARTER : $_GET['term'];
-
-$parsedTerm = parseTerm($term);
-
-// MAIN EXECUTION //////////////////////////////////////////////////////////
-require "./inc/header.inc";
-
-// Display the fancy dropdown thingy that allows one to traverse the
-// list of courses
-?>
 <div class="container" ng-controller="BrowseCtrl">
 	<div class="row">
 		<div class="col-md-8">
@@ -81,7 +11,7 @@ require "./inc/header.inc";
 							<div class="control-group">
 								<label class="col-sm-6 control-label" for="term">Term:</label>
 								<div class="col-sm-6">
-									<?= getTermField("state.requestOptions.term"); ?>
+									<div select-term></div>
 								</div>
 							</div>
 						</div>
@@ -188,8 +118,3 @@ require "./inc/header.inc";
 		</div>
 	</div>
 </div>
-
-
-<?
-require "./inc/footer.inc";
-?>

@@ -1,4 +1,4 @@
-var app = angular.module( 'sm', ['ngAnimate', 'ngSanitize'] );
+var app = angular.module( 'sm', ['ngAnimate', 'ngSanitize', 'ui.router'] );
 //For now, not a service
 app.filter('RMPUrl', function() {
 	return function(input) {
@@ -11,6 +11,123 @@ app.filter('RMPUrl', function() {
 		}
 	}
 });
+
+app.config(function($stateProvider, $urlRouterProvider, $locationProvider) {
+	
+	$locationProvider.html5Mode(true);
+	
+	$urlRouterProvider.otherwise("/?status=404");
+	
+	$stateProvider
+	.state('index', {
+		url: '/',
+		templateUrl: '/assets/build/templates/index.html'
+	})
+	.state('generate', {
+		url: '/generate',
+		templateUrl: '/assets/build/templates/generate.html',
+		controller: 'GenerateCtrl'
+	})
+	.state('browse', {
+		url: '/browse',
+		templateUrl: '/assets/build/templates/browse.html',
+		controller: 'BrowseCtrl',
+	})
+	.state('search', {
+		url: '/search',
+		templateUrl: '/assets/build/templates/search.html',
+		controller: 'SearchCtrl'
+	})
+	.state('help', {
+		url: '/help',
+		templateUrl: '/assets/build/templates/help.html'
+	})
+	.state('status', {
+		url: '/status',
+		templateUrl: '/assets/build/templates/status.html',
+		controller: 'StatusCtrl'
+	}).state('schedule', {
+		url: '/schedule/:id',
+		templateUrl: '/assets/build/templates/schedule.html',
+		resolve: {
+			parsedSchedule: function($stateParams, reloadSchedule) {
+				return reloadSchedule($stateParams);
+			}
+		},
+		abstract: true,
+		controller: 'ScheduleCtrl'
+	}).state('schedule.view', {
+		url: '',
+		templateUrl: '/assets/build/templates/schedule.view.html',
+		controller: 'ScheduleViewCtrl',
+	}).state('schedule.print', {
+		url: '/print',
+		templateUrl: '/assets/build/templates/schedule.print.html',
+		controller: 'SchedulePrintCtrl'
+	});
+});
+
+app.run(function($rootScope, $window) {
+	$rootScope.$on('$stateChangeSuccess', function(evt) {
+		$($window).scrollTop(0);
+	});
+});
+
+app.factory('reloadSchedule', function($http, $q, localStorage) {
+	
+	/**
+	 * Set the correct drawOptions and term as well as a global schedule var
+	 * for displaying any single schedule alone
+	 */
+	
+	var getEmptySchedule = function() {
+		return {
+			schedule: []
+		};
+	};
+	
+	return function($stateParams) {
+		
+		var deferred = $q.defer();
+		
+		// Check if
+		if($stateParams.hasOwnProperty('id') && $stateParams.id != 'render') {
+
+			// We need to get the schedule
+			$http.get('/api/schedule/' + $stateParams.id, null, {
+				headers: {
+					'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+				}
+			}).then(function(response) {
+				if(response.status == 200 && !response.data.error) {
+					deferred.resolve(response.data);
+				} else {
+					deferred.resolve(response.data);
+				}
+			}, function() {
+				deferred.resolve(getEmptySchedule());
+			});
+			
+		} else if(localStorage.hasKey('reloadSchedule')) {
+			
+			//Get the schedule from sessions storage
+			var reloadSchedule = localStorage.getItem('reloadSchedule');
+			console.log('herer', reloadSchedule);
+			// If it's actually there
+			if(reloadSchedule != null) {
+				deferred.resolve(reloadSchedule);
+				localStorage.setItem("reloadSchedule", null);
+			} else {
+				deferred.resolve(getEmptySchedule());
+			}
+		} else {
+			deferred.resolve(getEmptySchedule());
+		}
+		
+		return deferred.promise;
+	};
+});
+
 app.filter('formatTime', function() {
 	return function(minutes) {
 		minutes = minutes % 1440;
@@ -134,7 +251,7 @@ app.factory("localStorage", function($window) {
 	};
 });
 
-app.controller("AppCtrl", function($scope, localStorage, $window, $filter) {
+app.controller("AppCtrl", function($scope, localStorage, $window, $filter, $state) {
 	
 	$scope.initState = function() {
 		$scope.state = {};
@@ -215,59 +332,8 @@ app.controller("AppCtrl", function($scope, localStorage, $window, $filter) {
 		$scope.initState();	
 	}
 	
+	// Default, images are supported
 	$scope.imageSupport = true;
-	
-	/**
-	 * Set the correct drawOptions and term as well as a global schedule var
-	 * for displaying any single schedule alone
-	 */
-	$scope.reloadSchedule = function(schedule) {
-		
-		// Set a globally scoped schedule with the courses 
-		if(schedule.hasOwnProperty('courses')) {
-			
-			$scope.schedule = schedule.courses;
-		} else if(schedule.hasOwnProperty('schedule')) {
-			
-			$scope.schedule = schedule.schedule;
-		} else {
-			
-			return false;
-		}
-		
-		// Set the correct draw options
-		for(var key in $scope.state.drawOptions) {
-			$scope.state.drawOptions[key] = schedule[key];
-		}
-		
-		// Set image property
-		if(schedule.hasOwnProperty('image')) {
-			$scope.imageSupport = schedule.image;
-		} else {
-			$scope.imageSupport = true;
-		}
-		
-		// Set the correct term
-		$scope.state.requestOptions.term = +schedule.term;
-		
-		
-		// Don't save these state settings
-		$scope.noStateSaveOnUnload();
-	};
-	
-	// Check if we need to load a schedule
-	if(typeof $window.reloadSchedule !== 'undefined') {
-		
-		// The schedule was set as a global variable
-		$scope.reloadSchedule($window.reloadSchedule);
-	} else if(localStorage.hasKey('reloadSchedule')){
-		// Get the schedule from sessions storage
-		var reloadSchedule = localStorage.getItem('reloadSchedule');
-		if(reloadSchedule != null) {
-			$scope.reloadSchedule(reloadSchedule);
-			localStorage.setItem("reloadSchedule", null);
-		}
-	}
 	
 
 	var courseNumFilter = $filter('courseNum');
@@ -670,7 +736,7 @@ app.controller("AppCtrl", function($scope, localStorage, $window, $filter) {
 	
 	$scope.generateSchedules = function() {
 		$scope.state.ui.action_generateSchedules = true;
-		window.location = "/generate.php";
+		$state.go("generate");
 	};
 	
 	$scope.ui = {
@@ -776,6 +842,13 @@ app.controller("AppCtrl", function($scope, localStorage, $window, $filter) {
 	};
 });
 
+app.directive("selectTerm", function() {
+	return {
+		restrict: 'A',
+		template: '<select class="form-control" ng-options="term.value as term.name group by term.group for term in termList" ng-model="state.requestOptions.term"></select>',
+	};
+});
+
 app.controller("GenerateCtrl", function($scope, globalKbdShortcuts, $http, $filter, localStorage, uiDayFactory) {
 	
 	
@@ -809,7 +882,6 @@ app.controller("GenerateCtrl", function($scope, globalKbdShortcuts, $http, $filt
 						startTime: parseInt(course.times[0].start),
 						endTime: parseInt(course.times[0].end)
 					};
-					console.log(nonCourse);
 					var mergedNonCourse = false;
 					
 					// Try to merge this non course with other similar ones
@@ -1005,9 +1077,6 @@ app.controller("GenerateCtrl", function($scope, globalKbdShortcuts, $http, $filt
     }
  
 });
-app.controller( "MainMenuCtrl", function( $scope) {
-	$scope.path = window.location.pathname;
-});
 
 app.controller( "scheduleCoursesCtrl", function( $scope, $http, $q, $timeout) {
 
@@ -1176,6 +1245,27 @@ app.controller('noCourseItemsCtrl', function($scope) {
 	};
 });
 
+app.controller('statusCtrl', function($scope, $http) {
+	
+	$scope.logs = [];
+	
+	$http({
+		method: 'GET',
+		url: '/api/status',
+		headers: {
+			'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+		}, 
+		withCredentials: true
+	}).success(function(data, status, headers, config) {
+		if(status == 200 && ! data.error) {
+			$scope.logs = data;
+		} else {
+			
+			//TODO: Better error checking 
+			alert(scope.error);
+		}
+	});
+});
 
 app.directive('professorLookup', function($http) {
 	return {
@@ -1373,7 +1463,7 @@ app.directive("dynamicItem", function($timeout){
     	        if(scope.index == 1) {   
     	            $timeout(function() {
     	            	elm.addClass('no-repeat-item-animation');
-    	                elm.find("input.searchField").focus();
+    	                elm.find("input.searchField:first").focus();
     	            }, 0, false);
     	        }
     		});
@@ -1462,7 +1552,7 @@ app.directive("dynamicItem", function($timeout){
 	        	return kbdResult;
 	        });
             $timeout(function() {
-                elm.find("input.searchField").focus();
+                elm.find("input.searchField:first").focus();
             }, 0, false);
     	}
     }
@@ -1511,11 +1601,16 @@ app.directive('pinned', function() {
 				sO = sizer.height();
 				elm.css('height', (fO > 0)?(sO - fO):(sO));
 			};
-			
 			setTimeout(function() {
 				updateHeight();
 				$(window).on("resize", updateHeight);
 			}, 100);
+			
+			if(typeof scope.schools != "undefined") {
+				scope.$watch('schools', function() {
+					setTimeout(updateHeight, 200);
+				});
+			}
 
 			elm.addClass("pinned");
 		}
@@ -1583,7 +1678,7 @@ app.factory('shareServiceInfo', function() {
 /**
  * Several endpoint abstractions for the schedules
  */
-app.directive('scheduleActions', function($http, $q, shareServiceInfo, openPopup, localStorage) {
+app.directive('scheduleActions', function($http, $q, shareServiceInfo, openPopup, localStorage, $state) {
 	
 	var serializer = new XMLSerializer();
 	
@@ -1656,7 +1751,7 @@ app.directive('scheduleActions', function($http, $q, shareServiceInfo, openPopup
 					
 					localStorage.setItem('forkSchedule', scope.schedule);
 					
-					window.location = "/generate.php";
+					$state.go("generate");
 				}
 			},
 			
@@ -2011,7 +2106,56 @@ app.directive('svgTextLine', function() {
 	};
 });
 
-app.controller("scheduleCtrl", function($scope, $location) {
+app.controller("MasterCtrl", function($scope) {
+	$scope.globalUI = {
+		layoutClass: "default"	
+	};
+	
+});
+
+app.controller("ScheduleCtrl", function($scope, parsedSchedule) {
+	
+	if(!parsedSchedule.error) {
+		if(parsedSchedule.hasOwnProperty('courses')) {
+	
+			$scope.schedule = parsedSchedule.courses;
+			
+		} else if(parsedSchedule.hasOwnProperty('schedule')) {
+	
+			$scope.schedule = parsedSchedule.schedule;
+			
+		} else {
+	
+			$scope.schedule = [];
+		}
+	} else {
+		$scope.schedule = [];
+	}
+
+	if($scope.schedule.length > 0) {
+		
+		// Set the correct draw options
+		for(var key in $scope.state.drawOptions) {
+			$scope.state.drawOptions[key] = parsedSchedule[key];
+		}
+	
+		// Set image property
+		if(parsedSchedule.hasOwnProperty('image')) {
+			$scope.imageSupport = parsedSchedule.image;
+		} else {
+			$scope.imageSupport = true;
+		}
+	
+		// Set the correct term
+		$scope.state.requestOptions.term = +parsedSchedule.term;
+	
+		// Don't save these state settings
+		$scope.noStateSaveOnUnload();
+	}
+});
+
+
+app.controller("ScheduleViewCtrl", function($scope, $location) {
 	
 	var id = window.location.pathname.split('/');
 	id = id[id.length - 1];
@@ -2024,8 +2168,7 @@ app.controller("scheduleCtrl", function($scope, $location) {
 	
 });
 
-
-app.controller("printScheduleCtrl", function($scope, $location, localStorage) {
+app.controller("SchedulePrintCtrl", function($scope, $location, localStorage) {
 	
 	if($scope.schedule) {	
 		var pTerm ='' + $scope.state.requestOptions.term;
@@ -2073,6 +2216,8 @@ app.controller("printScheduleCtrl", function($scope, $location, localStorage) {
 	localStorage.setItem("reloadSchedule", null);
 	
 	$scope.print = window.print.bind(window);
+	
+	$scope.globalUI.layoutClass = "print";
 });
 
 
