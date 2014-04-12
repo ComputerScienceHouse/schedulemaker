@@ -5,7 +5,7 @@
 -- @descrip A table for storing saved schedule records.
 -- -------------------------------------------------------------------------
 
-CREATE TABLE schedule (
+CREATE TABLE schedules (
   `id`                INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,     -- Will be displayed to user as hex
   -- @TODO Safely remove this column when old schedules have been pruned
   `oldid`             VARCHAR(7) NULL DEFAULT NULL COLLATE latin1_general_cs,  -- Old index from Resig's schedule maker. It's case sensitive
@@ -21,4 +21,11 @@ CREATE TABLE schedule (
 )ENGINE=InnoDb;
 
 -- Add index to searchable columns
-ALTER TABLE schedule ADD INDEX (`oldid`);
+ALTER TABLE schedules ADD INDEX (`oldid`);
+
+-- FOREIGN KEYS ------------------------------------------------------------
+ALTER TABLE `schedules`
+  ADD FOREIGN KEY  FK_schedules_quarter(`quarter`)
+  REFERENCES `quarters`(`quarter`)
+  ON UPDATE CASCADE
+  ON DELETE SET NULL;

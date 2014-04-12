@@ -8,8 +8,8 @@
 
 DROP TABLE IF EXISTS buildings;
 CREATE TABLE buildings (
-    `number`      VARCHAR(3) PRIMARY KEY,
-    `code`        VARCHAR(3) UNIQUE,
+    `number`      VARCHAR(5) PRIMARY KEY,
+    `code`        VARCHAR(5) UNIQUE,
     `name`        VARCHAR(100),
     `off_campus`  BOOLEAN DEFAULT TRUE
 ) Engine=InnoDb;

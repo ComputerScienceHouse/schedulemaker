@@ -11,11 +11,20 @@ DROP TABLE IF EXISTS departments;
 CREATE TABLE departments (
   `id`      INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
   `school`  INT UNSIGNED NOT NULL,
-  `number`  SMALLINT(4) UNSIGNED NULL DEFAULT NULL,
+  `number`  SMALLINT(4) UNSIGNED ZEROFILL NULL DEFAULT NULL,
   `code`    VARCHAR(4) NULL DEFAULT NULL,
   `title`   VARCHAR(100) NOT NULL,
   `qtrnums` VARCHAR(20) NULL DEFAULT NULL      -- Group of corresponding department numbers from quarters
 ) Engine=InnoDb;
+
+-- UNIQUE CONSTRAINTS ------------------------------------------------------
+ALTER TABLE `departments`
+  ADD CONSTRAINT UQ_departments_number
+  UNIQUE (`number`);
+
+ALTER TABLE `departments`
+  ADD CONSTRAINT UQ_departments_code
+  UNIQUE (`code`);
 
 -- FOREIGN KEYS
 ALTER TABLE departments ADD INDEX departments(school);
