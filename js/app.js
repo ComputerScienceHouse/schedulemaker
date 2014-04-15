@@ -330,6 +330,7 @@ app.controller("AppCtrl", function($scope, localStorage, $window, $filter, $stat
 		
 		// New session, create new state
 		$scope.initState();	
+		$scope.saveState();
 	}
 	
 	// Default, images are supported

@@ -4,10 +4,10 @@ RewriteEngine On
 RewriteCond %{QUERY_STRING} ^id=(.*)$ [NC]
 RewriteRule ^schedule.php$ /schedule/%1? [NC,L,R=301]
 
-RewriteRule ^index.php$ / [L,R=301]
-RewriteRule ^generate.php$ /generate [L,R=301]
-RewriteRule ^browse.php$ /browse [L,R=301]
-RewriteRule ^roulette.php$ /search [L,R=301]
+#RewriteRule ^index.php$ / [L,R=301]
+#RewriteRule ^generate.php$ /generate [L,R=301]
+#RewriteRule ^browse.php$ /browse [L,R=301]
+#RewriteRule ^roulette.php$ /search [L,R=301]
 
 
 # Let old ScheduleMaker handle Resig's schedules for now
