@@ -239,7 +239,7 @@ switch($mode) {
 			$json = json_encode($schedule);
 			?>
 			<script>var reloadSchedule = <?=$json?>;</script>
-			<div class="container" ng-controller="scheduleCtrl">
+			<div class="container" ng-controller="scheduleController">
 				<div class="alert alert-info">
 					<i class="fa fa-exclamation-circle"></i> This schedule was created with a really old version of ScheduleMaker
 				</div>
@@ -283,7 +283,7 @@ switch($mode) {
 
 		?>
 		<script>var reloadSchedule = <?=$json?>;</script>
-		<div class="container" ng-controller="scheduleCtrl">
+		<div class="container" ng-controller="scheduleController">
 			<div schedule existing="true"></div>
 		</div>
 		

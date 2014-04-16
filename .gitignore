@@ -10,8 +10,8 @@ img/schedules/*.png
 node_modules/*
 
 # Ignore built files
-assets/build/*
-!assets/build/.gitkeep
+assets/prod/*
+!assets/prod/.gitkeep
 
 #### EDITOR IGNORES####
 

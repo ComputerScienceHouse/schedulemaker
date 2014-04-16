@@ -36,7 +36,7 @@ if ($path[1] == 'schedule') {
 //OLD header.inc
 ?>
 <!DOCTYPE html>
-<html prefix="og: http://ogp.me/ns#">
+<html prefix="og: http://ogp.me/ns#" ng-app="sm" ng-init="defaultTerm = '<?=$CURRENT_QUARTER?>'; stateVersion = <?=$JSSTATE_VERSION?>; termList=<?=htmlspecialchars(getTermsJSON())?>;">
 	<head>
 		<title><?= (!empty($TITLE)) ? $TITLE . " - " : "" ?>Schedule Maker</title>
 		
@@ -64,8 +64,8 @@ if ($path[1] == 'schedule') {
         <meta property="og:image" content="<?= $HTTPROOTADDRESS ?>img/csh_og.png">
         <? } ?>
 	</head>
-	<body ng-app="sm" ng-init="defaultTerm = '<?=$CURRENT_QUARTER?>'; stateVersion = <?=$JSSTATE_VERSION?>; termList=<?=htmlspecialchars(getTermsJSON())?>;" ng-controller="MasterCtrl" ng-class="globalUI.layoutClass">
-		<div id="superContainer" ng-controller="AppCtrl">
+	<body ng-controller="AppController" ng-class="globalUI.layoutClass">
+		<div id="superContainer">
 			<header class="main navbar navbar-fixed-top navbar-default ng-scope">
 	            <div class="container">
 	                <div class="navbar-header">
