@@ -22,7 +22,8 @@ gulp.task('templates', function() {
 	return gulp.src(paths.templates.src)
 		.pipe(htmlmin({
 			collapseWhitespace: true,
-			caseSensitive: true
+			caseSensitive: true,
+			keepClosingSlash: true
 		}))
 		.pipe(gulp.dest(paths.templates.dest));
 });

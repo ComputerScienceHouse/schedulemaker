@@ -16,12 +16,16 @@ app.config(function($stateProvider, $urlRouterProvider, $locationProvider) {
 	
 	$locationProvider.html5Mode(true);
 	
-	$urlRouterProvider.otherwise("/?status=404");
+	$urlRouterProvider.otherwise("/404");
 	
 	$stateProvider
 	.state('index', {
 		url: '/',
 		templateUrl: '/assets/build/templates/index.html'
+	})
+	.state('404', {
+		url: '/404',
+		templateUrl: '/assets/build/templates/404.html'
 	})
 	.state('generate', {
 		url: '/generate',
@@ -503,7 +507,7 @@ app.controller("AppCtrl", function($scope, localStorage, $window, $filter, $stat
 					return course.sections.reduce(
 						function(total, section) { 
 							return total && section.selected;
-					});
+					}, true);
 				},
 				
 				/**
@@ -1351,7 +1355,7 @@ app.factory('uiDayFactory', function() {
 app.directive("courseCart", function() {
 	return {
 		restrict: 'A',
-		templateUrl: '/js/templates/cart.html'
+		templateUrl: '/assets/build/templates/cart.html'
 	};
 });
 app.directive("dowSelectFields", function(uiDayFactory) {
@@ -1410,7 +1414,7 @@ app.directive("loadingButton", function(uiDayFactory) {
 app.directive("scheduleCourse", function(){
 	  return {
 	    restrict: "C",
-	    templateUrl: './js/templates/courseselect.html',
+	    templateUrl: '/assets/build/templates/courseselect.html',
 	  };
 });
 app.directive("dynamicItems", function($compile,$timeout, globalKbdShortcuts){
@@ -1595,7 +1599,7 @@ app.directive('pinned', function() {
 			
 			var $window = $(window),
 			sizer = elm.parent().parent().find(".pinned-sizer"),
-			$footer = $("#footer"),
+			$footer = $("footer.main"),
 			fO, sO;
 			var updateHeight = function() {
 				fO = $window.height() - $footer.offset().top - $footer.outerHeight();
@@ -2030,7 +2034,7 @@ app.directive('schedule', function($timeout, $filter) {
 
 	return {
 		restrict: 'A',
-		templateUrl: '/js/templates/schedule.html',
+		templateUrl: '/assets/build/templates/scheduleitem.html',
 		link: {
 			pre: function(scope, elm, attrs) {
 				scope.scheduleController = new Schedule(scope);
@@ -2156,10 +2160,9 @@ app.controller("ScheduleCtrl", function($scope, parsedSchedule) {
 });
 
 
-app.controller("ScheduleViewCtrl", function($scope, $location) {
+app.controller("ScheduleViewCtrl", function($scope, $location, $stateParams) {
 	
-	var id = window.location.pathname.split('/');
-	id = id[id.length - 1];
+	id = $stateParams.id;
 	$scope.saveInfo = {
 		url: $location.absUrl(),
 		id: id
