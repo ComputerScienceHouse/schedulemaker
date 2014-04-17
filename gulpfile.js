@@ -1,22 +1,73 @@
-// Set up variables
-
-var root = {
-	src: 'assets/src/',
-	dest: 'assets/prod/'
+// Set up core routes
+var modulesRoot = {
+	src: 'assets/src/modules',
+	dest: 'assets/prod/modules'
 };
 
-var paths = {
-	templates: {
-		src: root.src + 'templates/*.html',
-		dest: root.dest + 'templates'
-	},
+var assetModuleList = {
+	sm: ['App', 'Schedule', 'Generate', 'Browse', 'Search', 'Help', 'Index']
+};
+
+var assetTypes = {
 	js: {
-		sm: {
-			src: root.src + 'js/sm/**/*.js',
-			dest: root.dest + 'js/sm/app.js'
-		}
+		paths: [
+	        '',
+	        'providers/',
+	        'directives/',
+	        'controllers/',
+        ],
+        selector: '*.js'
+	},
+	styles: {
+		paths: [
+	        '',
+	        'styles/',
+        ],
+        selector: '*.css'
+	},
+	templates: {
+		paths: [
+	        '',
+	        'templates/',
+        ],
+        selector: '*.html'
+	},
+};
+
+var paths = {};
+
+
+for(var moduleName in assetModuleList) {
+	subModuleList = assetModuleList[moduleName];
+	
+	paths[moduleName] = {};
+	for(var assetType in assetTypes) {
+		
+		var assetOpts = assetTypes[assetType];
+		
+		paths[moduleName][assetType] = [];
+		
+		assetOpts.paths.forEach(function(assetPath) {
+			paths[moduleName][assetType].push(modulesRoot.src + moduleName + '/**/' + assetPath + assetOpts.selector);
+		});
+	}
+}
+
+var doFor = function(assetType, cb) {
+	for(var moduleName in assetModuleList) {
+		cb({
+			src: paths[moduleName][assetType],
+			dest: modulesRoot.dest + moduleName + '/'
+		});
 	}
 };
+
+var fs = require('fs');
+var dump = function(tvar) {
+	fs.writeFileSync("./dump.json", JSON.stringify(tvar)); 
+}
+
+
 
 // Import required plugins
 var gulp = require('gulp');
@@ -26,24 +77,29 @@ var uglify = require('gulp-uglify');
 
 // Define Tasks
 gulp.task('templates', function() {
-	return gulp.src(paths.templates.src)
+
+	doFor('templates', function(templatePaths) {
+		gulp.src(templatePaths.src)
 		.pipe(htmlmin({
 			collapseWhitespace: true,
 			caseSensitive: true,
 			keepClosingSlash: true
 		}))
-		.pipe(gulp.dest(paths.templates.dest));
+		.pipe(gulp.dest(templatePaths.dest));
+	});
 });
 
 // Define Tasks
 gulp.task('js', function() {
-	return gulp.src(paths.templates.src)
-		.pipe(ngmin({
+	doFor('js', function(jsPaths) {
+		gulp.src(templatePaths.src)
+		.pipe(htmlmin({
 			collapseWhitespace: true,
 			caseSensitive: true,
 			keepClosingSlash: true
 		}))
-		.pipe(gulp.dest(paths.templates.dest));
+		.pipe(gulp.dest(jsPaths.dest));
+	});
 });
 
 gulp.task('watch', function() {

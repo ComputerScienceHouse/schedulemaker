@@ -223,7 +223,6 @@ switch($mode) {
 	
 	case "old":
 		// OLD SCHEDULE FORMAT /////////////////////////////////////////////
-		require "./inc/header.inc";
 		
 		// Grab the schedule
 		$schedule = getScheduleFromOldId($_GET['id']);
@@ -257,7 +256,6 @@ switch($mode) {
         // Make sure the schedule exists
 		if($schedule == NULL) {
             // Schedule does not exist. Error out and die.
-            require "./inc/header.inc";
 			?>
 			<div class="container">
 				<div class="alert alert-danger">
@@ -276,7 +274,6 @@ switch($mode) {
         }
         $TITLE = "My Schedule"; //@TODO: Generate this with term titles
 
-        require "./inc/header.inc";
 
 		// Translate the schedule into json
 		$json = json_encode($schedule);
