@@ -45,6 +45,8 @@
     "gulp-concat": "^2.2.0",
     "gulp-uglify": "^0.2.1",
     "gulp-jshint": "^1.5.3",
-    "gulp-less": "^1.2.3"
+    "gulp-less": "^1.2.3",
+    "gulp-clean": "^0.2.4",
+    "gulp-ngmin": "^0.2.0"
   }
 }

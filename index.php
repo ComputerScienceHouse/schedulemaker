@@ -48,9 +48,9 @@ if ($path[1] == 'schedule') {
 		
 		<!-- STYLE SHEETS -->
 		<link rel="stylesheet" href="//brick.a.ssl.fastly.net/Roboto:300,700">
-		<link rel="stylesheet" href="<?=$HTTPROOTADDRESS?>inc/bootstrap.css?v=<?=$APP_VERSION?>">
+		<link rel="stylesheet" href="<?=$HTTPROOTADDRESS?>assets/prod/modules/sm/App/styles/bootstrap.css?v=<?=$APP_VERSION?>">
 		<link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.1/css/font-awesome.css">
-		<link rel="stylesheet" href="<?=$HTTPROOTADDRESS?>inc/global.css?v=<?=$APP_VERSION?>">
+		<link rel="stylesheet" href="<?=$HTTPROOTADDRESS?>assets/prod/modules/sm/App/styles/global.css?v=<?=$APP_VERSION?>">
 		
 		<!-- OPEN GRAPH TAGS -->
 		<meta name="twitter:card" content="photo"> 
@@ -112,7 +112,7 @@ if ($path[1] == 'schedule') {
 		<script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.15/angular-animate.min.js"></script>
 		<script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.15/angular-sanitize.min.js"></script>
 		<script src="//cdnjs.cloudflare.com/ajax/libs/angular-ui-router/0.2.8/angular-ui-router.min.js"></script>
-		<script src="<?=$HTTPROOTADDRESS?>js/app.js?v=<?=$APP_VERSION?>"></script>
+		<script src="<?=$HTTPROOTADDRESS?>assets/prod/modules/sm/dist.min.js?v=<?=$APP_VERSION?>"></script>
 		<script>
 		  // GOOGLE ANALYTICS CODE
 		  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
