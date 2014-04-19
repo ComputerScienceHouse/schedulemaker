@@ -183,6 +183,15 @@ angular.module('sm').controller('SearchController', function($scope, $http, enti
 		return Math.ceil($scope.searchResults.length / $scope.searchPagination.pageSize);
 	};
 	
+	$scope.$watch('searchPagination.pageSize', function(newSize, oldSize) {
+		if(newSize != oldSize) {
+			var numPages  = $scope.numberOfPages();
+			if($scope.searchPagination.currentPage > numPages) {
+				$scope.searchPagination.currentPage = numPages - 1;
+			}
+		} 
+	});
+	
 	$scope.scrollToResults = function() {
 		
 		// Again, I know this is bad, but I'm lazy

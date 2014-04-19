@@ -12,8 +12,17 @@ angular.module('sm').controller("GenerateController", function($scope, globalKbd
 			
 			var days = uiDayFactory();
 			
-			// Init state
+			// Init state, but save UI settings
+			var savedUI = $scope.state.ui;
 			$scope.initState();
+			$scope.state.ui = savedUI;
+			
+			// Reload, then null term
+			if($scope.state.ui.temp_savedScheduleTerm) {
+				$scope.state.requestOptions.term = +$scope.state.ui.temp_savedScheduleTerm;
+				$scope.state.ui.temp_savedScheduleTerm = null;
+			}
+			
 			
 			for(var i = forkSchedule.length; i--;) {
 				var course = forkSchedule[i];
@@ -227,5 +236,8 @@ angular.module('sm').controller("GenerateController", function($scope, globalKbd
     	
     	$scope.state.nonCourses.length = 0;
     	$scope.state.noCourses.length = 0;
+    	
+    	// Let the lower controllers add a course
+		$scope.$broadcast('checkForEmptyCourses');
     };
 });

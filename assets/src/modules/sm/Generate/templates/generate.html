@@ -160,7 +160,7 @@
 						<i class="fa fa-times"></i> Reset... <span class="caret"></span>
 					</button>
 					<ul class="dropdown-menu" role="menu">
-						<li><a ng-click="initSearch()" href="#">Current Form Fields</a></li>
+						<li><a ng-click="resetGenerate()" href="#">Current Form Fields</a></li>
 						<li><a ng-click="resetState()" href="#">Saved Session</a></li>
 					</ul>
 				</div>
@@ -171,7 +171,7 @@
 						<i class="fa fa-times"></i> Reset... <span class="caret"></span>
 					</button>
 					<ul class="dropdown-menu" role="menu">
-						<li><a ng-click="initSearch()" href="#">Current Form Fields</a></li>
+						<li><a ng-click="resetGenerate()" href="#">Current Form Fields</a></li>
 						<li><a ng-click="resetState()" href="#">Saved Session</a></li>
 					</ul>
 				</div>
@@ -204,7 +204,7 @@
 					<div class="panel-body">
 						<div class="row form-inline">
 							<div class="col-xs-12">
-								<div class="form-group">&nbsp;Display from&nbsp;</div>
+								<div class="form-group">&nbsp;Display <strong>{{state.schedules.length}}</strong> schedules from&nbsp;</div>
 								<div class="form-group inline-sm">
 									<select id="options-startTime" ng-change="ensureCorrectEndTime()" class="form-control" ng-model="state.drawOptions.startTime" ng-options="key as ui.optionLists.times.values[key] for key in ui.optionLists.times.keys"></select>
 								</div>
@@ -221,48 +221,6 @@
 									<select id="options-endDay" class="form-control" ng-model="state.drawOptions.endDay" ng-options="ui.optionLists.days.indexOf(value) as value for (key, value) in ui.optionLists.days | startFrom: state.drawOptions.startDay"></select>
 								</div>
 								<div class="form-group pull-right center-sm" pagination-controls="state.displayOptions" pagination-length="state.schedules.length"></div>
-							</div>
-						</div>
-						<div class="clearfix">
-							<div class="vert-spacer-static-md"></div>
-							<div class="row form-horizontal">
-								<div class="col-md-4">
-									<div class="form-group">
-										<label for="options-bldgStyle" class="col-sm-4 control-label">Buildings:</label>
-										<div class="col-sm-8">
-											<select id="options-bldgStyle" class="form-control" ng-model="state.drawOptions.bldgStyle">
-												<option value="code">Codes (eg. GOL)</option>
-												<option value="number">Number (eg. 70)</option>
-											</select>
-										</div>
-									</div>
-								</div>
-								<div class="col-md-4">
-									<div class="form-group hidden-xs">
-										<label for="options-fullscreen" class="col-sm-4 control-label">Width:</label>
-										<div class="col-sm-8">
-											<select id="displayOptions-fullscreen" class="form-control" ng-model="state.displayOptions.fullscreen">
-												<option value="">Default</option>
-												<option value="true">Fullscreen</option>
-											</select>
-										</div>
-									</div>
-								</div>
-								<div class="col-md-4">
-									<div class="form-group">
-										<label for="displayOptions-pageSize" class="col-sm-4 control-label">Page Size:</label>
-										<div class="col-sm-8">
-											<select id="displayOptions-pageSize" class="form-control" ng-model="state.displayOptions.pageSize">
-												<option value="3">3</option>
-												<option value="5">5</option>
-												<option value="10">10</option>
-												<option value="15">15</option>
-												<option value="20">20</option>
-												<option value="50">50</option>
-											</select>
-										</div>
-									</div>
-								</div>
 							</div>
 						</div>
 					</div>
@@ -298,8 +256,49 @@
 		<div class="row">
 			<div class="col-xs-12">
 				<div class="panel panel-default">
-					<div class="panel-heading">
-						<div class="center" pagination-controls="state.displayOptions" pagination-length="state.schedules.length" pagination-callback="scrollToSchedules()"></div>
+					<div class="panel-heading panel-heading-controls">
+						<div class="row form-horizontal">
+							<div class="col-md-3">
+								<div class="form-group">
+									<label for="options-bldgStyle" class="col-sm-4 control-label">Buildings:</label>
+									<div class="col-sm-8">
+										<select id="options-bldgStyle" class="form-control" ng-model="state.drawOptions.bldgStyle">
+											<option value="code">Codes (eg. GOL)</option>
+											<option value="number">Number (eg. 70)</option>
+										</select>
+									</div>
+								</div>
+							</div>
+							<div class="col-md-3">
+								<div class="form-group hidden-xs">
+									<label for="options-fullscreen" class="col-sm-4 control-label">Width:</label>
+									<div class="col-sm-8">
+										<select id="displayOptions-fullscreen" class="form-control" ng-model="state.displayOptions.fullscreen">
+											<option value="">Default</option>
+											<option value="true">Fullscreen</option>
+										</select>
+									</div>
+								</div>
+							</div>
+							<div class="col-md-3">
+								<div class="form-group">
+									<label for="displayOptions-pageSize" class="col-sm-6 control-label">Page Size:</label>
+									<div class="col-sm-6">
+										<select id="displayOptions-pageSize" class="form-control" ng-model="state.displayOptions.pageSize">
+											<option value="3">3</option>
+											<option value="5">5</option>
+											<option value="10">10</option>
+											<option value="15">15</option>
+											<option value="20">20</option>
+											<option value="50">50</option>
+										</select>
+									</div>
+								</div>
+							</div>
+							<div class="col-md-3">
+								<div class="pull-right" pagination-controls="state.displayOptions" pagination-length="state.schedules.length" pagination-callback="scrollToSchedules()"></div>
+							</div>
+						</div>
 					</div>
 				</div>
 			</div>

@@ -1,9 +1,13 @@
 angular.module('sm').controller("GenerateScheduleCoursesController", function( $scope, $http, $q, $timeout) {
 
 	// Check if a course needs to be added
-	if($scope.state.courses.length == 0 || $scope.courseCart.count.all.coursesFromSelect() == 0) {
-		$scope.courses_helpers.add();  
-	}
+	var checkEmptyCourses = function() {
+		if($scope.state.courses.length == 0 || $scope.courseCart.count.all.coursesFromSelect() == 0) {
+			$scope.courses_helpers.add();  
+		}
+	};
+	checkEmptyCourses();
+	$scope.$on('checkForEmptyCourses', checkEmptyCourses);
 	
 	// Create a way to cancel repeated searches
 	var canceler = {};

@@ -6,6 +6,4 @@ angular.module('sm').controller("ScheduleViewController", function($scope, $loca
 		id: id
 	};
 	
-	$scope.noStateSaveOnUnload();
-	
 });

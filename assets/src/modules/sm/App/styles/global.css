@@ -324,22 +324,37 @@ div[schedule] .canvas-cont {
 	margin: 0 auto;
   
 }
+
+div[schedule] .schedule-loading {
+	padding-right: 10px;
+	padding-top: 8px !important;
+	float: right;
+}
+
 @media screen and (max-width:768px) {
-div[schedule] {
-    overflow: hidden;
+	div[schedule] {
+	    overflow: hidden;
+	}
+	div[schedule] .canvas-cont {
+		height:500px;
+		width:320px;
+		margin: 0 auto;
+		overflow-x: scroll;
+	}  
+	.schedule-loading {
+		clear: both;
+		padding-top: 15px;
+		text-align: center;
+		float: none !important;
+	}
+	   
+	   
+	.btn-xs-block {
+		display: block;	
+	}
 }
-  div[schedule] .canvas-cont {
-	height:500px;
-	width:320px;
-	margin: 0 auto;
-    overflow-x: scroll;
-   }  
-   
-   
-.btn-xs-block {
-	display: block;	
-}
-}
+
+
 /* BOOTSTRAP EXTENSIONS */
 .btn {
 	transition: background-color .25s ease, box-shadow .125s ease;
@@ -416,6 +431,11 @@ select.ng-invalid {
 }
 
 @media screen and (min-width:768px) {
+	
+	.panel-heading-controls {
+		padding: 15px 15px 0px 10px;
+	}
+
 	
 	.panel-control-overlap .panel-heading .panel-title {
 		padding-top: 10px;

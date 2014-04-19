@@ -19,9 +19,11 @@ angular.module('sm').controller("ScheduleController", function($scope, parsedSch
 
 	if($scope.schedule.length > 0) {
 		
+		$scope.overrideDrawOptions = {};
+		
 		// Set the correct draw options
 		for(var key in $scope.state.drawOptions) {
-			$scope.state.drawOptions[key] = parsedSchedule[key];
+			$scope.overrideDrawOptions[key] = parsedSchedule[key];
 		}
 	
 		// Set image property
@@ -30,11 +32,13 @@ angular.module('sm').controller("ScheduleController", function($scope, parsedSch
 		} else {
 			$scope.imageSupport = true;
 		}
-	
-		// Set the correct term
-		$scope.state.requestOptions.term = +parsedSchedule.term;
-	
-		// Don't save these state settings
-		$scope.noStateSaveOnUnload();
+		
+		// Set the correct term, 
+		$scope.state.ui.temp_savedScheduleTerm = parsedSchedule.term;
 	}
+	
+	$scope.$on('$destroy', function() {
+		$scope.imageSupport = true;
+		$scope.overrideDrawOptions = null;
+	})
 });

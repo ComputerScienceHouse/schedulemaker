@@ -42,7 +42,6 @@ angular.module('sm').controller("SchedulePrintController", function($scope, $loc
         }];
 	}
 	
-	$scope.noStateSaveOnUnload();
 	localStorage.setItem("reloadSchedule", null);
 	
 	$scope.print = window.print.bind(window);

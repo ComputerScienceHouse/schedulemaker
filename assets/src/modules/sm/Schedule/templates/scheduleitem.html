@@ -54,8 +54,8 @@
 						</ul>
 					</div>
 				</div>
-				<div ng-show="status == 'L'" class="control-label pull-right-sm">
-					<i class="fa fa-spin fa-refresh"></i> 
+				<div ng-show="status == 'L'" class="control-label schedule-loading">
+					<i class="fa fa-spin fa-refresh fa-2x"></i>
 				</div>
 			</div>
 		</div>
@@ -73,7 +73,7 @@
 		<div ng-if="hiddenCourses.length > 0" class="row">
 			<div class="col-xs-12">
 				<div class="alert alert-warning">
-					<strong>Warning!</strong> The following item{{hiddenCourses.length != 1?'s are':' is'}} not displayed: <span ng-repeat="course in hiddenCourses">{{course.courseNum != 'non'?course.courseNum+': ':''}}{{course.title}}{{$last?'':', '}}</span>
+					<strong>Warning!</strong> The following item{{hiddenCourses.length != 1?'s are':' is'}} not displayed: <strong ng-repeat="course in hiddenCourses">{{course.courseNum != 'non'?course.courseNum+': ':''}}{{course.title}}{{$last?'':', '}}</strong> because the current day or time range is too narrow.
 				</div>
 			</div>
 		</div>

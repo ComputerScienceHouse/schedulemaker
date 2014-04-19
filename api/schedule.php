@@ -200,7 +200,8 @@ function renderSvg($svg, $id) {
 		 
 		// Prepend parsing info
 		$svg = preg_replace('/(.*<svg[^>]* width=")(100\%)(.*)/', '${1}1000px${3}', $svg);
-		$svg = '<?xml version="1.1" encoding="UTF-8" standalone="no"?>' . $svg;
+		$svg = '<?xml version="1.0" encoding="UTF-8" standalone="no"?>' . $svg;
+		
 		// Load the image into an ImageMagick object
 		$im = new Imagick();
 		$im->readimageblob($svg);
@@ -229,9 +230,14 @@ function renderSvg($svg, $id) {
 // Not using getAction() here
 $path = explode('/', $_SERVER['REQUEST_URI']);
 
-$id = (empty($path[2]))? '': hexdec($path[2]);
-// Determine the output mode
-$mode = (empty($path[3])) ? "schedule" : $path[3];
+if($path[2] != "new") {
+	$id = (empty($path[2]))? '': hexdec($path[2]);
+	$mode = (empty($path[3])) ? "schedule" : $path[3];
+} else {
+	$id = null;
+	$mode = "save";
+}
+
 
 // Switch on the mode
 switch($mode) {
@@ -345,7 +351,7 @@ switch($mode) {
 		
 			// Optionally process the svg for the schedule
 			$image = false;
-			if(!empty($_POST['svg']) && renderSvg(html_entity_decode($_POST['svg']), $schedId)) {
+			if(!empty($_POST['svg']) && renderSvg($_POST['svg'], $schedId)) {
 				$query = "UPDATE schedules SET image = ((1)) WHERE id = '{$schedId}'";
 				mysql_query($query);  // We don't particularly care if this fails
 			}

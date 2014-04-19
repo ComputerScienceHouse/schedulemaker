@@ -17,7 +17,7 @@ angular.module('sm').directive('scheduleActions', function($http, $q, shareServi
 			}
 			// If not create it
 			var schedule = angular.copy(scope.schedule);
-			
+			scope.status = 'L';
 			
 			// Create the request params as all strings with correct keys
 			var params = {
@@ -35,13 +35,15 @@ angular.module('sm').directive('scheduleActions', function($http, $q, shareServi
 			
 			
 			// Post the schedule and return a promise
-			return $http.post('/schedule/new/save', $.param(params))
+			return $http.post('/schedule/new', $.param(params), {
+				requestType: 'json'
+			})
 			.then(function(request) {
 				if(request.status == 200 && typeof request.data.error == 'undefined') {
 					
 					// save the saveInfo and return it
 					scope.saveInfo = request.data;
-					
+					scope.status = 'D';
 					return request.data;
 				} else {
 					
@@ -55,6 +57,7 @@ angular.module('sm').directive('scheduleActions', function($http, $q, shareServi
 			save: function(saveType) {
 				
 				if(saveType == "create") {
+					
 					ga('send', 'event', 'schedule', 'save');
 					getSavedInfo().then(function(data) {
 						scope.notification = "This schedule can be accessed at " +

@@ -1,16 +1,16 @@
 angular.module('sm').directive('schedule', function($timeout, $filter) {
 	function Schedule(scope) {
 		this.scope = scope;
-		this.drawOptions = {
-			parsedTime: {}
-		};
+		this.drawOptions = {};
 		this.courseDrawIndex = 0;
 	}
-	Schedule.prototype.init = function() {
-		
-		this.drawOptions.parsedTime.start = parseInt(this.scope.state.drawOptions.startTime);
-		this.drawOptions.parsedTime.end = parseInt(this.scope.state.drawOptions.endTime);
-		if(!this.drawOptions.parsedTime.start || !this.drawOptions.parsedTime.end) return false;
+	Schedule.prototype.init = function(options) {
+		this.drawOptions = options;
+		/*this.drawOptions.parsedTime = {
+			start: parseInt(options.startTime),
+			end: parseInt(options.endTime)
+		};*/
+		if(!this.drawOptions.startTime || !this.drawOptions.endTime) return false;
         
 		this.scope.hiddenCourses = [];
 		this.scope.onlineCourses = [];
@@ -21,7 +21,7 @@ angular.module('sm').directive('schedule', function($timeout, $filter) {
 	Schedule.prototype.drawGrid = function() {
 		
 		var hourArray = [];
-        for(var time = this.drawOptions.parsedTime.start; time < this.drawOptions.parsedTime.end; time += 60) {
+        for(var time = +this.drawOptions.startTime; time < +this.drawOptions.endTime; time += 60) {
     		// Calculate the label
     		var hourLabel = Math.floor(time / 60);
     		if(hourLabel > 12) { hourLabel -= 12; }
@@ -33,7 +33,7 @@ angular.module('sm').directive('schedule', function($timeout, $filter) {
     	}
 
 		// Generate grid
-        var numDays = this.scope.state.drawOptions.endDay - this.scope.state.drawOptions.startDay + 1;
+        var numDays = this.drawOptions.endDay - this.drawOptions.startDay + 1;
 		// Set up grid
 		var rawHeight = (hourArray.length * 40),
 		globalOpts = {
@@ -53,7 +53,7 @@ angular.module('sm').directive('schedule', function($timeout, $filter) {
 		var dayArray = [];
 		//Generate days
 		
-		var dayIndex = this.scope.state.drawOptions.startDay;
+		var dayIndex = this.drawOptions.startDay;
 		for(var i=0; i < numDays; i++) {
 			var offset = globalOpts.hoursWidth + ( 2 * dayOpts.padding) + ((dayOpts.rawWidth - dayOpts.padding) * i);
 			dayArray.push({
@@ -81,8 +81,8 @@ angular.module('sm').directive('schedule', function($timeout, $filter) {
 	
 	Schedule.prototype.drawCourse = function(course, index) {
 		var grid = this.scope.grid;
-		var startTime = this.drawOptions.parsedTime.start;
-		var endTime = this.drawOptions.parsedTime.end;
+		var startTime = +this.drawOptions.startTime;
+		var endTime = +this.drawOptions.endTime;
 		
 		// Using the old logic here because it works just as good as anything
 		
@@ -90,7 +90,7 @@ angular.module('sm').directive('schedule', function($timeout, $filter) {
 			// Make it easier for the developer
 			var time = course.times[t];
 			// Skip times that aren't part of the displayed days
-			if(time.day < this.scope.state.drawOptions.startDay || time.day > this.scope.state.drawOptions.endDay) {
+			if(time.day < this.drawOptions.startDay || time.day > this.drawOptions.endDay) {
 				if(this.scope.hiddenCourses.indexOf(course) == -1) {
 					this.scope.hiddenCourses.push(course);
 				}
@@ -134,7 +134,7 @@ angular.module('sm').directive('schedule', function($timeout, $filter) {
 			timeTop += 19;					// Offset for the header
 			
 			if(course.courseNum != 'non') {
-				var location = ((this.scope.state.drawOptions.bldgStyle == 'code') ? time.bldg.code : time.bldg.number) + "-" + time.room,
+				var location = ((this.drawOptions.bldgStyle == 'code') ? time.bldg.code : time.bldg.number) + "-" + time.room,
 				instructor = course.instructor,
 				courseNum = course.courseNum;
 			} else {
@@ -150,13 +150,13 @@ angular.module('sm').directive('schedule', function($timeout, $filter) {
 				    instructor: instructor
 				},
 				boundry: {
-					x: grid.days[time.day - this.scope.state.drawOptions.startDay].offset,
+					x: grid.days[time.day - this.drawOptions.startDay].offset,
 					y: timeTop,
 					shorten: shorten,
 					width: grid.opts.daysWidth,
 					height:timeHeight
 				},
-				color: this.scope.ui.colors[course.courseIndex?(course.courseIndex - 1):this.courseDrawIndex % 10]
+				color: this.scope.ui.colors[course.courseIndex?(course.courseIndex - 1):this.courseDrawIndex - 1 % 10]
 			});
 			
 		}
@@ -216,28 +216,37 @@ angular.module('sm').directive('schedule', function($timeout, $filter) {
 				
 			},
 			post: function(scope, elm) {
-				scope.$watchCollection('state.drawOptions', function() {	
-					if(scope.scheduleController.init()) {
+				
+				var update = function(options) {
+					if(scope.scheduleController.init(options)) {
 						// Only redraw if valid options
 						scope.scheduleController.draw();
 					
-						
-						// Fix the pixel issues after DOM updates (not on Chrome)
+							// Fix pixel alignment issues
 							$timeout(function() {
 								var offset = elm.find("svg").offset(),
 								vert = 1 - parseFloat('0.'+('' + offset.top).split('.')[1]);
 								horz = 1 - parseFloat('0.'+('' + offset.left).split('.')[1]);
 								scope.grid.opts.pixelAlignment ='translate('+horz+','+vert+')';
-								var svg = $(elm).find('svg');
-								svg.hide();
-								setTimeout(function() {
-								svg.show();
 								
-								},0);
+								// Chrome is dumb
+								if(window.chrome) {
+									var svg = $(elm).find('svg');
+										svg.hide();
+										setTimeout(function() {
+										svg.show();
+									},0);
+								}
 							},10,true);
 						
 					}
-				});
+				} 
+				
+				if(!scope.overrideDrawOptions) {
+					scope.$watchCollection('state.drawOptions', update);
+				} else {
+					scope.$watchCollection('overrideDrawOptions', update);
+				}
 			}
 		}
 	};

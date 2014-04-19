@@ -29,14 +29,14 @@
 							<i class="fa" ng-class="{'fa-angle-down': !showCourseSections, 'fa-angle-up': showCourseSections}"></i>
 						</button>
 					</div>
-					<h4 class="list-group-item-heading">{{course.search}}:</h4>
+					<h4 class="list-group-item-heading" title="{{course.title?course.title:course.sections[0].title}}">{{course.search}}:</h4>
 					<p class="list-group-item-text">{{courseCart.count.course.selectedSections(course)}} selected</p>
 					<ul class="list-group" ng-if="showCourseSections">
 						<li class="list-group-item repeat-item" ng-repeat="section in course.sections | filter:{selected: true}">
 							<button type="button" class="btn pull-right btn-danger visible-md visible-lg" ng-click="section.selected = !section.selected">
 								<i class="fa fa-minus"></i> <i class="fa fa-shopping-cart"></i>
 							</button>
-							<h4 class="list-group-item-heading">{{section.courseNum?section.courseNum:(course | courseNum)+'-'+section.section}}</h4>
+							<h4 class="list-group-item-heading" title="{{section.title}}">{{section.courseNum?section.courseNum:(course | courseNum)+'-'+section.section}}</h4>
 							<p class="list-group-item-text" ng-bind-html="section.instructor | RMPUrl"></p>
 							<button type="button" class="btn btn-danger btn-block visible-xs visible-sm" ng-click="section.selected = !section.selected">
 								<i class="fa fa-minus"></i> <i class="fa fa-shopping-cart"></i>
@@ -48,7 +48,7 @@
 			<div class="alert" ng-switch-when="false">Add courses to your cart and make a schedule with them. They will show up here.</div>
 		</div>
 	</div>
-	<div class="panel-footer" ng-class="{'hidden-xs':showCourseCart, 'hidden-sm': showCourseCart}">
+	<div class="panel-footer">
 		<button type="button" class="btn btn-primary btn-block" ng-click="generateSchedules()">Show Matching Schedules <i class="fa fa-chevron-right"></i></button>
 	</div>
 </div>

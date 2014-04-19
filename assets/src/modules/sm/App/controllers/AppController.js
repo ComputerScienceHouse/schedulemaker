@@ -1,4 +1,4 @@
-angular.module('sm').controller("AppController", function($scope, localStorage, $window, $filter, $state) {
+angular.module('sm').controller("AppController", function($scope, localStorage, $window, $filter, $state, $stateParams) {
 	
 	// Force save on close
 	window.onbeforeunload = function() {
@@ -44,7 +44,11 @@ angular.module('sm').controller("AppController", function($scope, localStorage, 
 	};
 	$scope.resetState = function() {
 		$scope.initState();
-		$window.location.reload();
+		$state.transitionTo($state.current, $stateParams, {
+		    reload: true,
+		    inherit: false,
+		    notify: true
+		});
 	};
 	
 	$scope.saveState = function() {
