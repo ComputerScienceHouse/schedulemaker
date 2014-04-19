@@ -1,0 +1,9 @@
+<div ng-show="schedule && schedule.length > 0">
+	<ui-view></ui-view>
+</div>
+<div ng-show="!schedule || schedule.length == 0" class="container">
+	<div class="vert-spacer-static-md"></div>
+	<div class="alert alert-info">
+		<i class="fa fa-exclamation-circle"></i> The requested schedule was not found.
+	</div>
+</div>

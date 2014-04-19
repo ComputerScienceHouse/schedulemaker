@@ -173,3 +173,19 @@ function translateTimeDump($time) {
 	$min  = substr($time, -2);
 	return ($hour * 60) + $min;
 }
+
+/**
+ * Returns the action requested by api endpoint
+ * @return null | string
+ */
+function getAction() {
+	
+	// The path is exploded into ['', 'api', 'CONTROLLER' 'ACTION']
+	$path = explode('/', $_SERVER['REQUEST_URI']);
+	// What action are we performing today?
+	if(empty($path[2])) {
+		return null;
+	} else {
+		return $path[2];
+	}
+}

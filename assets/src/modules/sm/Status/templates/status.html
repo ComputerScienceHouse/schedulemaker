@@ -1,0 +1,36 @@
+<div class="container">
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			<h3 class="panel-title">Last 20 Data Scrapes <div class="pull-right">Last run: {{logs.length > 0?logs[0].timeStarted:'Never'}}</div></h3>
+		</div>
+		<div class="panel-body">
+		<table class="table">
+			<thead>
+				<tr>
+					<th>Scrape Started</th>
+					<th>Scrape Finished</th>
+					<th>Time Elapsed</th>
+					<th>Courses Added</th>
+					<th>Courses Updated</th>
+					<th>Sections Added</th>
+					<th>Sections Updated</th>
+					<th>Failures</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr ng-show="logs.length == 0"><td colspan='7'>No Logs Exist</td></tr>
+				<tr ng-repeat="log in logs">
+					<td ng-bind="log.timeStarted"></td>
+					<td ng-bind="log.timeEnded"></td>
+					<td ng-bind="log.timeEnded - log.timeStarted"></td>
+					<td ng-bind="log.coursesAdded"></td>
+					<td ng-bind="log.coursesUpdated"></td>
+					<td ng-bind="log.sectionsAdded"></td>
+					<td ng-bind="log.sectionsUpdated"></td>
+					<td ng-bind="log.failures > 0?log.failures:0"></td>
+				</tr>
+			</tbody>
+		</table>
+		</div>
+	</div>
+</div>
