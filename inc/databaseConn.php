@@ -157,78 +157,11 @@ function getCourse($term, $dept, $courseNum, $sectNum) {
 }
 
 /**
- * Does a query for all the terms in the database and then dumps them to
- * a handy drop down field. Parses them like 'Spring ####' for display val.
- * The option value will be the 5 digit number
- * @param	string	$fieldName	The name of the field (useful for multiple
- *								quarter fields in a single form)
- * @param	string	$selected	The selected value to add to the field
- * @return	string	A dropdown field as described
+ * Does a query for all the terms in the database and parses them like 
+ * term:'Spring ####' for display val.
+ * @return the array of terms
  */
-function getTermField($fieldName = "term", $selected = null) {
-	// Build the start of the field
-	$return = "<select ng-model='{$fieldName}' class=\"form-control\" name='{$fieldName}'>";
-	
-	// Query the database for the quarters
-	$query = "SELECT quarter FROM quarters ORDER BY quarter DESC";
-	$result = mysql_query($query);
-	
-	// Output the quarters as options
-    $curYear = 0;
-    $optGroupOpen = false;
-	while($row = mysql_fetch_assoc($result)) {
-		$term = $row['quarter'];
-
-		// Parse it into a year-quarter thingy
-		$year = substr(strval($term), 0, 4);
-        $termNum = substr(strval($term), -1);
-        if($year >= 2013) {
-            switch($termNum) {
-                case 1: $termName = "Fall"; $useYear = $year; break;
-                case 3: $termName = "Winter Intersession"; $useYear = (int) $year + 1; break;
-                case 5: $termName = "Spring"; $useYear = (int) $year + 1; break;
-                case 8: $termName = "Summer"; $useYear = (int) $year + 1; break;
-                default: $termName = "Unknown";
-            }
-        } else {
-            switch($termNum) {
-                case 1: $termName = "Fall"; $useYear = $year; break;
-                case 2: $termName = "Winter"; $useYear = $year; break;
-                case 3: $termName = "Spring"; $useYear = (int) $year + 1; break;
-                case 4: $termName = "Summer"; $useYear = (int) $year + 1; break;
-                default: $termName = "Unknown";
-            }
-        }
-
-        // Output the year as a grouping
-        if($curYear != $year) {
-            $curYear = $year;
-            $nextYear = (int)$year + 1;
-            if($optGroupOpen) {
-                $return .= "</optgroup>";
-            }
-            $optGroupOpen = true;
-            $return .= "<optgroup label='{$year} - {$nextYear}'>";
-        }
-
-		// Now output it
-		$return .= "<option value='{$term}'" . (($selected == $term) ? " selected='selected'" : "") . ">{$termName} {$useYear}</option>";
-	}
-
-	// Close it up and return it
-    if($optGroupOpen) {
-        $return .= "</optgroup>";
-    }
-	$return .= "</select>";
-	return $return;
-}
-
-/**
- * Does a query for all the terms in the database and then dumps them to
- * JSON. Parses them like term:'Spring ####' for display val.
- * @return	string	JSON representation of available fields
- */
-function getTermsJSON() {
+function getTerms() {
 	
 	$terms = array();
 
@@ -278,46 +211,9 @@ function getTermsJSON() {
 			"group" => $termGroupName
 		);
 	}
-	return json_encode($terms);
+	return $terms;
 }
 
-function getCollegeField($fieldname = "school", $selected = null, $any = false) {
-	$return = "<select id='{$fieldname}' name='{$fieldname}'>";
-	$return .= ($any) ? "<option value='any'>Any College</option>" : "";
-	
-	// Query for the schools
-	$query = "SELECT id, number, title FROM schools WHERE number IS NOT NULL ORDER BY id";
-	$result = mysql_query($query);
-
-	// Output the schools as options
-	while($row = mysql_fetch_assoc($result)) {
-		$return .= "<option value='{$row['id']}'" . (($selected == $row['id']) ? " selected='selected'" : "") . ">{$row['number']} {$row['title']}</option>";
-	}
-
-	// Close it up and return it
-	$return .= "</select>";
-	return $return;
-}
-
-function getDepartmentField($fieldname = "department", $selected = null, $any = false) {
-	$return = "<select id='{$fieldname}' name='{$fieldname}'>";
-	$return .= ($any) ? "<option value='any'>Any Department</option>" : "";
-	
-	// Query the database for the departments
-	$query = "SELECT number, title FROM departments ORDER BY number";
-	$result = mysql_query($query);
-	
-	// Output the departments as options
-	while($row = mysql_fetch_assoc($result)) {
-		$deptNum = $row['number'];
-		$deptTitle = $row['title'];
-		$return .= "<option value='{$deptNum}'" . (($selected == $deptNum) ? " selected='selected'" : "") . ">{$deptNum} {$deptTitle}</option>";
-	}
-
-	// Close it up and return it
-	$return .= "</select>";
-	return $return;
-}
 
 /**
  * Recursively sanitizes all the information passed to it

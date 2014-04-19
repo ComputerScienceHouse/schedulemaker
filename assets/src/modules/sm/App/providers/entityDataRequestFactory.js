@@ -1,12 +1,6 @@
 angular.module('sm').factory('entityDataRequest', function($http) {
 	var entityDataRequest = function(params, callback) {
-		return $http.post('js/entityAjax.php', $.param(params), {
-			requestType:'json',
-			headers: {
-				'Content-Type': 'application/x-www-form-urlencoded'
-			}, 
-			withCredentials: true
-		});
+		return $http.post('/entity/' + params.action, $.param(params));
 	};
 	return {
 		getSchoolsForTerm: function(opts) {

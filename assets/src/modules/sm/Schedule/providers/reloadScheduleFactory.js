@@ -17,13 +17,9 @@ angular.module('sm').factory('reloadSchedule', function($http, $q, localStorage)
 		
 		// Check if
 		if($stateParams.hasOwnProperty('id') && $stateParams.id != 'render') {
-
 			// We need to get the schedule
-			$http.get('/api/schedule/' + $stateParams.id, null, {
-				headers: {
-					'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
-				}
-			}).then(function(response) {
+			$http.get('/schedule/' + $stateParams.id)
+			.then(function(response) {
 				if(response.status == 200 && !response.data.error) {
 					deferred.resolve(response.data);
 				} else {
@@ -37,7 +33,6 @@ angular.module('sm').factory('reloadSchedule', function($http, $q, localStorage)
 			
 			//Get the schedule from sessions storage
 			var reloadSchedule = localStorage.getItem('reloadSchedule');
-			console.log('herer', reloadSchedule);
 			// If it's actually there
 			if(reloadSchedule != null) {
 				deferred.resolve(reloadSchedule);

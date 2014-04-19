@@ -1,10 +1,10 @@
 <?php
 ////////////////////////////////////////////////////////////////////////////
-// SCHEDULE AJAX CALLS
+// GENERATION AJAX CALLS
 //
 // @author	Ben Russell (benrr101@csh.rit.edu)
 //
-// @file	js/scheduleAjax.php
+// @file	api/generate.php
 // @descrip	Provides standalone JSON object retreival for schedule designing
 // 			form　and display
 ////////////////////////////////////////////////////////////////////////////
@@ -184,42 +184,6 @@ function timeStringToMinutes($str) {
     return $hour * 60 + $minute;
 }
 
-/**
- * Generates a render of schedule's SVG. The PNG render of the image will be
- * stored in /img/schedules/ with a filename equal to the id of the schedule.
- * @param   $svg    string  The SVG code for the image
- * @param   $id     string  The ID of the schedule, for file name generation
- * @return  bool    True on success, False otherwise.
- */
-function renderSvg($svg, $id) {
-    try {
-    	
-    	// Prepend parsing info
-    	$svg = preg_replace('/(.*<svg[^>]* width=")(100\%)(.*)/', '${1}1000px${3}', $svg);
-    	$svg = '<?xml version="1.1" encoding="UTF-8" standalone="no"?>' . $svg;
-        // Load the image into an ImageMagick object
-        $im = new Imagick();
-        $im->readimageblob($svg);
-
-        // Convert it to png
-        $im->setImageFormat("png24");
- 
-        $im->scaleimage(1000, 600, true);
-
-
-        // Write it to the filesystem
-        $im->writeimage("../img/schedules/{$id}.png");
-        $im->clear();
-        $im->destroy();
-
-        // Success!
-        return true;
-
-    } catch(Exception $e) {
-        return false;
-    }
-}
-
 ////////////////////////////////////////////////////////////////////////////
 // MAIN EXECUTION
 
@@ -229,12 +193,7 @@ header('Content-type: application/json');
 // Escape the post data
 $_POST = sanitize($_POST);
 
-// What action are we performing today?
-if(empty($_POST['action'])) {
-	$_POST['action'] = null;
-}
-
-switch($_POST['action']) {
+switch(getAction()) {
 	////////////////////////////////////////////////////////////////////////
 	// GET COURSE OPTIONS	
 	case "getCourseOpts":
@@ -322,22 +281,6 @@ switch($_POST['action']) {
 
         // Puke the results back to the user
 		echo json_encode($courseOptions);
-
-		break;
-
-	////////////////////////////////////////////////////////////////////////
-	// GET TIME DROPDOWNS
-	case "getTimeField":
-		// Verify that we have the field name and the default time
-		if(empty($_POST['name'])) {
-			die(json_encode(array("error"=>"argument", "msg"=>"A field name must be provided", "arg"=>"name")));
-		}
-		if(empty($_POST['default'])) {
-			die(json_encode(array("error"=>"argument", "msg"=>"A default time must be provided", "arg"=>"default")));
-		}
-
-		// Return the code
-		echo json_encode(array("code" => getTimeField($_POST['name'], $_POST['default'])));
 
 		break;
 
@@ -431,76 +374,7 @@ switch($_POST['action']) {
 		
 		break;
 
-	////////////////////////////////////////////////////////////////////////
-	// STORE A SCHEDULE
-	case "saveSchedule":
-		// There has to be a json object given
-		if(empty($_POST['data'])) {
-			die(json_encode(array("error" => "argument", "msg" => "No schedule was provided", "arg" => "schedule")));
-		}
-		$_POST['data'] = html_entity_decode($_POST['data'], ENT_QUOTES);
-		$json = stripslashes($_POST['data']);
-		
-		// Make sure the object was successfully decoded
-		$json = json_decode($json, true);
-		if($json == null) {
-			die(json_encode(array("error" => "argument", "msg" => "The schedule could not be decoded", "arg" => "schedule")));
-		}
-		if(!isset($json['starttime']) || !isset($json['endtime']) || !isset($json['building']) || !isset($json['startday']) || !isset($json['endday'])) {
-            die(json_encode(array("error" => "argument", "msg" => "A required schedule parameter was not provided")));
-        }
 
-		// Start the storing process with storing the data about the schedule
-		$query = "INSERT INTO schedules (oldid, startday, endday, starttime, endtime, building, quarter)" .
-				" VALUES('', '{$json['startday']}', '{$json['endday']}', '{$json['starttime']}', '{$json['endtime']}', '{$json['building']}', " .
-				" '{$json['term']}')";
-		$result = mysql_query($query);
-		if(!$result) {
-			die(json_encode(array("error" => "mysql", "msg" => "Failed to store the schedule: " . mysql_error($dbConn))));
-		}
-
-		// Grab the latest id for the schedule
-		$schedId = mysql_insert_id();
-
-        // Optionally process the svg for the schedule
-        $image = false;
-        if(!empty($_POST['svg']) && renderSvg(html_entity_decode($_POST['svg']), $schedId)) {
-            $query = "UPDATE schedules SET image = ((1)) WHERE id = '{$schedId}'";
-            mysql_query($query);  // We don't particularly care if this fails
-        }
-
-		// Now iterate through the schedule
-		foreach($json['schedule'] as $item) {
-			// Process it into schedulenoncourses if the item is a non-course item
-			if($item['courseNum'] == "non") {
-				// Process each time as a seperate item
-				foreach($item['times'] as $time) {
-					$query = "INSERT INTO schedulenoncourses (title, day, start, end, schedule)" .
-							" VALUES('{$item['title']}', '{$time['day']}', '{$time['start']}', '{$time['end']}', '{$schedId}')";
-					$result = mysql_query($query);
-					if(!$result) {
-						die(json_encode(array("error" => "mysql", "msg" => "Storing non-course item '{$item['title']}' failed: " . mysql_error($dbConn))));
-					}
-				}
-			} else {
-				// Process each course. It's crazy simple now.
-				$query = "INSERT INTO schedulecourses (schedule, section)" .
-						" VALUES('{$schedId}', '{$item['id']}')";
-				$result = mysql_query($query);
-				if(!$result) {
-					die(json_encode(array("error" => "mysql", "msg" => "Storing a course '{$item['courseNum']}' failed: " . mysql_error($dbConn))));
-				}
-			}
-		}
-
-		// Everything was successful, return a nice, simple URL to the schedule
-		// To make it cool, let's make it a hex id
-		$hexId = dechex($schedId);
-		$url = "{$HTTPROOTADDRESS}schedule/{$hexId}";
-		
-		echo json_encode(array("url" => $url, "id" => $hexId));
-
-		break;
 
 	////////////////////////////////////////////////////////////////////////
 	// DEFAULT ACTION	

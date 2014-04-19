@@ -1,7 +1,8 @@
 angular.module('sm').controller("AppController", function($scope, localStorage, $window, $filter, $state) {
 	
-	$scope.globalUI = {
-		layoutClass: "default"	
+	// Force save on close
+	window.onbeforeunload = function() {
+		$scope.saveState();
 	};
 	
 	$scope.initState = function() {
@@ -50,10 +51,6 @@ angular.module('sm').controller("AppController", function($scope, localStorage, 
 		localStorage.setItem('state', $scope.state);
 	};
 	
-	// Force save on close
-	$window.onbeforeunload = function() {
-		$scope.saveState();
-	};
 	
 	$scope.noStateSaveOnUnload = function() {
 		$window.onbeforeunload = function() {

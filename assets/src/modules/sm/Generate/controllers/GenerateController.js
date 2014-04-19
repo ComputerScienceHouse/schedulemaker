@@ -1,6 +1,5 @@
 angular.module('sm').controller("GenerateController", function($scope, globalKbdShortcuts, $http, $filter, localStorage, uiDayFactory) {
 	
-	
 	//Check if we are forking a schedule
 	if(localStorage.hasKey('forkSchedule')){
 		
@@ -101,7 +100,6 @@ angular.module('sm').controller("GenerateController", function($scope, globalKbd
     	$scope.generationStatus = 'L';
     	
     	var requestData = {
-    		'action': 'getMatchingSchedules',
     		'term': $scope.state.requestOptions.term,
     		'courseCount': $scope.state.courses.length,
     		'nonCourseCount': $scope.state.nonCourses.length,
@@ -162,12 +160,9 @@ angular.module('sm').controller("GenerateController", function($scope, globalKbd
     	}
     	
     	// Actually make the request
-    	$http.post('/js/scheduleAjax.php',$.param(requestData), {
-	    	requestType:'json',
-	    	headers: {
-	            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
-	        }
-	    }).success(function(data, status, headers, config) {
+    	$http.post('/generate/getMatchingSchedules', $.param(requestData))
+    	.success(function(data, status, headers, config) {
+    		ga('send', 'event', 'generate', 'schedule');
 	    	$scope.generationStatus = 'D';
 	    	
 	    	// If no errors happened

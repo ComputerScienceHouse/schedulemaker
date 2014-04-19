@@ -22,12 +22,9 @@ header("Content-type: application/json");
 $_POST = sanitize($_POST);
 
 // MAIN EXECUTION //////////////////////////////////////////////////////////
-if(empty($_POST['action'])) {
-	die(json_encode(array("error" => "argument", "msg" => "You must provide an action")));
-}
 
 // Switch on the action
-switch($_POST['action']) {
+switch(getAction()) {
 	case "getCourses":
 		// Query for the courses in this department
 

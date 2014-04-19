@@ -18,11 +18,10 @@ angular.module('sm').directive('professorLookup', function($http) {
 						if(scope.stats == 'none') {
 							$http({
 								method:'GET',
-								url:'js/rmp.php?professor='+lastName,
+								url:'/rmp/' + lastName,
 								headers: {
 									'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-								}, 
-								withCredentials: true
+								}
 							}).success(function(data, status, headers, config) {
 								var parser = new DOMParser();
 								var doc = parser.parseFromString(data,"text/html");

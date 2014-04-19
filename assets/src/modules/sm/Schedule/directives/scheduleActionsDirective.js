@@ -31,18 +31,12 @@ angular.module('sm').directive('scheduleActions', function($http, $q, shareServi
 					schedule:  schedule,
 				}),
 				svg: serializer.serializeToString(elm.find("svg").get(0)),
-				action: "saveSchedule"
 			};
 			
 			
 			// Post the schedule and return a promise
-			return $http.post('/js/scheduleAjax.php', $.param(params), {
-				requestType:'json',
-				headers: {
-					'Content-Type': 'application/x-www-form-urlencoded'
-				}, 
-				withCredentials: true
-			}).then(function(request) {
+			return $http.post('/schedule/new/save', $.param(params))
+			.then(function(request) {
 				if(request.status == 200 && typeof request.data.error == 'undefined') {
 					
 					// save the saveInfo and return it
@@ -61,6 +55,7 @@ angular.module('sm').directive('scheduleActions', function($http, $q, shareServi
 			save: function(saveType) {
 				
 				if(saveType == "create") {
+					ga('send', 'event', 'schedule', 'save');
 					getSavedInfo().then(function(data) {
 						scope.notification = "This schedule can be accessed at " +
 						"<a href=\""+ data.url + "\" target=\"_blank\">"
@@ -71,7 +66,7 @@ angular.module('sm').directive('scheduleActions', function($http, $q, shareServi
 						scope.notification = error;
 					});
 				} else {
-					
+					ga('send', 'event', 'schedule', 'fork');
 					localStorage.setItem('forkSchedule', scope.schedule);
 					
 					$state.go("generate");
@@ -79,7 +74,7 @@ angular.module('sm').directive('scheduleActions', function($http, $q, shareServi
 			},
 			
 			shareToService: function($event, serviceName, newWindow) {
-				
+				ga('send', 'event', 'schedule', 'share', serviceName);
 				$event.preventDefault();
 				scope.status = "L";
 				if(serviceName && serviceName in shareServiceInfo) {
@@ -97,7 +92,7 @@ angular.module('sm').directive('scheduleActions', function($http, $q, shareServi
 			},
 			
 			shareToEmail: function($event) {
-				
+				ga('send', 'event', 'schedule', 'share', 'email');
 				$event.preventDefault();
 				
 				getSavedInfo().then(function(data) {
@@ -111,14 +106,14 @@ angular.module('sm').directive('scheduleActions', function($http, $q, shareServi
 			},
 			
 			shareToDirectLink: function($event) {
-				
+				ga('send', 'event', 'schedule', 'share', 'link');
 				$event.preventDefault();
 				
 				scope.scheduleActions.save('create');
 			},
 			
 			downloadiCal: function($event) {
-				
+				ga('send', 'event', 'schedule', 'download', 'iCal');
 				$event.preventDefault();
 				
 				getSavedInfo().then(function(data) {
@@ -128,7 +123,7 @@ angular.module('sm').directive('scheduleActions', function($http, $q, shareServi
 			},
 			
 			downloadImage: function($event) {
-				
+				ga('send', 'event', 'schedule', 'download', 'image');
 				$event.preventDefault();
 				
 				var popup = openPopup(true);
@@ -141,7 +136,7 @@ angular.module('sm').directive('scheduleActions', function($http, $q, shareServi
 			},
 			
 			print: function() {
-				
+				ga('send', 'event', 'schedule', 'print');
 				
 				var reloadSchedule = angular.copy(scope.state.drawOptions);
 				reloadSchedule.term = scope.state.requestOptions.term,

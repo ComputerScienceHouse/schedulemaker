@@ -11,9 +11,7 @@ angular.module('sm').controller('SearchController', function($scope, $http, enti
 	$scope.searchResults = [];
 	
 	$scope.search =  {
-		params: {
-			action: 'find'
-		},
+		params: {},
 		options: {
 			colleges: [defaultOptions.college],
 			departments: [defaultOptions.department]
@@ -46,9 +44,9 @@ angular.module('sm').controller('SearchController', function($scope, $http, enti
 	})();
 	
 	
-	// Listen for term changes
-	$scope.$watch('state.requestOptions.term', function (newTerm) {
+	var reloadSchoolsForTerm = function(newTerm, oldTerm) {		
 		
+		if(newTerm == oldTerm) return;
 		
 		// Set the new term in our params
 		$scope.search.params.term = newTerm;
@@ -71,7 +69,11 @@ angular.module('sm').controller('SearchController', function($scope, $http, enti
 				alert(data.msg);
 			}
 		});
-	});
+	};
+	reloadSchoolsForTerm($scope.state.requestOptions.term, '');
+	
+	// Listen for term changes
+	$scope.$watch('state.requestOptions.term', reloadSchoolsForTerm);
 	
 	// Reload the departments when a college is selected
 	$scope.$watch('search.params.college', function(newCollege) {
@@ -144,15 +146,8 @@ angular.module('sm').controller('SearchController', function($scope, $http, enti
 		delete params['daysAny'];
 		
 		
-		$http.post('js/searchAjax.php', $.param(params), {
-			requestType:'json',
-			headers: {
-				'Content-Type': 'application/x-www-form-urlencoded'
-			}, 
-			withCredentials: true
-		}).success(function(data, status) {
-			
-			
+		$http.post('/search/find', $.param(params))
+		.success(function(data, status) {	
 			// 'D'one loading
 			$scope.searchStatus = "D";
 			

@@ -1,4 +1,3 @@
-
 /**
  * Initialize the main sm module
  */
@@ -6,7 +5,9 @@ angular.module('sm', ['ngAnimate', 'ngSanitize', 'ui.router'])
 /**
  * Core Config code
  */
-.config(function($stateProvider, $urlRouterProvider, $locationProvider) {
+.config(function($stateProvider, $urlRouterProvider, $locationProvider, $httpProvider) {
+	
+	$httpProvider.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded;charset=utf-8';
 	
 	$locationProvider.html5Mode(true);
 	
@@ -54,11 +55,11 @@ angular.module('sm', ['ngAnimate', 'ngSanitize', 'ui.router'])
 		url: '/schedule/:id',
 		templateUrl: tplPath('Schedule', 'schedule'),
 		resolve: {
-			parsedSchedule: function($stateParams, reloadSchedule) {
+			parsedSchedule: ['$stateParams', 'reloadSchedule', function($stateParams, reloadSchedule) {
 				return reloadSchedule($stateParams);
-			}
+			}]
 		},
-		abstract: true,
+		'abstract': true,
 		controller: 'ScheduleController'
 	}).state('schedule.view', {
 		url: '',
@@ -75,6 +76,18 @@ angular.module('sm', ['ngAnimate', 'ngSanitize', 'ui.router'])
  */
 .run(function($rootScope, $window) {
 	$rootScope.$on('$stateChangeSuccess', function(evt) {
+		ga('send', 'pageview');
 		$($window).scrollTop(0);
 	});
+	
+	//IE 10 MOBILE FIX
+	if (navigator.userAgent.match(/IEMobile\/10\.0/)) {
+		var msViewportStyle = document.createElement("style")
+		msViewportStyle.appendChild(
+			document.createTextNode(
+				"@-ms-viewport{width:auto!important}"
+			)
+		)
+		document.getElementsByTagName("head")[0].appendChild(msViewportStyle)
+	}
 });

@@ -36,13 +36,13 @@ if ($path[1] == 'schedule') {
 //OLD header.inc
 ?>
 <!DOCTYPE html>
-<html prefix="og: http://ogp.me/ns#" ng-app="sm" ng-init="defaultTerm = '<?=$CURRENT_QUARTER?>'; stateVersion = <?=$JSSTATE_VERSION?>; termList=<?=htmlspecialchars(getTermsJSON())?>;">
+<html prefix="og: http://ogp.me/ns#" ng-app="sm">
 	<head>
 		<title><?= (!empty($TITLE)) ? $TITLE . " - " : "" ?>Schedule Maker</title>
 		
 		<!-- META DATA -->
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
-		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<meta name="apple-mobile-web-app-capable" content="yes">
 		
@@ -63,8 +63,8 @@ if ($path[1] == 'schedule') {
         <meta property="og:image" content="<?= $HTTPROOTADDRESS ?>img/csh_og.png">
         <? } ?>
 	</head>
-	<body ng-controller="AppController" ng-class="globalUI.layoutClass">
-		<div id="superContainer">
+	<body ng-init="defaultTerm = '<?=$CURRENT_QUARTER?>'; stateVersion = <?=$JSSTATE_VERSION?>; termList=<?=htmlspecialchars(json_encode(getTerms()))?>; globalUI = {layoutClass:'default'};" ng-class="globalUI.layoutClass">
+		<div id="superContainer" ng-controller="AppController">
 			<header class="main navbar navbar-fixed-top navbar-default ng-scope">
 	            <div class="container">
 	                <div class="navbar-header">
@@ -104,6 +104,15 @@ if ($path[1] == 'schedule') {
 			</footer> 
 		</div>
 		<!-- LOAD SCRIPTS LAST -->
+		<script>
+			//GOOGLE ANALYTICS CODE
+			(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+				(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+				m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+			})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+			
+			ga('create', '<?= $GOOGLEANALYTICS ?>', 'rit.edu');
+		</script>
 		<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
 		<script src="//cdnjs.cloudflare.com/ajax/libs/mousetrap/1.4.6/mousetrap.min.js"></script>
 		<script src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.0.3/js/bootstrap.min.js"></script>
@@ -112,27 +121,6 @@ if ($path[1] == 'schedule') {
 		<script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.15/angular-sanitize.min.js"></script>
 		<script src="//cdnjs.cloudflare.com/ajax/libs/angular-ui-router/0.2.8/angular-ui-router.min.js"></script>
 		<script src="<?=$HTTPROOTADDRESS?>assets/prod/modules/sm/dist.min.js?v=<?=$APP_VERSION?>"></script>
-		<script>
-		  // GOOGLE ANALYTICS CODE
-		  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-		  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-		  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-		  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-		
-		  ga('create', '<?= $GOOGLEANALYTICS ?>', 'rit.edu');
-		  ga('send', 'pageview');
-	
-		  //IE 10 MOBILE FIX
-	      if (navigator.userAgent.match(/IEMobile\/10\.0/)) {
-		  var msViewportStyle = document.createElement("style")
-		  msViewportStyle.appendChild(
-		    document.createTextNode(
-		      "@-ms-viewport{width:auto!important}"
-		    )
-		  )
-		  document.getElementsByTagName("head")[0].appendChild(msViewportStyle)
-		}
-	    </script>
 	</body>
 </html>
 	

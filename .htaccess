@@ -9,9 +9,8 @@ RewriteRule ^schedule.php$ /schedule/%1? [NC,L,R=302]
 #RewriteCond %{QUERY_STRING} ^mode=old&id=(.*)$ [NC]
 RewriteRule ^schedule.php$ http://schedule-old.csh.rit.edu/schedule.php [NC,L,R=302]
 
-#RewriteCond %{REQUEST_FILENAME} !-d
-RewriteCond %{REQUEST_FILENAME}\.php -f
-RewriteRule ^api/([^/]*)(?:/([^/]*))*$ api/$1.php [L]
+RewriteCond %{HTTP:Accept} application/json [NC]
+RewriteRule ^(schedule|generate|entity|search|status|rmp)(?:/([^/]*))*$ api/$1.php [L]
 
 
 # Don't rewrite files or directories

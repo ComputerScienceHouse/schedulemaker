@@ -21,16 +21,11 @@ angular.module('sm').controller("GenerateScheduleCoursesController", function( $
 		course.status = 'L';
 		
 		// Create the new search request
-		var searchRequest = $http.post('/js/scheduleAjax.php', $.param({
-			'action'     : 'getCourseOpts',
+		var searchRequest = $http.post('/generate/getCourseOpts', $.param({
 			'course'     : course.search,
 			'term'       : $scope.state.requestOptions.term,
 			'ignoreFull' : $scope.state.requestOptions.ignoreFull
 		}), {
-			requestType:'json',
-			headers: {
-				'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
-			}, 
 			// Here is where the request gets canceled from above
 			timeout: canceler[course.id].promise
 		}).success(function(data, status, headers, config) {

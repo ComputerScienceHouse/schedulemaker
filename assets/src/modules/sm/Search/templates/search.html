@@ -1,4 +1,4 @@
-<div class="container" ng-controller="SearchController">
+<div class="container">
 	<div class="row">
 		<div class="col-md-8">
 		<form name="search.form" class="form-horizontal">
@@ -144,7 +144,7 @@
 						</div>
 						<div class="pull-right-md form-group">
 							<div class="form-group">
-								Results per page:
+								Results per page:&nbsp;
 							</div>
 							<div class="form-group">
 								<select id="searchPagination-pageSize" class="form-control mousetrap" ng-model="searchPagination.pageSize">
@@ -156,6 +156,7 @@
 									<option value="50">50</option>
 								</select>
 							</div>
+							&nbsp;
 							<div class="form-group" pagination-controls="searchPagination" pagination-length="searchResults.length"></div>
 						</div>
 					</div>

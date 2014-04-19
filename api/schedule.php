@@ -188,14 +188,50 @@ function queryOldId($id) {
 	$query = "SELECT c.section FROM schedules AS s, schedulecourses AS c WHERE s.id = c.section AND s.oldid = '{$id}'";
 }
 
+/**
+ * Generates a render of schedule's SVG. The PNG render of the image will be
+ * stored in /img/schedules/ with a filename equal to the id of the schedule.
+ * @param   $svg    string  The SVG code for the image
+ * @param   $id     string  The ID of the schedule, for file name generation
+ * @return  bool    True on success, False otherwise.
+ */
+function renderSvg($svg, $id) {
+	try {
+		 
+		// Prepend parsing info
+		$svg = preg_replace('/(.*<svg[^>]* width=")(100\%)(.*)/', '${1}1000px${3}', $svg);
+		$svg = '<?xml version="1.1" encoding="UTF-8" standalone="no"?>' . $svg;
+		// Load the image into an ImageMagick object
+		$im = new Imagick();
+		$im->readimageblob($svg);
+
+		// Convert it to png
+		$im->setImageFormat("png24");
+
+		$im->scaleimage(1000, 600, true);
+
+
+		// Write it to the filesystem
+		$im->writeimage("../img/schedules/{$id}.png");
+		$im->clear();
+		$im->destroy();
+
+		// Success!
+		return true;
+
+	} catch(Exception $e) {
+		return false;
+	}
+}
+
 // MAIN EXECUTION //////////////////////////////////////////////////////////
 
+// Not using getAction() here
 $path = explode('/', $_SERVER['REQUEST_URI']);
 
-$id = (empty($path[3]))? '': hexdec($path[3]);
+$id = (empty($path[2]))? '': hexdec($path[2]);
 // Determine the output mode
-$mode = (empty($path[4])) ? "json" : $path[4];
-
+$mode = (empty($path[3])) ? "schedule" : $path[3];
 
 // Switch on the mode
 switch($mode) {
@@ -223,7 +259,8 @@ switch($mode) {
 	
 	case "old":
 		// OLD SCHEDULE FORMAT /////////////////////////////////////////////
-		
+		//TODO: Support the old format
+		/*
 		// Grab the schedule
 		$schedule = getScheduleFromOldId($_GET['id']);
 		if($schedule == NULL) {
@@ -246,49 +283,13 @@ switch($mode) {
 			</div>
 			<?
 		}
-		require "./inc/footer.inc";
+		*/
+		echo json_encode(array("error" => "Not supported on this platform. Please use http://schedule-old.csh.rit.edu/"));
+		
 		break;
 
+		
 	case "schedule":
-		// DEFAULT SCHEDULE FORMAT /////////////////////////////////////////
-        $schedule = getScheduleFromId($id);
-
-        // Make sure the schedule exists
-		if($schedule == NULL) {
-            // Schedule does not exist. Error out and die.
-			?>
-			<div class="container">
-				<div class="alert alert-danger">
-					<i class="fa fa-exclamation-circle"></i> <strong>Fatal Error:</strong> The requested schedule does not exist!
-				</div>
-			</div>
-			<?
-            require "./inc/footer.inc";
-            die();
-		}
-
-        // Schedule exists! Output it.
-        // Set image location (if it exists)
-        if($schedule['image'] == 1) {
-            $IMGURL = "{$HTTPROOTADDRESS}img/schedules/{$id}.png";
-        }
-        $TITLE = "My Schedule"; //@TODO: Generate this with term titles
-
-
-		// Translate the schedule into json
-		$json = json_encode($schedule);
-
-		?>
-		<script>var reloadSchedule = <?=$json?>;</script>
-		<div class="container" ng-controller="scheduleController">
-			<div schedule existing="true"></div>
-		</div>
-		
-		<?
-		require "./inc/footer.inc";
-		break;
-		
-	case "json":
 		// JSON DATA STRUCTURE /////////////////////////////////////////////
 		// We're outputting json, so use that 
 		header('Content-type: application/json');
@@ -310,10 +311,81 @@ switch($mode) {
 		}
 
 		break;
+		
+	////////////////////////////////////////////////////////////////////////
+	// STORE A SCHEDULE
+		case "save":
+			// There has to be a json object given
+			if(empty($_POST['data'])) {
+				die(json_encode(array("error" => "argument", "msg" => "No schedule was provided", "arg" => "schedule")));
+			}
+			$_POST['data'] = html_entity_decode($_POST['data'], ENT_QUOTES);
+			$json = stripslashes($_POST['data']);
+		
+			// Make sure the object was successfully decoded
+			$json = json_decode($json, true);
+			if($json == null) {
+				die(json_encode(array("error" => "argument", "msg" => "The schedule could not be decoded", "arg" => "schedule")));
+			}
+			if(!isset($json['starttime']) || !isset($json['endtime']) || !isset($json['building']) || !isset($json['startday']) || !isset($json['endday'])) {
+				die(json_encode(array("error" => "argument", "msg" => "A required schedule parameter was not provided")));
+			}
+		
+			// Start the storing process with storing the data about the schedule
+			$query = "INSERT INTO schedules (oldid, startday, endday, starttime, endtime, building, quarter)" .
+					" VALUES('', '{$json['startday']}', '{$json['endday']}', '{$json['starttime']}', '{$json['endtime']}', '{$json['building']}', " .
+					" '{$json['term']}')";
+			$result = mysql_query($query);
+			if(!$result) {
+				die(json_encode(array("error" => "mysql", "msg" => "Failed to store the schedule: " . mysql_error($dbConn))));
+			}
+		
+			// Grab the latest id for the schedule
+			$schedId = mysql_insert_id();
+		
+			// Optionally process the svg for the schedule
+			$image = false;
+			if(!empty($_POST['svg']) && renderSvg(html_entity_decode($_POST['svg']), $schedId)) {
+				$query = "UPDATE schedules SET image = ((1)) WHERE id = '{$schedId}'";
+				mysql_query($query);  // We don't particularly care if this fails
+			}
+		
+			// Now iterate through the schedule
+			foreach($json['schedule'] as $item) {
+				// Process it into schedulenoncourses if the item is a non-course item
+				if($item['courseNum'] == "non") {
+					// Process each time as a seperate item
+					foreach($item['times'] as $time) {
+						$query = "INSERT INTO schedulenoncourses (title, day, start, end, schedule)" .
+								" VALUES('{$item['title']}', '{$time['day']}', '{$time['start']}', '{$time['end']}', '{$schedId}')";
+						$result = mysql_query($query);
+						if(!$result) {
+							die(json_encode(array("error" => "mysql", "msg" => "Storing non-course item '{$item['title']}' failed: " . mysql_error($dbConn))));
+						}
+					}
+				} else {
+					// Process each course. It's crazy simple now.
+					$query = "INSERT INTO schedulecourses (schedule, section)" .
+							" VALUES('{$schedId}', '{$item['id']}')";
+					$result = mysql_query($query);
+					if(!$result) {
+						die(json_encode(array("error" => "mysql", "msg" => "Storing a course '{$item['courseNum']}' failed: " . mysql_error($dbConn))));
+					}
+				}
+			}
+		
+			// Everything was successful, return a nice, simple URL to the schedule
+			// To make it cool, let's make it a hex id
+			$hexId = dechex($schedId);
+			$url = "{$HTTPROOTADDRESS}schedule/{$hexId}";
+		
+			echo json_encode(array("url" => $url, "id" => $hexId));
+		
+			break;
 
 	default:
 		// INVALID OPTION //////////////////////////////////////////////////
-		echo "Invalid option!";
+		 die(json_encode(array("error" => "argument", "msg" => "You must provide a valid action.")));
 		break;
 }
 ?>

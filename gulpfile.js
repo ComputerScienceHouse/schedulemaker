@@ -113,7 +113,7 @@ gulp.task('scripts', function() {
 		.pipe(uglify({outSourceMap: "dist.min.js"}))
 		.pipe(sourcemaps.write({inline: false, includeContent: false}))
 		// HACK UNTIL GRUNT-UGLIFY HANDLES SOURCEMAPS CORRECTLY
-		.pipe(replace('"sources":["dist.min.js"]', '"sources":["dist.js"]'))
+		.pipe(replace('{"version":3,"file":"dist.min.js","sources":["dist.min.js"]', '{"version":3,"file":"dist.min.js","sources":["dist.js"]'))
 		.pipe(gulp.dest(scriptPaths.dest));
 	});
 	

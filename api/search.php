@@ -4,7 +4,7 @@
 //
 // @author	Ben Russell (benrr101@csh.rit.edu)
 //
-// @file	js/searchAjax.php
+// @file	api/search.php
 // @descrip	Provides standalone JSON object retreival via ajax for the course
 //			roulette page
 ////////////////////////////////////////////////////////////////////////////
@@ -41,7 +41,7 @@ $_POST = sanitize($_POST);
 // We're providing JSON
 header('Content-type: application/json');
 
-switch($_POST['action']) {
+switch(getAction()) {
 	case "find":
 		// Check that the required fields are provided
         $term = $_POST['term'];
