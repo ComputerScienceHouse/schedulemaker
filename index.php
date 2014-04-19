@@ -55,7 +55,7 @@ if ($path[1] == 'schedule') {
 		<meta name="twitter:card" content="photo"> 
         <meta property="og:title" content="<?= (!empty($TITLE)) ? $TITLE . " - " : "" ?>ScheduleMaker" />
         <meta property="og:type" content="website" />
-        <meta property="og:description" content="CSH ScheduleMaker makes picking your RIT class schedule easy! Preview all permutations of your schedule, browse available courses, and select courses at random, all with ScheduleMaker.">
+        <meta property="og:description" content="CSH ScheduleMaker makes picking your RIT class schedule easy! Preview all permutations of your schedule, browse available courses, and search for any course, all with ScheduleMaker.">
         <meta property="og:url" content="http://<?= $_SERVER['HTTP_HOST'] ?><?= $_SERVER['REQUEST_URI'] ?>" />
         <? if(!empty($IMGURL)) { ?>
         <meta property="og:image" content="<?= $IMGURL ?>" />
@@ -74,7 +74,7 @@ if ($path[1] == 'schedule') {
 	                        <span class="icon-bar"></span>
 	                        <span class="icon-bar"></span>
 	                    </button>
-	                    <a class="navbar-brand" ui-sref="index">ScheduleMaker <?=($SERVER_TYPE != 'production')?"<span class=\"label label-info\">BETA</span>":""?></a>
+	                    <a class="navbar-brand" ui-sref="index">ScheduleMaker <?=($SERVER_TYPE != 'development')?"<span class=\"label label-info\">BETA</span>":"<span class=\"label label-success\">NEW!</span>"?></a>
 	                </div>
 	                <div class="collapse navbar-collapse navbar-right navbar-ex1-collapse" nav-close-on-mobile>
 	                    <ul class="nav navbar-nav">

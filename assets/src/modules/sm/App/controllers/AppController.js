@@ -32,8 +32,10 @@ angular.module('sm').controller("AppController", function($scope, localStorage, 
 		};
 		
 		$scope.state.ui = {
-			alert_betaInfo: true,
 			alert_newFeatures: true,
+			alert_generateFeatures: true,
+			alert_searchFeatures: true,
+			alert_browseFeatures: true,
 			action_generateSchedules: false,
 		};
 		

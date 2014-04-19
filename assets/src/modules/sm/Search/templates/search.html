@@ -1,6 +1,10 @@
 <div class="container">
 	<div class="row">
 		<div class="col-md-8">
+		<div class="alert alert-success" ng-show="state.ui.alert_searchFeatures">
+			<button type="button" class="close" data-dismiss="alert" aria-hidden="true" ng-click="state.ui.alert_searchFeatures = false"><i class="fa fa-times"></i></button>
+			<strong>NEW!</strong> Search for courses by a wide range of critera which you can then easily add to your schedule! If you already know your course's number, jump over to to the <a ui-sref="generate">generation page</a> Also, check out the <a ui-sref="/help">help</a> page for new keyboard shortcuts.
+		</div>
 		<form name="search.form" class="form-horizontal">
 			<div class="panel panel-default">
 				<div class="panel-heading">
@@ -44,7 +48,7 @@
 							<div class="form-group">
 								<label class="control-label col-sm-4" for="search.params.credits">Credit Hours:</label>
 								<div class="col-sm-8">
-									<input type="text" maxlength="2" size="3" ng-model="search.params.credits" name="credits" class="mousetrap form-control">
+									<input type="text" maxlength="2" size="3" id="search.params.credits" ng-model="search.params.credits" name="credits" class="mousetrap form-control">
 								</div>
 							</div>
 						</div>
@@ -67,7 +71,7 @@
 							<div class="form-group">
 								<label class="control-label col-sm-4" for="search.params.title">Title:</label>
 								<div class="col-sm-8">
-									<input type="text" ng-model="search.params.title" name="title" class="mousetrap form-control">
+									<input type="text" id="search.params.title" ng-model="search.params.title" name="title" class="mousetrap form-control">
 								</div>
 							</div>
 						</div>
@@ -75,7 +79,7 @@
 							<div class="form-group">
 								<label class="control-label col-sm-4" for="search.params.professor">Professor:</label>
 								<div class="col-sm-8">
-									<input type="text" ng-model="search.params.professor" name="professor" class=" mousetrap form-control">
+									<input type="text" id="search.params.professor" ng-model="search.params.professor" name="professor" class=" mousetrap form-control">
 								</div>
 							</div>
 						</div>
@@ -83,7 +87,7 @@
 					<div class="form-group">
 						<label class="control-label col-sm-4" for="search.params.description">Keywords:</label>
 						<div class="col-sm-8">
-							<input type="text" ng-model="search.params.description" name="description" class="mousetrap form-control" placeholder="(comma delmited)">
+							<input type="text" id="search.params.description" ng-model="search.params.description" name="description" class="mousetrap form-control" placeholder="(comma delmited)">
 						</div>
 					</div>
 					<div class="form-group">
