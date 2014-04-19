@@ -224,5 +224,8 @@ angular.module('sm').controller("GenerateController", function($scope, globalKbd
     	$scope.state.ui.action_generateSchedules = false;
     	$scope.generateSchedules();
     }
- 
+    
+    $scope.resetGenerate = function() {
+    	
+    };
 });

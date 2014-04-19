@@ -12,41 +12,47 @@ angular.module('sm', ['ngAnimate', 'ngSanitize', 'ui.router'])
 	
 	$urlRouterProvider.otherwise("/404");
 	
+	var tplBase = '/assets/prod/modules/sm/';
+	
+	var tplPath = function(submodule, name) {
+		return tplBase + submodule + '/templates/' + name + '.min.html';
+	};
+	
 	$stateProvider
 	.state('index', {
 		url: '/',
-		templateUrl: '/assets/prod/templates/index.html'
+		templateUrl: tplPath('Index', 'index')
 	})
 	.state('404', {
 		url: '/404',
-		templateUrl: '/assets/prod/templates/404.html'
+		templateUrl: tplPath('App', '404')
 	})
 	.state('generate', {
 		url: '/generate',
-		templateUrl: '/assets/prod/templates/generate.html',
+		templateUrl: tplPath('Generate', 'generate'),
 		controller: 'GenerateController'
 	})
 	.state('browse', {
 		url: '/browse',
-		templateUrl: '/assets/prod/templates/browse.html',
+		templateUrl: tplPath('Browse', 'browse'),
 		controller: 'BrowseController',
 	})
 	.state('search', {
 		url: '/search',
-		templateUrl: '/assets/prod/templates/search.html',
+		templateUrl: tplPath('Search', 'search'),
 		controller: 'SearchController'
 	})
 	.state('help', {
 		url: '/help',
-		templateUrl: '/assets/prod/templates/help.html'
+		templateUrl: tplPath('App', 'help')
 	})
 	.state('status', {
 		url: '/status',
-		templateUrl: '/assets/prod/templates/status.html',
+		templateUrl: tplPath('Status', 'status'),
 		controller: 'StatusController'
 	}).state('schedule', {
 		url: '/schedule/:id',
-		templateUrl: '/assets/prod/templates/schedule.html',
+		templateUrl: tplPath('Schedule', 'schedule'),
 		resolve: {
 			parsedSchedule: function($stateParams, reloadSchedule) {
 				return reloadSchedule($stateParams);
@@ -56,11 +62,11 @@ angular.module('sm', ['ngAnimate', 'ngSanitize', 'ui.router'])
 		controller: 'ScheduleController'
 	}).state('schedule.view', {
 		url: '',
-		templateUrl: '/assets/prod/templates/schedule.view.html',
+		templateUrl: tplPath('Schedule', 'schedule.view'),
 		controller: 'ScheduleViewController',
 	}).state('schedule.print', {
 		url: '/print',
-		templateUrl: '/assets/prod/templates/schedule.print.html',
+		templateUrl: tplPath('Schedule', 'schedule.print'),
 		controller: 'SchedulePrintController'
 	});
 })

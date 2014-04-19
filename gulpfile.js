@@ -9,7 +9,7 @@ var assetModuleList = {
 };
 
 var assetTypes = {
-	js: {
+	scripts: {
 		paths: [
 	        '',
 	        'providers/',
@@ -54,12 +54,14 @@ for(var moduleName in assetModuleList) {
 }
 
 var doFor = function(assetType, cb) {
+	var streamResults = [];
 	for(var moduleName in assetModuleList) {
-		cb({
+		streamResults.push(cb({
 			src: paths[moduleName][assetType],
 			dest: modulesRoot.dest + moduleName + '/'
-		});
+		}));
 	}
+	return streamResults;
 };
 
 var fs = require('fs');
@@ -77,12 +79,16 @@ var uglify = require('gulp-uglify');
 var clean = require('gulp-clean');
 var concat = require('gulp-concat');
 var rename = require('gulp-rename');
+var sourcemaps = require('gulp-sourcemaps');
+var replace = require('gulp-replace');
+var es = require('event-stream');
+var minifyCSS = require('gulp-minify-css');
 
 // Define Tasks
 gulp.task('templates', function() {
 
-	doFor('templates', function(templatePaths) {
-		gulp.src(templatePaths.src)
+	var mapped = doFor('templates', function(templatePaths) {
+		return gulp.src(templatePaths.src)
 		.pipe(htmlmin({
 			collapseWhitespace: true,
 			caseSensitive: true,
@@ -91,31 +97,54 @@ gulp.task('templates', function() {
 		.pipe(rename({suffix: '.min'}))
 		.pipe(gulp.dest(templatePaths.dest));
 	});
+	
+	return es.concat.apply(null, mapped);
 });
 
-// Define Tasks
-gulp.task('js', function() {
-	doFor('js', function(jsPaths) {
-		gulp.src(jsPaths.src)
+
+gulp.task('scripts', function() {
+	var mapped = doFor('scripts', function(scriptPaths) {
+		return gulp.src(scriptPaths.src)
 		.pipe(ngmin())
-		.pipe(uglify({outSourceMap: true}))
-		//.pipe(rename({suffix: '.min'}))
-		//.pipe(gulp.dest(jsPaths.dest))
-		//.pipe(concat('dist.min.js'))
-		.pipe(gulp.dest(jsPaths.dest));
+		.pipe(concat('dist.js'))
+		.pipe(gulp.dest(scriptPaths.dest))
+		.pipe(sourcemaps.init())
+		.pipe(rename({suffix: '.min'}))
+		.pipe(uglify({outSourceMap: "dist.min.js"}))
+		.pipe(sourcemaps.write({inline: false, includeContent: false}))
+		// HACK UNTIL GRUNT-UGLIFY HANDLES SOURCEMAPS CORRECTLY
+		.pipe(replace('"sources":["dist.min.js"]', '"sources":["dist.js"]'))
+		.pipe(gulp.dest(scriptPaths.dest));
 	});
+	
+	return es.concat.apply(null, mapped);
+});
+
+
+gulp.task('styles', function() {
+	var mapped = doFor('styles', function(stylePaths) {
+		return gulp.src(stylePaths.src)
+		.pipe(concat('dist.css'))
+		.pipe(gulp.dest(stylePaths.dest))
+		.pipe(minifyCSS())
+		.pipe(rename({suffix: '.min'}))
+		.pipe(gulp.dest(stylePaths.dest));
+	});
+	
+	return es.concat.apply(null, mapped);
 });
 
 gulp.task('watch', function() {
 	
 	doFor('templates', function(templatePaths) {
-		gulp.watch(templatePaths, ['templates']);
+		gulp.watch(templatePaths.src, ['templates']).on('error', function() {});
 	});
-	
-	doFor('js', function(jsPaths) {
-		gulp.watch(jsPaths, ['js']);
+	doFor('scripts', function(scriptPaths) {
+		gulp.watch(scriptPaths.src, ['scripts']).on('error', function() {});
 	});
-	
+	doFor('styles', function(stylesPaths) {
+		gulp.watch(stylesPaths.src, ['styles']).on('error', function() {});
+	});
 });
 
 gulp.task('clean', function() {
@@ -123,8 +152,8 @@ gulp.task('clean', function() {
     .pipe(clean());
 });
 
-gulp.task('build', /*['clean'],*/ function() {
-	gulp.start('templates', 'js');
+gulp.task('build', ['clean'], function() {
+	return gulp.start('scripts', 'templates', 'styles');
 });
 
 gulp.task('default', ['build']);

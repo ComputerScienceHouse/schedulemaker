@@ -151,17 +151,19 @@
 						</div>
 					</div>
 				</div>
-				<div class="btn-group hidden-xs hidden-sm">
-					<button type="button" class="btn btn-lg btn-danger pull-left-md block-sm dropdown-toggle" data-toggle="dropdown">
-						<i class="fa fa-times"></i> Reset... <span class="caret"></span>
-					</button>
-					<ul class="dropdown-menu" role="menu">
-<!-- 						<li><a ng-click="resetGenerate()" href="#">Current Form Fields</a></li> -->
-						<li><a ng-click="resetState()" href="#">Saved Session</a></li>
-					</ul>
-				</div>
 				<button type="button" class="pull-right-md btn-lg btn btn-primary block-sm" loading-button="generationStatus" loading-text="Generating..." ng-click="generateSchedules()" title="Shortcut: Ctrl + Enter"> Show Matching Schedules <i class="fa fa-chevron-right"></i></button>
 				<div class="vert-spacer-static-md visible-xs visible-sm"></div>
+				<div class="visible-md visible-lg">
+					<div class="btn-group">
+						<button type="button" class="btn btn-lg btn-danger pull-left btn-xs-block dropdown-toggle" data-toggle="dropdown">
+							<i class="fa fa-times"></i> Reset... <span class="caret"></span>
+						</button>
+						<ul class="dropdown-menu" role="menu">
+	<!-- 						<li><a ng-click="resetGenerate()" href="#">Current Form Fields</a></li> -->
+							<li><a ng-click="resetState()" href="#">Saved Session</a></li>
+						</ul>
+					</div>
+				</div>
 				<div class="visible-xs visible-sm">
 					<div class="btn-group">
 						<button type="button" class="btn btn-lg btn-danger pull-left-md dropdown-toggle" data-toggle="dropdown">

@@ -27,4 +27,6 @@ assets/prod/*
 *.phpproj*
 *.sln
 *.suo
+web.config
+vwd.webinfo
 WebEssentials-Settings.json

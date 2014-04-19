@@ -48,9 +48,8 @@ if ($path[1] == 'schedule') {
 		
 		<!-- STYLE SHEETS -->
 		<link rel="stylesheet" href="//brick.a.ssl.fastly.net/Roboto:300,700">
-		<link rel="stylesheet" href="<?=$HTTPROOTADDRESS?>assets/prod/modules/sm/App/styles/bootstrap.css?v=<?=$APP_VERSION?>">
 		<link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.1/css/font-awesome.css">
-		<link rel="stylesheet" href="<?=$HTTPROOTADDRESS?>assets/prod/modules/sm/App/styles/global.css?v=<?=$APP_VERSION?>">
+		<link rel="stylesheet" href="<?=$HTTPROOTADDRESS?>assets/prod/modules/sm/dist.min.css?v=<?=$APP_VERSION?>">
 		
 		<!-- OPEN GRAPH TAGS -->
 		<meta name="twitter:card" content="photo"> 
