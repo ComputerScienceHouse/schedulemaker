@@ -74,7 +74,7 @@ if ($path[1] == 'schedule') {
 	                        <span class="icon-bar"></span>
 	                        <span class="icon-bar"></span>
 	                    </button>
-	                    <a class="navbar-brand" ui-sref="index">ScheduleMaker <?=($SERVER_TYPE != 'development')?"<span class=\"label label-info\">BETA</span>":"<span class=\"label label-success\">NEW!</span>"?></a>
+	                    <a class="navbar-brand" ui-sref="index">ScheduleMaker <span class="label label-success">NEW!</span></a>
 	                </div>
 	                <div class="collapse navbar-collapse navbar-right navbar-ex1-collapse" nav-close-on-mobile>
 	                    <ul class="nav navbar-nav">
