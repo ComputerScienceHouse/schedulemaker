@@ -206,9 +206,6 @@ switch(getAction()) {
 			die(json_encode(array("error" => "argument", "msg" => "You must provide a term")));
 		}
 
-        // If it has dashes or whitespace, then strip them out
-        $_POST['course'] = preg_replace("/[-\s]/", "", $_POST['course']);
-
         // Iterate over the multiple options
         $courseOptions = array();
         foreach(explode(',', $_POST['course']) as $course) {
@@ -220,6 +217,10 @@ switch(getAction()) {
             }
 
             // Now we'll split the course into the various components and build the query for it all
+            // We'll also strip out whitespace/dashes and force it to uppercase
+            $course = strtoupper(preg_replace("/[-\s]/", "", $course));
+            preg_match('/([A-Z]{4})(\d{0,3}[A-Z]?)?(\d{0,2}[A-Z]?\d?)?/', $course, $courseParts);
+
             // Query base: Noncancelled courses from the requested term
             $query = "SELECT s.id
                       FROM courses AS c
@@ -230,7 +231,7 @@ switch(getAction()) {
                         AND c.quarter = '{$_POST['term']}'";
 
             // Component 1: Department
-            $department = substr($course, 0, 4);
+            $department = $courseParts[1];
             if(strlen($department) != 4) {
                 // We didn't get an entire department. We won't proceed
                 die(json_encode(array("error" => "argument", "msg" => "You must provide at least a complete department")));
@@ -238,16 +239,18 @@ switch(getAction()) {
             $query .= " AND (d.code = '{$department}' OR d.number = '{$department}')";
 
             // Component 2: Course number
-            $coursenum = substr($course, 4, 3);
-            if(!$coursenum || strlen($coursenum) != 3) {
+            $coursenum = $courseParts[2];
+            if(!$coursenum || (strlen($coursenum) != 3 && strlen($coursenum) != 4)) {
                 // We got a partial course. That's ok.
                 $query .= " AND c.course LIKE '{$coursenum}%'";
             } else {
+                // The user has specified a 3 or 4 character course number. If its 4 chars then the user had better know
+                // what they're doing.
                 $query .= " AND c.course = '{$coursenum}'";
             }
 
             // Component 3: Section number
-            $section = substr($course, 7);
+            $section = $courseParts[3];
             if(!$section || strlen($coursenum) != 4) {
                 // We got a partial section number. That's ok.
                 $query .= " AND s.section LIKE '{$section}%'";
