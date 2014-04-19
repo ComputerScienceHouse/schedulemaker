@@ -223,14 +223,19 @@ angular.module('sm').directive('schedule', function($timeout, $filter) {
 					
 						
 						// Fix the pixel issues after DOM updates (not on Chrome)
-						if(typeof window.chrome == 'undefined') {
 							$timeout(function() {
 								var offset = elm.find("svg").offset(),
 								vert = 1 - parseFloat('0.'+('' + offset.top).split('.')[1]);
 								horz = 1 - parseFloat('0.'+('' + offset.left).split('.')[1]);
 								scope.grid.opts.pixelAlignment ='translate('+horz+','+vert+')';
+								var svg = $(elm).find('svg');
+								svg.hide();
+								setTimeout(function() {
+								svg.show();
+								
+								},0);
 							},10,true);
-						}
+						
 					}
 				});
 			}

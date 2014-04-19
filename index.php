@@ -49,7 +49,7 @@ if ($path[1] == 'schedule') {
 		<!-- STYLE SHEETS -->
 		<link rel="stylesheet" href="//brick.a.ssl.fastly.net/Roboto:300,700">
 		<link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.1/css/font-awesome.css">
-		<link rel="stylesheet" href="<?=$HTTPROOTADDRESS?>assets/prod/modules/sm/dist.min.css?v=<?=$APP_VERSION?>">
+		<link rel="stylesheet" href="<?=$HTTPROOTADDRESS?>assets/prod/modules/sm/dist.css?v=<?=$APP_VERSION?>">
 		
 		<!-- OPEN GRAPH TAGS -->
 		<meta name="twitter:card" content="photo"> 
@@ -76,7 +76,7 @@ if ($path[1] == 'schedule') {
 	                    </button>
 	                    <a class="navbar-brand" ui-sref="index">ScheduleMaker <?=($SERVER_TYPE != 'production')?"<span class=\"label label-info\">BETA</span>":""?></a>
 	                </div>
-	                <div class="collapse navbar-collapse navbar-right navbar-ex1-collapse">
+	                <div class="collapse navbar-collapse navbar-right navbar-ex1-collapse" nav-close-on-mobile>
 	                    <ul class="nav navbar-nav">
 	                        <li ui-sref-active="active"><a ui-sref="generate"><i class="fa fa-calendar-o fa-fw"></i> Make a Schedule</a></li>
 	                        <li ui-sref-active="active"><a ui-sref="browse"><i class="fa fa-list fa-fw"></i> Browse Courses</a></li>

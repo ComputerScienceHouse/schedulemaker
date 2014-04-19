@@ -392,6 +392,12 @@ select.ng-invalid {
 		display: inline-block;
 	}
 	
+	.center-sm {
+		display: block;
+		text-align: center;
+		float: none !important;
+	}
+	
 	.block-sm {
 		display: block;
 	}
@@ -474,7 +480,12 @@ span[professor-lookup] {
 	vertical-align:top;
 	float:none;
 }
-
+.course-cart-logo {
+	font-size: 30px;
+	display: inline-block;
+	padding-right: 10px;
+	padding-top: 4px;
+}
 .course-cart-item {
 	border-style: solid;
 	border-color: #ffffff;
@@ -593,11 +604,24 @@ svg g.item:hover rect {
 
 @media screen and (max-width:767px) {
 	.schedule-cont {
-		overflow-x: scroll;
+		overflow-x: auto;
 		-webkit-overflow-scrolling: touch;
 	}
 	.schedule-track {
 		width:1000px;
+	}
+	.schedule-track.mobileWeek {
+		width: 100%;
+		overflow:hidden;
+	}
+	.schedule-track.mobileWeek svg {
+		width: 1000px;
+		transform: scale(.25);
+		position: relative;
+		left: -366px;
+		margin-bottom: -400px;
+		margin-right:-800px;
+		top: -210px;
 	}
 	.course-cart-item {
 		border-left-width: 0px;

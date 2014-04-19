@@ -221,6 +221,11 @@ angular.module('sm').controller("GenerateController", function($scope, globalKbd
     }
     
     $scope.resetGenerate = function() {
+    	$scope.state.courses = $scope.state.courses.filter(function(course) {
+    		return !course.fromSelect;
+    	});
     	
+    	$scope.state.nonCourses.length = 0;
+    	$scope.state.noCourses.length = 0;
     };
 });

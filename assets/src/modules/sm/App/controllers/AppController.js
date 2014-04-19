@@ -23,7 +23,7 @@ angular.module('sm').controller("AppController", function($scope, localStorage, 
 		$scope.state.displayOptions = {
 			currentPage: 0,
 			pageSize: 3,
-			fullscreen: false
+			fullscreen: ''
 		};
 
 		$scope.state.requestOptions = {
