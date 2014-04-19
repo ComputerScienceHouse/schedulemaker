@@ -5,7 +5,7 @@
   "description": "A course database lookup tool and schedule building web application for use at Rochester Institute of Technology.",
   "main": "index.php",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "gulp build"
   },
   "repository": {
     "type": "git",
@@ -51,6 +51,7 @@
     "event-stream": "^3.1.2",
     "gulp-sourcemaps": "^0.2.1",
     "gulp-replace": "^0.2.0",
-    "gulp-minify-css": "^0.3.1"
+    "gulp-minify-css": "^0.3.1",
+    "gulp-htmlmin": "^0.1.2"
   }
 }
