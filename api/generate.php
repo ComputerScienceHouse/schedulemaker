@@ -210,9 +210,9 @@ switch(getAction()) {
         $courseOptions = array();
         foreach(explode(',', $_POST['course']) as $course) {
             // If the course has enough characters for a lab section but
-            // but doesn't match OR there are <= 9 characters but it isn't
+            // but doesn't match OR there are <= 12 characters but it isn't
             // numeric, then they fucked up.
-            if(strlen($course) > 11) {
+            if(strlen($course) > 13) {
                 die(json_encode(array("error" => "argument", "msg" => "Your courses must be in the format XXXX-XXX-XXLX")));
             }
 

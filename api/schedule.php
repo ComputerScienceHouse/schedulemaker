@@ -51,7 +51,7 @@ function generateIcal($schedule) {
 	$code .= "CALSCALE:GREGORIAN\r\n";
 
 	// Iterate over all the courses
-	foreach($schedule['courses'][0] as $course) {
+	foreach($schedule['courses'] as $course) {
 		// Skip classes that don't meet
 		if(empty($course['times'])) {
 			continue;
@@ -245,16 +245,12 @@ switch($mode) {
 	case "ical":
 		// iCAL FORMAT SCHEDULE ////////////////////////////////////////////
 		// If we don't have a schedule, die!
-		if(empty($_GET['id'])) {
+		if(empty($id)) {
 			die("You must provide a schedule");
 		}
 
-		// Database connection is required
-		require_once("inc/databaseConn.php");
-		require_once("inc/timeFunctions.php");
-
 		// Decode the schedule
-		$schedule = getScheduleFromId(hexdec($_GET['id']));		
+		$schedule = getScheduleFromId($id);		
 
 		// Set header for ical mime, output the xml
 		header("Content-Type: text/calendar");

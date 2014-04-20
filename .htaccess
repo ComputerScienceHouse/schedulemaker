@@ -11,6 +11,7 @@ RewriteRule ^schedule.php$ http://schedule-old.csh.rit.edu/schedule.php [NC,L,R=
 
 RewriteCond %{HTTP:Accept} application/json [NC]
 RewriteRule ^(schedule|generate|entity|search|status|rmp)(?:/([^/]*))*$ api/$1.php [L]
+RewriteRule ^schedule/[^/]*/ical$ api/schedule.php [L]
 
 
 # Don't rewrite files or directories

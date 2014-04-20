@@ -17,6 +17,7 @@ if(isset($_GET['s'])) {
 } 
 
 // REQUIRED FILES
+$APP_ROOT = "./";
 require_once('./inc/config.php');
 require_once('./inc/databaseConn.php');
 require_once('./inc/timeFunctions.php');
@@ -90,7 +91,7 @@ if ($path[1] == 'schedule') {
 			</div>
 			<footer class="main default">
 				<div class="csh"><a target="_blank" href="http://www.csh.rit.edu/"><img src="<?=$HTTPROOTADDRESS?>img/csh.png" alt="CSH" /></a></div>
-				<a ui-sref="help">Help</a> | <a href="/status">Status</a> | <a target="_blank" href="https://github.com/ComputerScienceHouse/schedulemaker/issues">Report Issues</a>
+				Version: <?=$APP_VERSION?> | <a ui-sref="help">Help</a> | <a href="/status">Status</a> | <a target="_blank" href="https://github.com/ComputerScienceHouse/schedulemaker/issues">Report Issues</a>
 				<div>
 					Idea: John Resig (phytar at csh.rit.edu)<br>
 					Development v2: Ben Russell (benrr101 at csh.rit.edu),<br>
