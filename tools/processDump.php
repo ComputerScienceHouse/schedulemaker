@@ -17,7 +17,6 @@ chdir(dirname($_SERVER['SCRIPT_FILENAME']));
 require_once("../inc/config.php");
 require_once("../inc/databaseConn.php");
 require_once("../inc/timeFunctions.php");
-require_once("../inc/httphelper.php");
 
 $dbConn = mysqli_connect($DATABASE_SERVER, $DATABASE_USER, $DATABASE_PASS, $DATABASE_DB);
 
@@ -163,7 +162,7 @@ function getTempSections($courseNum, $offerNum, $term, $sessionNum) {
 	// Query for the sections of the course
 	$query = "SELECT class_section,descr,topic,enrl_stat,class_stat,class_type,enrl_cap,enrl_tot,instruction_mode,schedule_print ";
 	$query .= "FROM classes WHERE crse_id={$courseNum} AND crse_offer_nbr={$offerNum} AND strm={$term} ";
-	$query .= "AND session_code={$sessionNum}";
+	$query .= "AND session_code='{$sessionNum}'";
 	$results = mysqli_query($dbConn, $query);
 
 	// Check for errors
@@ -299,7 +298,7 @@ CREATE TABLE IF NOT EXISTS `classes` (
   `crse_id` int(6) UNSIGNED NOT NULL,
   `crse_offer_nbr` int(2) UNSIGNED NOT NULL,
   `strm` int(4) UNSIGNED NOT NULL,
-  `session_code` int(1) UNSIGNED NOT NULL,
+  `session_code` varchar(4) NOT NULL,
   `class_section` varchar(4) NOT NULL,
   `subject` int(4) UNSIGNED ZEROFILL NOT NULL,
   `catalog_nbr` VARCHAR(4) NOT NULL,
@@ -354,7 +353,7 @@ CREATE TABLE IF NOT EXISTS `meeting` (
   `crse_id` int(6) NOT NULL,
   `crse_offer_nbr` int(2) NOT NULL,
   `strm` int(4) NOT NULL,
-  `session_code` int(1) NOT NULL,
+  `session_code` varchar(4) NOT NULL,
   `class_section` varchar(4) NOT NULL,
   `class_mtg_nbr` int(2) NOT NULL,
   `start_dt` date NOT NULL,
@@ -406,7 +405,7 @@ CREATE TABLE IF NOT EXISTS `instructors` (
   `crse_id` int(6) NOT NULL,
   `crse_offer_nbr` int(2) NOT NULL,
   `strm` int(4) NOT NULL,
-  `session_code` int(1) NOT NULL,
+  `session_code` varchar(4) NOT NULL,
   `class_section` varchar(4) NOT NULL,
   `class_mtg_nbr` int(2) NOT NULL,
   `last_name` varchar(30) NOT NULL,
@@ -526,7 +525,7 @@ $departmentsProc = mysqli_affected_rows($dbConn);
 // Grab each COURSE from the classes table
 $courseQuery = "SELECT strm, subject, acad_org, catalog_nbr, descr, course_descrlong,";
 $courseQuery .= " crse_id, crse_offer_nbr, session_code";
-$courseQuery .= " FROM classes WHERE strm < 20130 GROUP BY crse_id, strm";
+$courseQuery .= " FROM classes WHERE strm < 20130 GROUP BY crse_id, strm, session_code";
 debug("... Updating courses\n0%", false);
 $courseResult = mysqli_query($dbConn, $courseQuery);
 if(!$courseResult) {
@@ -583,7 +582,7 @@ while($row = mysqli_fetch_assoc($courseResult)) {
 			// Fetch the first instructor for the section
 			$instQuery = "SELECT CONCAT(first_name,' ',last_name) AS i FROM instructors";
 			$instQuery .= " WHERE crse_id={$row['crse_id']} AND crse_offer_nbr={$row['crse_offer_nbr']}";
-			$instQuery .= " AND strm={$row['strm']} AND session_code={$row['session_code']}";
+			$instQuery .= " AND strm={$row['strm']} AND session_code='{$row['session_code']}'";
 			$instQuery .= " AND class_section='{$sect['class_section']}' LIMIT 1";
 			$instResult = mysqli_query($dbConn, $instQuery);
 			if(!$instResult) {
@@ -643,7 +642,7 @@ while($row = mysqli_fetch_assoc($courseResult)) {
 			// Select all the meeting times of the section
 			$timeQuery = "SELECT bldg, room_nbr, meeting_time_start, meeting_time_end, mon, tues, wed, thurs, fri, sat, sun";
 			$timeQuery .= " FROM meeting WHERE crse_id={$row['crse_id']} AND crse_offer_nbr={$row['crse_offer_nbr']}";
-			$timeQuery .= " AND strm={$row['strm']} AND session_code={$row['session_code']}";
+			$timeQuery .= " AND strm={$row['strm']} AND session_code='{$row['session_code']}'";
 			$timeQuery .= " AND class_section='{$sect['class_section']}'";
 			$timeResult = mysqli_query($dbConn, $timeQuery);
 			if(!$timeResult) {
