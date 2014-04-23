@@ -145,7 +145,7 @@ angular.module('sm').directive('scheduleActions', function($http, $q, shareServi
 				reloadSchedule.term = scope.state.requestOptions.term,
 				reloadSchedule.courses = scope.schedule;
 				
-				var popup = openPopup(780, 600);
+				var popup = openPopup(920, 800);
 				
 				popup.localStorage.setItem('reloadSchedule', angular.toJson(reloadSchedule));
 				popup.document.title = "My Schedule";
