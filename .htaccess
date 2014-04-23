@@ -1,57 +1,42 @@
 # COMPRESSION
-<IfModule mod_deflate.c>
-    AddOutputFilterByType DEFLATE text/text text/html text/plain text/xml text/css application/x-javascript application/javascript application/json
-</IfModule>
+AddOutputFilterByType DEFLATE text/text text/html text/plain text/xml text/css application/x-javascript application/javascript application/json
+
 
 # REWRITES
-<IfModule mod_rewrite.c>
-    RewriteEngine On
 
-    # Let the old ScheduleMaker handle Resig's schedules for now
-    #RewriteCond %{QUERY_STRING} ^mode=old&id=(.*)$ [NC]
-    RewriteRule ^schedule.php$ http://schedule-old.csh.rit.edu/schedule.php [NC,L,R=302]
+RewriteEngine On
 
-    # Legacy Rewrites from previous version
-    RewriteCond %{QUERY_STRING} ^id=(.*)$ [NC]
-    RewriteRule ^schedule.php$ /schedule/%1? [NC,L,R=302]
-    RewriteRule ^(generate|roulette|search|status).php$ /$1 [R=302,L]
+# Let the old ScheduleMaker handle Resig's schedules for now
+#RewriteCond %{QUERY_STRING} ^mode=old&id=(.*)$ [NC]
+RewriteRule ^schedule.php$ http://schedule-old.csh.rit.edu/schedule.php [NC,L,R=302]
 
-    # Rewrite any request that wants json to the api directory
-    RewriteCond %{HTTP:Accept} application/json [NC]
-    RewriteRule ^(schedule|generate|entity|search|status|rmp)(?:/([^/]*))*$ api/$1.php [L]
-    RewriteRule ^schedule/[^/]*/ical$ api/schedule.php [L]
+# Legacy Rewrites from previous version
+RewriteCond %{QUERY_STRING} ^id=(.*)$ [NC]
+RewriteRule ^schedule.php$ /schedule/%1? [NC,L,R=302]
+RewriteRule ^(generate|roulette|search|status).php$ /$1 [R=302,L]
 
-    # Don't rewrite files or directories
-    RewriteCond %{REQUEST_FILENAME} -f [OR]
-    RewriteCond %{REQUEST_FILENAME} -d
-    RewriteRule ^ - [L]
+# Rewrite any request that wants json to the api directory
+RewriteCond %{HTTP:Accept} application/json [NC]
+RewriteRule ^(schedule|generate|entity|search|status|rmp)(?:/([^/]*))*$ api/$1.php [L]
+RewriteRule ^schedule/[^/]*/ical$ api/schedule.php [L]
 
-    # Rewrite everything else to index.html to allow html5 state links
-    RewriteRule ^ index.php [L]
-</IfModule>
+# Don't rewrite files or directories
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# Rewrite everything else to index.html to allow html5 state links
+RewriteRule ^ index.php [L]
+
 
 # CACHING
 
 # Set max-age one year in the future for all static assets
-<IfModule mod_headers.c>
-    # Allow caching for all assets
-    <FilesMatch "(.*)\.(js|css|png|jpg|html)$">
-        Header set Cache-Control "max-age=29030400, public"
-        Header unset ETag
-        FileETag None
-    </FilesMatch>
-</IfModule>
-
-# Cache Everything, set their expiration date one year in the future
-<IfModule mod_expires.c>
+# Allow caching for all assets
+<FilesMatch "\.(js|css|png|jpg|html)$">
+    Header set Cache-Control "max-age=29030400, public"
+    Header unset ETag
+    FileETag None
     ExpiresActive On
-    ExpiresDefault A300
-    ExpiresByType image/x-icon A29030400
-    ExpiresByType application/javascript A29030400
-    ExpiresByType text/css A29030400
-    ExpiresByType image/gif A29030400
-    ExpiresByType image/png A29030400
-    ExpiresByType image/jpeg A29030400
-    ExpiresByType text/plain A29030400
-    ExpiresByType text/html A29030400
-</IfModule>
+    ExpiresDefault A29030400
+</FilesMatch>

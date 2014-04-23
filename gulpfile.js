@@ -167,7 +167,7 @@ gulp.task('clean', function() {
 });
 
 gulp.task('cleanAll', function() {
-  return gulp.src(assetsRoot.dest, {read: false})
+  return gulp.src([assetsRoot.dest + '/*', '!'+ assetsRoot.dest +'.gitkeep'], {read: false})
     .pipe(clean());
 });
 
