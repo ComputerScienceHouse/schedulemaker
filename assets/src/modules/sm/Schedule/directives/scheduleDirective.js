@@ -182,7 +182,7 @@ angular.module('sm').directive('schedule', function($timeout, $filter) {
 
 	return {
 		restrict: 'A',
-		templateUrl: '/assets/prod/modules/sm/Schedule/templates/scheduleitem.min.html',
+		templateUrl: '<%=modulePath%>Schedule/templates/scheduleitem.min.html',
 		link: {
 			pre: function(scope, elm, attrs) {
 				scope.scheduleController = new Schedule(scope);

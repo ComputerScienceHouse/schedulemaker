@@ -1,7 +1,19 @@
+// Get the version info
+var pkg = require('./package.json');
+if(!pkg.version) {
+	console.error("No version information in package.json.");
+	proccess.exit();
+}
+
+var assetsRoot = {
+	src: 'assets/src/',
+	dest: 'assets/prod/'
+}
+
 // Set up core routes
 var modulesRoot = {
-	src: 'assets/src/modules/',
-	dest: 'assets/prod/modules/'
+	src: assetsRoot.src + 'modules/',
+	dest: assetsRoot.dest + pkg.version + '/modules/'
 };
 
 var assetModuleList = {
@@ -83,6 +95,7 @@ var sourcemaps = require('gulp-sourcemaps');
 var replace = require('gulp-replace');
 var es = require('event-stream');
 var minifyCSS = require('gulp-minify-css');
+var template = require('gulp-template');
 
 // Define Tasks
 gulp.task('templates', function() {
@@ -105,6 +118,7 @@ gulp.task('templates', function() {
 gulp.task('scripts', function() {
 	var mapped = doFor('scripts', function(scriptPaths) {
 		return gulp.src(scriptPaths.src)
+		.pipe(template({modulePath: scriptPaths.dest}))
 		.pipe(ngmin())
 		.pipe(concat('dist.js'))
 		.pipe(gulp.dest(scriptPaths.dest))
@@ -149,6 +163,11 @@ gulp.task('watch', function() {
 
 gulp.task('clean', function() {
   return gulp.src(modulesRoot.dest, {read: false})
+    .pipe(clean());
+});
+
+gulp.task('cleanAll', function() {
+  return gulp.src(assetsRoot.dest, {read: false})
     .pipe(clean());
 });
 

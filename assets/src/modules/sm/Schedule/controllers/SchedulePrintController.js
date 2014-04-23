@@ -44,7 +44,7 @@ angular.module('sm').controller("SchedulePrintController", function($scope, $loc
 	
 	localStorage.setItem("reloadSchedule", null);
 	
-	$scope.print = window.print.bind(window);
+	$scope.printFn = window.print.bind(window);
 	
 	$scope.globalUI.layoutClass = "print";
 });

@@ -1,6 +1,6 @@
 {
   "name": "schedulemaker",
-  "version": "3.0.2",
+  "version": "3.0.3",
   "private": true,
   "description": "A course database lookup tool and schedule building web application for use at Rochester Institute of Technology.",
   "main": "index.php",
@@ -39,7 +39,7 @@
     "url": "https://github.com/ComputerScienceHouse/schedulemaker/issues"
   },
   "config": {
-	"stateVersion": 1
+    "stateVersion": 1
   },
   "homepage": "http://schedule.csh.rit.edu",
   "devDependencies": {
@@ -55,6 +55,7 @@
     "gulp-sourcemaps": "^0.2.1",
     "gulp-replace": "^0.2.0",
     "gulp-minify-css": "^0.3.1",
-    "gulp-htmlmin": "^0.1.2"
+    "gulp-htmlmin": "^0.1.2",
+    "gulp-template": "^0.1.1"
   }
 }
