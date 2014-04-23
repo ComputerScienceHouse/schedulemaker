@@ -13,7 +13,7 @@ angular.module('sm', ['ngAnimate', 'ngSanitize', 'ui.router'])
 	
 	$urlRouterProvider.otherwise("/404");
 	
-	var tplBase = '<%=modulePath%>';
+	var tplBase = '/<%=modulePath%>';
 	
 	var tplPath = function(submodule, name) {
 		return tplBase + submodule + '/templates/' + name + '.min.html';
