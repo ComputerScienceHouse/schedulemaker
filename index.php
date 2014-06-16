@@ -75,7 +75,7 @@ if ($path[1] == 'schedule') {
 	                        <span class="icon-bar"></span>
 	                        <span class="icon-bar"></span>
 	                    </button>
-	                    <a class="navbar-brand" ui-sref="index">ScheduleMaker <span class="label label-success">NEW!</span></a>
+	                    <a class="navbar-brand" ui-sref="index">Schedule<strong>Maker</strong></a>
 	                </div>
 	                <div class="collapse navbar-collapse navbar-right navbar-ex1-collapse" nav-close-on-mobile>
 	                    <ul class="nav navbar-nav">
@@ -93,9 +93,9 @@ if ($path[1] == 'schedule') {
 				<div class="csh"><a target="_blank" href="http://www.csh.rit.edu/"><img src="<?=$HTTPROOTADDRESS?>img/csh.png" alt="CSH" /></a></div>
 				Version: <?=$APP_VERSION?> | <a ui-sref="help">Help</a> | <a href="/status">Status</a> | <a target="_blank" href="https://github.com/ComputerScienceHouse/schedulemaker/issues">Report Issues</a>
 				<div>
-					Idea: John Resig (phytar at csh.rit.edu)<br>
+                    Development v3: Ben Grawi (bgrawi at csh.rit.edu)<br>
 					Development v2: Ben Russell (benrr101 at csh.rit.edu),<br>
-					Development v3: Ben Grawi (bgrawi at csh.rit.edu)<br>
+                    Idea: John Resig (phytar at csh.rit.edu)<br>
 					Hosting: <a href="http://www.csh.rit.edu/">Computer Science House</a><br>
 				</div>
 			</div>

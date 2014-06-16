@@ -17,6 +17,7 @@ assets/prod/*
 
 # Ignore PhpStorm files
 .idea
+*.iml
 
 # Ignore Eclipse files
 .settings
