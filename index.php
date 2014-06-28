@@ -22,6 +22,9 @@ require_once('./inc/config.php');
 require_once('./inc/databaseConn.php');
 require_once('./inc/timeFunctions.php');
 
+// Strips the 'http:' from the root address so it can work on SSL.
+$ASSETROOTADDRESS = substr($HTTPROOTADDRESS, 5);
+
 // HACK FOR OPEN-GRAPH TAGS, I KNOW, THIS IS TERRIBLE
 $path = explode('/', $_SERVER['REQUEST_URI']);
 if ($path[1] == 'schedule') {
@@ -50,7 +53,7 @@ if ($path[1] == 'schedule') {
 		<!-- STYLE SHEETS -->
 		<link rel="stylesheet" href="//brick.a.ssl.fastly.net/Roboto:300,700">
 		<link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.1/css/font-awesome.css">
-		<link rel="stylesheet" href="<?=$HTTPROOTADDRESS?>assets/prod/<?=$APP_VERSION?>/modules/sm/dist.min.css">
+        <link rel="stylesheet" href="<?=$ASSETROOTADDRESS?>assets/prod/<?=$APP_VERSION?>/modules/sm/dist.min.css">
 		
 		<!-- OPEN GRAPH TAGS -->
 		<meta name="twitter:card" content="photo"> 
@@ -90,7 +93,7 @@ if ($path[1] == 'schedule') {
 				<div ui-view autoscroll="false"></div>
 			</div>
 			<footer class="main default">
-				<div class="csh"><a target="_blank" href="http://www.csh.rit.edu/"><img src="<?=$HTTPROOTADDRESS?>img/csh.png" alt="CSH" /></a></div>
+                <div class="csh"><a target="_blank" href="http://www.csh.rit.edu/"><img src="<?=$ASSETROOTADDRESS?>img/csh.png" alt="CSH" /></a></div>
 				Version: <?=$APP_VERSION?> | <a ui-sref="help">Help</a> | <a href="/status">Status</a> | <a target="_blank" href="https://github.com/ComputerScienceHouse/schedulemaker/issues">Report Issues</a>
 				<div>
                     Development v3: Ben Grawi (bgrawi at csh.rit.edu)<br>
@@ -121,7 +124,7 @@ if ($path[1] == 'schedule') {
 		<script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.15/angular-animate.min.js"></script>
 		<script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.15/angular-sanitize.min.js"></script>
 		<script src="//cdnjs.cloudflare.com/ajax/libs/angular-ui-router/0.2.8/angular-ui-router.min.js"></script>
-		<script src="<?=$HTTPROOTADDRESS?>assets/prod/<?=$APP_VERSION?>/modules/sm/dist.min.js"></script>
+        <script src="<?=$ASSETROOTADDRESS?>assets/prod/<?=$APP_VERSION?>/modules/sm/dist.min.js"></script>
 	</body>
 </html>
 	
