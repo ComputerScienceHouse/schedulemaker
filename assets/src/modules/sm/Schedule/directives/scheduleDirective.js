@@ -229,14 +229,14 @@ angular.module('sm').directive('schedule', function($timeout, $filter) {
 								horz = 1 - parseFloat('0.'+('' + offset.left).split('.')[1]);
 								scope.grid.opts.pixelAlignment ='translate('+horz+','+vert+')';
 								
-								// Chrome is dumb
-								if(window.chrome) {
+								// Everything is dumb
+								//if(window.chrome) {
 									var svg = $(elm).find('svg');
 										svg.hide();
 										setTimeout(function() {
 										svg.show();
 									},0);
-								}
+								//}
 							},10,true);
 						
 					}
