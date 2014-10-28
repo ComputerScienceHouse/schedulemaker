@@ -325,7 +325,7 @@ switch($mode) {
 			$json = stripslashes($_POST['data']);
 		
 			// Make sure the object was successfully decoded
-			$json = json_decode($json, true);
+			$json = sanitize(json_decode($json, true));
 			if($json == null) {
 				die(json_encode(array("error" => "argument", "msg" => "The schedule could not be decoded", "arg" => "schedule")));
 			}
