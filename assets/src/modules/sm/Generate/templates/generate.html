@@ -208,7 +208,6 @@
 					<div class="panel-body">
 						<div class="row form-inline">
 							<div class="col-xs-12">
-                                <pre>{{state.drawOptions}}</pre>
 								<div class="form-group">&nbsp;Display <strong>{{state.schedules.length}}</strong> schedules from&nbsp;</div>
 								<div class="form-group inline-sm">
 									<select id="options-startTime" ng-change="ensureCorrectEndTime()" class="form-control" ng-model="state.drawOptions.startTime" ng-options="key as ui.optionLists.times.values[key] for key in ui.optionLists.times.keys"></select>
