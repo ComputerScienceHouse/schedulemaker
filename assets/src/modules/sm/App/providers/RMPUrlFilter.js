@@ -4,7 +4,7 @@ angular.module('sm').filter('RMPUrl', function() {
 		if(input && input != "TBA") {
 			var nameParts = input.split(" "),
 			lastName = nameParts[nameParts.length - 1];
-			return '<a target="_blank" href="http://www.ratemyprofessors.com/SelectTeacher.jsp?searchName=' + lastName + '&search_submit1=Search&sid=807">' + input + '</a>';
+			return '<a target="_blank" href="http://www.ratemyprofessors.com/search.jsp?queryBy=teacherName&queryoption=HEADER&query=' + lastName + '&facetSearch=true&schoolName=rochester+institute+of+technology">' + input + '</a>';
 		} else {
 			return '<a href="#">' + input + '</a>';
 		}

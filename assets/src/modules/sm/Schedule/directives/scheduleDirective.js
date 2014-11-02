@@ -10,8 +10,7 @@ angular.module('sm').directive('schedule', function($timeout, $filter) {
 			start: parseInt(options.startTime),
 			end: parseInt(options.endTime)
 		};*/
-		if(!this.drawOptions.startTime || !this.drawOptions.endTime) return false;
-        
+		if((!this.drawOptions.startTime && this.drawOptions.startTime !== 0) || !this.drawOptions.endTime) return false;
 		this.scope.hiddenCourses = [];
 		this.scope.onlineCourses = [];
 		this.scope.scheduleItems = [];

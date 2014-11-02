@@ -46,6 +46,9 @@
 									<button type="button" class="btn btn-block" ng-click="section.selected = !section.selected" ng-class="{'btn-danger':section.selected, 'btn-success':!section.selected}"><i class="fa" ng-class="{'fa-minus':section.selected, 'fa-plus':!section.selected}"></i> <i class="fa fa-shopping-cart"></i></button>
 								</div>
 							</div>
+                            <div class="text-center">
+                                <div class="well-sm" style=" background-color: #ddd; margin: 8px 0;" title="Other students enrolled as of 6AM today">{{section.curenroll}}/{{section.maxenroll}} <i class="fa fa-user"></i></div>
+                            </div>
 						</div>
 					</div>
 				</li>
