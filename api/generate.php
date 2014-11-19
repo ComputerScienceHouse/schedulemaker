@@ -184,6 +184,104 @@ function timeStringToMinutes($str) {
     return $hour * 60 + $minute;
 }
 
+/**
+ * Checks if a section is a special section (lab/studio/etc)
+ * @param $courseInfo
+ * @return int
+ */
+function isSpecialSection($courseInfo) {
+	return preg_match('/[A-Z]\d{0,2}$/', $courseInfo['courseNum']) === 1;
+}
+
+/**
+ * Returns a cleaned course number, free of special sections or designators
+ * @param $courseInfo
+ * @return mixed
+ */
+function getCleanCourseNum($courseInfo) {
+	$matches = array();
+	if(preg_match('/^(.*?)-?(?:[A-Z]\d{0,2})$/', $courseInfo['courseNum'], $matches) === 1) {
+		return $matches[1];
+	} else {
+		return $courseInfo['courseNum'];
+	}
+}
+
+/**
+ * Prunes invalid schedules based on courseGroups
+ * @param $schedules
+ * @param $courseGroups
+ * @return array
+ */
+function pruneSpecialCourses($schedules, $courseGroups) {
+
+	// The array of schedules that meet all course requirements
+	$validSchedules = array();
+
+	// Loop through each possible schedule
+	foreach($schedules as $schedule) {
+
+		// Flattened schedule [courseNum => <value>] where <value> is:
+		// false: no co-requirements
+		// true: is a co-requirement
+		// string[]: list of possible requirements
+		$flattenedSchedule = array();
+
+		// Loop through each course
+		foreach($schedule as $course) {
+
+			$cleanCourseNum = getCleanCourseNum($course);
+
+			// This course has selected labs or is a lab
+			if(array_key_exists($cleanCourseNum, $courseGroups) && count($courseGroups[$cleanCourseNum]) > 0) {
+				if(!isSpecialSection($course)) {
+
+					// Set the course requirement as an array of courseNum strings
+					$flattenedSchedule[$course['courseNum']] = array_keys($courseGroups[$cleanCourseNum]);
+				} else {
+					$flattenedSchedule[$course['courseNum']] = true;
+				}
+			} else {
+				$flattenedSchedule[$course['courseNum']] = false;
+			}
+		}
+
+		$scheduleMeetsRequirements = true;
+		// Loop through the flatten schedules
+		foreach($flattenedSchedule as $courseNum => $courseRequirements) {
+
+			// Check if course has requirements
+			if(is_array($courseRequirements)) {
+				$courseMeetsRequirement = false;
+
+				// Loop through the requirements, checking if the schedule contains AT LEAST one required course
+				foreach($courseRequirements as $specialCourseNum) {
+					if(array_key_exists($specialCourseNum, $flattenedSchedule)) {
+						$courseMeetsRequirement = true;
+						break;
+					}
+				}
+
+				// "AND" the previous results with the current one
+				$scheduleMeetsRequirements = $scheduleMeetsRequirements && $courseMeetsRequirement;
+
+				// Don't bother checking other courses if the schedule already does not meet requirements
+				if(!$scheduleMeetsRequirements) {
+					continue;
+				}
+			}
+		}
+
+		// Add this to the valid schedules if it meets all requirements
+		if($scheduleMeetsRequirements) {
+			$validSchedules[] = $schedule;
+		}
+	}
+
+	// Return the resulting array of all schedules that met co-requirements
+	return $validSchedules;
+}
+
 ////////////////////////////////////////////////////////////////////////////
 // MAIN EXECUTION
 
@@ -291,20 +389,93 @@ switch(getAction()) {
 	// GET MATCHING SCHEDULES
 	case "getMatchingSchedules":
 		// Process the list of courses that were selected
+
+		// Keep track of grouped classes by both clean course name (sections) and by course input index
+		/**
+		 * array(string {cleanCourseNum} => array(string {courseNum} => {courseInfo array})))
+		 */
+		$courseGroups = array();
+
+		/**
+		 * array(int {course input index} => array(integer {courseId} => array(string {courseNum} => {courseInfo array})))
+		 */
+		$courseGroupsByCourseId = array();
+
 		$courseSet = array();
 		for($i = 1; $i <= $_POST['courseCount']; $i++) {		// It's 1-indexed... :[
 			// Iterate over the courses in that course slot
 			if(!isset($_POST["courses{$i}Opt"])) { continue; }
 			$courseSubSet = array();
+			$courseGroupsByCourseId[$i] = array();
 			foreach($_POST["courses{$i}Opt"] as $course) {
+
 				// Do a query to get the course specified
-				 $courseInfo = getCourseBySectionId($course);
-				 $courseInfo['courseIndex'] = $i;
-				 $courseSubSet[] = $courseInfo;
+				$courseInfo = getCourseBySectionId($course);
+
+				// courseIndex is only used by the frontend UI to determine what color/grouping to use
+				$courseInfo['courseIndex'] = $i;
+
+				// Remove the potential special indicators from the end of the courseNum
+				$cleanCourseNum = getCleanCourseNum($courseInfo);
+
+				// Create the group if it does not already exist
+				if(!array_key_exists($cleanCourseNum, $courseGroups)) {
+					$courseGroups[$cleanCourseNum] = array();
+				}
+
+				// Create the group by index and course id. Can probably ignore courseId, but will be eventually useful
+				if(!array_key_exists($courseInfo['courseId'], $courseGroupsByCourseId[$i])) {
+					$courseGroupsByCourseId[$i][$courseInfo['courseId']] = array();
+				}
+
+				// Check if the section is a special course: courseNum ending in a letter, then one or two digits
+				if(isSpecialSection($courseInfo)) {
+
+					if(!array_key_exists($courseInfo['courseNum'], $courseGroups[$cleanCourseNum])) {
+
+						// Add this course to its group
+						$courseGroups[$cleanCourseNum][$courseInfo['courseNum']] = $courseInfo;
+					}
+
+					if(!array_key_exists($courseInfo['courseNum'], $courseGroupsByCourseId[$i][$courseInfo['courseId']])) {
+
+						// Add this course to its group by course id
+						$courseGroupsByCourseId[$i][$courseInfo['courseId']][$courseInfo['courseNum']] = $courseInfo;
+					}
+
+				} else {
+
+					// This is a normal class, it can be added like normal to the sub set
+					$courseSubSet[] = $courseInfo;
+				}
 			}
-			$courseSet[] = $courseSubSet;
+
+			// Add the normal subset to the main set
+			if(count($courseSubSet) > 0) {
+				$courseSet[] = $courseSubSet;
+			}
 		}
-		
+
+
+		// Loop through each course groups' courses and flatten the array
+		if(count($courseGroups) > 0) {
+			foreach($courseGroupsByCourseId as $courseGroupsByIndex) {
+				$specialCourseSubSet = array();
+				foreach($courseGroupsByIndex as $courseGroup) {
+					// Get each special course
+					foreach ($courseGroup as $specialCourse) {
+						$specialCourseSubSet[] = $specialCourse;
+					}
+				}
+
+				// Add any special courses for this index to the main courseSet.
+				if (count($specialCourseSubSet) > 0) {
+					$courseSet[] = $specialCourseSubSet;
+				}
+			}
+		}
+
+		// Set the courseIndex for the remaining nonCourse/noCourse routines
 		$courseIndex = $i;
 
 		// Process the list of nonCourse Items
@@ -358,7 +529,7 @@ switch(getAction()) {
 		// Generate valid schedules, and include the errors if we're being verbose
 		$results = array();
 		if(!empty($courseSet)) {
-			$results['schedules'] = generateSchedules($courseSet, $nonCourseSet, $noCourseSet);
+			$results['schedules'] = pruneSpecialCourses(generateSchedules($courseSet, $nonCourseSet, $noCourseSet), $courseGroups);
 		} else {
 			$results['schedules'] = array(array());
 		}

@@ -1,6 +1,11 @@
 <form novalidate id="scheduleForm" name="schedule" class="container">
 	<div class="row">
 		<div class="col-md-8 clearfix">
+			<div class="alert alert-success" ng-show="state.ui.alert_labClasses">
+				<button type="button" class="close" data-dismiss="alert" aria-hidden="true" ng-click="state.ui.alert_labClasses = false"><i class="fa fa-times"></i></button>
+				<strong>NEW!</strong> Lab classes and other sections should now be paired with their respective sections. Just enter in classes with labs and everything should work as you expected. Please <a target="_blank" href="https://github.com/ComputerScienceHouse/schedulemaker/issues">report any issues</a> that you find!
+
+			</div>
 			<div class="alert alert-info" ng-show="state.ui.alert_generateFeatures">
 				<button type="button" class="close" data-dismiss="alert" aria-hidden="true" ng-click="state.ui.alert_generateFeatures = false"><i class="fa fa-times"></i></button>
 				Use a comma to separate courses to see which course fits your schedule better. Add courses from the Browse or Search page to your schedule as well so you can easily create schedule combinations from anywhere! Also, check out the <a ui-sref="help">help</a> page for new keyboard shortcuts.

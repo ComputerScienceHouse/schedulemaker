@@ -36,6 +36,7 @@ angular.module('sm').controller("AppController", function($scope, localStorage, 
 			alert_generateFeatures: true,
 			alert_searchFeatures: true,
 			alert_browseFeatures: true,
+			alert_labClasses: true,
 			action_generateSchedules: false,
 		};
 		
