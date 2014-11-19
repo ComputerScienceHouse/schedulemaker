@@ -47,6 +47,10 @@ function getMeetingInfo($sectionData) {
         "online"     => $sectionData['type'] == "O"
         );
 
+	if(isset($sectionData['description'])) {
+		$course['description'] = $sectionData['description'];
+	}
+
     // If the course is online, then don't even bother looking for it's times
     if($course['online']) { return $course; }
 
@@ -74,20 +78,25 @@ function getMeetingInfo($sectionData) {
 
 /**
  * Retrieves a course based on the id of a section
- * @param	$id		int		The if of the section
- * @return 	array	The information about the section
+ * @param    $id              int	The if of the section
+ * @param    $withDescription bool	If to include the description
+ * @throws Exception
+ * @return    array    The information about the section
  */
-function getCourseBySectionId($id) {
+function getCourseBySectionId($id, $withDescription = false) {
     // Sanity check for the section id
     if($id == "" || !is_numeric($id)) {
         trigger_error("A valid section id was not provided");
     }
 
+	// Setup the SQL if we want descriptions
+	$descriptionSQL = ($withDescription)? ', c.description': '';
+
 	// Build the query to get section info
 	$query = "SELECT s.id,
                 (CASE WHEN (s.title != '') THEN s.title ELSE c.title END) AS title,
                 c.id AS courseId,
-                s.instructor, s.curenroll, s.maxenroll, s.type, c.quarter, c.course, s.section, d.number, d.code
+                s.instructor, s.curenroll, s.maxenroll, s.type, c.quarter, c.course{$descriptionSQL}, s.section, d.number, d.code
                 FROM sections AS s
                   JOIN courses AS c ON s.course = c.id
                   JOIN departments AS d ON d.id = c.department

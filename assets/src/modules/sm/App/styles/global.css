@@ -31,6 +31,13 @@ body.print {
 a[ui-sref] {
 	cursor: pointer; 
 }
+[course-detail-popover] {
+	cursor: pointer;
+}
+
+[course-detail-popover]:hover {
+	text-decoration: underline;
+}
 
 table {
 	overflow:auto;
@@ -472,6 +479,9 @@ select.ng-invalid {
 }
 .popover a {
 	color: #000 !important;
+}
+.popover .popover-white a {
+	color: #fff !important;
 }
 .popover-title {
 	display:block;

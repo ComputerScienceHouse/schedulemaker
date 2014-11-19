@@ -31,7 +31,7 @@
 				<li class="list-group-item course-info">
 					<div class="row">
 						<div class="col-sm-8">
-							<h4 class="list-group-item-heading">{{$index + 1}}. {{section.courseNum}}</h4>
+							<h4 class="list-group-item-heading"><span course-detail-popover="section.id">{{$index + 1}}. {{section.courseNum}}</span></h4>
 							<small>{{section.title}}</small>
 							<p class="list-group-item-text label-line ">
 								<span class="label label-default" ng-bind-html="section.instructor | RMPUrl"></span>

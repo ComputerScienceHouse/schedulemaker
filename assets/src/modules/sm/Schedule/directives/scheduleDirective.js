@@ -186,16 +186,16 @@ angular.module('sm').directive('schedule', function($timeout, $filter) {
 			pre: function(scope, elm, attrs) {
 				scope.scheduleController = new Schedule(scope);
 				scope.itemEnter = function($event) {
-					$target = $($event.target);
-					$scope = $target.scope();
+					var $target = $($event.target),
+						$scope = $target.scope();
 					if($scope.item.boundry.height < 70) {
 						$scope.item.boundry.orig_height = $scope.item.boundry.height;
 						$scope.item.boundry.height = 70;
 					}
 				};
 				scope.itemLeave = function($event) {
-					$target = $($event.target);
-					$scope = $target.scope();
+					var $target = $($event.target),
+						$scope = $target.scope();
 					if($scope.item.boundry.orig_height) {
 						$scope.item.boundry.height = $scope.item.boundry.orig_height;
 					}
@@ -221,25 +221,22 @@ angular.module('sm').directive('schedule', function($timeout, $filter) {
 						// Only redraw if valid options
 						scope.scheduleController.draw();
 					
-							// Fix pixel alignment issues
-							$timeout(function() {
-								var offset = elm.find("svg").offset(),
-								vert = 1 - parseFloat('0.'+('' + offset.top).split('.')[1]);
-								horz = 1 - parseFloat('0.'+('' + offset.left).split('.')[1]);
-								scope.grid.opts.pixelAlignment ='translate('+horz+','+vert+')';
-								
-								// Everything is dumb
-								//if(window.chrome) {
-									var svg = $(elm).find('svg');
-										svg.hide();
-										setTimeout(function() {
-										svg.show();
-									},0);
-								//}
-							},10,true);
-						
+						// Fix pixel alignment issues
+						$timeout(function() {
+							var offset = elm.find("svg").offset(),
+							vert = 1 - parseFloat('0.'+('' + offset.top).split('.')[1]);
+							horz = 1 - parseFloat('0.'+('' + offset.left).split('.')[1]);
+							scope.grid.opts.pixelAlignment ='translate('+horz+','+vert+')';
+
+							// Toggle showing and hiding svgs, which forces a redraw
+							var svg = $(elm).find('svg');
+								svg.hide();
+								setTimeout(function() {
+								svg.show();
+							}, 0);
+						},10,true);
 					}
-				} 
+				};
 				
 				if(!scope.overrideDrawOptions) {
 					scope.$watchCollection('state.drawOptions', update);

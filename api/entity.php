@@ -256,6 +256,10 @@ switch(getAction()) {
 		echo json_encode(array("sections" => $sections));
 		break;
 
+    case "courseForSection":
+        echo json_encode(getCourseBySectionId($_POST['id'], true));
+        break;
+
     default:
         die(json_encode(array("error" => "argument", "msg" => "You must provide a valid action.")));
 
