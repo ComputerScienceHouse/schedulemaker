@@ -93,15 +93,17 @@ if ($path[1] == 'schedule') {
 				<div ui-view autoscroll="false"></div>
 			</div>
 			<footer class="main default">
-                <div class="csh"><a target="_blank" href="http://www.csh.rit.edu/"><img src="<?=$ASSETROOTADDRESS?>img/csh.png" alt="CSH" /></a></div>
-				Version: <?=$APP_VERSION?> | <a ui-sref="help">Help</a> | <a href="/status">Status</a> | <a target="_blank" href="https://github.com/ComputerScienceHouse/schedulemaker/issues">Report Issues</a>
-				<div>
-                    Development v3: Ben Grawi (bgrawi at csh.rit.edu)<br>
-					Development v2: Ben Russell (benrr101 at csh.rit.edu),<br>
-                    Idea: John Resig (phytar at csh.rit.edu)<br>
-					Hosting: <a href="http://www.csh.rit.edu/">Computer Science House</a><br>
+				<div class="container">
+					<div class="csh"><a target="_blank" href="http://www.csh.rit.edu/"><img src="<?=$ASSETROOTADDRESS?>img/csh.png" alt="CSH" /></a></div>
+					Version: <?=$APP_VERSION?> | <a ui-sref="help">Help</a> | <a href="/status">Status</a> | <a target="_blank" href="https://github.com/ComputerScienceHouse/schedulemaker/issues">Report Issues</a>
+					<div>
+						Development v3: Ben Grawi (bgrawi at csh.rit.edu)<br>
+						Development v2: Ben Russell (benrr101 at csh.rit.edu),<br>
+						Idea: John Resig (phytar at csh.rit.edu)<br>
+						Hosting: <a href="http://www.csh.rit.edu/">Computer Science House</a><br>
+					</div>
 				</div>
-			</div>
+			</footer>
 			<footer class="main print">
 				Made Using <a href='<?= $HTTPROOTADDRESS ?>'>CSH ScheduleMaker</a>
 				<a href="http://www.csh.rit.edu/"><img height="25" src="/img/csh_print.png"></a>

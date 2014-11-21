@@ -106,6 +106,7 @@ body.print footer.main.default {
 
 body.default header.main {
 	display: block;
+	transform: translateZ(0);
 }
 
 body.print header.main {
@@ -145,7 +146,7 @@ body.print #container {
 
 footer.main.default {
 	position: relative;
-	padding:20px;
+	padding:20px 0;
 	background-color:#2C3E50;
 	color:#ccc;
 }
@@ -616,10 +617,12 @@ svg g.item:hover rect {
 		overflow-y: auto;
 		height: 350px;
 		height: calc(100% - 124px);
+		min-height: 100px;
 	}
 	
 	.course-cart {
 		height: calc(100% - 20px);
+		min-height: 230px;
 	}
 	
 	.pinned-sizer {
@@ -660,6 +663,11 @@ svg g.item:hover rect {
 	}
 	.mobile-no-bottom-margin {
 		margin-bottom: 0 !important;
+	}
+}
+@media screen and (min-width:767px) and (max-width:1020px) {
+	svg g.svg-schedule-hours {
+		transform: translateX(7px);
 	}
 }
 

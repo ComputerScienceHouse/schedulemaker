@@ -12,6 +12,9 @@ angular.module('sm').directive('courseDetailPopover', function($http, $filter) {
 		for (var timeIndex = 0; timeIndex < parsedTimes.length; timeIndex++) {
 			var time = parsedTimes[timeIndex];
 			HTML += time.days + ' <span style="white-space: nowrap">' + formatTime(time.start) + '-' + formatTime(time.end) + '</span> <span style="font-style: italic; white-space: nowrap">Location: ' + time.location + '</span>';
+			if(timeIndex < parsedTimes.length - 1) {
+				HTML += '<br>';
+			}
 		}
 		HTML += '</div>';
 
@@ -33,7 +36,8 @@ angular.module('sm').directive('courseDetailPopover', function($http, $filter) {
 
 						$body.off('click.hidepopovers');
 						$body.on('click.hidepopovers', function () {
-							elm.popover('hide');
+							elm.popover('destroy');
+							loaded = false;
 							$body.off('click.hidepopovers');
 							opened = false;
 						});
@@ -50,8 +54,8 @@ angular.module('sm').directive('courseDetailPopover', function($http, $filter) {
 						).success(function(data) {
 							elm.popover({
 								html:true,
-								trigger:'manual',
-								placement:'auto left',
+								trigger:'click',
+
 								title: data.courseNum,
 								content: '<div class="well-sm pull-right" style=" background-color: #ddd;" title="Other students enrolled as of 6AM today">' + data.curenroll + '/' + data.maxenroll + ' <i class="fa fa-user"></i></div><p>' + data.title + '<br><span class="label label-default popover-white">' + RMPUrl(data.instructor) + '</span></p><p>' + getTimesHTML(data.times) + '</p><p>' + data.description + '</p>',
 								container: '#container'
@@ -63,10 +67,10 @@ angular.module('sm').directive('courseDetailPopover', function($http, $filter) {
 								loaded = false;
 							});
 					} else {
-						elm.popover('toggle');
+						//elm.popover('toggle');
 						opened = !opened;
 						if(opened) {
-							hidePopoverOnBodyClick();
+							//hidePopoverOnBodyClick();
 						}
 					}
 				});
