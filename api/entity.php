@@ -58,7 +58,7 @@ switch(getAction()) {
                 "course" => $course['course'],
                 "department" => array("code" => $course['code'], "number" =>$course['number']),
                 "title" => $course['title'],
-                "description" => $course['description']
+                "description" => htmlentities($course['description'])
             );
 		}
 

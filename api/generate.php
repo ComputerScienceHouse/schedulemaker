@@ -186,11 +186,12 @@ function timeStringToMinutes($str) {
 
 /**
  * Checks if a section is a special section (lab/studio/etc)
+ * Now also ignores "H" for honors classes, which are separate
  * @param $courseInfo
  * @return int
  */
 function isSpecialSection($courseInfo) {
-	return preg_match('/[A-Z]\d{0,2}$/', $courseInfo['courseNum']) === 1;
+	return preg_match('/[A-GI-Z]\d{0,2}$/', $courseInfo['courseNum']) === 1;
 }
 
 /**
