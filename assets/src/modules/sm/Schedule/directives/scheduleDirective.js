@@ -14,6 +14,7 @@ angular.module('sm').directive('schedule', function($timeout, $filter) {
 		this.scope.hiddenCourses = [];
 		this.scope.onlineCourses = [];
 		this.scope.scheduleItems = [];
+		this.scope.totalCredits = 10;
 		
 		return true;
 	};
@@ -121,9 +122,10 @@ angular.module('sm').directive('schedule', function($timeout, $filter) {
 			
 			// Calculate the height
 			var timeHeight = parseInt(courseEnd) - parseInt(courseStart);
-			timeHeight = timeHeight / 30;
+			timeHeight = timeHeight / 15;
 			timeHeight = Math.ceil(timeHeight);
-			timeHeight = (timeHeight * 20);
+
+			timeHeight = (timeHeight * 10);
 
 			// Calculate the top offset
 			var timeTop = parseInt(courseStart) - startTime;
@@ -163,6 +165,7 @@ angular.module('sm').directive('schedule', function($timeout, $filter) {
 	
 	Schedule.prototype.drawCourses = function() {
 		this.courseDrawIndex = 0;
+		this.scope.totalCredits = 0;
 		for(var coursesIndex = 0, coursesLength = this.scope.schedule.length; coursesIndex < coursesLength; coursesIndex++) {
 			var course = this.scope.schedule[coursesIndex];
 			this.courseDrawIndex++;
@@ -171,6 +174,8 @@ angular.module('sm').directive('schedule', function($timeout, $filter) {
 			} else if(course.times != undefined) {
 				this.drawCourse(course);
 			}
+			//console.log(course);
+			this.scope.totalCredits+= (course.hasOwnProperty('credits')? +course.credits: 0);
 		}
 	};
 	

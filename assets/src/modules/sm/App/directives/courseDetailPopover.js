@@ -57,7 +57,7 @@ angular.module('sm').directive('courseDetailPopover', function($http, $filter) {
 								trigger:'click',
 
 								title: data.courseNum,
-								content: '<div class="well-sm pull-right" style=" background-color: #ddd;" title="Other students enrolled as of 6AM today">' + data.curenroll + '/' + data.maxenroll + ' <i class="fa fa-user"></i></div><p>' + data.title + '<br><span class="label label-default popover-white">' + RMPUrl(data.instructor) + '</span></p><p>' + getTimesHTML(data.times) + '</p><p>' + data.description + '</p>',
+								content: '<div class="well-sm pull-right" style=" background-color: #ddd;" title="Other students enrolled as of 6AM today">' + data.curenroll + '/' + data.maxenroll + ' <i class="fa fa-user"></i></div><p>' + data.title + ' - ' + data.credits + ' credits<br><span class="label label-default popover-white">' + RMPUrl(data.instructor) + '</span></p><p>' + getTimesHTML(data.times) + '</p><p>' + data.description + '</p>',
 								container: '#container'
 							});
 							elm.popover('show');

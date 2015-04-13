@@ -523,7 +523,7 @@ if(!mysqli_query($dbConn, $departmentQuery)) {
 $departmentsProc = mysqli_affected_rows($dbConn);
 
 // Grab each COURSE from the classes table
-$courseQuery = "SELECT strm, subject, acad_org, catalog_nbr, descr, course_descrlong,";
+$courseQuery = "SELECT strm, subject, units, acad_org, catalog_nbr, descr, course_descrlong,";
 $courseQuery .= " crse_id, crse_offer_nbr, session_code";
 $courseQuery .= " FROM classes WHERE strm < 20130 GROUP BY crse_id, strm, session_code";
 debug("... Updating courses\n0%", false);
@@ -556,7 +556,7 @@ while($row = mysqli_fetch_assoc($courseResult)) {
 
 	// Insert or update the course
     $courseId = insertOrUpdateCourse($row['qtr'], $row['subject'], $row['acad_org'], $row['catalog_nbr'],
-	                                 0, $row['descr'], $row['course_descrlong']);
+	                                 $row['units'], $row['descr'], $row['course_descrlong']);
 	if(!is_numeric($courseId)) {
 		echo("    *** Error: Failed to update {$row['qtr']} {$row['subject']}{$row['acad_org']}-{$row['catalog_nbr']}\n");
 		echo("    ");

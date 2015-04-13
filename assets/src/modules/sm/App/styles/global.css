@@ -650,6 +650,7 @@ svg g.item:hover rect {
 	.schedule-track.mobileWeek svg {
 		width: 1000px;
 		transform: scale(.25);
+		-webkit-transform: scale(.25);
 		position: relative;
 		left: -366px;
 		margin-bottom: -400px;

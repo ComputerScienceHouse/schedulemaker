@@ -44,7 +44,8 @@ function getMeetingInfo($sectionData) {
         "courseParentNum" => "{$sectionData['department']}-{$sectionData['course']}",
         "courseId"   => $sectionData['courseId'],
         "id"         => $sectionData['id'],
-        "online"     => $sectionData['type'] == "O"
+        "online"     => $sectionData['type'] == "O",
+		"credits"	 => $sectionData['credits']
         );
 
 	if(isset($sectionData['description'])) {
@@ -96,7 +97,7 @@ function getCourseBySectionId($id, $withDescription = false) {
 	$query = "SELECT s.id,
                 (CASE WHEN (s.title != '') THEN s.title ELSE c.title END) AS title,
                 c.id AS courseId,
-                s.instructor, s.curenroll, s.maxenroll, s.type, c.quarter, c.course{$descriptionSQL}, s.section, d.number, d.code
+                s.instructor, s.curenroll, s.maxenroll, s.type, c.quarter, c.credits, c.course{$descriptionSQL}, s.section, d.number, d.code
                 FROM sections AS s
                   JOIN courses AS c ON s.course = c.id
                   JOIN departments AS d ON d.id = c.department
@@ -133,7 +134,7 @@ function getCourse($term, $dept, $courseNum, $sectNum) {
     if($term > 20130) {
         $query = "SELECT s.id,
                     (CASE WHEN (s.title != '') THEN s.title ELSE c.title END) AS title,
-                    s.instructor, s.curenroll, s.maxenroll, s.type, d.code AS department, c.course, s.section
+                    s.instructor, s.curenroll, s.maxenroll, s.type, d.code AS department, c.course, c.credits, s.section
                   FROM sections AS s
                     JOIN courses AS c ON c.id=s.course
                     JOIN departments AS d ON d.id=c.department
@@ -143,7 +144,7 @@ function getCourse($term, $dept, $courseNum, $sectNum) {
     } else {
         $query = "SELECT s.id,
                     (CASE WHEN (s.title != '') THEN s.title ELSE c.title END) AS title,
-                    s.instructor, s.curenroll, s.maxenroll, s.type, d.number AS department, c.course, s.section
+                    s.instructor, s.curenroll, s.maxenroll, s.type, d.number AS department, c.course, c.credits, s.section
                   FROM sections AS s
                     JOIN courses AS c ON c.id=s.course
                     JOIN departments AS d ON d.id=c.department

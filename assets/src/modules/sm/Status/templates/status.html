@@ -1,9 +1,10 @@
 <div class="container">
 	<div class="panel panel-default">
-		<div class="panel-heading">
+		<div class="panel-heading clearfix">
 			<h3 class="panel-title">Last 20 Data Scrapes <div class="pull-right">Last run: {{logs.length > 0?timeConvert(logs[0].timeStarted):'Never'}}</div></h3>
 		</div>
 		<div class="panel-body">
+			<div class="table-responsive">
 		<table class="table">
 			<thead>
 				<tr>
@@ -31,6 +32,7 @@
 				</tr>
 			</tbody>
 		</table>
+			</div>
 		</div>
 	</div>
 </div>

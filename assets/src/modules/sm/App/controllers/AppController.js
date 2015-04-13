@@ -23,6 +23,7 @@ angular.module('sm').controller("AppController", function($scope, localStorage, 
 		$scope.state.displayOptions = {
 			currentPage: 0,
 			pageSize: 3,
+			creditWarning: 18,
 			fullscreen: ''
 		};
 
@@ -72,6 +73,10 @@ angular.module('sm').controller("AppController", function($scope, localStorage, 
 		// Check if state version exists or is correct
 		if(storedState.hasOwnProperty('meta') && storedState.meta.stateVersion == $scope.stateVersion) {
 			$scope.state = storedState;
+			console.log('asdjasdjk');
+			if(!$scope.state.displayOptions.hasOwnProperty('creditWarning') || !$scope.state.displayOptions.creditWarning) {
+				$scope.state.displayOptions.creditWarning = 18;
+			}
 		} else {
 			
 			// Before state meta
