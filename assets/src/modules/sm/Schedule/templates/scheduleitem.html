@@ -73,7 +73,7 @@
 		<div ng-if="totalCredits > state.displayOptions.creditWarning" class="row">
 			<div class="col-xs-12">
 				<div class="alert alert-warning">
-					<strong>Warning!</strong> This schedule contains {{totalCredits}} credits, which is {{state.displayOptions.creditWarning - totalCredits}} over the limit. You can adjust the limit by changing the number of max credits at the bottom.
+					<strong>Warning!</strong> This schedule contains {{totalCredits}} credits, which is {{totalCredits - state.displayOptions.creditWarning}} over the limit. You can adjust the limit by changing the number of max credits at the bottom.
 				</div>
 			</div>
 		</div>
