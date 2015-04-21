@@ -229,7 +229,7 @@ function pruneSpecialCourses($schedules, $courseGroups) {
 		$flattenedSchedule = array();
 
 		// Loop through each course
-		foreach($schedule as $course) {
+		foreach($schedule as &$course) {
 
 			$cleanCourseNum = getCleanCourseNum($course);
 
@@ -241,6 +241,8 @@ function pruneSpecialCourses($schedules, $courseGroups) {
 					$flattenedSchedule[$course['courseNum']] = array_keys($courseGroups[$cleanCourseNum]);
 				} else {
 					$flattenedSchedule[$course['courseNum']] = true;
+
+					$course['credits'] = '0';
 				}
 			} else {
 				$flattenedSchedule[$course['courseNum']] = false;
