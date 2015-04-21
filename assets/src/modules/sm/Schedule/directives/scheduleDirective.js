@@ -169,9 +169,9 @@ angular.module('sm').directive('schedule', function($timeout, $filter) {
 		for(var coursesIndex = 0, coursesLength = this.scope.schedule.length; coursesIndex < coursesLength; coursesIndex++) {
 			var course = this.scope.schedule[coursesIndex];
 			this.courseDrawIndex++;
-			if(course.online) {
+			if(course.online && !course.hasOwnProperty('times')) {
 				this.scope.onlineCourses.push(course);
-			} else if(course.times != undefined) {
+			} else if(course.hasOwnProperty('times')) {
 				this.drawCourse(course);
 			}
 			//console.log(course);

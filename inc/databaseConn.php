@@ -52,9 +52,6 @@ function getMeetingInfo($sectionData) {
 		$course['description'] = $sectionData['description'];
 	}
 
-    // If the course is online, then don't even bother looking for it's times
-    if($course['online']) { return $course; }
-
     // Now we query for the times of the section
     $query = "SELECT b.code, b.number, b.off_campus, t.room, t.day, t.start, t.end ";
     $query .= "FROM times AS t JOIN buildings AS b ON b.number=t.building ";
