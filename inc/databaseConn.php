@@ -25,6 +25,16 @@ if(!$dbConn) {
 // FUNCTIONS
 
 /**
+ * Checks if a section is a special section (lab/studio/etc)
+ * Now also ignores "H" for honors classes, which are separate
+ * @param $courseInfo
+ * @return int
+ */
+function isSpecialSection($courseInfo) {
+	return preg_match('/[A-GI-Z]\d{0,2}$/', $courseInfo['courseNum']) === 1;
+}
+
+/**
  * Retrieves the meeting information for a section
  * @param	$sectionData	array	Information about a section MUST HAVE:
  *									title, instructor, curenroll, maxenroll,
@@ -50,6 +60,11 @@ function getMeetingInfo($sectionData) {
 
 	if(isset($sectionData['description'])) {
 		$course['description'] = $sectionData['description'];
+	}
+
+	// Make sure special sections don't get double-counted for their credits
+	if(isSpecialSection($course)) {
+		$course['credits'] = "0"; // string for consistency's sake
 	}
 
     // Now we query for the times of the section

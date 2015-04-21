@@ -185,16 +185,6 @@ function timeStringToMinutes($str) {
 }
 
 /**
- * Checks if a section is a special section (lab/studio/etc)
- * Now also ignores "H" for honors classes, which are separate
- * @param $courseInfo
- * @return int
- */
-function isSpecialSection($courseInfo) {
-	return preg_match('/[A-GI-Z]\d{0,2}$/', $courseInfo['courseNum']) === 1;
-}
-
-/**
  * Returns a cleaned course number, free of special sections or designators
  * @param $courseInfo
  * @return mixed
@@ -241,8 +231,6 @@ function pruneSpecialCourses($schedules, $courseGroups) {
 					$flattenedSchedule[$course['courseNum']] = array_keys($courseGroups[$cleanCourseNum]);
 				} else {
 					$flattenedSchedule[$course['courseNum']] = true;
-
-					$course['credits'] = '0';
 				}
 			} else {
 				$flattenedSchedule[$course['courseNum']] = false;
