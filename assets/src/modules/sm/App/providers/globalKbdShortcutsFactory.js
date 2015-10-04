@@ -9,6 +9,15 @@ angular.module('sm').factory('globalKbdShortcuts', function($rootScope) {
 			// Only allow to bind once, so mock function after first use
 			this.bindCtrlEnter = function() {};
 		},
+		'bindEnter': function(callback) {
+			Mousetrap.bind('enter', function(e) {
+			    $rootScope.$apply(callback);
+			    return true;
+			});
+			
+			// Only allow to bind once, so mock function after first use
+			this.bindCtrlEnter = function() {};
+		},
 		'bindPagination': function(callback) {
 			Mousetrap.bind('mod+right', function(e) {
 			    $rootScope.$apply(callback.apply(e));

@@ -1,6 +1,7 @@
 /**
  * The controller holding all the logic for the search page
  */
+
 angular.module('sm').controller('SearchController', function($scope, $http, entityDataRequest, globalKbdShortcuts) {
 	
 	var defaultOptions = {
@@ -203,7 +204,7 @@ angular.module('sm').controller('SearchController', function($scope, $http, enti
 		}, 100);
 	};
 	
-	globalKbdShortcuts.bindCtrlEnter($scope.findMatches);
+	globalKbdShortcuts.bindEnter($scope.findMatches);
     globalKbdShortcuts.bindPagination(function() {
     	if (this.keyCode == 39 && $scope.searchPagination.currentPage + 1 < $scope.numberOfPages()) {
     		$scope.searchPagination.currentPage++;

@@ -33,10 +33,10 @@ RewriteRule ^ index.php [L]
 
 # Set max-age one year in the future for all static assets
 # Allow caching for all assets
-<FilesMatch "\.(js|css|png|jpg|html)$">
-    Header set Cache-Control "max-age=29030400, public"
-    Header unset ETag
-    FileETag None
-    ExpiresActive On
-    ExpiresDefault A29030400
-</FilesMatch>
+#<FilesMatch "\.(js|css|png|jpg|html)$">
+#    Header set Cache-Control "max-age=29030400, public"
+#    Header unset ETag
+#    FileETag None
+#    ExpiresActive On
+#    ExpiresDefault A29030400
+#</FilesMatch>
