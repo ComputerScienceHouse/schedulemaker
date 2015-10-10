@@ -8,7 +8,7 @@ angular.module('sm').directive('svgTextLine', function() {
 			if (scope.grid.days.length > 3) {
 				if (text.length > 14) {
 					element = elm.get(0);
-					element.setAttribute("textLength", (parseFloat(scope.grid.opts.daysWidth) + 1 - 2) + "%");
+					element.setAttribute("textLength", (parseFloat(scope.grid.opts.daysWidth) - 1) + "%");
 					element.setAttribute("lengthAdjust", "spacingAndGlyphs");
 				}
 				if (text.length > cutoff) {
