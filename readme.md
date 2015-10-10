@@ -8,5 +8,4 @@ Instructions for setting up a dev environment:
 >4. Copy the config.example.php file to config.php in /inc/
 >5. Contact a current dev to help with server/database config.
 
-To build js files:
-	Run "npm run-script build"
+To build js files run "npm run-script build"
