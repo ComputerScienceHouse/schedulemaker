@@ -4,13 +4,14 @@ angular.module('sm').directive('svgTextLine', function() {
 			var text = attrs.svgTextLine;
 			var adjust = (scope.print)? 1: 0;
 			var cutoff = 25 + (adjust * -7);
-			if(scope.grid.days.length > 3) {
-				if(text.length > 14) {
+			
+			if (scope.grid.days.length > 3) {
+				if (text.length > 14) {
 					element = elm.get(0);
-					element.setAttribute("textLength", (parseFloat(scope.grid.opts.daysWidth) + 1 - adjust )+ "%");
+					element.setAttribute("textLength", (parseFloat(scope.grid.opts.daysWidth) + 1 - 2) + "%");
 					element.setAttribute("lengthAdjust", "spacingAndGlyphs");
 				}
-				if(text.length > cutoff) {
+				if (text.length > cutoff) {
 					text = text.slice(0, cutoff - 3) + '...';
 				}
 			}
