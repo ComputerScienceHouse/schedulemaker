@@ -321,8 +321,8 @@ switch($mode) {
 			if(empty($_POST['data'])) {
 				die(json_encode(array("error" => "argument", "msg" => "No schedule was provided", "arg" => "schedule")));
 			}
-			$_POST['data'] = html_entity_decode($_POST['data'], ENT_QUOTES);
-			$json = stripslashes($_POST['data']);
+			// This will be raw data since there is no more sanatize like there used to be in the old code
+			$json = $_POST['data'];
 		
 			// Make sure the object was successfully decoded
 			$json = sanitize(json_decode($json, true));
