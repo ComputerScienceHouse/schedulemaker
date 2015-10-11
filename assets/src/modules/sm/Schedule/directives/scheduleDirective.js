@@ -144,9 +144,9 @@ angular.module('sm').directive('schedule', function($timeout, $filter) {
 				courseNum = '';
 			}
 			this.scope.scheduleItems.push({
-				title:course.title,
+				title: course.title.replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">"),
 				content: {
-				    location: location ,
+				    location: location,
 				    courseNum: courseNum,
 				    instructor: instructor
 				},
@@ -159,7 +159,6 @@ angular.module('sm').directive('schedule', function($timeout, $filter) {
 				},
 				color: this.scope.ui.colors[course.courseIndex?(course.courseIndex - 1):this.courseDrawIndex - 1 % 10]
 			});
-			
 		}
 	};
 	
