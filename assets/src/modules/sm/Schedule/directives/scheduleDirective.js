@@ -144,7 +144,7 @@ angular.module('sm').directive('schedule', function($timeout, $filter) {
 				courseNum = '';
 			}
 			this.scope.scheduleItems.push({
-				title: course.title.replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">"),
+				title: course.title.replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&$quot;/g, "\"").replace(/&#039;/g, "\'"),
 				content: {
 				    location: location,
 				    courseNum: courseNum,
