@@ -11,6 +11,17 @@
 // Bring in the config data
 require_once dirname(__FILE__) . "/config.php";
 
+
+// There is no better place to put this, as all pages require this file.
+//
+// Never cache or store any api call/page load as reopening pages
+// that are served differently by the api (e.g. /schedule/:hexcode)
+// depending if the "Accept" header has application/json 
+// in it or not. The browser does not factor this in into 
+// loading the page from cache, so the browser will load the json response
+// or html response for the same url even though there are very different.
+header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+
 // Make a connection to the database
 global $DATABASE_SERVER, $DATABASE_USER, $DATABASE_PASS, $DATABASE_DB;
 $dbConn = mysql_connect($DATABASE_SERVER, $DATABASE_USER, $DATABASE_PASS);
