@@ -305,10 +305,8 @@ switch(getAction()) {
                 die(json_encode(array("error" => "argument", "msg" => "Your courses must be in the format XXXX-XXX-XXLX")));
             }
 
-            // Now we'll split the course into the various components and build the query for it all
-            // We'll also strip out whitespace/dashes and force it to uppercase
-            $course = strtoupper(preg_replace("/[-\s]/", "", $course));
-            preg_match('/([A-Z]{4})(\d{0,3}[A-Z]?)?(\d{0,2}[A-Z]?\d?)?/', $course, $courseParts);
+			$course = strtoupper($course);
+            preg_match('/([A-Z]{4})[-\s]*(\d{0,3}[A-Z]?)?(?:[-\s]+(\d{0,2}[A-Z]?\d?))?/', $course, $courseParts);
 
             // Query base: Noncancelled courses from the requested term
             $query = "SELECT s.id
@@ -328,7 +326,7 @@ switch(getAction()) {
             $query .= " AND (d.code = '{$department}' OR d.number = '{$department}')";
 
             // Component 2: Course number
-            $coursenum = $courseParts[2];
+            $coursenum = array_key_exists(2, $courseParts)? $courseParts[2]: null;
             if(!$coursenum || (strlen($coursenum) != 3 && strlen($coursenum) != 4)) {
                 // We got a partial course. That's ok.
                 $query .= " AND c.course LIKE '{$coursenum}%'";
@@ -339,7 +337,7 @@ switch(getAction()) {
             }
 
             // Component 3: Section number
-            $section = $courseParts[3];
+            $section = array_key_exists(3, $courseParts)? $courseParts[3]: null;
             if(!$section || strlen($coursenum) != 4) {
                 // We got a partial section number. That's ok.
                 $query .= " AND s.section LIKE '{$section}%'";
