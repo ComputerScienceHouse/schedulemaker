@@ -225,6 +225,7 @@ angular.module('sm').directive('schedule', function($timeout, $filter) {
 					if(scope.scheduleController.init(options)) {
 						// Only redraw if valid options
 						scope.scheduleController.draw();
+						console.log("poop");
 					
 						// Fix pixel alignment issues
 						$timeout(function() {
@@ -236,10 +237,17 @@ angular.module('sm').directive('schedule', function($timeout, $filter) {
 							// Toggle showing and hiding svgs, which forces a redraw
 							var svg = $(elm).find('svg');
 								svg.hide();
-								setTimeout(function() {
+							setTimeout(function() {
 								svg.show();
 							}, 0);
 						},10,true);
+					}
+				};
+				scope.redraw = function() {
+					if(!scope.overrideDrawOptions) {
+						update(scope.state.drawOptions);
+					} else {
+						update(scope.overrideDrawOptions);
 					}
 				};
 				

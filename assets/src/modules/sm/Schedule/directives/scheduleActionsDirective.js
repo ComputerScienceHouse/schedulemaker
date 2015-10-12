@@ -1,7 +1,7 @@
 /**
  * Several endpoint abstractions for the schedules
  */
-angular.module('sm').directive('scheduleActions', function($http, $q, shareServiceInfo, openPopup, localStorage, $state) {
+angular.module('sm').directive('scheduleActions', function($http, $q, shareServiceInfo, openPopup, localStorage, $state, $timeout) {
 	
 	var serializer = new XMLSerializer();
 	
@@ -154,8 +154,8 @@ angular.module('sm').directive('scheduleActions', function($http, $q, shareServi
 			
 			hide: function() {
 				ga('send', 'event', 'schedule', 'hide');
-				
 				scope.$parent.$parent.state.schedules.splice(scope.$index, 1);
+				$timeout(scope.redraw, 10);
 			}
 		}
 	};
