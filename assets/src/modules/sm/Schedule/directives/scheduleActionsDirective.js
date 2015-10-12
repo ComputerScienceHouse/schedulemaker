@@ -121,7 +121,7 @@ angular.module('sm').directive('scheduleActions', function($http, $q, shareServi
 				
 				getSavedInfo().then(function(data) {
 
-					window.location.href= data.url + "/ical";
+					window.location.href = data.url + "/ical";
 				});
 			},
 			
@@ -150,6 +150,12 @@ angular.module('sm').directive('scheduleActions', function($http, $q, shareServi
 				popup.localStorage.setItem('reloadSchedule', angular.toJson(reloadSchedule));
 				popup.document.title = "My Schedule";
 				popup.location = "http://" + window.location.hostname + '/schedule/render/print';	
+			},
+			
+			hide: function() {
+				ga('send', 'event', 'schedule', 'hide');
+				
+				scope.$parent.$parent.state.schedules.splice(scope.$index, 1);
 			}
 		}
 	};
