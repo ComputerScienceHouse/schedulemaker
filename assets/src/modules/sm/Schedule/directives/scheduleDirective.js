@@ -143,8 +143,9 @@ angular.module('sm').directive('schedule', function($timeout, $filter) {
 				instructor = '',
 				courseNum = '';
 			}
+			course.title = course.title.replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, "\"").replace(/&#039;/g, "\'").replace(/\\\\/,"\\");
 			this.scope.scheduleItems.push({
-				title: course.title.replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, "\"").replace(/&#039;/g, "\'").replace(/\\\\/,"\\"),
+				title: course.title,
 				content: {
 				    location: location,
 				    courseNum: courseNum,
