@@ -185,6 +185,11 @@ angular.module('sm').controller("GenerateController", function($scope, globalKbd
 		    		// Otherwise reset page, scroll to schedules and clear errors
 			    	$scope.state.displayOptions.currentPage = 0;
 			    	$scope.scrollToSchedules();
+					
+					for (var count = 0; count < schedules.length; count++) {
+						schedules[count].initialIndex = count;
+					}
+					
 			    	$scope.state.schedules = data.schedules;
 			    	$scope.resultError =  '';
 		    	}
