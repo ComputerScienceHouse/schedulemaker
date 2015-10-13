@@ -189,6 +189,10 @@ angular.module('sm').directive('schedule', function($timeout, $filter) {
 		templateUrl: '/<%=modulePath%>Schedule/templates/scheduleitem.min.html',
 		link: {
 			pre: function(scope, elm, attrs) {
+				if (scope.schedule.length > 0) {
+					scope.initialIndex = scope.schedule[0].initialIndex;
+				}
+				
 				scope.scheduleController = new Schedule(scope);
 				scope.itemEnter = function($event) {
 					var $target = $($event.target),
@@ -225,7 +229,6 @@ angular.module('sm').directive('schedule', function($timeout, $filter) {
 					if(scope.scheduleController.init(options)) {
 						// Only redraw if valid options
 						scope.scheduleController.draw();
-						console.log("poop");
 					
 						// Fix pixel alignment issues
 						$timeout(function() {
@@ -241,13 +244,6 @@ angular.module('sm').directive('schedule', function($timeout, $filter) {
 								svg.show();
 							}, 0);
 						},10,true);
-					}
-				};
-				scope.redraw = function() {
-					if(!scope.overrideDrawOptions) {
-						update(scope.state.drawOptions);
-					} else {
-						update(scope.overrideDrawOptions);
 					}
 				};
 				

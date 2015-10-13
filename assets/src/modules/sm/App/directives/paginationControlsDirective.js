@@ -12,7 +12,11 @@ angular.module('sm').directive('paginationControls', function() {
 		link: {
 			pre: function(scope) {
 				scope.numberOfPages = function() {
-					return Math.ceil(scope.totalLength / scope.displayOptions.pageSize);
+					var numPages = Math.ceil(scope.totalLength / scope.displayOptions.pageSize);
+					if(scope.displayOptions.currentPage == numPages) {
+						scope.displayOptions.currentPage = numPages - 1;
+					}
+					return numPages;
 				};
 			},
 			post: function(scope, elm, attrs) {

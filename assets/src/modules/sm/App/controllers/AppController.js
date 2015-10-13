@@ -76,6 +76,11 @@ angular.module('sm').controller("AppController", function($scope, localStorage, 
 			if(!$scope.state.displayOptions.hasOwnProperty('creditWarning') || !$scope.state.displayOptions.creditWarning) {
 				$scope.state.displayOptions.creditWarning = 18;
 			}
+			if($scope.state.schedules.length > 0 && $scope.state.schedules[0].length > 0 && !$scope.state.schedules[0][0].hasOwnProperty('initialIndex')){
+				for (var count = 0; count < $scope.state.schedules.length; count++) {
+					$scope.state.schedules[count][0].initialIndex = count;
+				}
+			}
 		} else {
 			
 			// Before state meta

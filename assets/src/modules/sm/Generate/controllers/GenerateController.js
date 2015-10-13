@@ -186,8 +186,8 @@ angular.module('sm').controller("GenerateController", function($scope, globalKbd
 			    	$scope.state.displayOptions.currentPage = 0;
 			    	$scope.scrollToSchedules();
 					
-					for (var count = 0; count < schedules.length; count++) {
-						schedules[count].initialIndex = count;
+					for (var count = 0; count < data.schedules.length; count++) {
+						data.schedules[count][0].initialIndex = count;
 					}
 					
 			    	$scope.state.schedules = data.schedules;
