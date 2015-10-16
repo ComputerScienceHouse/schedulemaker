@@ -40,6 +40,19 @@ angular.module('sm').controller("SchedulePrintController", function($scope, $loc
         	value: 'boc',
         	label: "Black Text & Colors"
         }];
+		
+		$scope.printClassDetails = 'NPL';
+        
+        $scope.printClassDetailsOptions = [{
+        	value: 'NPL',
+        	label: "Number, Professor, Location"
+        }, {
+        	value: 'LPN',
+        	label: "Location, Professor, Number"
+        }, {
+        	value: 'LNP',
+        	label: "Location, Number, Professor"
+        }];
 	}
 	
 	localStorage.setItem("reloadSchedule", null);
