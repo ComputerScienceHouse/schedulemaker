@@ -64,7 +64,7 @@ angular.module('sm', ['ngAnimate', 'ngSanitize', 'ui.router'])
 	}).state('schedule.view', {
 		url: '',
 		templateUrl: tplPath('Schedule', 'schedule.view'),
-		controller: 'ScheduleViewController',
+		controller: 'ScheduleViewController'
 	}).state('schedule.print', {
 		url: '/print',
 		templateUrl: tplPath('Schedule', 'schedule.print'),
