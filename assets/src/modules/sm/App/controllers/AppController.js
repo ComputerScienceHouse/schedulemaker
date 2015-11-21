@@ -71,23 +71,30 @@ angular.module('sm').controller("AppController", function($scope, localStorage, 
 	
 	// Reload the state if it exists
 	var storedState = localStorage.getItem('state');
-	if(storedState != null) {
-		
+	if (storedState != null) {
 		// Check if state version exists or is correct
-		if(storedState.hasOwnProperty('meta') && storedState.meta.stateVersion == $scope.stateVersion) {
+		if (storedState.hasOwnProperty('meta') && storedState.meta.stateVersion == $scope.stateVersion) {
 			$scope.state = storedState;
-			if(!$scope.state.displayOptions.hasOwnProperty('creditWarning') || !$scope.state.displayOptions.creditWarning) {
+			if (!$scope.state.displayOptions.hasOwnProperty('creditWarning') || !$scope.state.displayOptions.creditWarning) {
 				$scope.state.displayOptions.creditWarning = 18;
 			}
-			if($scope.state.schedules.length > 0 && $scope.state.schedules[0].length > 0 && !$scope.state.schedules[0][0].hasOwnProperty('initialIndex')){
+			
+			// Initialize new values
+			if ($scope.state.schedules.length > 0 && $scope.state.schedules[0].length > 0 && !$scope.state.schedules[0][0].hasOwnProperty('initialIndex')) {
 				for (var count = 0; count < $scope.state.schedules.length; count++) {
 					$scope.state.schedules[count][0].initialIndex = count;
 				}
 			}
+			if (!$scope.state.classDetails) {
+				$scope.state.classDetails = 'NPL';
+			}
+			if (!$scope.state.theme) {
+				$scope.state.theme = 'woc';
+			}
 		} else {
 			
 			// Before state meta
-			if(confirm('We need to clear your session in order to update ScheduleMaker, is that ok? \n If you press cancel, you may run into errors.')) {
+			if (confirm('We need to clear your session in order to update ScheduleMaker, is that ok? \n If you press cancel, you may run into errors.')) {
 				$scope.resetState();
 			} else {
 				$scope.state = storedState;
@@ -103,7 +110,6 @@ angular.module('sm').controller("AppController", function($scope, localStorage, 
 	// Default, images are supported
 	$scope.imageSupport = true;
 	
-
 	var courseNumFilter = $filter('courseNum');
 	
 	// Course cart tools for non-generate pages.
