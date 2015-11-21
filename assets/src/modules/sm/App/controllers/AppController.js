@@ -11,7 +11,7 @@ angular.module('sm').controller("AppController", function($scope, localStorage, 
 		$scope.state.courseMap = {};
 		$scope.state.nonCourses = [];
 		$scope.state.noCourses = [];
-		$scope.state.schedules =[];
+		$scope.state.schedules = [];
 		$scope.state.drawOptions = {
 			startTime: 480,
 			endTime: 1320,
@@ -38,13 +38,16 @@ angular.module('sm').controller("AppController", function($scope, localStorage, 
 			alert_searchFeatures: true,
 			alert_browseFeatures: true,
 			alert_labClasses: false,
-			action_generateSchedules: false,
+			action_generateSchedules: false
 		};
 		
 		$scope.state.meta = {
 			stateVersion: $scope.stateVersion,
 			lastSaved: new Date().getTime()
 		};
+		
+		$scope.state.theme = 'woc';
+		$scope.state.classDetails = 'NPL';
 	};
 	$scope.resetState = function() {
 		$scope.initState();
@@ -591,7 +594,30 @@ angular.module('sm').controller("AppController", function($scope, localStorage, 
 					1410: '11:30pm',
 					1440: '12:00am',
 				}
-			}
+			},
+			themeOptions: [{
+				value: 'woc',
+				label: "Modern Colors"
+			}, {
+				value: 'bow',
+				label: "Classic B&W"
+			}, {
+				value: 'gow',
+				label: "Classic Greyscale"
+			}, {
+				value: 'boc',
+				label: "Black Text & Colors"
+			}],
+			classDetailsOptions: [{
+				value: 'NPL',
+				label: "Number, Professor, Location"
+			}, {
+				value: 'LPN',
+				label: "Location, Professor, Number"
+			}, {
+				value: 'LNP',
+				label: "Location, Number, Professor"
+			}]
 		},
 		colors:
 			["#7BA270",

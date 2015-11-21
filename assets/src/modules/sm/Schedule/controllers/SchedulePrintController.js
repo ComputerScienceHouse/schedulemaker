@@ -25,39 +25,6 @@ angular.module('sm').controller("SchedulePrintController", function($scope, $loc
         
         $scope.heading = "My " + year + "-" + (year+1) + " " + term  + " Schedule";
 	}
-        
-	if (!$scope.state.printTheme) {
-		$scope.state.printTheme = 'woc';
-	}
-	
-	$scope.printThemeOptions = [{
-		value: 'woc',
-		label: "Modern Colors"
-	}, {
-		value: 'bow',
-		label: "Classic B&W"
-	}, {
-		value: 'gow',
-		label: "Classic Greyscale"
-	}, {
-		value: 'boc',
-		label: "Black Text & Colors"
-	}];
-	
-	if (!$scope.state.printClassDetails) {
-		$scope.state.printClassDetails = 'NPL';
-	}
-	
-	$scope.printClassDetailsOptions = [{
-		value: 'NPL',
-		label: "Number, Professor, Location"
-	}, {
-		value: 'LPN',
-		label: "Location, Professor, Number"
-	}, {
-		value: 'LNP',
-		label: "Location, Number, Professor"
-	}];
 	
 	localStorage.setItem("reloadSchedule", null);
 	
