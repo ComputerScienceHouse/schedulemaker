@@ -20,7 +20,7 @@
 					<div class="form-group">
 						<label for="printOptions-theme" class="col-sm-4 control-label">Theme:</label>
 						<div class="col-sm-8">
-							<select id="printOptions-theme" class="form-control" ng-model="state.theme" ng-options="opt.value as opt.label for opt in ui.optionLists.themeOptions"></select>
+							<select id="printOptions-theme" class="form-control" ng-model="state.drawOptions.theme" ng-options="opt.value as opt.label for opt in ui.optionLists.themeOptions"></select>
 						</div>
 					</div>
 				</div>
@@ -28,7 +28,7 @@
 					<div class="form-group">
 						<label for="printOptions-classDetails" class="col-sm-3 control-label">Class Details:</label>
 						<div class="col-sm-7">
-							<select id="printOptions-classDetails" class="form-control" ng-model="state.classDetails" ng-options="opt.value as opt.label for opt in ui.optionLists.classDetailsOptions"></select>
+							<select id="printOptions-classDetails" class="form-control" ng-model="state.drawOptions.classDetails" ng-options="opt.value as opt.label for opt in ui.optionLists.classDetailsOptions"></select>
 						</div>
 					</div>
 				</div>

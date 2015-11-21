@@ -17,7 +17,9 @@ angular.module('sm').controller("AppController", function($scope, localStorage, 
 			endTime: 1320,
 			startDay: 1,
 			endDay: 6,
-			bldgStyle: 'code'
+			bldgStyle: 'code',
+			theme: 'woc',
+			classDetails:'NPL'
 		};
 
 		$scope.state.displayOptions = {
@@ -45,9 +47,6 @@ angular.module('sm').controller("AppController", function($scope, localStorage, 
 			stateVersion: $scope.stateVersion,
 			lastSaved: new Date().getTime()
 		};
-		
-		$scope.state.theme = 'woc';
-		$scope.state.classDetails = 'NPL';
 	};
 	$scope.resetState = function() {
 		$scope.initState();
@@ -85,10 +84,10 @@ angular.module('sm').controller("AppController", function($scope, localStorage, 
 					$scope.state.schedules[count][0].initialIndex = count;
 				}
 			}
-			if (!$scope.state.classDetails) {
+			if (!$scope.state.drawOptions.classDetails) {
 				$scope.state.classDetails = 'NPL';
 			}
-			if (!$scope.state.theme) {
+			if (!$scope.state.drawOptions.theme) {
 				$scope.state.theme = 'woc';
 			}
 		} else {
