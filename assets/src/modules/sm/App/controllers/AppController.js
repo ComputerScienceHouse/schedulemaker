@@ -19,7 +19,7 @@ angular.module('sm').controller("AppController", function($scope, localStorage, 
 			endDay: 6,
 			bldgStyle: 'code',
 			theme: 'woc',
-			classDetails:'NPL'
+			classDetails: 'NPL'
 		};
 
 		$scope.state.displayOptions = {
