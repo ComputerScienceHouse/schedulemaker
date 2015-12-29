@@ -63,28 +63,28 @@ body.print div[schedule] > .panel {
 	margin: 0 auto;
 }
 
-body.print div[schedule].bow svg g[svg-schedule-item] rect,
-body.print div[schedule].gow svg g[svg-schedule-item] rect {
+body .bow svg g[svg-schedule-item] rect,
+body .gow svg g[svg-schedule-item] rect {
 	fill: #FFFFFF !important;
 	fill-opacity: 1 !important;
 	stroke: #000;
 	stroke-width: 1px;
 }
 
-body.print div[schedule].gow svg g[svg-schedule-item] rect {
+body .gow svg g[svg-schedule-item] rect {
 	stroke: #555;
 }
 
-body.print div[schedule].bow text,
-body.print div[schedule].boc svg g[svg-schedule-item] text {
+body .bow text,
+body .boc svg g[svg-schedule-item] text {
 	fill: #000000 !important;
 }
 
-body.print div[schedule].bow svg line {
+body .bow svg line {
 	stroke: #000000 !important;
 }
 
-body.print div[schedule].gow svg g[svg-schedule-item] text {
+body .gow svg g[svg-schedule-item] text {
 	fill: #333 !important;
 }
 
@@ -112,7 +112,6 @@ body.default header.main {
 body.print header.main {
 	display: none;
 }
-
 
 body.print footer.main.print {
 	display: block;

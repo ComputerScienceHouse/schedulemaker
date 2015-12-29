@@ -11,13 +11,15 @@ angular.module('sm').controller("AppController", function($scope, localStorage, 
 		$scope.state.courseMap = {};
 		$scope.state.nonCourses = [];
 		$scope.state.noCourses = [];
-		$scope.state.schedules =[];
+		$scope.state.schedules = [];
 		$scope.state.drawOptions = {
 			startTime: 480,
 			endTime: 1320,
 			startDay: 1,
 			endDay: 6,
-			bldgStyle: 'code'
+			bldgStyle: 'code',
+			theme: 'woc',
+			classDetails: 'NPL'
 		};
 
 		$scope.state.displayOptions = {
@@ -38,7 +40,7 @@ angular.module('sm').controller("AppController", function($scope, localStorage, 
 			alert_searchFeatures: true,
 			alert_browseFeatures: true,
 			alert_labClasses: false,
-			action_generateSchedules: false,
+			action_generateSchedules: false
 		};
 		
 		$scope.state.meta = {
@@ -68,23 +70,30 @@ angular.module('sm').controller("AppController", function($scope, localStorage, 
 	
 	// Reload the state if it exists
 	var storedState = localStorage.getItem('state');
-	if(storedState != null) {
-		
+	if (storedState != null) {
 		// Check if state version exists or is correct
-		if(storedState.hasOwnProperty('meta') && storedState.meta.stateVersion == $scope.stateVersion) {
+		if (storedState.hasOwnProperty('meta') && storedState.meta.stateVersion == $scope.stateVersion) {
 			$scope.state = storedState;
-			if(!$scope.state.displayOptions.hasOwnProperty('creditWarning') || !$scope.state.displayOptions.creditWarning) {
+			if (!$scope.state.displayOptions.hasOwnProperty('creditWarning') || !$scope.state.displayOptions.creditWarning) {
 				$scope.state.displayOptions.creditWarning = 18;
 			}
-			if($scope.state.schedules.length > 0 && $scope.state.schedules[0].length > 0 && !$scope.state.schedules[0][0].hasOwnProperty('initialIndex')){
+			
+			// Initialize new values
+			if ($scope.state.schedules.length > 0 && $scope.state.schedules[0].length > 0 && !$scope.state.schedules[0][0].hasOwnProperty('initialIndex')) {
 				for (var count = 0; count < $scope.state.schedules.length; count++) {
 					$scope.state.schedules[count][0].initialIndex = count;
 				}
 			}
+			if (!$scope.state.drawOptions.classDetails) {
+				$scope.state.drawOptions.classDetails = 'NPL';
+			}
+			if (!$scope.state.drawOptions.theme) {
+				$scope.state.drawOptions.theme = 'woc';
+			}
 		} else {
 			
 			// Before state meta
-			if(confirm('We need to clear your session in order to update ScheduleMaker, is that ok? \n If you press cancel, you may run into errors.')) {
+			if (confirm('We need to clear your session in order to update ScheduleMaker, is that ok? \n If you press cancel, you may run into errors.')) {
 				$scope.resetState();
 			} else {
 				$scope.state = storedState;
@@ -100,7 +109,6 @@ angular.module('sm').controller("AppController", function($scope, localStorage, 
 	// Default, images are supported
 	$scope.imageSupport = true;
 	
-
 	var courseNumFilter = $filter('courseNum');
 	
 	// Course cart tools for non-generate pages.
@@ -591,7 +599,30 @@ angular.module('sm').controller("AppController", function($scope, localStorage, 
 					1410: '11:30pm',
 					1440: '12:00am',
 				}
-			}
+			},
+			themeOptions: [{
+				value: 'woc',
+				label: "Modern Colors"
+			}, {
+				value: 'bow',
+				label: "Classic B&W"
+			}, {
+				value: 'gow',
+				label: "Classic Greyscale"
+			}, {
+				value: 'boc',
+				label: "Black Text & Colors"
+			}],
+			classDetailsOptions: [{
+				value: 'NPL',
+				label: "Number, Professor, Location"
+			}, {
+				value: 'LPN',
+				label: "Location, Professor, Number"
+			}, {
+				value: 'LNP',
+				label: "Location, Number, Professor"
+			}]
 		},
 		colors:
 			["#7BA270",

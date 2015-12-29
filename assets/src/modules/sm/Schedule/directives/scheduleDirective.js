@@ -227,6 +227,7 @@ angular.module('sm').directive('schedule', function($timeout, $filter) {
 				
 				var update = function(options) {
 					if(scope.scheduleController.init(options)) {
+						scope.scheduleDrawOptions = options;
 						// Only redraw if valid options
 						scope.scheduleController.draw();
 					

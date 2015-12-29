@@ -262,48 +262,70 @@
 				<div class="panel panel-default">
 					<div class="panel-heading panel-heading-controls">
 						<div class="row form-horizontal">
-							<div class="col-md-2">
-								<div class="form-group">
-									<label for="options-bldgStyle" class="col-sm-6 control-label">Buildings:</label>
-									<div class="col-sm-6">
-										<select id="options-bldgStyle" class="form-control" ng-model="state.drawOptions.bldgStyle">
-											<option value="code">Codes (eg. GOL)</option>
-											<option value="number">Number (eg. 70)</option>
-										</select>
+							<div class="col-md-9">
+								<div class="row">
+									<div class="col-md-4">
+										<div class="form-group">
+											<label for="options-bldgStyle" class="col-sm-4 control-label">Buildings:</label>
+											<div class="col-sm-8">
+												<select id="options-bldgStyle" class="form-control" ng-model="state.drawOptions.bldgStyle">
+													<option value="code">Codes (eg. GOL)</option>
+													<option value="number">Number (eg. 70)</option>
+												</select>
+											</div>
+										</div>
+									</div>
+									<div class="col-md-3">
+										<div class="form-group">
+											<label for="displayOptions-pageSize" class="col-sm-6 control-label">Page Size:</label>
+											<div class="col-sm-6">
+												<select id="displayOptions-pageSize" class="form-control" ng-model="state.displayOptions.pageSize">
+													<option value="3">3</option>
+													<option value="5">5</option>
+													<option value="10">10</option>
+													<option value="15">15</option>
+													<option value="20">20</option>
+													<option value="50">50</option>
+												</select>
+											</div>
+										</div>
+									</div>
+									<div class="col-md-5">
+										<div class="form-group">
+											<label for="options-theme" class="col-sm-4 control-label">Theme:</label>
+											<div class="col-sm-8">
+												<select id="options-theme" class="form-control" ng-model="state.drawOptions.theme" ng-options="opt.value as opt.label for opt in ui.optionLists.themeOptions"></select>
+											</div>
+										</div>
 									</div>
 								</div>
-							</div>
-							<div class="col-md-2">
-								<div class="form-group hidden-xs">
-									<label for="options-fullscreen" class="col-sm-4 control-label">Width:</label>
-									<div class="col-sm-8">
-										<select id="displayOptions-fullscreen" class="form-control" ng-model="state.displayOptions.fullscreen">
-											<option value="">Default</option>
-											<option value="true">Fullscreen</option>
-										</select>
+								<div class="row">
+									<div class="col-md-4">
+										<div class="form-group hidden-xs">
+											<label for="options-fullscreen" class="col-sm-4 control-label">Width:</label>
+											<div class="col-sm-8">
+												<select id="displayOptions-fullscreen" class="form-control" ng-model="state.displayOptions.fullscreen">
+													<option value="">Default</option>
+													<option value="true">Fullscreen</option>
+												</select>
+											</div>
+										</div>
 									</div>
-								</div>
-							</div>
-							<div class="col-md-3">
-								<div class="form-group">
-									<label for="displayOptions-pageSize" class="col-sm-6 control-label">Page Size:</label>
-									<div class="col-sm-6">
-										<select id="displayOptions-pageSize" class="form-control" ng-model="state.displayOptions.pageSize">
-											<option value="3">3</option>
-											<option value="5">5</option>
-											<option value="10">10</option>
-											<option value="15">15</option>
-											<option value="20">20</option>
-											<option value="50">50</option>
-										</select>
+									<div class="col-md-3">
+										<div class="form-group">
+											<label for="displayOptions-creditWarning" class="col-sm-6 control-label">Credits:</label>
+											<div class="col-sm-6">
+												<input ng-pattern="/^\d{1,2}$/" type="text" id="displayOptions-creditWarning" class="form-control" ng-model="state.displayOptions.creditWarning" />
+											</div>
+										</div>
 									</div>
-								</div>
-							</div>
-							<div class="col-md-2">
-								<div class="form-group">
-									<label for="displayOptions-creditWarning" class="col-sm-6 control-label">Credits:</label>
-									<div class="col-sm-6">
-										<input ng-pattern="/^\d{1,2}$/" type="text" id="displayOptions-creditWarning" class="form-control" ng-model="state.displayOptions.creditWarning" />
+									<div class="col-md-5">
+										<div class="form-group">
+											<label for="options-classDetails" class="col-sm-4 control-label">Class Details:</label>
+											<div class="col-sm-8">
+												<select id="options-classDetails" class="form-control" ng-model="state.drawOptions.classDetails" ng-options="opt.value as opt.label for opt in ui.optionLists.classDetailsOptions"></select>
+											</div>
+										</div>
 									</div>
 								</div>
 							</div>

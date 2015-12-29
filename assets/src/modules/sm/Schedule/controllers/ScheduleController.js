@@ -23,7 +23,7 @@ angular.module('sm').controller("ScheduleController", function($scope, parsedSch
 		
 		// Set the correct draw options
 		for(var key in $scope.state.drawOptions) {
-			$scope.overrideDrawOptions[key] = parsedSchedule[key];
+			$scope.overrideDrawOptions[key] = parsedSchedule[key] || $scope.state.drawOptions[key];
 		}
 	
 		// Set image property
