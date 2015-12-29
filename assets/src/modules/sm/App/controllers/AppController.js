@@ -85,10 +85,10 @@ angular.module('sm').controller("AppController", function($scope, localStorage, 
 				}
 			}
 			if (!$scope.state.drawOptions.classDetails) {
-				$scope.state.classDetails = 'NPL';
+				$scope.state.drawOptions.classDetails = 'NPL';
 			}
 			if (!$scope.state.drawOptions.theme) {
-				$scope.state.theme = 'woc';
+				$scope.state.drawOptions.theme = 'woc';
 			}
 		} else {
 			
