@@ -14,7 +14,7 @@ if(isset($_GET['s'])) {
 	require_once("./inc/config.php");
 	header("Location: {$HTTPROOTADDRESS}schedule.php?mode=old&id={$_GET['s']}");
 	die();
-} 
+}
 
 // REQUIRED FILES
 $APP_ROOT = "./";
@@ -30,7 +30,7 @@ $path = explode('/', $_SERVER['REQUEST_URI']);
 if ($path[1] == 'schedule') {
 	$id = (empty($path[2]))? '': hexdec($path[2]);
 	if(!empty($id)) {
-		
+
 		// We are making the assumption that only new schedules with images
 		// will be shared. Due relative requires in api/schedule.php, I cannot
 		// check to see if the schedule has an image. #WONTFIX #WORKS4ME
@@ -43,20 +43,20 @@ if ($path[1] == 'schedule') {
 <html prefix="og: http://ogp.me/ns#" ng-app="sm">
 	<head>
 		<title><?= (!empty($TITLE)) ? $TITLE . " - " : "" ?>Schedule Maker</title>
-		
+
 		<!-- META DATA -->
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<meta name="apple-mobile-web-app-capable" content="yes">
-		
+
 		<!-- STYLE SHEETS -->
 		<link rel="stylesheet" href="//brick.a.ssl.fastly.net/Roboto:300,700">
 		<link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.1/css/font-awesome.css">
         <link rel="stylesheet" href="<?=$ASSETROOTADDRESS?>assets/prod/<?=$APP_VERSION?>/modules/sm/dist.min.css">
-		
+
 		<!-- OPEN GRAPH TAGS -->
-		<meta name="twitter:card" content="photo"> 
+		<meta name="twitter:card" content="photo">
         <meta property="og:title" content="<?= (!empty($TITLE)) ? $TITLE . " - " : "" ?>ScheduleMaker" />
         <meta property="og:type" content="website" />
         <meta property="og:description" content="CSH ScheduleMaker makes picking your RIT class schedule easy! Preview all permutations of your schedule, browse available courses, and search for any course, all with ScheduleMaker.">
@@ -95,10 +95,10 @@ if ($path[1] == 'schedule') {
 			<footer class="main default">
 				<div class="container">
 					<div class="csh"><a target="_blank" href="http://www.csh.rit.edu/"><img src="<?=$ASSETROOTADDRESS?>img/csh.png" alt="CSH" /></a></div>
-					Version: <?=$APP_VERSION?> | <a ui-sref="help">Help</a> | <a href="/status">Status</a> | <a target="_blank" href="https://github.com/ComputerScienceHouse/schedulemaker/issues">Report Issues</a>
+					<a target="_blank" href="https://github.com/ComputerScienceHouse/schedulemaker">Version: <?=$APP_VERSION?></a> | <a ui-sref="help">Help</a> | <a href="/status">Status</a> | <a target="_blank" href="https://github.com/ComputerScienceHouse/schedulemaker/issues">Report Issues</a>
 					<div>
 						Development v3: Ben Grawi (bgrawi at csh.rit.edu)<br>
-						Development v2: Ben Russell (benrr101 at csh.rit.edu),<br>
+						Development v2: Ben Russell (benrr101 at csh.rit.edu)<br>
 						Idea: John Resig (phytar at csh.rit.edu)<br>
 						Hosting: <a href="http://www.csh.rit.edu/">Computer Science House</a><br>
 					</div>
@@ -107,7 +107,7 @@ if ($path[1] == 'schedule') {
 			<footer class="main print">
 				Made Using <a href='<?= $HTTPROOTADDRESS ?>'>CSH ScheduleMaker</a>
 				<a href="http://www.csh.rit.edu/"><img height="25" src="/img/csh_print.png"></a>
-			</footer> 
+			</footer>
 		</div>
 		<!-- LOAD SCRIPTS LAST -->
 		<script>
@@ -116,7 +116,7 @@ if ($path[1] == 'schedule') {
 				(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
 				m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
 			})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-			
+
 			ga('create', '<?= $GOOGLEANALYTICS ?>', 'rit.edu');
 		</script>
 		<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
@@ -129,4 +129,3 @@ if ($path[1] == 'schedule') {
         <script src="<?=$ASSETROOTADDRESS?>assets/prod/<?=$APP_VERSION?>/modules/sm/dist.min.js"></script>
 	</body>
 </html>
-	
