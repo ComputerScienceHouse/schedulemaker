@@ -323,6 +323,10 @@ form {
 	cursor: pointer;
 }
 
+.label-professor {
+	font-weight: normal;
+}
+
 /* NEW SCHEDULES */
 
 div[schedule] .canvas-cont {
@@ -360,7 +364,6 @@ div[schedule] .schedule-loading {
 		display: block;	
 	}
 }
-
 
 /* BOOTSTRAP EXTENSIONS */
 .btn {
