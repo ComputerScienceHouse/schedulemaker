@@ -23,12 +23,12 @@ $where = "WHERE (NOW() - datelastaccessed > (60 * 60 * 24 * 90))";
 // 90 days
 $ninetyDaysAgo = date("Y-m-d H:i:s", strtotime("-90 days"));
 $query = "DELETE FROM schedules WHERE datelastaccessed < '{$ninetyDaysAgo}'";
-$result = mysql_query($query, $dbConn);
+$result = $dbConn->query($query);
 if(!$result) {
     echo("*** Failed to run pruning query:\n");
-    echo(mysql_error() . "\n");
+    echo($dbConn->error . "\n");
 } else {
-    echo("... " . mysql_affected_rows($dbConn) . " schedules deleted\n");
+    echo("... " . $dbConn->affected_rows . " schedules deleted\n");
 }
 
 ?>

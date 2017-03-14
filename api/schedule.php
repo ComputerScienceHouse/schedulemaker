@@ -30,13 +30,13 @@ function icalFormatTime($time) {
 
 function generateIcal($schedule) {
 	// Globals
-	global $HTTPROOTADDRESS;
+	global $HTTPROOTADDRESS, $dbConn;
 
 	// We need to lookup the information about the quarter
-	$term = mysql_real_escape_string($schedule['term']);
+	$term = $dbConn->real_escape_string($schedule['term']);
 	$query = "SELECT start, end, breakstart, breakend FROM quarters WHERE quarter='{$term}'";
-	$result = mysql_query($query);
-	$term = mysql_fetch_assoc($result);
+	$result = $dbConn->query($query);
+	$term = $result->fetch_assoc();
 	$termStart = strtotime($term['start']);
 	$termEnd = date("Ymd", strtotime($term['end']));
 
@@ -106,15 +106,15 @@ function getScheduleFromId($id) {
 	// Query to see if the id exists, if we can update the last accessed time,
 	// then the id most definitely exists.
 	$query = "UPDATE schedules SET datelastaccessed = NOW() WHERE id={$id}";
-	$result = mysql_query($query);
+	$result = $dbConn->query($query);
 	
 	$query = "SELECT startday, endday, starttime, endtime, building, `quarter`, CAST(`image` AS unsigned int) AS `image` FROM schedules WHERE id={$id}";
 
-	$result = mysql_query($query);
+	$result = $dbConn->query($query);
     if(!$result) {
         return NULL;
     }
-	$scheduleInfo = mysql_fetch_assoc($result);
+	$scheduleInfo = $result->fetch_assoc();
 	if(!$scheduleInfo) {
 		return NULL;
 	}
@@ -133,18 +133,18 @@ function getScheduleFromId($id) {
 
 	// It exists, so grab all the courses that exist for this schedule
 	$query = "SELECT section FROM schedulecourses WHERE schedule = {$id}";
-	$result = mysql_query($query);
-	while($course = mysql_fetch_assoc($result)) {
+	$result = $dbConn->query($query);
+	while($course = $result->fetch_assoc()) {
 		$schedule[] = getCourseBySectionId($course['section']);
 	}
 
 	// Grab all the non courses that exist for this schedule
 	$query = "SELECT * FROM schedulenoncourses WHERE schedule = $id";
-	$result = mysql_query($query);
+	$result = $dbConn->query($query);
 	if(!$result) {
-		echo mysql_error();
+		echo $dbConn->error();
 	}
-	while($nonCourseInfo = mysql_fetch_assoc($result)) {
+	while($nonCourseInfo = $result->fetch_assoc()) {
 		$schedule[] = array(
 			"title"     => $nonCourseInfo['title'],
 			"courseNum" => "non",
@@ -171,11 +171,11 @@ function getScheduleFromId($id) {
 
 function getScheduleFromOldId($id) {
 	$query = "SELECT id FROM schedules WHERE oldid = '{$id}'";
-	$result = mysql_query($query);
-	if(!$result || mysql_num_rows($result) != 1) {
+	$result = $dbConn->query($query);
+	if(!$result || $result->num_rows != 1) {
 		return NULL;
 	} else {
-		$newId = mysql_fetch_assoc($result);
+		$newId = $result->fetch_assoc();
 		$newId = $newId['id'];
 		$schedule = getScheduleFromId($newId);
 		$schedule['id'] = $newId;
@@ -337,19 +337,19 @@ switch($mode) {
 			$query = "INSERT INTO schedules (oldid, startday, endday, starttime, endtime, building, quarter)" .
 					" VALUES('', '{$json['startday']}', '{$json['endday']}', '{$json['starttime']}', '{$json['endtime']}', '{$json['building']}', " .
 					" '{$json['term']}')";
-			$result = mysql_query($query);
+			$result = $dbConn->query($query);
 			if(!$result) {
-				die(json_encode(array("error" => "mysql", "msg" => "Failed to store the schedule: " . mysql_error($dbConn))));
+				die(json_encode(array("error" => "mysql", "msg" => "Failed to store the schedule: " . $dbConn->error)));
 			}
 		
 			// Grab the latest id for the schedule
-			$schedId = mysql_insert_id();
+			$schedId = $dbConn->insert_id;
 		
 			// Optionally process the svg for the schedule
 			$image = false;
 			if(!empty($_POST['svg']) && renderSvg($_POST['svg'], $schedId)) {
 				$query = "UPDATE schedules SET image = ((1)) WHERE id = '{$schedId}'";
-				mysql_query($query);  // We don't particularly care if this fails
+				$dbConn->query($query);  // We don't particularly care if this fails
 			}
 		
 			// Now iterate through the schedule
@@ -360,18 +360,18 @@ switch($mode) {
 					foreach($item['times'] as $time) {
 						$query = "INSERT INTO schedulenoncourses (title, day, start, end, schedule)" .
 								" VALUES('{$item['title']}', '{$time['day']}', '{$time['start']}', '{$time['end']}', '{$schedId}')";
-						$result = mysql_query($query);
+						$result = $dbConn->query($query);
 						if(!$result) {
-							die(json_encode(array("error" => "mysql", "msg" => "Storing non-course item '{$item['title']}' failed: " . mysql_error($dbConn))));
+							die(json_encode(array("error" => "mysql", "msg" => "Storing non-course item '{$item['title']}' failed: " . $dbConn->error)));
 						}
 					}
 				} else {
 					// Process each course. It's crazy simple now.
 					$query = "INSERT INTO schedulecourses (schedule, section)" .
 							" VALUES('{$schedId}', '{$item['id']}')";
-					$result = mysql_query($query);
+					$result = $dbConn->query($query);
 					if(!$result) {
-						die(json_encode(array("error" => "mysql", "msg" => "Storing a course '{$item['courseNum']}' failed: " . mysql_error($dbConn))));
+						die(json_encode(array("error" => "mysql", "msg" => "Storing a course '{$item['courseNum']}' failed: " . $dbConn->erorr)));
 					}
 				}
 			}
