@@ -103,6 +103,8 @@ function generateIcal($schedule) {
 }
 
 function getScheduleFromId($id) {
+	global $dbConn;
+
 	// Query to see if the id exists, if we can update the last accessed time,
 	// then the id most definitely exists.
 	$query = "UPDATE schedules SET datelastaccessed = NOW() WHERE id={$id}";
@@ -170,6 +172,8 @@ function getScheduleFromId($id) {
 }
 
 function getScheduleFromOldId($id) {
+	global $dbConn;
+
 	$query = "SELECT id FROM schedules WHERE oldid = '{$id}'";
 	$result = $dbConn->query($query);
 	if(!$result || $result->num_rows != 1) {
