@@ -144,19 +144,19 @@ switch(getAction()) {
 		}
 
 		// Run it!
-		$result = mysql_query($query);
+		$result = $dbConn->query($query);
 		if(!$result) {
 			echo json_encode(array("error" => "mysql", "msg" => "An error occurred while searching the database."));
 			break;
 		}
-		if(mysql_num_rows($result) == 0) {
+		if($result->num_rows == 0) {
 			echo json_encode(array("error" => "result", "msg" => "No courses matched your criteria"));
 			break;
 		} 
 
 		// Now we build an array of the results
 		$courses = array();
-		while($row = mysql_fetch_assoc($result)) {
+		while($row = $result->fetch_assoc()) {
 			$courses[] = $row['id'];
 		}
 		// @todo: store this in session to avoid lengthy and costly queries

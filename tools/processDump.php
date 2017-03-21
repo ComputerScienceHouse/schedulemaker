@@ -330,11 +330,13 @@ if(mysqli_query($dbConn, $tempQuery)) {
 
 // Process the class file
 function procClassArray($lineSplit) {
+	global $dbConn;
+
 	// Escape class title, description, and course number (since it needs to be trimmed)
-    $lineSplit[6]  = mysql_real_escape_string(trim($lineSplit[6]));
-	$lineSplit[7]  = mysql_real_escape_string($lineSplit[7]);
-	$lineSplit[8]  = mysql_real_escape_string(trim($lineSplit[8]));
-	$lineSplit[23] = mysql_real_escape_string($lineSplit[23]);
+    $lineSplit[6]  = $dbConn->real_escape_string(trim($lineSplit[6]));
+	$lineSplit[7]  = $dbConn->real_escape_string($lineSplit[7]);
+	$lineSplit[8]  = $dbConn->real_escape_string(trim($lineSplit[8]));
+	$lineSplit[23] = $dbConn->real_escape_string($lineSplit[23]);
 
 	// Grab the integer credit count (they give it to us as a decimal)
 	preg_match('/(\d)+\.\d\d/', $lineSplit[11], $match);
