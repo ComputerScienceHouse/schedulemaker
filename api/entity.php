@@ -98,9 +98,9 @@ switch(getAction()) {
 		            AND number IS NOT NULL
                   ORDER BY id";
         }
-		$result = $db->query($query);
+		$result = $dbConn->query($query);
 		if(!$result) {
-			die(json_encode(array("error" => "mysql", "msg" => $db->error)));
+			die(json_encode(array("error" => "mysql", "msg" => $dbConn->error)));
 		}
 
 		// Collect the departments and turn it into a json
