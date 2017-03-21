@@ -184,7 +184,7 @@ function getCourse($term, $dept, $courseNum, $sectNum) {
 	// Execute the query and error check
 	$result = $dbConn->query($query);
 	if(!$result) {
-		throw new Exception("mysql:" . $db->error);
+		throw new Exception("mysql:" . $dbConn->error);
 	} elseif($result->num_rows > 1) {
 		throw new Exception("ambiguous:{$term}-{$dept}-{$courseNum}-{$sectNum}");
 	} elseif($result->num_rows == 0) {
