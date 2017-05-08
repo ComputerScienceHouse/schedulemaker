@@ -24,12 +24,12 @@ header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
 
 // Make a connection to the database
 global $DATABASE_SERVER, $DATABASE_USER, $DATABASE_PASS, $DATABASE_DB;
-$dbConn = mysql_connect($DATABASE_SERVER, $DATABASE_USER, $DATABASE_PASS);
-mysql_select_db($DATABASE_DB, $dbConn);
+
+$dbConn = new mysqli($DATABASE_SERVER, $DATABASE_USER, $DATABASE_PASS, $DATABASE_DB);
 
 // Error check
 if(!$dbConn) {
-	die("Could not connect to database: " . mysql_error());
+	die("Could not connect to database: " . $dbConn->connect_error);
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -54,8 +54,9 @@ function isSpecialSection($courseInfo) {
  * @return	array	A course array with all the information about the course
  */
 function getMeetingInfo($sectionData) {
-	// Store the course information
+	global $dbConn;
 
+	// Store the course information
     $course = array(
         "title"      => $sectionData['title'],
         "instructor" => $sectionData['instructor'],
@@ -82,11 +83,11 @@ function getMeetingInfo($sectionData) {
     $query = "SELECT b.code, b.number, b.off_campus, t.room, t.day, t.start, t.end ";
     $query .= "FROM times AS t JOIN buildings AS b ON b.number=t.building ";
     $query .= "WHERE section = {$sectionData['id']}";
-    $result = mysql_query($query);
+    $result = $dbConn->query($query);
     if(!$result) {
-        throw new Exception("mysql:" . mysql_error());
+        throw new Exception("mysql:" . $dbConn->error);
     }
-    while($row = mysql_fetch_assoc($result)) {
+    while($row = $result->fetch_assoc()) {
         $course["times"][] = array(
             "bldg"       => array("code"=>$row['code'], "number"=>$row['number']),
             "room"       => $row['room'],
@@ -108,6 +109,8 @@ function getMeetingInfo($sectionData) {
  * @return    array    The information about the section
  */
 function getCourseBySectionId($id, $withDescription = false) {
+	global $dbConn;
+
     // Sanity check for the section id
     if($id == "" || !is_numeric($id)) {
         trigger_error("A valid section id was not provided");
@@ -127,9 +130,9 @@ function getCourseBySectionId($id, $withDescription = false) {
                 WHERE s.id = '{$id}'";
 
 	// Actually run the query
-	$result = mysql_query($query);
+	$result = $dbConn->query($query);
 	// @TODO: Error handling
-	$row = mysql_fetch_assoc($result);
+	$row = $result->fetch_assoc();
     if($row['quarter'] > 20130) {
         $row['department'] = $row['code'];
     } else {
@@ -153,6 +156,8 @@ function getCourseBySectionId($id, $withDescription = false) {
  * @return	array				Course formatted into array as described above
  */
 function getCourse($term, $dept, $courseNum, $sectNum) {
+	global $dbConn;
+
 	// Build the query
     if($term > 20130) {
         $query = "SELECT s.id,
@@ -177,16 +182,16 @@ function getCourse($term, $dept, $courseNum, $sectNum) {
     }
 
 	// Execute the query and error check
-	$result = mysql_query($query);
+	$result = $dbConn->query($query);
 	if(!$result) {
-		throw new Exception("mysql:" . mysql_error());
-	} elseif(mysql_num_rows($result) > 1) {
+		throw new Exception("mysql:" . $dbConn->error);
+	} elseif($result->num_rows > 1) {
 		throw new Exception("ambiguous:{$term}-{$dept}-{$courseNum}-{$sectNum}");
-	} elseif(mysql_num_rows($result) == 0) {
+	} elseif($result->num_rows == 0) {
 		throw new Exception("objnotfound:{$term}-{$dept}-{$courseNum}-{$sectNum}");
 	}
 
-	return getMeetingInfo(mysql_fetch_assoc($result));
+	return getMeetingInfo($result->fetch_assoc());
 }
 
 /**
@@ -195,18 +200,19 @@ function getCourse($term, $dept, $courseNum, $sectNum) {
  * @return the array of terms
  */
 function getTerms() {
-	
+	global $dbConn;
+
 	$terms = array();
 
 	// Query the database for the quarters
 	$query = "SELECT quarter FROM quarters ORDER BY quarter DESC";
-	$result = mysql_query($query);
+	$result = $dbConn->query($query);
 
 	// Output the quarters as options
 	$curYear = 0;
 	$termGroupName = "";
 	
-	while($row = mysql_fetch_assoc($result)) {
+	while($row = $result->fetch_assoc()) {
 		$term = $row['quarter'];
 
 		// Parse it into a year-quarter thingy
@@ -254,6 +260,8 @@ function getTerms() {
  * @return	mixed	The item after it has been sanitized
  */
 function sanitize($item) {
+	global $dbConn;
+
 	if(is_array($item)) {
 		// If it's an array, then recursively call it on the item
 		foreach($item as $key => $value) {
@@ -263,6 +271,6 @@ function sanitize($item) {
 	} else {
 		// Base case, return the sanitized item
 		$item = htmlentities($item, ENT_QUOTES);
-		return mysql_real_escape_string($item);
+		return $dbConn->real_escape_string($item);
 	}
 }

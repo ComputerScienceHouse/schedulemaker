@@ -49,9 +49,9 @@ require_once("../inc/databaseConn.php");
 // MAIN EXECUTION //////////////////////////////////////////////////////////
 // Look up the last 20 scrape reports and store into an array
 $query = "SELECT * FROM scrapelog ORDER BY timeStarted DESC LIMIT 20";
-$result = mysql_query($query);
+$result = $dbConn->query($query);
 $lastLogs = array();
-while($row = mysql_fetch_assoc($result)) {
+while($row = $result->fetch_assoc()) {
 	$lastLogs[] = $row;
 }
 echo json_encode($lastLogs);

@@ -353,14 +353,14 @@ switch(getAction()) {
             // Close it up and provide order
             $query .= " ORDER BY c.course, s.section";
 
-            $result = mysql_query($query);
+            $result = $dbConn->query($query);
             if(!$result) {
                 die(json_encode(array("error" => "mysql", "msg" => "A database error occurred while searching for {$course}")));
             }
-            if(mysql_num_rows($result) == 0) { continue; }
+            if($result->num_rows == 0) { continue; }
 
             // Fetch all the results and append them to the list
-            while($row = mysql_fetch_assoc($result)) {
+            while($row = $result->fetch_assoc()) {
                 $courseOptions[] = getCourseBySectionId($row['id']);
             }
         }

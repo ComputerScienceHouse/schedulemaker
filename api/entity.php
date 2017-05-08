@@ -45,14 +45,14 @@ switch(getAction()) {
 		            AND s.status != 'X'
 		          GROUP BY c.id
 		          ORDER BY course";
-		$result = mysql_query($query);
+		$result = $dbConn->query($query);
 		if(!$result) {
-			die(json_encode(array("error" => "mysql", "msg" => mysql_error())));
+			die(json_encode(array("error" => "mysql", "msg" => $dbConn->error)));
 		}
 
 		// Collect the courses and turn it into a json
 		$courses = array();
-		while($course = mysql_fetch_assoc($result)) {
+		while($course = $result->fetch_assoc()) {
             $courses[] = array(
                 "id" => $course['id'],
                 "course" => $course['course'],
@@ -98,14 +98,14 @@ switch(getAction()) {
 		            AND number IS NOT NULL
                   ORDER BY id";
         }
-		$result = mysql_query($query);
+		$result = $dbConn->query($query);
 		if(!$result) {
-			die(json_encode(array("error" => "mysql", "msg" => mysql_error())));
+			die(json_encode(array("error" => "mysql", "msg" => $dbConn->error)));
 		}
 
 		// Collect the departments and turn it into a json
 		$departments = array();
-		while($department = mysql_fetch_assoc($result)) {
+		while($department = $result->fetch_assoc()) {
             $departments[] = array(
                 "id" => $department['id'],
                 "title" => $department['title'],
@@ -122,14 +122,14 @@ switch(getAction()) {
         // REQUEST FOR LIST OF SCHOOLS /////////////////////////////////////
         // Query for the schools
         $query = "SELECT `id`, `number`, `code`, `title` FROM schools";
-        $result = mysql_query($query);
+        $result = $dbConn->query($query);
         if(!$result) {
             die(json_encode(array("error" => "database", "msg" => "The list of schools could not be retrieved at this time.")));
         }
 
         // Build an array of schools
         $schools = array();
-        while($school = mysql_fetch_assoc($result)) {
+        while($school = $result->fetch_assoc()) {
             $schools[] = $school;
         }
 
@@ -154,14 +154,14 @@ switch(getAction()) {
 			$query = "SELECT id, number AS code, title FROM schools WHERE number IS NOT NULL ORDER BY number";
 		}
 		// Query for the schools
-        $result = mysql_query($query);
+        $result = $dbConn->query($query);
         if(!$result) {
         	die(json_encode(array("error" => "database", "msg" => "The list of schools could not be retrieved at this time.")));
         }
         
         // Build an array of schools
         $schools = array();
-        while($school = mysql_fetch_assoc($result)) {
+        while($school = $result->fetch_assoc()) {
         	$schools[] = $school;
         }
         
@@ -186,14 +186,14 @@ switch(getAction()) {
                   WHERE s.course = '{$_POST['course']}'
                     AND s.status != 'X'
                   ORDER BY c.course, s.section";
-		$sectionResult = mysql_query($query);
+		$sectionResult = $dbConn->query($query);
 		if(!$sectionResult) {
-			die(json_encode(array("error" => "mysql", "msg" => mysql_error())));
+			die(json_encode(array("error" => "mysql", "msg" => $dbConn->error)));
 		}
 		
 		// Collect the sections and their times, modify the section inline
 		$sections = array();
-		while($section = mysql_fetch_assoc($sectionResult)) {
+		while($section = $sectionResult->fetch_assoc()) {
 			$section['times'] = array();
 
 			// Set the course title depending on its section title
@@ -216,12 +216,12 @@ switch(getAction()) {
                             JOIN buildings AS b ON b.number=t.building
                           WHERE t.section = '{$section['id']}'
                           ORDER BY day, start";
-                $timeResult = mysql_query($query);
+                $timeResult = $dbConn->query($query);
                 if(!$timeResult) {
-                    die(json_encode(array("error" => "mysql", "msg" => mysql_error())));
+                    die(json_encode(array("error" => "mysql", "msg" => $dbConn->error)));
                 }
 
-                while($time = mysql_fetch_assoc($timeResult)) {
+                while($time = $timeResult->fetch_assoc()) {
                     $timeOutput = array(
                         'start'    => $time['start'],
                         'end'      => $time['end'],
