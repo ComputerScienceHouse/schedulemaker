@@ -122,16 +122,16 @@ angular.module('sm').directive('schedule', function($timeout, $filter) {
 			
 			// Calculate the height
 			var timeHeight = parseInt(courseEnd) - parseInt(courseStart);
-			timeHeight = timeHeight / 15;
+			timeHeight = timeHeight / 7.5;
 			timeHeight = Math.ceil(timeHeight);
 
-			timeHeight = (timeHeight * 10);
+			timeHeight = (timeHeight * 5);
 
 			// Calculate the top offset
 			var timeTop = parseInt(courseStart) - startTime;
-			timeTop = timeTop / 30;
+			timeTop = timeTop / 7.5;
 			timeTop = Math.floor(timeTop);
-			timeTop = timeTop * 20;
+			timeTop = timeTop * 5;
 			timeTop += 19;					// Offset for the header
 			
 			if(course.courseNum != 'non') {
