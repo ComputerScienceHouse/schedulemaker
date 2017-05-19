@@ -133,9 +133,32 @@ angular.module('sm').directive('schedule', function($timeout, $filter) {
 			timeTop = Math.floor(timeTop);
 			timeTop = timeTop * 5;
 			timeTop += 19;					// Offset for the header
-			
-			if(course.courseNum != 'non') {
-				var location = ((this.drawOptions.bldgStyle == 'code') ? time.bldg.code : time.bldg.number) + "-" + time.room,
+
+			//Add Padding for Formatting Time
+            function pad(d) {
+            	//Allows for time to display as example: 12:04 instead of 12:4
+                return (d < 10) ? '0' + d.toString() : d.toString();
+            }
+
+            //Format Start time
+            var hourLabel = Math.floor(courseStart / 60);
+            if(hourLabel > 12) {
+            	hourLabel -= 12;
+            }
+            else if(hourLabel == 0) {
+            	hourLabel = 12;
+            }
+            var minuteLabel = (courseStart % 60);
+            minuteLabel = pad(minuteLabel);
+            if(courseStart >= 720) {
+            	ap = " PM";
+            } else {
+            	ap = " AM";
+            }
+
+            //Set event data
+            if(course.courseNum != 'non') {
+				var location = ((this.drawOptions.bldgStyle == 'code') ? time.bldg.code : time.bldg.number) + "-" + time.room + " (" + (String(hourLabel) + ":" + String(minuteLabel) + " " + ap) + ")",
 				instructor = course.instructor,
 				courseNum = course.courseNum;
 			} else {
