@@ -457,13 +457,10 @@ while($row = mysqli_fetch_assoc($quarterResult)) {
 	preg_match("/(\d)(\d{3})/", $row['strm'], $match);
 	$row['strm'] = $match[1] . 0 . $match[2];
 
-	// Create a default break value
-	$break = '0000-00-00';
-
 	// Insert the quarter
     // TODO: Change schema from quarters to semesters (I doubt they're switching back anytime soon)
-	$query = "INSERT INTO quarters (quarter, start, end, breakstart, breakend)";
-	$query .= " VALUES({$row['strm']}, '{$row['start_dt']}', '{$row['end_dt']}', $break, $break)";
+	$query = "INSERT INTO quarters (`quarter`, `start`, `end`)";
+	$query .= " VALUES({$row['strm']}, '{$row['start_dt']}', '{$row['end_dt']}')";
 	$query .= " ON DUPLICATE KEY UPDATE";
 	$query .= " start='{$row['start_dt']}', end='{$row['end_dt']}'";
 
