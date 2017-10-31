@@ -300,7 +300,7 @@ CREATE TABLE IF NOT EXISTS `classes` (
   `strm` int(4) UNSIGNED NOT NULL,
   `session_code` varchar(4) NOT NULL,
   `class_section` varchar(4) NOT NULL,
-  `subject` int(4) UNSIGNED ZEROFILL NOT NULL,
+  `subject` VARCHAR (4) NOT NULL,
   `catalog_nbr` VARCHAR(4) NOT NULL,
   `descr` text NOT NULL,
   `topic` text NOT NULL,
@@ -457,9 +457,13 @@ while($row = mysqli_fetch_assoc($quarterResult)) {
 	preg_match("/(\d)(\d{3})/", $row['strm'], $match);
 	$row['strm'] = $match[1] . 0 . $match[2];
 
+	// Create a default break value
+	$break = '0000-00-00';
+
 	// Insert the quarter
-	$query = "INSERT INTO quarters (quarter, start, end)";
-	$query .= " VALUES({$row['strm']}, '{$row['start_dt']}', '{$row['end_dt']}')";
+    // TODO: Change schema from quarters to semesters (I doubt they're switching back anytime soon)
+	$query = "INSERT INTO quarters (quarter, start, end, breakstart, breakend)";
+	$query .= " VALUES({$row['strm']}, '{$row['start_dt']}', '{$row['end_dt']}', $break, $break)";
 	$query .= " ON DUPLICATE KEY UPDATE";
 	$query .= " start='{$row['start_dt']}', end='{$row['end_dt']}'";
 
@@ -557,8 +561,8 @@ while($row = mysqli_fetch_assoc($courseResult)) {
 	$row['course_descrlong'] = mysqli_real_escape_string($dbConn, $row['course_descrlong']);
 
 	// Insert or update the course
-    $courseId = insertOrUpdateCourse($row['qtr'], $row['subject'], $row['acad_org'], $row['catalog_nbr'],
-	                                 $row['units'], $row['descr'], $row['course_descrlong']);
+    $courseId = insertOrUpdateCourse($row['qtr'], 0000, $row['acad_org'], $row['catalog_nbr'],
+        $row['units'], $row['descr'], $row['course_descrlong']);
 	if(!is_numeric($courseId)) {
 		echo("    *** Error: Failed to update {$row['qtr']} {$row['subject']}{$row['acad_org']}-{$row['catalog_nbr']}\n");
 		echo("    ");
@@ -702,6 +706,7 @@ while($row = mysqli_fetch_assoc($courseResult)) {
 				$days = array($time['sun'], $time['mon'], $time['tues'], $time['wed'], $time['thurs'], $time['fri'], $time['sat']);
 				foreach($days as $i => $dayTruth) {
 					if($dayTruth == 'Y') {
+					    // TODO: Fix schema to allow `room` to be larger than varchar(4)
 						$timeInsert = "INSERT INTO times (section, day, start, end, building, room)";
 						$timeInsert .= " VALUES({$sectId}, {$i}, {$startTime}, {$endTime}, ";
 						$timeInsert .= "'{$time['bldg']}', '{$time['room_nbr']}')";
