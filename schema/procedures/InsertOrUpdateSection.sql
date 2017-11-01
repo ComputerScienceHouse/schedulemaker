@@ -4,8 +4,8 @@ CREATE PROCEDURE InsertOrUpdateSection(
     IN p_course INT,
     IN p_section VARCHAR(4),
     IN p_title VARCHAR(50),
-    IN p_instructor VARCHAR(30),
-    IN p_type VARCHAR(1),
+    IN p_instructor VARCHAR(64),
+    IN p_type VARCHAR(2),
     IN p_status VARCHAR(1),
     IN p_maxenroll INT,
     IN p_curenroll INT
