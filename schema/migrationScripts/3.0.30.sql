@@ -1,5 +1,5 @@
 ALTER TABLE `sections`
-  CHANGE `type` `type` ENUM ('R', 'N', 'H', 'BL', 'OL')
+  CHANGE `type` `type` ENUM ('R', 'N', 'H', 'BL', 'OL', 'O')
 CHARACTER SET latin1
 COLLATE latin1_swedish_ci NOT NULL DEFAULT 'R'
 COMMENT 'R=regular, N=night, OL=online, H=honors, BL=????',
@@ -9,6 +9,14 @@ COMMENT 'max enrollment',
 COMMENT 'current enrollment',
   CHANGE `instructor` `instructor` VARCHAR(64) NOT NULL DEFAULT 'TBA'
 COMMENT 'Instructor\'s Name';
+
+UPDATE `sections` SET `type`='OL' WHERE `type`='O';
+
+ALTER TABLE `sections`
+  CHANGE `type` `type` ENUM ('R', 'N', 'H', 'BL', 'OL')
+CHARACTER SET latin1
+COLLATE latin1_swedish_ci NOT NULL DEFAULT 'R'
+COMMENT 'R=regular, N=night, OL=online, H=honors, BL=????';
 
 ALTER TABLE `times`
   CHANGE `room` `room` VARCHAR(10)
