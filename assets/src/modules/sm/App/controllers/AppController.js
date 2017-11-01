@@ -624,16 +624,24 @@ angular.module('sm').controller("AppController", function($scope, localStorage, 
 				label: "Location, Number, Professor"
 			}]
 		},
-		colors:
-			["#7BA270",
-			 "#85B4C2",
-			 "#CD9161",
-			 "#74B79F",
-			 "#AA9E5B",
-			 "#769E9F",
-			 "#9D987A",
-			 "#658B76",
-			 "#92838F",
-			 "#A9ABC3"]
+        colors:
+            [
+                "#7BA270",
+                "#85B4C2",
+                "#CD9161",
+                "#74B79F",
+                "#AA9E5B",
+                "#769E9F",
+                "#9D987A",
+                "#658B76",
+                "#92838F",
+                "#A9ABC3",
+                "#7C7FA4",
+                "#CD6167",
+                "#61CDC7",
+                "#61CD91",
+                "#9DCD61",
+                "#619DCD"
+            ]
 	};
 });
