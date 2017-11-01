@@ -1,0 +1,19 @@
+{
+  "background_color": "#2B4E69",
+  "description": "A course database lookup tool and schedule building web application for use at Rochester Institute of Technology.",
+  "dir": "auto",
+  "display": "standalone",
+  "icons": [
+    {
+      "sizes": "48x48 72x72 96x96 128x128 256x256 512x512",
+      "type": "image\/svg",
+      "src": "/img/csh_logo_square.svg"
+    }
+  ],
+  "lang": "en",
+  "name": "CSH ScheduleMaker",
+  "orientation": "any",
+  "short_name": "ScheduleMaker",
+  "start_url": "/",
+  "theme_color": "#2C3E50"
+}
