@@ -40,7 +40,7 @@ if ($path[1] == 'schedule') {
 //OLD header.inc
 ?>
 <!DOCTYPE html>
-<html prefix="og: http://ogp.me/ns#" ng-app="sm">
+<html prefix="og: http://ogp.me/ns#" ng-app="sm" lang="en">
 	<head>
 		<title><?= (!empty($TITLE)) ? $TITLE . " - " : "" ?>Schedule Maker</title>
 
@@ -49,6 +49,8 @@ if ($path[1] == 'schedule') {
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="theme-color" content="#2C3E50">
+        <link rel="manifest" href="manifest.json">
 
 		<!-- STYLE SHEETS -->
 		<link rel="stylesheet" href="//brick.a.ssl.fastly.net/Roboto:300,700">
@@ -94,8 +96,8 @@ if ($path[1] == 'schedule') {
 			</div>
 			<footer class="main default">
 				<div class="container">
-					<div class="csh"><a target="_blank" href="http://www.csh.rit.edu/"><img src="<?=$ASSETROOTADDRESS?>img/csh.png" alt="CSH" /></a></div>
-					<a target="_blank" href="https://github.com/ComputerScienceHouse/schedulemaker">Version: <?=$APP_VERSION?></a> | <a ui-sref="help">Help</a> | <a href="/status">Status</a> | <a target="_blank" href="https://github.com/ComputerScienceHouse/schedulemaker/issues">Report Issues</a>
+					<div class="csh"><a target="_blank" rel="noopener" href="http://www.csh.rit.edu/"><img width="80" src="<?=$ASSETROOTADDRESS?>img/csh_logo_square.svg" alt="CSH" /></a></div>
+					<a target="_blank" rel="noopener" href="https://github.com/ComputerScienceHouse/schedulemaker">Version: <?=$APP_VERSION?></a> | <a ui-sref="help">Help</a> | <a href="/status">Status</a> | <a target="_blank" rel="noopener" href="https://github.com/ComputerScienceHouse/schedulemaker/issues">Report Issues</a>
 					<div>
 						Development v3: Ben Grawi (bgrawi at csh.rit.edu)<br>
 						Development v2: Ben Russell (benrr101 at csh.rit.edu)<br>
@@ -106,7 +108,7 @@ if ($path[1] == 'schedule') {
 			</footer>
 			<footer class="main print">
 				Made Using <a href='<?= $HTTPROOTADDRESS ?>'>CSH ScheduleMaker</a>
-				<a href="http://www.csh.rit.edu/"><img height="25" src="/img/csh_print.png"></a>
+				<a target="_blank" rel="noopener" href="http://www.csh.rit.edu/"><img height="25" src="/img/csh_print.png"></a>
 			</footer>
 		</div>
 		<!-- LOAD SCRIPTS LAST -->
