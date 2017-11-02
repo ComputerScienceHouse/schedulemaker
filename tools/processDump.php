@@ -80,8 +80,8 @@ function halt($messages) {
  * Inserts or updates a course. This function calls the stored procedure for
  * inserting or updating a course.
  * @param $quarter      int     The term that the course is in
- * @param $departNum    int     The number of the department
- * @param $departCode   int     The code for the department
+ * @param $departCode   String  The code of the department
+ * @param $classCode    String  The code for the class
  * @param $course       int     The number of the course
  * @param $credits      int     The credits the course offers
  * @param $title        String  The title of the course
@@ -89,15 +89,22 @@ function halt($messages) {
  * @return  mixed   String of error message returned on failure.
  *                  Integer of course ID returned on success
  */
-function insertOrUpdateCourse($quarter, $departNum, $departCode, $course, $credits, $title, $description) {
+function insertOrUpdateCourse($quarter, $departCode, $classCode, $course, $credits, $title, $description) {
 	global $dbConn, $coursesUpdated, $coursesAdded;
 	// Call the stored proc
-	$query = "CALL InsertOrUpdateCourse({$quarter}, {$departNum}, '{$departCode}', '{$course}', {$credits}, '{$title}', '{$description}')";
+    // TODO: Refactor out department ID number (0000)
+	$query = "CALL InsertOrUpdateCourse({$quarter}, 0000, '{$classCode}', '{$course}', {$credits}, '{$title}', '{$description}')";
 	$success = mysqli_multi_query($dbConn, $query);
 
 	// Catch errors or return the id
 	if(!$success) {
-		return mysqli_error($dbConn);
+	    // If the class code errors out, try the department code
+        // TODO: Refactor out department ID number (0000)
+        $query = "CALL InsertOrUpdateCourse({$quarter}, 0000, '{$departCode}', '{$course}', {$credits}, '{$title}', '{$description}')";
+        $success = mysqli_multi_query($dbConn, $query);
+        if(!$success) {
+            return mysqli_error($dbConn);
+        }
 	}
 
 	// First result set is updated vs inserted
@@ -457,13 +464,10 @@ while($row = mysqli_fetch_assoc($quarterResult)) {
 	preg_match("/(\d)(\d{3})/", $row['strm'], $match);
 	$row['strm'] = $match[1] . 0 . $match[2];
 
-	// Create a default break value
-	$break = '0000-00-00';
-
 	// Insert the quarter
     // TODO: Change schema from quarters to semesters (I doubt they're switching back anytime soon)
-	$query = "INSERT INTO quarters (quarter, start, end, breakstart, breakend)";
-	$query .= " VALUES({$row['strm']}, '{$row['start_dt']}', '{$row['end_dt']}', $break, $break)";
+	$query = "INSERT INTO quarters (`quarter`, `start`, `end`)";
+	$query .= " VALUES({$row['strm']}, '{$row['start_dt']}', '{$row['end_dt']}')";
 	$query .= " ON DUPLICATE KEY UPDATE";
 	$query .= " start='{$row['start_dt']}', end='{$row['end_dt']}'";
 
@@ -561,10 +565,10 @@ while($row = mysqli_fetch_assoc($courseResult)) {
 	$row['course_descrlong'] = mysqli_real_escape_string($dbConn, $row['course_descrlong']);
 
 	// Insert or update the course
-    $courseId = insertOrUpdateCourse($row['qtr'], 0000, $row['acad_org'], $row['catalog_nbr'],
+    $courseId = insertOrUpdateCourse($row['qtr'], $row['acad_org'], $row['subject'], $row['catalog_nbr'],
         $row['units'], $row['descr'], $row['course_descrlong']);
-	if(!is_numeric($courseId)) {
-		echo("    *** Error: Failed to update {$row['qtr']} {$row['subject']}{$row['acad_org']}-{$row['catalog_nbr']}\n");
+    if (!is_numeric($courseId)) {
+		echo("    *** Error: Failed to update {$row['qtr']} {$row['subject']}-{$row['catalog_nbr']}\n");
 		echo("    ");
         var_dump($courseId);
         echo("\n");

@@ -15,7 +15,7 @@ CREATE TABLE times (
   `start`       SMALLINT(4) UNSIGNED NOT NULL,
   `end`         SMALLINT(4) UNSIGNED NOT NULL,
   `building`    VARCHAR(5) NULL DEFAULT NULL,
-  `room`        VARCHAR(4) NULL DEFAULT NULL
+  `room`        VARCHAR(10) NULL DEFAULT NULL
 )ENGINE=InnoDB;
 
 -- FOREIGN KEY CONSTRAINTS -------------------------------------------------
