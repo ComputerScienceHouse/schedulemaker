@@ -11,7 +11,5 @@
 CREATE TABLE quarters (
   `quarter`     SMALLINT(5) UNSIGNED NOT NULL PRIMARY KEY,
   `start`       DATE NOT NULL,
-  `end`         DATE NOT NULL,
-  `breakstart`  DATE NOT NULL,
-  `breakend`    DATE NOT NULL
+  `end`         DATE NOT NULL
 ) ENGINE=InnoDb;
