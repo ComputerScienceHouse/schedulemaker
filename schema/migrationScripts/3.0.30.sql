@@ -10,7 +10,9 @@ COMMENT 'current enrollment',
   CHANGE `instructor` `instructor` VARCHAR(64) NOT NULL DEFAULT 'TBA'
 COMMENT 'Instructor\'s Name';
 
-UPDATE `sections` SET `type`='OL' WHERE `type`='O';
+UPDATE `sections`
+SET `type` = 'OL'
+WHERE `type` = 'O';
 
 ALTER TABLE `sections`
   CHANGE `type` `type` ENUM ('R', 'N', 'H', 'BL', 'OL')
@@ -26,4 +28,11 @@ COMMENT 'room number';
 
 INSERT INTO `buildings` (`number`, `code`, `name`) VALUES ('ZAG', 'ZAG', 'Building in Croatia');
 
-ALTER TABLE `quarters` DROP `breakstart`, DROP `breakend`;
+ALTER TABLE `quarters`
+  DROP `breakstart`,
+  DROP `breakend`;
+
+ALTER TABLE `departments`
+  CHANGE `title` `title` VARCHAR(30)
+CHARACTER SET latin1
+COLLATE latin1_swedish_ci NULL;
