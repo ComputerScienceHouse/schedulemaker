@@ -207,7 +207,7 @@ switch(getAction()) {
 			unset($section['coursetitle']);
 
 			// If it's online, don't bother looking up the times
-			if($section['type'] == "O") {
+			if($section['type'] == "OL") {
 				$section['online'] = true;
 			} else {
                 // Look up the times the section meets
