@@ -66,7 +66,7 @@ function getMeetingInfo($sectionData) {
         "courseParentNum" => "{$sectionData['department']}-{$sectionData['course']}",
         "courseId"   => $sectionData['courseId'],
         "id"         => $sectionData['id'],
-        "online"     => $sectionData['type'] == "O",
+        "online"     => $sectionData['type'] == "OL",
 		"credits"	 => $sectionData['credits']
         );
 
