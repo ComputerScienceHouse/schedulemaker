@@ -34,7 +34,7 @@ function generateIcal($schedule) {
 
 	// We need to lookup the information about the quarter
 	$term = $dbConn->real_escape_string($schedule['term']);
-	$query = "SELECT start, end, breakstart, breakend FROM quarters WHERE quarter='{$term}'";
+	$query = "SELECT start, end FROM quarters WHERE quarter='{$term}'";
 	$result = $dbConn->query($query);
 	$term = $result->fetch_assoc();
 	$termStart = strtotime($term['start']);
