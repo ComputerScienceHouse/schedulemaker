@@ -399,7 +399,7 @@ switch(getAction()) {
             $totalSchedules *= count($_POST["courses{$i}Opt"]);
         }
         if ($totalSchedules >= 10000){
-            echo json_encode(array("error" => "argument", "msg" => "Too many schedule possibilities to generate, try to prune possibilities. 
+            echo json_encode(array("error" => "argument", "msg" => "Too many schedule possibilities to generate, try to remove classes from your shopping cart. 
             Adding classes like YearOne or classes with hundreds of sections can cause this to occur.", "arg" => "action"));
             break;
         }
