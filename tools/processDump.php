@@ -300,7 +300,7 @@ while ($row = mysqli_fetch_assoc($courseResult)) {
 
     // Insert or update the course
     $courseId = $parser->insertOrUpdateCourse($row['qtr'], $row['acad_org'], $row['subject'], $row['catalog_nbr'],
-        $row['units'], $row['descr'], $row['course_descrlong']);
+        (int)$row['units'], $row['descr'], $row['course_descrlong']);
     if (!is_numeric($courseId)) {
         echo("    *** Error: Failed to update {$row['qtr']} {$row['subject']}-{$row['catalog_nbr']}\n");
         echo("    ");
