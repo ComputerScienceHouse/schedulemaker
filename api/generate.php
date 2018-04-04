@@ -391,6 +391,19 @@ switch(getAction()) {
 		$courseGroupsByCourseId = array();
 
 		$courseSet = array();
+
+		// Check to make sure schedule wont exceed 10,000 options
+        $totalSchedules = 1;
+        for($i = 1; $i <= $_POST['courseCount']; $i++) {
+            if(!isset($_POST["courses{$i}Opt"])) { continue; }
+            $totalSchedules *= count($_POST["courses{$i}Opt"]);
+        }
+        if ($totalSchedules >= 10000){
+            echo json_encode(array("error" => "argument", "msg" => "Too many schedule possibilities to generate, try to remove classes from your shopping cart. 
+            Adding classes like YearOne or classes with hundreds of sections can cause this to occur.", "arg" => "action"));
+            break;
+        }
+
 		for($i = 1; $i <= $_POST['courseCount']; $i++) {		// It's 1-indexed... :[
 			// Iterate over the courses in that course slot
 			if(!isset($_POST["courses{$i}Opt"])) { continue; }
