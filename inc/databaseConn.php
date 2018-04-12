@@ -9,7 +9,11 @@
 ////////////////////////////////////////////////////////////////////////////
 
 // Bring in the config data
-require_once dirname(__FILE__) . "/config.php";
+if (file_exists(dirname(__FILE__) . "/config.php")) {
+    require_once dirname(__FILE__) . "/config.php";
+} else {
+    require_once dirname(__FILE__) . "/config.env.php";
+}
 
 
 // There is no better place to put this, as all pages require this file.
