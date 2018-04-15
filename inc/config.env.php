@@ -9,9 +9,9 @@ $get_env = function (&$var, $default = null) {
 
 $COOKIE_STORE    = $get_env(getenv("COOKIE_STORE"), '/tmp/siscookies.txt');
 $DATABASE_SERVER = $get_env(getenv("DATABASE_SERVER"), 'mysql.csh.rit.edu');
-$DATABASE_USER   = $get_env(getenv("DATABASE_USER"), 'schedule_matted');
-$DATABASE_PASS   = $get_env(getenv("DATABASE_PASS"), '47MxO5KNav1xInNG');
-$DATABASE_DB     = $get_env(getenv("DATABASE_DB"), 'schedule_matted');
+$DATABASE_USER   = $get_env(getenv("DATABASE_USER"), '');
+$DATABASE_PASS   = $get_env(getenv("DATABASE_PASS"), '');
+$DATABASE_DB     = $get_env(getenv("DATABASE_DB"), '');
 $DUMPCLASSES     = '/mnt/share/cshclass.dat';
 $DUMPCLASSATTR   = '/mnt/share/cshattrib.dat';
 $DUMPINSTRUCT    = '/mnt/share/cshinstr.dat';
