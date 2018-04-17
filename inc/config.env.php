@@ -12,11 +12,11 @@ $DATABASE_SERVER = $get_env(getenv("DATABASE_SERVER"), 'mysql.csh.rit.edu');
 $DATABASE_USER   = $get_env(getenv("DATABASE_USER"), '');
 $DATABASE_PASS   = $get_env(getenv("DATABASE_PASS"), '');
 $DATABASE_DB     = $get_env(getenv("DATABASE_DB"), '');
-$DUMPCLASSES     = '/mnt/share/cshclass.dat';
-$DUMPCLASSATTR   = '/mnt/share/cshattrib.dat';
-$DUMPINSTRUCT    = '/mnt/share/cshinstr.dat';
-$DUMPMEETING     = '/mnt/share/cshmtgpat.dat';
-$DUMPNOTES       = '/mnt/share/cshnotes.dat';
+$DUMPCLASSES     = $get_env(getenv("DUMPCLASSES"), '/mnt/share/cshclass.dat');
+$DUMPCLASSATTR   = $get_env(getenv("DUMPCLASSATTR"), '/mnt/share/cshattrib.dat');
+$DUMPINSTRUCT    = $get_env(getenv("DUMPINSTRUCT"), '/mnt/share/cshinstr.dat');
+$DUMPMEETING     = $get_env(getenv("DUMPMEETING"), '/mnt/share/cshmtgpat.dat');
+$DUMPNOTES       = $get_env(getenv("DUMPNOTES"), '/mnt/share/cshnotes.dat');
 
 $HTTPROOTADDRESS = $get_env(getenv("HTTPROOTADDRESS"), 'http://schedule.csh.rit.edu/');
 $SERVER_TYPE     = $get_env(getenv("SERVER_TYPE"), 'development');
