@@ -1,6 +1,6 @@
 {
   "name": "schedulemaker",
-  "version": "3.0.31",
+  "version": "3.1.0",
   "private": true,
   "description": "A course database lookup tool and schedule building web application for use at Rochester Institute of Technology.",
   "main": "index.php",
@@ -21,6 +21,10 @@
     "Rochester Institute of Technology"
   ],
   "contributors": [
+    {
+      "name": "Devin Matte",
+      "email": "matted@csh.rit.edu"
+    },
     {
       "name": "Ben Grawi",
       "email": "bgrawi@csh.rit.edu"

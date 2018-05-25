@@ -1,0 +1,16 @@
+language: php
+php:
+  - 7.0
+  - 7.1
+  - 7.2
+  - hhvm
+  - nightly
+
+matrix:
+    allow_failures:
+        - php: 7.0
+        - php: hhvm
+        - php: nightly
+
+script:
+  - if find . -name "*.php" ! -path "./vendor/*" -exec php -l {} 2>&1 \; | grep "syntax error, unexpected"; then exit 1; fi

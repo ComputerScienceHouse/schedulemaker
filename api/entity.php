@@ -10,7 +10,11 @@
 ////////////////////////////////////////////////////////////////////////////
 
 // REQUIRED FILES //////////////////////////////////////////////////////////
-require_once "../inc/config.php";
+if (file_exists('../inc/config.php')) {
+    require_once "../inc/config.php";
+} else {
+    require_once "../inc/config.env.php";
+}
 require_once "../inc/databaseConn.php";
 require_once "../inc/timeFunctions.php";
 require_once "../inc/ajaxError.php";
