@@ -1,0 +1,23 @@
+{
+  "name": "computersciencehouse/schedulemaker",
+  "description": "A course database lookup tool and schedule building web application for use at Rochester Institute of Technology.",
+  "type": "project",
+  "authors": [
+    {
+      "name": "Devin Matte",
+      "email": "matted@csh.rit.edu"
+    },
+    {
+      "name": "Ben Grawi",
+      "email": "bgrawi@csh.rit.edu"
+    },
+    {
+      "name": "Ben Russell",
+      "email": "benrr101@csh.rit.edu"
+    }
+  ],
+  "require": {
+    "php": ">=7.0",
+    "aws/aws-sdk-php": "^3.69"
+  }
+}

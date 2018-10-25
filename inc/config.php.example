@@ -23,6 +23,12 @@ $HTTPROOTADDRESS = 'http://path.to.your/schedule/';
 $SERVER_TYPE     = '(development|production)'
 
 ////////////////////////////////////////////////////////////////////////////
+// S3 CONFIG
+$S3_SERVER = 's3.csh.rit.edu';
+$S3_KEY = '';
+$S3_SECRET = '';
+
+////////////////////////////////////////////////////////////////////////////
 // CALCULATIONS
 
 // Calculate the current quarter
