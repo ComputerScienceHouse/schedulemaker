@@ -89,14 +89,14 @@ class Parser {
      * @param $quarter      int     The term that the course is in
      * @param $departCode   string  The code of the department
      * @param $classCode    string  The code for the class
-     * @param $course       int     The number of the course
+     * @param $course       string  The number of the course
      * @param $credits      int     The credits the course offers
      * @param $title        string  The title of the course
      * @param $description  string  The description for the course
      * @return  mixed   String of error message returned on failure.
      *                  Integer of course ID returned on success
      */
-    function insertOrUpdateCourse(int $quarter, string $departCode, string $classCode, int $course, int $credits, string $title, string $description) {
+    function insertOrUpdateCourse(int $quarter, string $departCode, string $classCode, string $course, int $credits, string $title, string $description) {
         global $coursesUpdated, $coursesAdded;
         // Call the stored proc
         // TODO: Refactor out department ID number (0000)
