@@ -8,7 +8,7 @@ class S3Client {
 
 private $s3Client;
 
-function __construct($S3_KEY, $S3_SECRET, $S3_SERVER)
+function __construct($S3_KEY, $S3_SECRET, $S3_SERVER, $S3_BUCKET)
 {	
 $client = new S3Client([
     'region' => '',
@@ -22,7 +22,12 @@ $client = new S3Client([
 ]);
 }
 
-public function saveImage() {
-	//TODO Save image to s3
+public function saveImage($im, $id) {
+	//TODO: Error Handling
+	$client->putObject([
+    		'Bucket' => $S3_BUCKET,
+    		'Key' => "{$id}.png",
+    		'Body' => $im->getImageBlob()
+	]);
 }
 }
