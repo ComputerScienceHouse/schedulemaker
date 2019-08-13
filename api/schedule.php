@@ -221,6 +221,7 @@ function renderSvg($svg, $id) {
 
 
 		// Write it to the filesystem
+		// TODO: Write to S3 instead
 		$im->writeimage("../img/schedules/{$id}.png");
 		$im->clear();
 		$im->destroy();
