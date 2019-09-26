@@ -151,6 +151,17 @@ angular.module('sm').directive('scheduleActions', function($http, $q, shareServi
 				popup.document.title = "My Schedule";
 				popup.location = "http://" + window.location.hostname + '/schedule/render/print';	
 			},
+
+			export: function() {
+				ga('send', 'event', 'schedule', 'export');
+				
+				var term = scope.state.requestOptions.term;
+				var courses = scope.schedule;
+				
+				//TODO: Link to Tiger Center
+				var win = window.open('https://csh.rit.edu', '_blank');
+  				win.focus();
+			},
 			
 			hide: function() {
 				ga('send', 'event', 'schedule', 'hide');

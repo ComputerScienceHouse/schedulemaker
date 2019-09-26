@@ -17,7 +17,7 @@
 					<button ng-click="scheduleActions.print()" type="button" class="btn btn-info hidden-xs"><i class="fa fa-fw fa-print"></i> Print</button>
 					<div class="btn-group">
 						<button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown">
-							<i class="fa fa-share"></i> Share to... <span class="caret"></span>
+							<i class="fa fa-share"></i> Share <span class="caret"></span>
 						</button>
 						<ul class="dropdown-menu" role="menu">
 							<li><a ng-click="scheduleActions.shareToService($event, 'facebook')" href="#"><i class="fa fa-fw fa-facebook"></i> Facebook</a></li>
@@ -28,7 +28,8 @@
 							<li><a ng-click="scheduleActions.shareToDirectLink($event)" href="#"><i class="fa fa-fw fa-link"></i> Direct link</a></li>
 						</ul>
 					</div>
-					<button ng-click="scheduleActions.hide()" type="button" class="btn btn-danger"><i class="fa fa-trash-o"></i> Remove</button>
+					<button ng-click="scheduleActions.export()" type="button" class="btn btn-warning"><i class="fa fa-arrow-right"></i> Export</button>
+					<button ng-click="scheduleActions.hide()" type="button" class="btn btn-danger"><i class="fa fa-trash-o"></i></button>
 				</div>
 				<div class="btn-group pull-right visible-xs visible-sm">
 					<div class="btn-group">
@@ -43,7 +44,7 @@
 					</div>
 					<div class="btn-group">
 						<button type="button" class="btn btn-info dropdown-toggle btn-sm" data-toggle="dropdown">
-							<i class="fa fa-share"></i> Share to... <span class="caret"></span>
+							<i class="fa fa-share"></i> Share <span class="caret"></span>
 						</button>
 						<ul class="dropdown-menu" role="menu">
 							<li><a ng-click="scheduleActions.shareToService($event, 'facebook', true)" href="#"><i class="fa fa-fw fa-facebook"></i> Facebook</a></li>
@@ -54,6 +55,7 @@
 							<li><a ng-click="scheduleActions.shareToDirectLink($event)" href="#"><i class="fa fa-fw fa-link"></i> Direct link</a></li>
 						</ul>
 					</div>
+					<button ng-click="scheduleActions.export()" type="button" class="btn btn-warning btn-sm"><i class="fa fa-arrow-right"></i> Export</button>
 					<button ng-click="scheduleActions.hide()" type="button" class="btn btn-danger btn-sm"><i class="fa fa-trash-o"></i></button>
 				</div>
 				<div ng-show="status == 'L'" class="control-label schedule-loading">
