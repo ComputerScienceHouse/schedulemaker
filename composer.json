@@ -14,10 +14,16 @@
     {
       "name": "Ben Russell",
       "email": "benrr101@csh.rit.edu"
+    },
+    {
+      "name": "John Resig",
+      "email": "phytar@csh.rit.edu"
     }
   ],
   "require": {
-    "php": ">=7.0",
-    "aws/aws-sdk-php": "^3.69"
+    "php": ">=7.1",
+    "aws/aws-sdk-php": "^3.69",
+    "ext-imagick": "*",
+    "ext-json": "*"
   }
 }

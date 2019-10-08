@@ -20,7 +20,7 @@ $DATABASE_DB     = 'yourdatabase';
 $DUMPLOCATION    = 'pathtothedumpfile';
 $GOOGLEANALYTICS = 'google_analytics_site_id';
 $HTTPROOTADDRESS = 'http://path.to.your/schedule/';
-$SERVER_TYPE     = '(development|production)'
+$SERVER_TYPE     = '(development|production)';
 
 ////////////////////////////////////////////////////////////////////////////
 // S3 CONFIG
@@ -52,7 +52,3 @@ switch(date('n')) {
 		$CURRENT_QUARTER = date("Y") . '2';		// Point them to the summer
 		break;
 }
-
-////////////////////////////////////////////////////////////////////////////
-// SESSION
-

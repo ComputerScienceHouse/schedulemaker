@@ -34,5 +34,5 @@ _Local Working Files/*
 web.config
 vwd.webinfo
 WebEssentials-Settings.json
-/vendor/
+vendor
 composer.lock
