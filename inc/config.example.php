@@ -24,9 +24,10 @@ $SERVER_TYPE     = '(development|production)';
 
 ////////////////////////////////////////////////////////////////////////////
 // S3 CONFIG
-$S3_SERVER = 's3.csh.rit.edu';
+$S3_SERVER = 'https://s3.csh.rit.edu';
 $S3_KEY = '';
 $S3_SECRET = '';
+$S3_IMAGE_BUCKET = 'schedulemaker';
 
 ////////////////////////////////////////////////////////////////////////////
 // CALCULATIONS

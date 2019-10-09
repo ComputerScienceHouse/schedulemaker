@@ -23,9 +23,10 @@ $SERVER_TYPE     = $get_env(getenv("SERVER_TYPE"), 'development');
 
 ////////////////////////////////////////////////////////////////////////////
 // S3 CONFIG
-$S3_SERVER = $get_env(getenv("S3_SERVER"), 's3.csh.rit.edu');
+$S3_SERVER = $get_env(getenv("S3_SERVER"), 'https://s3.csh.rit.edu');
 $S3_KEY = $get_env(getenv("S3_KEY"), '');
 $S3_SECRET = $get_env(getenv("S3_SECRET"), '');
+$S3_IMAGE_BUCKET = $get_env(getenv("S3_IMAGE_BUCKET"), 'schedulemaker');
 
 ////////////////////////////////////////////////////////////////////////////
 //// APP VERSIONS
