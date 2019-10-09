@@ -20,6 +20,10 @@ RewriteCond %{HTTP:Accept} application/json [NC]
 RewriteRule ^(schedule|generate|entity|search|status|rmp)(?:/([^/]*))*$ api/$1.php [L]
 RewriteRule ^schedule/[^/]*/ical$ api/schedule.php [L]
 
+# Redirect all images to assets
+# TODO Get it to redirect properly
+# RewriteRule /([^.]+\.png)$ https://assets.csh.rit.edu/schedulemaker/$1 [R=301,L,NC]
+
 # Don't rewrite files or directories
 RewriteCond %{REQUEST_FILENAME} -f [OR]
 RewriteCond %{REQUEST_FILENAME} -d

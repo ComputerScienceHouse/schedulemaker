@@ -22,6 +22,13 @@ $HTTPROOTADDRESS = $get_env(getenv("HTTPROOTADDRESS"), 'http://schedule.csh.rit.
 $SERVER_TYPE     = $get_env(getenv("SERVER_TYPE"), 'development');
 
 ////////////////////////////////////////////////////////////////////////////
+// S3 CONFIG
+$S3_SERVER = $get_env(getenv("S3_SERVER"), 'https://s3.csh.rit.edu');
+$S3_KEY = $get_env(getenv("S3_KEY"), '');
+$S3_SECRET = $get_env(getenv("S3_SECRET"), '');
+$S3_IMAGE_BUCKET = $get_env(getenv("S3_IMAGE_BUCKET"), 'schedulemaker');
+
+////////////////////////////////////////////////////////////////////////////
 //// APP VERSIONS
 $APP_CONFIG = json_decode(file_get_contents((empty($APP_ROOT)?"../":$APP_ROOT)."package.json"), true);
 $APP_VERSION     = $APP_CONFIG['version'];

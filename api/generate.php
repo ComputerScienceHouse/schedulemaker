@@ -16,7 +16,7 @@ if (file_exists('../inc/config.php')) {
 require_once "../inc/databaseConn.php";
 require_once "../inc/timeFunctions.php";
 require_once "../inc/ajaxError.php";
-require_once "src/Generate.php";
+require_once "../api/src/Generate.php";
 
 // IMPORTS
 use API\Generate;
