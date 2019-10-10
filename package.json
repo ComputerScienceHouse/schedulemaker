@@ -5,7 +5,8 @@
   "description": "A course database lookup tool and schedule building web application for use at Rochester Institute of Technology.",
   "main": "index.php",
   "scripts": {
-    "build": "gulp build"
+    "build": "gulp build",
+    "lint": "eslint assets/src/**/*.js"
   },
   "repository": {
     "type": "git",
