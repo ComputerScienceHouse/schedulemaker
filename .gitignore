@@ -8,6 +8,7 @@ img/schedules/*.png
 
 # Ignore node_modules dependencies
 node_modules/*
+package-lock.json
 
 # Ignore built files
 assets/prod/*
