@@ -15,6 +15,11 @@
         "ecmaVersion": 2018
     },
     "rules": {
-        "no-undef": "off"
+        "no-undef": "off",
+        "no-unused-vars": "warn",
+        "no-prototype-builtins": "warn",
+        "no-redeclare": "warn",
+        "no-inner-declarations": "warn",
+        "no-throw-literal": "warn"
     }
 }
