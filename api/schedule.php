@@ -10,14 +10,14 @@
 
 // REQUIRED FILES //////////////////////////////////////////////////////////
 if (file_exists('../inc/config.php')) {
-    require_once "../inc/config.php";
+    include_once "../inc/config.php";
 } else {
-    require_once "../inc/config.env.php";
+    include_once "../inc/config.env.php";
 }
-require_once('../vendor/autoload.php');
-require_once('../inc/databaseConn.php');
-require_once('../inc/timeFunctions.php');
-require_once('../api/src/S3Manager.php');
+require_once '../vendor/autoload.php';
+require_once '../inc/databaseConn.php';
+require_once '../inc/timeFunctions.php';
+require_once '../api/src/S3Manager.php';
 require_once "../api/src/Schedule.php";
 
 // IMPORTS
@@ -64,7 +64,7 @@ switch ($mode) {
         break;
 
     case "old":
-        echo json_encode(array("error" => "Not supported on this platform. Please use http://schedule-old.csh.rit.edu/"));
+        echo json_encode(["error" => "Not supported on this platform. Please use http://schedule-old.csh.rit.edu/"]);
         break;
 
 
@@ -75,16 +75,16 @@ switch ($mode) {
 
         // Required parameters
         if (empty($id)) {
-            die(json_encode(array("error" => true, "msg" => "You must provide a schedule")));
+            die(json_encode(["error" => true, "msg" => "You must provide a schedule"]));
         }
 
         // Pull the schedule and output it as json
         $schedule = $scheduleApi->getScheduleFromId($id);
-        if ($schedule == NULL) {
-            echo json_encode(array(
+        if ($schedule == null) {
+            echo json_encode([
                 'error' => true,
                 'msg' => 'Schedule not found'
-            ));
+            ]);
         } else {
             echo json_encode($schedule);
         }
@@ -96,7 +96,7 @@ switch ($mode) {
     case "save":
         // There has to be a json object given
         if (empty($_POST['data'])) {
-            die(json_encode(array("error" => "argument", "msg" => "No schedule was provided", "arg" => "schedule")));
+            die(json_encode(["error" => "argument", "msg" => "No schedule was provided", "arg" => "schedule"]));
         }
         // This will be raw data since there is no more sanatize like there used to be in the old code
         $json = $_POST['data'];
@@ -104,19 +104,22 @@ switch ($mode) {
         // Make sure the object was successfully decoded
         $json = sanitize(json_decode($json, true));
         if ($json == null) {
-            die(json_encode(array("error" => "argument", "msg" => "The schedule could not be decoded", "arg" => "schedule")));
+            die(json_encode(["error" => "argument", "msg" => "The schedule could not be decoded", "arg" => "schedule"]));
         }
-        if (!isset($json['starttime']) || !isset($json['endtime']) || !isset($json['building']) || !isset($json['startday']) || !isset($json['endday'])) {
-            die(json_encode(array("error" => "argument", "msg" => "A required schedule parameter was not provided")));
+        if (!isset($json['starttime']) || !isset($json['endtime']) || !isset($json['building']) || !isset($json['startday'])
+            || !isset($json['endday'])
+        ) {
+            die(json_encode(["error" => "argument", "msg" => "A required schedule parameter was not provided"]));
         }
 
         // Start the storing process with storing the data about the schedule
         $query = "INSERT INTO schedules (oldid, startday, endday, starttime, endtime, building, quarter)" .
-            " VALUES('', '{$json['startday']}', '{$json['endday']}', '{$json['starttime']}', '{$json['endtime']}', '{$json['building']}', " .
+            " VALUES('', '{$json['startday']}', '{$json['endday']}', '{$json['starttime']}', '{$json['endtime']}', '{$json['building']}', "
+            .
             " '{$json['term']}')";
         $result = $dbConn->query($query);
         if (!$result) {
-            die(json_encode(array("error" => "mysql", "msg" => "Failed to store the schedule: " . $dbConn->error)));
+            die(json_encode(["error" => "mysql", "msg" => "Failed to store the schedule: " . $dbConn->error]));
         }
 
         // Grab the latest id for the schedule
@@ -139,7 +142,10 @@ switch ($mode) {
                         " VALUES('{$item['title']}', '{$time['day']}', '{$time['start']}', '{$time['end']}', '{$schedId}')";
                     $result = $dbConn->query($query);
                     if (!$result) {
-                        die(json_encode(array("error" => "mysql", "msg" => "Storing non-course item '{$item['title']}' failed: " . $dbConn->error)));
+                        die(json_encode([
+                            "error" => "mysql",
+                            "msg" => "Storing non-course item '{$item['title']}' failed: " . $dbConn->error
+                        ]));
                     }
                 }
             } else {
@@ -148,7 +154,7 @@ switch ($mode) {
                     " VALUES('{$schedId}', '{$item['id']}')";
                 $result = $dbConn->query($query);
                 if (!$result) {
-                    die(json_encode(array("error" => "mysql", "msg" => "Storing a course '{$item['courseNum']}' failed: " . $dbConn->erorr)));
+                    die(json_encode(["error" => "mysql", "msg" => "Storing a course '{$item['courseNum']}' failed: " . $dbConn->erorr]));
                 }
             }
         }
@@ -158,12 +164,12 @@ switch ($mode) {
         $hexId = dechex($schedId);
         $url = "{$HTTPROOTADDRESS}schedule/{$hexId}";
 
-        echo json_encode(array("url" => $url, "id" => $hexId));
+        echo json_encode(["url" => $url, "id" => $hexId]);
 
         break;
 
     default:
         // INVALID OPTION //////////////////////////////////////////////////
-        die(json_encode(array("error" => "argument", "msg" => "You must provide a valid action.")));
+        die(json_encode(["error" => "argument", "msg" => "You must provide a valid action."]));
         break;
 }

@@ -3,10 +3,10 @@
 namespace API;
 
 /***************************************************************************
- ** Generation Class for creating schedule possibilities
- **
- ** @package API
- ** @author  Devin Matte (matted@csh.rit.edu)
+ * Generation Class for creating schedule possibilities
+ *
+ * @package API
+ * @author  Devin Matte <matted@csh.rit.edu>
  ***************************************************************************/
 class Generate {
 
