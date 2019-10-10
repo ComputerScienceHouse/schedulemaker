@@ -138,7 +138,7 @@ angular.module('sm').directive('schedule', function ($timeout, $filter) {
       timeTop = timeTop / 7.5
       timeTop = Math.floor(timeTop)
       timeTop = timeTop * 5
-      timeTop += 19					// Offset for the header
+      timeTop += 19 // Offset for the header
 
       // Add Padding for Formatting Time
       function pad (d) {
@@ -162,16 +162,15 @@ angular.module('sm').directive('schedule', function ($timeout, $filter) {
       }
 
       // Set event data
+      var location = ''
+      var instructor = ''
+      var courseNum = ''
       if (course.courseNum !== 'non') {
-        var location = ((this.drawOptions.bldgStyle === 'code') ? time.bldg.code : time.bldg.number) + '-' + time.room + ' (' + (String(hourLabel) + ':' + String(minuteLabel) + ' ' + ap) + ')'
-        var instructor = course.instructor
-        var courseNum = course.courseNum
-      } else {
-        var location = ''
-        var instructor = ''
-        var courseNum = ''
+        location = ((this.drawOptions.bldgStyle === 'code') ? time.bldg.code : time.bldg.number) + '-' + time.room + ' (' + (String(hourLabel) + ':' + String(minuteLabel) + ' ' + ap) + ')'
+        instructor = course.instructor
+        courseNum = course.courseNum
       }
-      course.title = course.title.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#039;/g, "\'").replace(/\\\\/, '\\')
+      course.title = course.title.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#039;/g, "'").replace(/\\\\/, '\\')
       this.scope.scheduleItems.push({
         title: course.title,
         content: {

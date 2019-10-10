@@ -11,7 +11,6 @@ angular.module('sm').directive('browseList', function ($http, entityDataRequest)
         var hIndex = hierarchy.indexOf(attrs.browseList)
         if (hIndex === -1) {
           throw 'browseList mode does not exist'
-          return
         }
         var itemName = hierarchy[hIndex]
         var childrenName = hierarchy[hIndex + 1] + 's'

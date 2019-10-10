@@ -130,7 +130,7 @@ angular.module('sm').directive('scheduleActions', function ($http, $q, shareServ
         ga('send', 'event', 'schedule', 'print')
 
         var reloadSchedule = angular.copy(scope.state.drawOptions)
-        reloadSchedule.term = scope.state.requestOptions.term,
+        reloadSchedule.term = scope.state.requestOptions.term
         reloadSchedule.courses = scope.schedule
 
         var popup = openPopup(920, 800)
