@@ -10,12 +10,13 @@
 ////////////////////////////////////////////////////////////////////////////
 
 function errorHandler($errno, $errstr, $errfile, $errline) {
-	die(json_encode(array(
-		"error" => "php",
-		"msg"   => "A internal server error occurred",
-		"guru"  => $errstr,
-		"num"   => $errno,
-		"file"  => "{$errfile}:{$errline}"
-		)));
+    die(json_encode([
+        "error" => "php",
+        "msg" => "A internal server error occurred",
+        "guru" => $errstr,
+        "num" => $errno,
+        "file" => "{$errfile}:{$errline}"
+    ]));
 }
+
 set_error_handler("errorHandler");

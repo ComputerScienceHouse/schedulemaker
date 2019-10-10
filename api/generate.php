@@ -1,17 +1,19 @@
 <?php
 /***************************************************************************
- ** GENERATION AJAX CALLS
- ** Provides standalone JSON object retrieval for schedule designing form　and display
- **
- ** @author     Ben Russell (benrr101@csh.rit.edu)
- ** @file       api/generate.php
+ * GENERATION AJAX CALLS
+ * Provides standalone JSON object retrieval for schedule designing form　and display
+ *
+ * PHP Version 7
+ *
+ * @author Ben Russell <benrr101@csh.rit.edu>
+ * @file   api/generate.php
  ***************************************************************************/
 
 // REQUIRED FILES
 if (file_exists('../inc/config.php')) {
-    require_once "../inc/config.php";
+    include_once "../inc/config.php";
 } else {
-    require_once "../inc/config.env.php";
+    include_once "../inc/config.env.php";
 }
 require_once "../inc/databaseConn.php";
 require_once "../inc/timeFunctions.php";
@@ -161,8 +163,12 @@ switch (getAction()) {
             $totalSchedules *= count($_POST["courses{$i}Opt"]);
         }
         if ($totalSchedules >= 10000) {
-            echo json_encode(["error" => "argument", "msg" => "Too many schedule possibilities to generate, try to remove classes from your shopping cart. 
-            Adding classes like YearOne or classes with hundreds of sections can cause this to occur.", "arg" => "action"]);
+            echo json_encode([
+                "error" => "argument",
+                "msg" => "Too many schedule possibilities to generate, try to remove classes from your shopping cart. 
+            Adding classes like YearOne or classes with hundreds of sections can cause this to occur.",
+                "arg" => "action"
+            ]);
             break;
         }
 
@@ -259,9 +265,9 @@ switch (getAction()) {
             // Create a time entry for each
             foreach ($_POST["nonCourseDays{$i}"] as $day) {
                 $nonCourse['times'][] = [
-                    "day"   => translateDay($day),
+                    "day" => translateDay($day),
                     "start" => intval($_POST["nonCourseStartTime{$i}"]),
-                    "end"   => intval($_POST["nonCourseEndTime{$i}"])
+                    "end" => intval($_POST["nonCourseEndTime{$i}"])
                 ];
             }
             $nonCourseSet[] = $nonCourse;
@@ -269,8 +275,11 @@ switch (getAction()) {
 
         // If both the nonCourse items AND the course items list is empty, we can't draw a schedule
         if (empty($courseSet) && empty($nonCourseSet)) {
-            die(json_encode(["error" => "user", "msg" =>
-                "Cannot generate schedules because no courses or course items were provided"]));
+            die(json_encode([
+                "error" => "user",
+                "msg" =>
+                    "Cannot generate schedules because no courses or course items were provided"
+            ]));
         }
 
         // Process the list of noCourse Times
@@ -286,9 +295,9 @@ switch (getAction()) {
             $noCourse['times'] = [];
             foreach ($_POST["noCourseDays{$i}"] as $day) {
                 $noCourse['times'][] = [
-                    "day"   => translateDay($day),
+                    "day" => translateDay($day),
                     "start" => intval($_POST["noCourseStartTime{$i}"]),
-                    "end"   => intval($_POST["noCourseEndTime{$i}"])
+                    "end" => intval($_POST["noCourseEndTime{$i}"])
                 ];
             }
             $noCourseSet[] = $noCourse;
