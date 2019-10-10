@@ -1,7 +1,7 @@
 angular.module('sm').controller('GenerateScheduleCoursesController', function ($scope, $http, $q, $timeout) {
   // Check if a course needs to be added
   var checkEmptyCourses = function () {
-    if ($scope.state.courses.length == 0 || $scope.courseCart.count.all.coursesFromSelect() == 0) {
+    if ($scope.state.courses.length === 0 || $scope.courseCart.count.all.coursesFromSelect() === 0) {
       $scope.courses_helpers.add()
     }
   }
@@ -46,7 +46,7 @@ angular.module('sm').controller('GenerateScheduleCoursesController', function ($
         course.sections = data
       } else {
         // Make a faux-result with isError being true
-        course.sections = [{isError: true, error: data}]
+        course.sections = [{ isError: true, error: data }]
       }
     })
       .error(function (data, status, headers, config) {
@@ -99,10 +99,10 @@ angular.module('sm').controller('GenerateScheduleCoursesController', function ($
       }
 
       // Check to see if the search field changed, or was valid
-      if (newCourse.search != oldCourse.search && newCourse.search.length > 3) {
+      if (newCourse.search !== oldCourse.search && newCourse.search.length > 3) {
         // Find the new results!
         $scope.search(newCourse)
-      } else if (newCourse.search != oldCourse.search) {
+      } else if (newCourse.search !== oldCourse.search) {
         // The search field has been changed to be too short, remove sections
         newCourse.sections = []
         if (canceler.hasOwnProperty(newCourse.id)) {

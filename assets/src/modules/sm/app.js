@@ -1,4 +1,3 @@
-/* eslint-disable no-undef */
 /**
  * Initialize the main sm module
  */

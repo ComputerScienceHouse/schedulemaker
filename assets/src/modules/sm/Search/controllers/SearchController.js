@@ -1,4 +1,3 @@
-/* eslint-disable no-undef */
 /**
  * The controller holding all the logic for the search page
  */
@@ -83,7 +82,7 @@ angular.module('sm').controller('SearchController', function ($scope, $http, ent
         term: $scope.search.params.term,
         param: newCollege
       }).success(function (data, status) {
-        if (status == 200 && typeof data.error === 'undefined') {
+        if (status === 200 && typeof data.error === 'undefined') {
           // Push the default to the top and set it as the option list
           data.departments.unshift(defaultOptions.department)
           $scope.search.options.departments = data.departments

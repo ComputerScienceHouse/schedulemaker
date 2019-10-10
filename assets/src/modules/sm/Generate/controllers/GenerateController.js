@@ -61,7 +61,7 @@ angular.module('sm').controller('GenerateController', function ($scope, globalKb
     add: $scope.courseCart.create.blankCourse,
     remove: function (index) {
       $scope.courseCart.remove.byIndex(index - 1)
-      if ($scope.state.courses.length == 0) {
+      if ($scope.state.courses.length === 0) {
         $scope.courses_helpers.add()
       }
     }
@@ -126,7 +126,7 @@ angular.module('sm').controller('GenerateController', function ($scope, globalKb
       }
 
       // If no sections are selected, remove the course info and decrease the actual course index
-      if (sectionCount == 0) {
+      if (sectionCount === 0) {
         requestData.courseCount--
         delete requestData['courses' + actualCourseIndex]
         delete requestData[fieldName]
@@ -165,7 +165,7 @@ angular.module('sm').controller('GenerateController', function ($scope, globalKb
         // If no errors happened
         if (!data.error && !data.errors) {
           // Check if any schedules were generated
-          if (data.schedules == undefined || data.schedules == null || data.schedules.length == 0) {
+          if (data.schedules === undefined || data.schedules == null || data.schedules.length === 0) {
             $scope.resultError = 'There are no matching schedules!'
           } else {
             // Otherwise reset page, scroll to schedules and clear errors
@@ -204,10 +204,10 @@ angular.module('sm').controller('GenerateController', function ($scope, globalKb
 
   // Bind arrow key pagination
   globalKbdShortcuts.bindPagination(function () {
-    if (this.keyCode == 39 && $scope.state.displayOptions.currentPage + 1 < $scope.numberOfPages()) {
+    if (this.keyCode === 39 && $scope.state.displayOptions.currentPage + 1 < $scope.numberOfPages()) {
       $scope.state.displayOptions.currentPage++
       $scope.scrollToSchedules()
-    } else if (this.keyCode == 37 && $scope.state.displayOptions.currentPage - 1 >= 0) {
+    } else if (this.keyCode === 37 && $scope.state.displayOptions.currentPage - 1 >= 0) {
       $scope.state.displayOptions.currentPage--
       $scope.scrollToSchedules()
     }

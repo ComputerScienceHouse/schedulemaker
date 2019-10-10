@@ -1,4 +1,3 @@
-/* eslint-disable no-undef */
 angular.module('sm').directive('browseList', function ($http, entityDataRequest) {
   var hierarchy = ['school', 'department', 'course', 'section']
   var capitalize = function (string) {
@@ -31,7 +30,7 @@ angular.module('sm').directive('browseList', function ($http, entityDataRequest)
                 if (scope.courseCart.contains.course(scope.course)) {
                   var sections = []
                   for (var i = 0; i < scope.state.courses.length; i++) {
-                    if (scope.course.id == scope.state.courses[i].id) {
+                    if (scope.course.id === scope.state.courses[i].id) {
                       sections = scope.state.courses[i].sections
                       break
                     }
@@ -47,7 +46,7 @@ angular.module('sm').directive('browseList', function ($http, entityDataRequest)
                 term: scope.state.requestOptions.term,
                 param: scope[itemName].id
               }).success(function (data, status) {
-                if (status == 200 && typeof data.error === 'undefined') {
+                if (status === 200 && typeof data.error === 'undefined') {
                   if (data[childrenName].length > 0) {
                     scope[itemName][childrenName] = data[childrenName]
                   } else {

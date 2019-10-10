@@ -24,7 +24,7 @@ angular.module('sm').directive('dynamicItems', function ($compile, $timeout, glo
         },
         post: function (scope, elm, attrs) {
           globalKbdShortcuts.bindSelectCourses(function () {
-            if (elm.find('input.searchField:focus').length == 0) {
+            if (elm.find('input.searchField:focus').length === 0) {
               $('html, body').animate({
                 scrollTop: 0
               }, 500, null, function () {

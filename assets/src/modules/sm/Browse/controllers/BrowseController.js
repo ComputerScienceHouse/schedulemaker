@@ -1,4 +1,3 @@
-/* eslint-disable no-undef */
 angular.module('sm').controller('BrowseController', function ($scope, entityDataRequest) {
   $scope.schools = []
 

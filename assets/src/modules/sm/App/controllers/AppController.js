@@ -1,17 +1,16 @@
-angular.module('sm').controller("AppController", function ($scope, localStorage, $window, $filter, $state, $stateParams) {
-
+angular.module('sm').controller('AppController', function ($scope, localStorage, $window, $filter, $state, $stateParams) {
   // Force save on close
   window.onbeforeunload = function () {
-    $scope.saveState();
-  };
+    $scope.saveState()
+  }
 
   $scope.initState = function () {
-    $scope.state = {};
-    $scope.state.courses = [];
-    $scope.state.courseMap = {};
-    $scope.state.nonCourses = [];
-    $scope.state.noCourses = [];
-    $scope.state.schedules = [];
+    $scope.state = {}
+    $scope.state.courses = []
+    $scope.state.courseMap = {}
+    $scope.state.nonCourses = []
+    $scope.state.noCourses = []
+    $scope.state.schedules = []
     $scope.state.drawOptions = {
       startTime: 480,
       endTime: 1320,
@@ -20,19 +19,19 @@ angular.module('sm').controller("AppController", function ($scope, localStorage,
       bldgStyle: 'code',
       theme: 'woc',
       classDetails: 'NPL'
-    };
+    }
 
     $scope.state.displayOptions = {
       currentPage: 0,
       pageSize: 3,
       creditWarning: 18,
       fullscreen: ''
-    };
+    }
 
     $scope.state.requestOptions = {
       term: +$scope.defaultTerm,
       ignoreFull: false
-    };
+    }
 
     $scope.state.ui = {
       alert_newFeatures: true,
@@ -41,75 +40,72 @@ angular.module('sm').controller("AppController", function ($scope, localStorage,
       alert_browseFeatures: true,
       alert_labClasses: false,
       action_generateSchedules: false
-    };
+    }
 
     $scope.state.meta = {
       stateVersion: $scope.stateVersion,
       lastSaved: new Date().getTime()
-    };
-  };
+    }
+  }
   $scope.resetState = function () {
-    $scope.initState();
+    $scope.initState()
     $state.transitionTo($state.current, $stateParams, {
       reload: true,
       inherit: false,
       notify: true
-    });
-  };
+    })
+  }
 
   $scope.saveState = function () {
-    localStorage.setItem('state', $scope.state);
-  };
-
+    localStorage.setItem('state', $scope.state)
+  }
 
   $scope.noStateSaveOnUnload = function () {
     $window.onbeforeunload = function () {
-      //No-op
-    };
-  };
+      // No-op
+    }
+  }
 
   // Reload the state if it exists
-  var storedState = localStorage.getItem('state');
+  var storedState = localStorage.getItem('state')
   if (storedState != null) {
     // Check if state version exists or is correct
-    if (storedState.hasOwnProperty('meta') && storedState.meta.stateVersion == $scope.stateVersion) {
-      $scope.state = storedState;
+    if (storedState.hasOwnProperty('meta') && storedState.meta.stateVersion === $scope.stateVersion) {
+      $scope.state = storedState
       if (!$scope.state.displayOptions.hasOwnProperty('creditWarning') || !$scope.state.displayOptions.creditWarning) {
-        $scope.state.displayOptions.creditWarning = 18;
+        $scope.state.displayOptions.creditWarning = 18
       }
 
       // Initialize new values
       if ($scope.state.schedules.length > 0 && $scope.state.schedules[0].length > 0 && !$scope.state.schedules[0][0].hasOwnProperty('initialIndex')) {
         for (var count = 0; count < $scope.state.schedules.length; count++) {
-          $scope.state.schedules[count][0].initialIndex = count;
+          $scope.state.schedules[count][0].initialIndex = count
         }
       }
       if (!$scope.state.drawOptions.classDetails) {
-        $scope.state.drawOptions.classDetails = 'NPL';
+        $scope.state.drawOptions.classDetails = 'NPL'
       }
       if (!$scope.state.drawOptions.theme) {
-        $scope.state.drawOptions.theme = 'woc';
+        $scope.state.drawOptions.theme = 'woc'
       }
     } else {
-
       // Before state meta
       if (confirm('We need to clear your session in order to update ScheduleMaker, is that ok? \n If you press cancel, you may run into errors.')) {
-        $scope.resetState();
+        $scope.resetState()
       } else {
-        $scope.state = storedState;
+        $scope.state = storedState
       }
     }
   } else {
-
     // New session, create new state
-    $scope.initState();
-    $scope.saveState();
+    $scope.initState()
+    $scope.saveState()
   }
 
   // Default, images are supported
-  $scope.imageSupport = true;
+  $scope.imageSupport = true
 
-  var courseNumFilter = $filter('courseNum');
+  var courseNumFilter = $filter('courseNum')
 
   // Course cart tools for non-generate pages.
   $scope.courseCart = {
@@ -117,7 +113,7 @@ angular.module('sm').controller("AppController", function ($scope, localStorage,
     init: function () {
       // Reset id if loaded from state
       if ($scope.state.courses.length > 0) {
-        $scope.courseCart.nextId = $scope.state.courses[$scope.state.courses.length - 1].id + 1;
+        $scope.courseCart.nextId = $scope.state.courses[$scope.state.courses.length - 1].id + 1
       }
     },
     count: {
@@ -127,35 +123,35 @@ angular.module('sm').controller("AppController", function ($scope, localStorage,
          * Returns the total number of selected sections in the cart
          */
         selectedSections: function () {
-          var count = 0;
+          var count = 0
           for (var i = 0; i < $scope.state.courses.length; i++) {
             if ($scope.state.courses[i]) {
-              count += $scope.courseCart.count.course.selectedSections($scope.state.courses[i]);
+              count += $scope.courseCart.count.course.selectedSections($scope.state.courses[i])
             }
           }
-          return count;
+          return count
         },
 
         /**
          * Returns the total number of courses from the selectCoursesController
          */
         coursesFromSelect: function () {
-          var count = 0;
+          var count = 0
           for (var i = 0; i < $scope.state.courses.length; i++) {
             if ($scope.state.courses[i].fromSelect) {
-              count++;
+              count++
             }
           }
-          return count;
-        },
+          return count
+        }
       },
       course: {
         selectedSections: function (course) {
-          var count = 0;
+          var count = 0
           for (var i = 0; i < course.sections.length; i++) {
-            if (course.sections[i].selected) count++;
+            if (course.sections[i].selected) count++
           }
-          return count;
+          return count
         }
       }
     },
@@ -168,9 +164,9 @@ angular.module('sm').controller("AppController", function ($scope, localStorage,
         unselect: function () {
           for (var i = 0; i < $scope.state.courses.length; i++) {
             for (var s = 0;
-                 s < $scope.state.courses[i].sections.length; s++) {
+              s < $scope.state.courses[i].sections.length; s++) {
               $scope.state.courses[i].sections[s].selected =
-                false;
+                false
             }
           }
         }
@@ -185,13 +181,12 @@ angular.module('sm').controller("AppController", function ($scope, localStorage,
          * @param section {Object} The section to toggle
          */
         toggleByCourse: function (course, section) {
-
-          course = $scope.courseCart.ensure.course(course);
+          course = $scope.courseCart.ensure.course(course)
 
           if (course.selected && section.selected) {
-            course.selected = false;
+            course.selected = false
           }
-          section.selected = !section.selected;
+          section.selected = !section.selected
         },
 
         /**
@@ -201,10 +196,9 @@ angular.module('sm').controller("AppController", function ($scope, localStorage,
          * @param section {Object} The section to toggle
          */
         toggleByOrphanedSection: function (section) {
+          section = $scope.courseCart.ensure.section(section)
 
-          section = $scope.courseCart.ensure.section(section);
-
-          section.selected = !section.selected;
+          section.selected = !section.selected
         },
 
         /**
@@ -215,7 +209,7 @@ angular.module('sm').controller("AppController", function ($scope, localStorage,
          * @param section {Object} The section to toggle
          */
         toggle: function (section) {
-          section.selected = !section.selected;
+          section.selected = !section.selected
         },
 
         /**
@@ -227,7 +221,7 @@ angular.module('sm').controller("AppController", function ($scope, localStorage,
          */
         isByCourse: function (course, section) {
           return $scope.courseCart.contains.course(course) &&
-            section.selected;
+            section.selected
         }
       },
       course: {
@@ -235,20 +229,19 @@ angular.module('sm').controller("AppController", function ($scope, localStorage,
          * Toggles the current course's sections selcted state
          */
         toggle: function (course) {
-
           // If new this load or not
-          var Ecourse = $scope.courseCart.ensure.course(course);
+          var Ecourse = $scope.courseCart.ensure.course(course)
 
           course.selected = !$scope.courseCart.selection.course
-            .toggleAllSections(Ecourse);
+            .toggleAllSections(Ecourse)
         },
 
         is: function (course) {
           if ($scope.courseCart.contains.course(course)) {
             return $scope.courseCart.selection.course
-              .allSections($scope.courseCart.ensure.course(course));
+              .allSections($scope.courseCart.ensure.course(course))
           } else {
-            return false;
+            return false
           }
         },
 
@@ -259,12 +252,12 @@ angular.module('sm').controller("AppController", function ($scope, localStorage,
          */
         toggleAllSections: function (course) {
           var setTo = !$scope.courseCart.selection.course
-            .allSections(course);
+            .allSections(course)
           course.sections.forEach(function (section) {
-            section.selected = setTo;
-          });
+            section.selected = setTo
+          })
 
-          return setTo;
+          return setTo
         },
 
         /**
@@ -273,8 +266,8 @@ angular.module('sm').controller("AppController", function ($scope, localStorage,
         allSections: function (course) {
           return course.sections.reduce(
             function (total, section) {
-              return total && section.selected;
-            }, true);
+              return total && section.selected
+            }, true)
         },
 
         /**
@@ -282,8 +275,8 @@ angular.module('sm').controller("AppController", function ($scope, localStorage,
          */
         unselect: function (course) {
           course.sections.forEach(function (section) {
-            section.selected = false;
-          });
+            section.selected = false
+          })
         }
       }
     },
@@ -295,10 +288,9 @@ angular.module('sm').controller("AppController", function ($scope, localStorage,
        *  @param course {Object} The course to ensure
        */
       course: function (course) {
+        var ensuredCourse = false
 
-        var ensuredCourse = false;
-
-        if ($scope.state.courses.indexOf(course) == -1) {
+        if ($scope.state.courses.indexOf(course) === -1) {
           // The course object was not found in the cart
 
           if ($scope.courseCart.contains.course(course)) {
@@ -306,49 +298,45 @@ angular.module('sm').controller("AppController", function ($scope, localStorage,
 
             // Find it by matching ids
             for (var i = 0; i < $scope.state.courses.length; i++) {
-              if (course.id == $scope.state.courses[i].id) {
-                ensuredCourse = $scope.state.courses[i];
-                break;
+              if (course.id === $scope.state.courses[i].id) {
+                ensuredCourse = $scope.state.courses[i]
+                break
               }
             }
 
             // The course *must* have been found and broken out
             // of the loop
-
           } else {
             // The course has never been added and is not in the
-            //cart, so create a new course object
+            // cart, so create a new course object
 
             ensuredCourse = $scope.courseCart.create
-              .fromExistingCourse(course);
+              .fromExistingCourse(course)
           }
         } else {
-
           // The course object is already in the cart.
           ensuredCourse = course
         }
 
         // Return the ensuredCourse
-        return ensuredCourse;
+        return ensuredCourse
       },
 
       section: function (section) {
         if ($scope.courseCart.contains.section(section)) {
-
-          var foundCourse = false;
+          var foundCourse = false
           for (var i = 0; i < $scope.state.courses.length; i++) {
-            if (section.courseId == $scope.state.courses[i].id) {
-              foundCourse = $scope.state.courses[i];
-              break;
+            if (section.courseId === $scope.state.courses[i].id) {
+              foundCourse = $scope.state.courses[i]
+              break
             }
           }
 
           return $scope.courseCart.add
-            .sectionToCourse(section, foundCourse);
-
+            .sectionToCourse(section, foundCourse)
         } else {
           return $scope.courseCart.create
-            .fromExistingSection(section);
+            .fromExistingSection(section)
         }
       }
     },
@@ -361,7 +349,7 @@ angular.module('sm').controller("AppController", function ($scope, localStorage,
        * @returns {Boolean} The course is in the cart?
        */
       course: function (course) {
-        return $scope.state.courseMap.hasOwnProperty(course.id);
+        return $scope.state.courseMap.hasOwnProperty(course.id)
       },
 
       /**
@@ -370,8 +358,8 @@ angular.module('sm').controller("AppController", function ($scope, localStorage,
        * @returns {Boolean} The course is in the cart?
        */
       section: function (section) {
-        return $scope.state.courseMap.hasOwnProperty(section.courseId);
-      },
+        return $scope.state.courseMap.hasOwnProperty(section.courseId)
+      }
 
     },
     remove: {
@@ -381,7 +369,7 @@ angular.module('sm').controller("AppController", function ($scope, localStorage,
        * @param index The index to remove
        */
       byIndex: function (index) {
-        $scope.state.courses.splice(index, 1);
+        $scope.state.courses.splice(index, 1)
       }
     },
     add: {
@@ -390,20 +378,19 @@ angular.module('sm').controller("AppController", function ($scope, localStorage,
        * Adds a given section to the provided course if it's not there
        */
       sectionToCourse: function (section, course) {
-
-        var foundSection = false;
+        var foundSection = false
         for (var i = 0; i < course.sections.length; i++) {
-          if (section.id == course.sections[i].id) {
-            course.sections[i] = section;
-            foundSection = true;
-            break;
+          if (section.id === course.sections[i].id) {
+            course.sections[i] = section
+            foundSection = true
+            break
           }
         }
 
         if (foundSection === false) {
-          course.sections.push(section);
+          course.sections.push(section)
         }
-        return section;
+        return section
       },
 
       /**
@@ -412,10 +399,10 @@ angular.module('sm').controller("AppController", function ($scope, localStorage,
        * @returns {Object} The created course
        */
       courseToCart: function (course) {
-        $scope.state.courses.push(course);
-        $scope.$broadcast('addedCourse');
+        $scope.state.courses.push(course)
+        $scope.$broadcast('addedCourse')
 
-        return course;
+        return course
       }
     },
     create: {
@@ -427,7 +414,7 @@ angular.module('sm').controller("AppController", function ($scope, localStorage,
        */
       blankCourse: function () {
         return $scope.courseCart.add.courseToCart(
-          $scope.courseCart.getBlankCourse(true));
+          $scope.courseCart.getBlankCourse(true))
       },
 
       /**
@@ -438,13 +425,13 @@ angular.module('sm').controller("AppController", function ($scope, localStorage,
        * @returns {Object} The newly created course
        */
       fromExistingCourse: function (course) {
-        var mockCourse = $scope.courseCart.getBlankCourse(false);
+        var mockCourse = $scope.courseCart.getBlankCourse(false)
 
-        course.fromSelect = false;
-        course.search = courseNumFilter(course);
+        course.fromSelect = false
+        course.search = courseNumFilter(course)
 
-        $scope.state.courseMap[course.id] = true;
-        return $scope.courseCart.add.courseToCart(course);
+        $scope.state.courseMap[course.id] = true
+        return $scope.courseCart.add.courseToCart(course)
       },
 
       /**
@@ -454,15 +441,15 @@ angular.module('sm').controller("AppController", function ($scope, localStorage,
        * @returns {Object} The newly created course
        */
       fromExistingScheduleCourse: function (scheduleCourse) {
-        var course = $scope.courseCart.getBlankCourse(true);
+        var course = $scope.courseCart.getBlankCourse(true)
 
-        course.search = scheduleCourse.courseNum;
-        scheduleCourse.selected = true;
-        course.sections.push(scheduleCourse);
+        course.search = scheduleCourse.courseNum
+        scheduleCourse.selected = true
+        course.sections.push(scheduleCourse)
 
-        $scope.courseCart.add.courseToCart(course);
+        $scope.courseCart.add.courseToCart(course)
 
-        return course;
+        return course
       },
 
       /**
@@ -473,17 +460,17 @@ angular.module('sm').controller("AppController", function ($scope, localStorage,
        * @returns {Object} The section now added to the course
        */
       fromExistingSection: function (section) {
-        var course = $scope.courseCart.getBlankCourse(false);
+        var course = $scope.courseCart.getBlankCourse(false)
 
-        course.id = section.courseId;
-        course.search = section.courseParentNum;
+        course.id = section.courseId
+        course.search = section.courseParentNum
 
-        course.sections.push(section);
+        course.sections.push(section)
 
-        $scope.state.courseMap[course.id] = true;
-        $scope.courseCart.add.courseToCart(course);
+        $scope.state.courseMap[course.id] = true
+        $scope.courseCart.add.courseToCart(course)
 
-        return section;
+        return section
       }
     },
 
@@ -500,16 +487,16 @@ angular.module('sm').controller("AppController", function ($scope, localStorage,
         sections: [],
         status: 'D',
         fromSelect: fromSelect
-      };
+      }
     }
 
-  };
-  $scope.courseCart.init();
+  }
+  $scope.courseCart.init()
 
   $scope.generateSchedules = function () {
-    $scope.state.ui.action_generateSchedules = true;
-    $state.go("generate");
-  };
+    $scope.state.ui.action_generateSchedules = true
+    $state.go('generate')
+  }
 
   $scope.ui = {
     optionLists: {
@@ -596,51 +583,51 @@ angular.module('sm').controller("AppController", function ($scope, localStorage,
           1350: '10:30pm',
           1380: '11:00pm',
           1410: '11:30pm',
-          1440: '12:00am',
+          1440: '12:00am'
         }
       },
       themeOptions: [{
         value: 'woc',
-        label: "Modern Colors"
+        label: 'Modern Colors'
       }, {
         value: 'bow',
-        label: "Classic B&W"
+        label: 'Classic B&W'
       }, {
         value: 'gow',
-        label: "Classic Greyscale"
+        label: 'Classic Greyscale'
       }, {
         value: 'boc',
-        label: "Black Text & Colors"
+        label: 'Black Text & Colors'
       }],
       classDetailsOptions: [{
         value: 'NPL',
-        label: "Number, Professor, Location"
+        label: 'Number, Professor, Location'
       }, {
         value: 'LPN',
-        label: "Location, Professor, Number"
+        label: 'Location, Professor, Number'
       }, {
         value: 'LNP',
-        label: "Location, Number, Professor"
+        label: 'Location, Number, Professor'
       }]
     },
     colors:
       [
-        "#7BA270",
-        "#85B4C2",
-        "#CD9161",
-        "#74B79F",
-        "#AA9E5B",
-        "#769E9F",
-        "#9D987A",
-        "#658B76",
-        "#92838F",
-        "#A9ABC3",
-        "#7C7FA4",
-        "#CD6167",
-        "#61CDC7",
-        "#61CD91",
-        "#9DCD61",
-        "#619DCD"
+        '#7BA270',
+        '#85B4C2',
+        '#CD9161',
+        '#74B79F',
+        '#AA9E5B',
+        '#769E9F',
+        '#9D987A',
+        '#658B76',
+        '#92838F',
+        '#A9ABC3',
+        '#7C7FA4',
+        '#CD6167',
+        '#61CDC7',
+        '#61CD91',
+        '#9DCD61',
+        '#619DCD'
       ]
-  };
-});
+  }
+})

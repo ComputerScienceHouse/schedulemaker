@@ -1,4 +1,3 @@
-/* eslint-disable no-undef */
 angular.module('sm').directive('dynamicItem', function ($timeout) {
   return {
     restrict: 'A',

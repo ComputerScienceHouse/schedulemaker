@@ -1,6 +1,5 @@
-angular.module('sm').directive("loadingButton", function (uiDayFactory) {
-
-  var template = '<i class="fa fa-spin fa-refresh" ></i> ';
+angular.module('sm').directive('loadingButton', function (uiDayFactory) {
+  var template = '<i class="fa fa-spin fa-refresh" ></i> '
 
   return {
     restrict: 'A',
@@ -9,18 +8,18 @@ angular.module('sm').directive("loadingButton", function (uiDayFactory) {
       text: '@loadingText'
     },
     link: function (scope, elm) {
-      var prevHTML = elm.html();
+      var prevHTML = elm.html()
       scope.$watch('status', function (newLoading, prevLoading) {
-        if (newLoading != prevLoading) {
-          if (newLoading == 'L') {
-            elm.html(template + scope.text);
-            elm.attr("disabled", true);
+        if (newLoading !== prevLoading) {
+          if (newLoading === 'L') {
+            elm.html(template + scope.text)
+            elm.attr('disabled', true)
           } else {
-            elm.html(prevHTML);
-            elm.attr("disabled", false);
+            elm.html(prevHTML)
+            elm.attr('disabled', false)
           }
         }
-      });
+      })
     }
-  };
-});
+  }
+})
