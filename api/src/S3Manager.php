@@ -47,6 +47,7 @@ class S3Manager
         //TODO: Error Handling
         $this->s3Client->putObject([
             'Bucket' => $this->imageBucket,
+            'ContentType' => 'image/png',
             'Key' => "{$id}.png",
             'Body' => $im->getImageBlob()
         ]);
