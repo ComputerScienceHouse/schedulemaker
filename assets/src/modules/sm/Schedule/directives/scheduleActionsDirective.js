@@ -142,7 +142,10 @@ angular.module('sm').directive('scheduleActions', function ($http, $q, shareServ
 
       hide: function () {
         ga('send', 'event', 'schedule', 'hide')
-        scope.$parent.$parent.state.schedules.splice(scope.$index, 1)
+        const appstate = scope.$parent.$parent.state;
+        const pageStartIndex = appstate.displayOptions.currentPage * appstate.displayOptions.pageSize;
+
+        appstate.schedules.splice(pageStartIndex + scope.$index, 1)
       }
     }
   };
