@@ -142,8 +142,8 @@ angular.module('sm').directive('scheduleActions', function ($http, $q, shareServ
 
       hide: function () {
         ga('send', 'event', 'schedule', 'hide')
-        const appstate = scope.$parent.$parent.state;
-        const pageStartIndex = appstate.displayOptions.currentPage * appstate.displayOptions.pageSize;
+        const appstate = scope.$parent.$parent.state
+        const pageStartIndex = appstate.displayOptions.currentPage * appstate.displayOptions.pageSize
 
         appstate.schedules.splice(pageStartIndex + scope.$index, 1)
       }
