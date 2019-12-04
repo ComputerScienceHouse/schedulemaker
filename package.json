@@ -1,6 +1,6 @@
 {
   "name": "schedulemaker",
-  "version": "3.1.2",
+  "version": "3.1.3",
   "private": true,
   "description": "A course database lookup tool and schedule building web application for use at Rochester Institute of Technology.",
   "main": "index.php",
