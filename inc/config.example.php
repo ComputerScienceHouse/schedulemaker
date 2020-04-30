@@ -20,7 +20,14 @@ $DATABASE_DB     = 'yourdatabase';
 $DUMPLOCATION    = 'pathtothedumpfile';
 $GOOGLEANALYTICS = 'google_analytics_site_id';
 $HTTPROOTADDRESS = 'http://path.to.your/schedule/';
-$SERVER_TYPE     = '(development|production)'
+$SERVER_TYPE     = '(development|production)';
+
+////////////////////////////////////////////////////////////////////////////
+// S3 CONFIG
+$S3_SERVER = 'https://s3.csh.rit.edu';
+$S3_KEY = '';
+$S3_SECRET = '';
+$S3_IMAGE_BUCKET = 'schedulemaker';
 
 ////////////////////////////////////////////////////////////////////////////
 // CALCULATIONS
@@ -46,7 +53,3 @@ switch(date('n')) {
 		$CURRENT_QUARTER = date("Y") . '2';		// Point them to the summer
 		break;
 }
-
-////////////////////////////////////////////////////////////////////////////
-// SESSION
-

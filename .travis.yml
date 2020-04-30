@@ -3,14 +3,22 @@ php:
   - 7.0
   - 7.1
   - 7.2
-  - hhvm
+  - 7.3
   - nightly
+node_js:
+  - 10
 
 matrix:
     allow_failures:
         - php: 7.0
-        - php: hhvm
+        - php: 7.2
+        - php: 7.3
         - php: nightly
+
+install:
+  - npm install
 
 script:
   - if find . -name "*.php" ! -path "./vendor/*" -exec php -l {} 2>&1 \; | grep "syntax error, unexpected"; then exit 1; fi
+  - npm run lint
+  - npm run build

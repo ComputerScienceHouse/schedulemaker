@@ -8,6 +8,7 @@ img/schedules/*.png
 
 # Ignore node_modules dependencies
 node_modules/*
+package-lock.json
 
 # Ignore built files
 assets/prod/*
@@ -34,3 +35,5 @@ _Local Working Files/*
 web.config
 vwd.webinfo
 WebEssentials-Settings.json
+vendor
+composer.lock

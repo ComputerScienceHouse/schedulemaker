@@ -8,50 +8,52 @@
 ////////////////////////////////////////////////////////////////////////////
 
 // FUNCTIONS ///////////////////////////////////////////////////////////////
-function timeElapsed($time) {
-	// Initialize the return string
-	$return = "";
 
-	// Divide off days
-	$days = floor($time / (60 * 60 * 24));
-	if($days) {
-		$return .= "{$days} days ";
-		$time -= $days * 60 * 60 * 24;
-	}
 
-	// Divide off hours
-	$hours = floor($time / (60 * 60));
-	if($hours) {
-		$return .= "{$hours}:";
-		$time -= $hours * 60 * 60;
-	} else {
-		$return .= "00:";
-	}
+function timeElapsed($time): string {
+    // Initialize the return string
+    $return = "";
 
-	// Divide off minutes
-	$mins = floor($time / 60);
-	if($mins) {
-		$return .= "{$mins}:";
-		$time -= $mins * 60;
-	} else {
-		$return .= "00:";
-	}
+    // Divide off days
+    $days = floor($time / (60 * 60 * 24));
+    if ($days) {
+        $return .= "{$days} days ";
+        $time -= $days * 60 * 60 * 24;
+    }
 
-	// Divide off seconds
-	$return .= str_pad($time, 2, "0", STR_PAD_LEFT);
+    // Divide off hours
+    $hours = floor($time / (60 * 60));
+    if ($hours) {
+        $return .= "{$hours}:";
+        $time -= $hours * 60 * 60;
+    } else {
+        $return .= "00:";
+    }
 
-	return $return;
+    // Divide off minutes
+    $mins = floor($time / 60);
+    if ($mins) {
+        $return .= "{$mins}:";
+        $time -= $mins * 60;
+    } else {
+        $return .= "00:";
+    }
+
+    // Divide off seconds
+    $return .= str_pad($time, 2, "0", STR_PAD_LEFT);
+
+    return $return;
 }
 
 // REQUIRED FILES //////////////////////////////////////////////////////////
-require_once("../inc/databaseConn.php");
+require_once "../inc/databaseConn.php";
 
 // MAIN EXECUTION //////////////////////////////////////////////////////////
 // Look up the last 20 scrape reports and store into an array
 $query = "SELECT * FROM scrapelog ORDER BY timeStarted DESC LIMIT 20";
 $result = $dbConn->query($query);
-$lastLogs = array();
-while($row = $result->fetch_assoc()) {
-	$lastLogs[] = $row;
+$lastLogs = [];
+while ($row = $result->fetch_assoc()) {
+    $lastLogs[] = $row;
 }
 echo json_encode($lastLogs);

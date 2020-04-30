@@ -11,9 +11,9 @@
 
 // REQUIRED FILES //////////////////////////////////////////////////////////
 if (file_exists('../inc/config.php')) {
-    require_once "../inc/config.php";
+    include_once "../inc/config.php";
 } else {
-    require_once "../inc/config.env.php";
+    include_once "../inc/config.env.php";
 }
 require_once "../inc/databaseConn.php";
 require_once "../inc/timeFunctions.php";
@@ -28,19 +28,19 @@ $_POST = sanitize($_POST);
 // MAIN EXECUTION //////////////////////////////////////////////////////////
 
 // Switch on the action
-switch(getAction()) {
-	case "getCourses":
-		// Query for the courses in this department
+switch (getAction()) {
+    case "getCourses":
+        // Query for the courses in this department
 
-		// Verify that we have department to get courses for and a quarter
-		if(empty($_POST['department']) || !is_numeric($_POST['department'])) {
-			die(json_encode(array("error" => "argument", "msg" => "You must provide a valid department")));
-		} elseif(empty($_POST['term']) || !is_numeric($_POST['term'])) {
-			die(json_encode(array("error" => "argument", "msg" => "You must provide a valid term")));
-		}
+        // Verify that we have department to get courses for and a quarter
+        if (empty($_POST['department']) || !is_numeric($_POST['department'])) {
+            die(json_encode(["error" => "argument", "msg" => "You must provide a valid department"]));
+        } elseif (empty($_POST['term']) || !is_numeric($_POST['term'])) {
+            die(json_encode(["error" => "argument", "msg" => "You must provide a valid term"]));
+        }
 
-		// Do the query
-		$query = "SELECT c.title, c.course, c.description, c.id, d.number, d.code
+        // Do the query
+        $query = "SELECT c.title, c.course, c.description, c.id, d.number, d.code
                   FROM sections AS s
                   JOIN courses AS c ON s.course = c.id
                   JOIN departments AS d ON d.id = c.department
@@ -49,43 +49,43 @@ switch(getAction()) {
 		            AND s.status != 'X'
 		          GROUP BY c.id
 		          ORDER BY course";
-		$result = $dbConn->query($query);
-		if(!$result) {
-			die(json_encode(array("error" => "mysql", "msg" => $dbConn->error)));
-		}
+        $result = $dbConn->query($query);
+        if (!$result) {
+            die(json_encode(["error" => "mysql", "msg" => $dbConn->error]));
+        }
 
-		// Collect the courses and turn it into a json
-		$courses = array();
-		while($course = $result->fetch_assoc()) {
-            $courses[] = array(
+        // Collect the courses and turn it into a json
+        $courses = [];
+        while ($course = $result->fetch_assoc()) {
+            $courses[] = [
                 "id" => $course['id'],
                 "course" => $course['course'],
-                "department" => array("code" => $course['code'], "number" =>$course['number']),
+                "department" => ["code" => $course['code'], "number" => $course['number']],
                 "title" => $course['title'],
                 "description" => htmlentities($course['description'])
-            );
-		}
+            ];
+        }
 
-		echo json_encode(array("courses" => $courses));
+        echo json_encode(["courses" => $courses]);
 
-		break;
+        break;
 
-	case "getDepartments":
-		// Query for the departments of the school
-		
-		// Verify that we have a school to get departments for
-		if(empty($_POST['school']) || !is_numeric($_POST['school'])) {
-			die(json_encode(array("error" => "argument", "msg" => "You must provide a school")));
-		}
+    case "getDepartments":
+        // Query for the departments of the school
 
-		// Verify that we have a quarter to make sure there are
-		// courses in the department.
-		if(empty($_POST['term']) || !is_numeric($_POST['term'])) {
-			die(json_encode(array("error" => "argument", "msg" => "You must provide a term")));
-		}
+        // Verify that we have a school to get departments for
+        if (empty($_POST['school']) || !is_numeric($_POST['school'])) {
+            die(json_encode(["error" => "argument", "msg" => "You must provide a school"]));
+        }
 
-		// Do the query
-        if($_POST['term'] > 20130) {
+        // Verify that we have a quarter to make sure there are
+        // courses in the department.
+        if (empty($_POST['term']) || !is_numeric($_POST['term'])) {
+            die(json_encode(["error" => "argument", "msg" => "You must provide a term"]));
+        }
+
+        // Do the query
+        if ($_POST['term'] > 20130) {
             // Get the department code and concat the numbers
             $query = "SELECT id, title, code, GROUP_CONCAT(number, ', ') AS number
                       FROM departments AS d
@@ -102,87 +102,87 @@ switch(getAction()) {
 		            AND number IS NOT NULL
                   ORDER BY id";
         }
-		$result = $dbConn->query($query);
-		if(!$result) {
-			die(json_encode(array("error" => "mysql", "msg" => $dbConn->error)));
-		}
+        $result = $dbConn->query($query);
+        if (!$result) {
+            die(json_encode(["error" => "mysql", "msg" => $dbConn->error]));
+        }
 
-		// Collect the departments and turn it into a json
-		$departments = array();
-		while($department = $result->fetch_assoc()) {
-            $departments[] = array(
+        // Collect the departments and turn it into a json
+        $departments = [];
+        while ($department = $result->fetch_assoc()) {
+            $departments[] = [
                 "id" => $department['id'],
                 "title" => $department['title'],
-                "code" => isset($department['code']) ? $department['code'] : NULL,
+                "code" => isset($department['code']) ? $department['code'] : null,
                 "number" => trim($department['number'], " ,")
-            );
-		}
+            ];
+        }
 
-		echo json_encode(array("departments" => $departments));
+        echo json_encode(["departments" => $departments]);
 
-		break;
+        break;
 
     case "getSchools":
         // REQUEST FOR LIST OF SCHOOLS /////////////////////////////////////
         // Query for the schools
         $query = "SELECT `id`, `number`, `code`, `title` FROM schools";
         $result = $dbConn->query($query);
-        if(!$result) {
-            die(json_encode(array("error" => "database", "msg" => "The list of schools could not be retrieved at this time.")));
+        if (!$result) {
+            die(json_encode(["error" => "database", "msg" => "The list of schools could not be retrieved at this time."]));
         }
 
         // Build an array of schools
-        $schools = array();
-        while($school = $result->fetch_assoc()) {
+        $schools = [];
+        while ($school = $result->fetch_assoc()) {
             $schools[] = $school;
         }
 
         // Return it to the user
         echo(json_encode($schools));
         break;
-        
+
     case "getSchoolsForTerm":
         // REQUEST FOR LIST OF SCHOOLS FOR TERM ////////////////////////////
-    	if(empty($_POST['term'])) {
-    		die(json_encode(array("error" => "argument", "msg" => "You must provide a term")));
-    	}
-    	
-    	$term = (int) $_POST['term'];
-    	
-    	// Determine if term was before quarters
-		if ($term > 20130) {
-			// School codes
-			$query = "SELECT id, code AS code, title FROM schools WHERE code IS NOT NULL ORDER BY code";
-		} else {
-			// School numbers
-			$query = "SELECT id, number AS code, title FROM schools WHERE number IS NOT NULL ORDER BY number";
-		}
-		// Query for the schools
+        if (empty($_POST['term'])) {
+            die(json_encode(["error" => "argument", "msg" => "You must provide a term"]));
+        }
+
+        $term = (int)$_POST['term'];
+
+        // Determine if term was before quarters
+        if ($term > 20130) {
+            // School codes
+            $query = "SELECT id, code AS code, title FROM schools WHERE code IS NOT NULL ORDER BY code";
+        } else {
+            // School numbers
+            $query = "SELECT id, number AS code, title FROM schools WHERE number IS NOT NULL ORDER BY number";
+        }
+        // Query for the schools
         $result = $dbConn->query($query);
-        if(!$result) {
-        	die(json_encode(array("error" => "database", "msg" => "The list of schools could not be retrieved at this time.")));
+        if (!$result) {
+            die(json_encode(["error" => "database", "msg" => "The list of schools could not be retrieved at this time."]));
         }
-        
+
         // Build an array of schools
-        $schools = array();
-        while($school = $result->fetch_assoc()) {
-        	$schools[] = $school;
+        $schools = [];
+        while ($school = $result->fetch_assoc()) {
+            $schools[] = $school;
         }
-        
+
         // Return it to the user
         echo(json_encode($schools));
         break;
 
-	case "getSections":
-		// Query for the sections and times of a given course
-		
-		// Verify that we have a course to get sections for
-		if(empty($_POST['course']) || !is_numeric($_POST['course'])) {
-			die(json_encode(array("error" => "argument", "msg" => "You must provide a course")));
-		}
+    case "getSections":
+        // Query for the sections and times of a given course
 
-		// Do the query
-		$query = "SELECT c.title AS coursetitle, c.course, d.number, d.code, s.section,
+        // Verify that we have a course to get sections for
+        if (empty($_POST['course']) || !is_numeric($_POST['course'])) {
+            die(json_encode(["error" => "argument", "msg" => "You must provide a course"]));
+        }
+
+        // Do the query
+        $query = "SELECT c.title AS coursetitle, c.course, d.number, d.code, s.section,
 		            s.instructor, s.id, s.type, s.maxenroll, s.curenroll, s.title AS sectiontitle
 		          FROM sections AS s
 		            JOIN courses AS c ON s.course = c.id
@@ -190,30 +190,30 @@ switch(getAction()) {
                   WHERE s.course = '{$_POST['course']}'
                     AND s.status != 'X'
                   ORDER BY c.course, s.section";
-		$sectionResult = $dbConn->query($query);
-		if(!$sectionResult) {
-			die(json_encode(array("error" => "mysql", "msg" => $dbConn->error)));
-		}
-		
-		// Collect the sections and their times, modify the section inline
-		$sections = array();
-		while($section = $sectionResult->fetch_assoc()) {
-			$section['times'] = array();
+        $sectionResult = $dbConn->query($query);
+        if (!$sectionResult) {
+            die(json_encode(["error" => "mysql", "msg" => $dbConn->error]));
+        }
 
-			// Set the course title depending on its section title
+        // Collect the sections and their times, modify the section inline
+        $sections = [];
+        while ($section = $sectionResult->fetch_assoc()) {
+            $section['times'] = [];
+
+            // Set the course title depending on its section title
             // @TODO: Replace this with a conditional column in the query
-			if($section['sectiontitle'] != NULL) {
-				$section['title'] = $section['sectiontitle'];
-			} else {
-				$section['title'] = $section['coursetitle'];
-			}
-			unset($section['sectiontitle']);
-			unset($section['coursetitle']);
+            if ($section['sectiontitle'] != null) {
+                $section['title'] = $section['sectiontitle'];
+            } else {
+                $section['title'] = $section['coursetitle'];
+            }
+            unset($section['sectiontitle']);
+            unset($section['coursetitle']);
 
-			// If it's online, don't bother looking up the times
-			if($section['type'] == "OL") {
-				$section['online'] = true;
-			} else {
+            // If it's online, don't bother looking up the times
+            if ($section['type'] == "OL") {
+                $section['online'] = true;
+            } else {
                 // Look up the times the section meets
                 $query = "SELECT day, start, end, b.code, b.number, b.off_campus AS off, room
                           FROM times AS t
@@ -221,50 +221,50 @@ switch(getAction()) {
                           WHERE t.section = '{$section['id']}'
                           ORDER BY day, start";
                 $timeResult = $dbConn->query($query);
-                if(!$timeResult) {
-                    die(json_encode(array("error" => "mysql", "msg" => $dbConn->error)));
+                if (!$timeResult) {
+                    die(json_encode(["error" => "mysql", "msg" => $dbConn->error]));
                 }
 
-                while($time = $timeResult->fetch_assoc()) {
-                    $timeOutput = array(
-                        'start'    => $time['start'],
-                        'end'      => $time['end'],
-                        'day'      => $time['day'],
-                        'bldg' => array(
-                            'code'    => $time['code'],
-                            'number'  => $time['number'],
+                while ($time = $timeResult->fetch_assoc()) {
+                    $timeOutput = [
+                        'start' => $time['start'],
+                        'end' => $time['end'],
+                        'day' => $time['day'],
+                        'bldg' => [
+                            'code' => $time['code'],
+                            'number' => $time['number'],
                             'off_campus' => $time['off'] == '1'
-                        ),
-                        'room'     => $time['room']
-                    );
+                        ],
+                        'room' => $time['room']
+                    ];
                     $section['times'][] = $timeOutput;
                 }
             }
 
             // Add the section to the result set
-            $sections[] = array(
-                "id"         => $section['id'],
-                "department" => array("code" => $section['code'], "number" => $section['number']),
-                "course"     => $section['course'],
-                "section"    => $section['section'],
-                "title"      => $section['title'],
+            $sections[] = [
+                "id" => $section['id'],
+                "department" => ["code" => $section['code'], "number" => $section['number']],
+                "course" => $section['course'],
+                "section" => $section['section'],
+                "title" => $section['title'],
                 "instructor" => $section['instructor'],
-                "type"       => $section['type'],
-                "maxenroll"  => $section['maxenroll'],
-                "curenroll"  => $section['curenroll'],
-                "times"      => $section['times']
-            );
-		}
+                "type" => $section['type'],
+                "maxenroll" => $section['maxenroll'],
+                "curenroll" => $section['curenroll'],
+                "times" => $section['times']
+            ];
+        }
 
-		// Spit out the json
-		echo json_encode(array("sections" => $sections));
-		break;
+        // Spit out the json
+        echo json_encode(["sections" => $sections]);
+        break;
 
     case "courseForSection":
         echo json_encode(getCourseBySectionId($_POST['id'], true));
         break;
 
     default:
-        die(json_encode(array("error" => "argument", "msg" => "You must provide a valid action.")));
+        die(json_encode(["error" => "argument", "msg" => "You must provide a valid action."]));
 
 }
