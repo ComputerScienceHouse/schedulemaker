@@ -139,7 +139,8 @@ angular.module('sm').controller('SearchController', function ($scope, $http, ent
         $scope.searchStatus = 'D'
 
         window.DD_RUM &&
-        DD_RUM.addUserAction('SearchParams', {
+        DD_RUM.addUserAction('Search', {
+          type: "Find",
           data: data
         })
 

@@ -30,6 +30,11 @@ angular.module('sm').directive('scheduleActions', function ($http, $q, shareServ
         svg: serializer.serializeToString(elm.find('svg').get(0))
       }
 
+      window.DD_RUM &&
+      DD_RUM.addUserAction('SavedInfo', {
+        data: params
+      })
+
       // Post the schedule and return a promise
       return $http.post('/schedule/new', $.param(params), {
         requestType: 'json'
@@ -51,6 +56,10 @@ angular.module('sm').directive('scheduleActions', function ($http, $q, shareServ
       save: function (saveType) {
         if (saveType === 'create') {
           ga('send', 'event', 'schedule', 'save')
+          window.DD_RUM &&
+          DD_RUM.addUserAction('Schedule', {
+            type: "Save"
+          })
           getSavedInfo().then(function (data) {
             scope.notification = 'This schedule can be accessed at ' +
               '<a href="' + data.url + '" target="_blank">' +
@@ -62,14 +71,23 @@ angular.module('sm').directive('scheduleActions', function ($http, $q, shareServ
           })
         } else {
           ga('send', 'event', 'schedule', 'fork')
-          localStorage.setItem('forkSchedule', scope.schedule)
+          window.DD_RUM &&
+          DD_RUM.addUserAction('Schedule', {
+            type: "Fork"
+          })
 
+          localStorage.setItem('forkSchedule', scope.schedule)
           $state.go('generate')
         }
       },
 
       shareToService: function ($event, serviceName, newWindow) {
         ga('send', 'event', 'schedule', 'share', serviceName)
+        window.DD_RUM &&
+        DD_RUM.addUserAction('Schedule', {
+          type: "Share",
+          serviceName: serviceName
+        })
         $event.preventDefault()
         scope.status = 'L'
         if (serviceName && serviceName in shareServiceInfo) {
@@ -87,6 +105,11 @@ angular.module('sm').directive('scheduleActions', function ($http, $q, shareServ
 
       shareToEmail: function ($event) {
         ga('send', 'event', 'schedule', 'share', 'email')
+        window.DD_RUM &&
+        DD_RUM.addUserAction('Schedule', {
+          type: "Share",
+          subtype: "Email"
+        })
         $event.preventDefault()
 
         getSavedInfo().then(function (data) {
@@ -100,6 +123,11 @@ angular.module('sm').directive('scheduleActions', function ($http, $q, shareServ
 
       shareToDirectLink: function ($event) {
         ga('send', 'event', 'schedule', 'share', 'link')
+        window.DD_RUM &&
+        DD_RUM.addUserAction('Schedule', {
+          type: "Share",
+          subtype: "Link"
+        })
         $event.preventDefault()
 
         scope.scheduleActions.save('create')
@@ -107,6 +135,11 @@ angular.module('sm').directive('scheduleActions', function ($http, $q, shareServ
 
       downloadiCal: function ($event) {
         ga('send', 'event', 'schedule', 'download', 'iCal')
+        window.DD_RUM &&
+        DD_RUM.addUserAction('Schedule', {
+          type: "Download",
+          subtype: "iCal"
+        })
         $event.preventDefault()
 
         getSavedInfo().then(function (data) {
@@ -116,6 +149,11 @@ angular.module('sm').directive('scheduleActions', function ($http, $q, shareServ
 
       downloadImage: function ($event) {
         ga('send', 'event', 'schedule', 'download', 'image')
+        window.DD_RUM &&
+        DD_RUM.addUserAction('Schedule', {
+          type: "Download",
+          subtype: "Image"
+        })
         $event.preventDefault()
 
         var popup = openPopup(true)
@@ -128,6 +166,10 @@ angular.module('sm').directive('scheduleActions', function ($http, $q, shareServ
 
       print: function () {
         ga('send', 'event', 'schedule', 'print')
+        window.DD_RUM &&
+        DD_RUM.addUserAction('Schedule', {
+          type: "Print"
+        })
 
         var reloadSchedule = angular.copy(scope.state.drawOptions)
         reloadSchedule.term = scope.state.requestOptions.term
@@ -142,6 +184,10 @@ angular.module('sm').directive('scheduleActions', function ($http, $q, shareServ
 
       hide: function () {
         ga('send', 'event', 'schedule', 'hide')
+        window.DD_RUM &&
+        DD_RUM.addUserAction('Schedule', {
+          type: "Hide",
+        })
         const appstate = scope.$parent.$parent.state
         const pageStartIndex = appstate.displayOptions.currentPage * appstate.displayOptions.pageSize
 
