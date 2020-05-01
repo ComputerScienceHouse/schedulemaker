@@ -30,11 +30,6 @@ angular.module('sm').directive('scheduleActions', function ($http, $q, shareServ
         svg: serializer.serializeToString(elm.find('svg').get(0))
       }
 
-      window.DD_RUM &&
-      DD_RUM.addUserAction('SavedInfo', {
-        data: params
-      })
-
       // Post the schedule and return a promise
       return $http.post('/schedule/new', $.param(params), {
         requestType: 'json'

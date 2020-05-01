@@ -138,6 +138,7 @@ angular.module('sm').controller('SearchController', function ($scope, $http, ent
         // 'D'one loading
         $scope.searchStatus = 'D'
 
+        ga('send', 'event', 'search', 'find')
         window.DD_RUM &&
         DD_RUM.addUserAction('Search', {
           type: 'Find',
