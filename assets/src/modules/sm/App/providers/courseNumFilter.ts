@@ -6,7 +6,7 @@ angular.module('sm').filter('formatTime', function () {
     var hours = Math.floor(minutes / 60)
 
     // Figure out how many minutes
-    var remMinutes = minutes % 60
+    var remMinutes: string | number = minutes % 60
 
     // Correct for AM/PM
     var ampm

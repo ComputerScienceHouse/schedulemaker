@@ -22,6 +22,7 @@ angular.module('sm').directive('dynamicItem', function ($timeout) {
         }
       },
       post: function (scope, elm, attrs, dynamicItems) {
+        var kbdResult
         var ident = 'input.searchField'
         var input = elm.find(ident)
         var doKeystrokeAnalysis = function (e) {

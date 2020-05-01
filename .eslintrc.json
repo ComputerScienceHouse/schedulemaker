@@ -4,6 +4,10 @@
         "commonjs": true,
         "es6": true
     },
+    "parser": "@typescript-eslint/parser",
+    "plugins": [
+        "@typescript-eslint"
+    ],
     "extends": [
         "standard"
     ],

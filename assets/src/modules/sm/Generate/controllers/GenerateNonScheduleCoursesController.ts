@@ -8,11 +8,11 @@ angular.module('sm').controller('GenerateNonCourseItemsController', function ($s
     })
   }
 
-  $scope.removeNonC = function (index) {
+  $scope.removeNonC = function (index: number) {
     $scope.state.nonCourses.splice(index, 1)
   }
 
-  $scope.ensureCorrectEndTime = function (index) {
+  $scope.ensureCorrectEndTime = function (index: number) {
     if ($scope.state.nonCourses[index].startTime >= $scope.state.nonCourses[index].endTime) {
       $scope.state.nonCourses[index].endTime = $scope.state.nonCourses[index].startTime + 60
     }

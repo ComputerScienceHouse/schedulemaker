@@ -5,7 +5,7 @@ angular.module('sm').filter('parseSectionTimes', function ($filter) {
     var parsedTimes = []
     for (var e = 0; e < times.length; ++e) {
       // Search the existing list of times to see if a match exists
-      var found = false
+      var found: number | boolean = false
       var time = times[e]
 
       if (byLocation && typeof time.bldg !== 'undefined') {

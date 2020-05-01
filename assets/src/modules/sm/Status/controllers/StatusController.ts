@@ -7,7 +7,7 @@ angular.module('sm').controller('StatusController', function ($scope, $http) {
         $scope.logs = data
       } else {
         // TODO: Better error checking
-        alert(scope.error)
+        alert($scope.error)
       }
     })
 
@@ -18,8 +18,8 @@ angular.module('sm').controller('StatusController', function ($scope, $http) {
     var month = months[a.getMonth()]
     var date = a.getDate()
     var hour = a.getHours()
-    var min = a.getMinutes()
-    var sec = a.getSeconds()
+    var min: number | string = a.getMinutes()
+    var sec: number | string = a.getSeconds()
     if (sec <= 10) sec = '0' + sec
     if (min <= 10) min = '0' + min
     var time = month + ' ' + date + ' ' + year + ' ' + hour + ':' + min + ':' + sec

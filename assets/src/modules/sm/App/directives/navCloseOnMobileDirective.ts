@@ -4,7 +4,7 @@ angular.module('sm').directive('navCloseOnMobile', function () {
     link: function (scope, elm) {
       var nav = $(elm)
       $(elm).find('li').click(function () {
-        $('.navbar-collapse.in').collapse('hide')
+        ($('.navbar-collapse.in') as any).collapse('hide')
       })
     }
   }

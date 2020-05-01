@@ -21,6 +21,7 @@ angular.module('sm').directive('schedule', function ($timeout, $filter) {
   }
   Schedule.prototype.drawGrid = function () {
     var hourArray = []
+    var ap: string
     for (var time = +this.drawOptions.startTime; time < +this.drawOptions.endTime; time += 60) {
       // Calculate the label
       var hourLabel = Math.floor(time / 60)
@@ -154,6 +155,7 @@ angular.module('sm').directive('schedule', function ($timeout, $filter) {
         hourLabel = 12
       }
       var minuteLabel = (courseStart % 60)
+      var ap: string
       minuteLabel = pad(minuteLabel)
       if (courseStart >= 720) {
         ap = ' PM'
@@ -260,7 +262,7 @@ angular.module('sm').directive('schedule', function ($timeout, $filter) {
             $timeout(function () {
               var offset = elm.find('svg').offset()
               var vert = 1 - parseFloat('0.' + ('' + offset.top).split('.')[1])
-              horz = 1 - parseFloat('0.' + ('' + offset.left).split('.')[1])
+              var horz = 1 - parseFloat('0.' + ('' + offset.left).split('.')[1])
               scope.grid.opts.pixelAlignment = 'translate(' + horz + ',' + vert + ')'
 
               // Toggle showing and hiding svgs, which forces a redraw

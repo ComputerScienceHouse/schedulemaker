@@ -30,7 +30,7 @@ angular.module('sm').directive('professorLookup', function ($http) {
                   return entry.querySelectorAll(selector)[0].innerHTML
                 }
                 var getUrl = function () {
-                  return 'http://www.ratemyprofessors.com/ShowRatings.jsp?tid=' + entry.querySelectorAll('.profName a')[0].href.split('?tid=')[1]
+                  return 'http://www.ratemyprofessors.com/ShowRatings.jsp?tid=' + (entry.querySelectorAll('.profName a')[0] as HTMLLinkElement).href.split('?tid=')[1]
                 }
                 var ratingColor = function (score) {
                   score = parseFloat(score)
