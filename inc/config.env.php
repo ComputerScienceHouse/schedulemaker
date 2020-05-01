@@ -41,7 +41,13 @@ $JSSTATE_VERSION = $APP_CONFIG['config']['stateVersion'];
 $GOOGLEANALYTICS = ($SERVER_TYPE == 'production')?
     $get_env(getenv("GOOGLEANALYTICS1"), ''):
     $get_env(getenv("GOOGLEANALYTICS2"), '');
-//
+
+////////////////////////////////////////////////////////////////////////////
+////// DATADOG RUM ANALYTICS
+////
+
+$RUM_CLIENT_TOKEN = $get_env(getenv("RUM_CLIENT_TOKEN"), '');
+$RUM_APPLICATION_ID = $get_env(getenv("RUM_APPLICATION_ID"), '');
 
 ////////////////////////////////////////////////////////////////////////////
 // WORK AROUNDS
