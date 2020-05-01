@@ -162,6 +162,11 @@ angular.module('sm').controller('GenerateController', function ($scope, globalKb
         ga('send', 'event', 'generate', 'schedule')
         $scope.generationStatus = 'D'
 
+        window.DD_RUM &&
+        DD_RUM.addUserAction('GenerateMatchingSchedules', {
+            data: data
+        });
+
         // If no errors happened
         if (!data.error && !data.errors) {
           // Check if any schedules were generated
