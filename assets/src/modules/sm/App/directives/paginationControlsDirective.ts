@@ -12,7 +12,7 @@ angular.module('sm').directive('paginationControls', function () {
     link: {
       pre: function (scope) {
         scope.numberOfPages = function () {
-          var numPages = Math.ceil(scope.totalLength / scope.displayOptions.pageSize)
+          const numPages = Math.ceil(scope.totalLength / scope.displayOptions.pageSize)
           if (scope.displayOptions.currentPage === numPages) {
             scope.displayOptions.currentPage = numPages - 1
           }

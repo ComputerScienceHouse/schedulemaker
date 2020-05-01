@@ -1,16 +1,16 @@
 angular.module('sm').directive('courseDetailPopover', function ($http, $filter) {
-  var RMPUrl = $filter('RMPUrl')
-  var parseTimes = $filter('parseSectionTimes')
-  var formatTime = $filter('formatTime')
+  const RMPUrl = $filter('RMPUrl')
+  const parseTimes = $filter('parseSectionTimes')
+  const formatTime = $filter('formatTime')
 
   function getTimesHTML (times) {
     if (!times) {
       return ''
     }
-    var parsedTimes = parseTimes(times, true)
-    var HTML = '<div style="font-size: small">'
-    for (var timeIndex = 0; timeIndex < parsedTimes.length; timeIndex++) {
-      var time = parsedTimes[timeIndex]
+    const parsedTimes = parseTimes(times, true)
+    let HTML = '<div style="font-size: small">'
+    for (let timeIndex = 0; timeIndex < parsedTimes.length; timeIndex++) {
+      const time = parsedTimes[timeIndex]
       HTML += time.days + ' <span style="white-space: nowrap">' + formatTime(time.start) + '-' + formatTime(time.end) + '</span> <span style="font-style: italic; white-space: nowrap">Location: ' + time.location + '</span>'
       if (timeIndex < parsedTimes.length - 1) {
         HTML += '<br>'
@@ -28,9 +28,9 @@ angular.module('sm').directive('courseDetailPopover', function ($http, $filter) 
     },
     link: function (scope, elm) {
       if (scope.sectionId !== '') {
-        var loaded = false
-        var opened = false
-        var $body = $('body')
+        let loaded = false
+        let opened = false
+        const $body = $('body')
 
         function hidePopoverOnBodyClick () {
           setTimeout(function () {

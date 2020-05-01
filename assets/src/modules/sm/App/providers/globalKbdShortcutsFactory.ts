@@ -1,5 +1,5 @@
 angular.module('sm').factory('globalKbdShortcuts', function ($rootScope) {
-  var globalKbdShortcuts = {
+  const globalKbdShortcuts = {
     bindCtrlEnter: function (callback) {
       Mousetrap.bind('mod+enter', function (e) {
         $rootScope.$apply(callback)

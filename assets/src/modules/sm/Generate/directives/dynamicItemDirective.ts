@@ -22,10 +22,10 @@ angular.module('sm').directive('dynamicItem', function ($timeout) {
         }
       },
       post: function (scope, elm, attrs, dynamicItems) {
-        var kbdResult
-        var ident = 'input.searchField'
-        var input = elm.find(ident)
-        var doKeystrokeAnalysis = function (e) {
+        let kbdResult
+        const ident = 'input.searchField'
+        const input = elm.find(ident)
+        const doKeystrokeAnalysis = function (e) {
           kbdResult = true
           if (e.keyCode === 13 && !e.ctrlKey) {
             if (dynamicItems.items.length === scope.index) {
@@ -41,7 +41,7 @@ angular.module('sm').directive('dynamicItem', function ($timeout) {
             if (scope.index > 1) {
               elm.prev().find(ident).focus()
             } else {
-              var parent = elm.parent()
+              const parent = elm.parent()
               $timeout(function () {
                 parent.find(ident + ':first').focus()
               }, 0, false)
@@ -65,26 +65,27 @@ angular.module('sm').directive('dynamicItem', function ($timeout) {
             kbdResult = false
           } else if (e.ctrlKey && e.altKey && e.keyCode > 48 && e.keyCode < 57) {
             if (scope.item.sections.length > 0) {
-              var index = e.keyCode - 49
-              var resultElm = scope.item.sections[index]
+              const index = e.keyCode - 49
+              const resultElm = scope.item.sections[index]
               if (resultElm) {
                 scope.item.sections[index].selected = !scope.item.sections[index].selected
               }
             }
           } else if (e.ctrlKey && e.altKey && e.keyCode === 65) {
             if (scope.item.sections.length > 0) {
-              var total = 0
-              for (var i = 0; i < scope.item.sections.length; i++) {
+              let total = 0
+              for (let i = 0; i < scope.item.sections.length; i++) {
                 if (scope.item.sections[i].selected) {
                   total++
                 }
               }
+              let target;
               if (total === scope.item.sections.length) {
-                var target = false
+                target = false
               } else {
-                var target = true
+                target = true
               }
-              for (var i = 0; i < scope.item.sections.length; i++) {
+              for (let i = 0; i < scope.item.sections.length; i++) {
                 scope.item.sections[i].selected = target
               }
             }

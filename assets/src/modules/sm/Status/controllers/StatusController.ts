@@ -12,17 +12,17 @@ angular.module('sm').controller('StatusController', function ($scope, $http) {
     })
 
   $scope.timeConvert = function (UnixTimestamp) {
-    var a = new Date(+UnixTimestamp * 1000)
-    var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-    var year = a.getFullYear()
-    var month = months[a.getMonth()]
-    var date = a.getDate()
-    var hour = a.getHours()
-    var min: number | string = a.getMinutes()
-    var sec: number | string = a.getSeconds()
+    const a = new Date(+UnixTimestamp * 1000)
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+    const year = a.getFullYear()
+    const month = months[a.getMonth()]
+    const date = a.getDate()
+    const hour = a.getHours()
+    let min: number | string = a.getMinutes()
+    let sec: number | string = a.getSeconds()
     if (sec <= 10) sec = '0' + sec
     if (min <= 10) min = '0' + min
-    var time = month + ' ' + date + ' ' + year + ' ' + hour + ':' + min + ':' + sec
+    const time = month + ' ' + date + ' ' + year + ' ' + hour + ':' + min + ':' + sec
     return time
   }
 })

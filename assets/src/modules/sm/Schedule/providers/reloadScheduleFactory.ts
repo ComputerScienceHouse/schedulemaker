@@ -4,14 +4,14 @@ angular.module('sm').factory('reloadSchedule', function ($http, $q, localStorage
    * for displaying any single schedule alone
    */
 
-  var getEmptySchedule = function () {
+  const getEmptySchedule = function () {
     return {
       schedule: []
     }
   }
 
   return function ($stateParams) {
-    var deferred = $q.defer()
+    const deferred = $q.defer()
 
     // Check if
     if ($stateParams.hasOwnProperty('id') && $stateParams.id !== 'render') {
@@ -28,7 +28,7 @@ angular.module('sm').factory('reloadSchedule', function ($http, $q, localStorage
         })
     } else if (localStorage.hasKey('reloadSchedule')) {
       // Get the schedule from sessions storage
-      var reloadSchedule = localStorage.getItem('reloadSchedule')
+      const reloadSchedule = localStorage.getItem('reloadSchedule')
       // If it's actually there
       if (reloadSchedule != null) {
         deferred.resolve(reloadSchedule)

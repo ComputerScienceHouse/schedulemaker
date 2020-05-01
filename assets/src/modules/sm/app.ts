@@ -12,9 +12,9 @@ angular.module('sm', ['ngAnimate', 'ngSanitize', 'ui.router'])
 
     $urlRouterProvider.otherwise('/404')
 
-    var tplBase = '/<%=modulePath%>'
+    const tplBase = '/<%=modulePath%>'
 
-    var tplPath = function (submodule, name) {
+    const tplPath = function (submodule, name) {
       return tplBase + submodule + '/templates/' + name + '.min.html'
     }
 
@@ -81,7 +81,7 @@ angular.module('sm', ['ngAnimate', 'ngSanitize', 'ui.router'])
 
     // IE 10 MOBILE FIX
     if (navigator.userAgent.match(/IEMobile\/10\.0/)) {
-      var msViewportStyle = document.createElement('style')
+      const msViewportStyle = document.createElement('style')
       msViewportStyle.appendChild(
         document.createTextNode(
           '@-ms-viewport{width:auto!important}'

@@ -1,9 +1,9 @@
 angular.module('sm').controller('SchedulePrintController', function ($scope, $location, localStorage) {
   if ($scope.schedule) {
-    var pTerm = '' + $scope.state.requestOptions.term
+    const pTerm = '' + $scope.state.requestOptions.term
 
-    var year = parseInt(pTerm.substring(0, 4))
-    var term = pTerm.substring(4)
+    const year = parseInt(pTerm.substring(0, 4))
+    let term = pTerm.substring(4)
     if (year >= 2013) {
       switch (term) {
         case '1': term = 'Fall'; break

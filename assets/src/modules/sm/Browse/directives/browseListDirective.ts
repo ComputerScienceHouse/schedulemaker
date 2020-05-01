@@ -1,6 +1,6 @@
 angular.module('sm').directive('browseList', function ($http, entityDataRequest) {
-  var hierarchy = ['school', 'department', 'course', 'section']
-  var capitalize = function (string) {
+  const hierarchy = ['school', 'department', 'course', 'section']
+  const capitalize = function (string) {
     return string.charAt(0).toUpperCase() + string.slice(1)
   }
 
@@ -8,13 +8,13 @@ angular.module('sm').directive('browseList', function ($http, entityDataRequest)
     restrict: 'A',
     link: {
       pre: function (scope, elm, attrs) {
-        var hIndex = hierarchy.indexOf(attrs.browseList)
+        const hIndex = hierarchy.indexOf(attrs.browseList)
         if (hIndex === -1) {
           throw 'browseList mode does not exist'
         }
-        var itemName = hierarchy[hIndex]
-        var childrenName = hierarchy[hIndex + 1] + 's'
-        var entityDataRequestMethodName = 'get' + capitalize(childrenName) + 'For' + capitalize(itemName)
+        const itemName = hierarchy[hIndex]
+        const childrenName = hierarchy[hIndex + 1] + 's'
+        const entityDataRequestMethodName = 'get' + capitalize(childrenName) + 'For' + capitalize(itemName)
         scope[itemName][childrenName] = []
         scope[itemName].ui = {
           expanded: false,
@@ -27,8 +27,8 @@ angular.module('sm').directive('browseList', function ($http, entityDataRequest)
               scope[itemName].ui.buttonClass = 'fa-refresh fa-spin'
               if (itemName === 'course') {
                 if (scope.courseCart.contains.course(scope.course)) {
-                  var sections = []
-                  for (var i = 0; i < scope.state.courses.length; i++) {
+                  let sections = []
+                  for (let i = 0; i < scope.state.courses.length; i++) {
                     if (scope.course.id === scope.state.courses[i].id) {
                       sections = scope.state.courses[i].sections
                       break

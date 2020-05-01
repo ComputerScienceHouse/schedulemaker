@@ -2,15 +2,15 @@ angular.module('sm').controller('GenerateController', function ($scope, globalKb
   // Check if we are forking a schedule
   if (localStorage.hasKey('forkSchedule')) {
     // Get the schedule from sessions storage
-    var forkSchedule = localStorage.getItem('forkSchedule')
+    const forkSchedule = localStorage.getItem('forkSchedule')
     if (forkSchedule != null) {
       // Clear it so we don't fork again
       localStorage.setItem('forkSchedule', null)
 
-      var days = uiDayFactory()
+      const days = uiDayFactory()
 
       // Init state, but save UI settings
-      var savedUI = $scope.state.ui
+      const savedUI = $scope.state.ui
       $scope.initState()
       $scope.state.ui = savedUI
 
@@ -20,25 +20,25 @@ angular.module('sm').controller('GenerateController', function ($scope, globalKb
         $scope.state.ui.temp_savedScheduleTerm = null
       }
 
-      for (var i = forkSchedule.length; i--;) {
-        var course = forkSchedule[i]
+      for (let i = forkSchedule.length; i--;) {
+        const course = forkSchedule[i]
 
         // If it's a real course
         if (course.courseNum !== 'non') {
           $scope.courseCart.create.fromExistingScheduleCourse(course)
         } else {
           // Make a non-course item
-          var nonCourse = {
+          const nonCourse = {
             title: course.title,
             days: [days[parseInt(course.times[0].day)]],
             startTime: parseInt(course.times[0].start),
             endTime: parseInt(course.times[0].end)
           }
-          var mergedNonCourse: boolean = false
+          let mergedNonCourse: boolean = false
 
           // Try to merge this non course with other similar ones
-          for (var n = 0, l = $scope.state.nonCourses.length; n < l; n++) {
-            var otherNonCourse = $scope.state.nonCourses[n]
+          for (let n = 0, l = $scope.state.nonCourses.length; n < l; n++) {
+            const otherNonCourse = $scope.state.nonCourses[n]
             if (otherNonCourse.title === nonCourse.title &&
               otherNonCourse.startTime === nonCourse.startTime &&
               otherNonCourse.endTime === nonCourse.endTime) {
@@ -109,7 +109,7 @@ angular.module('sm').controller('GenerateController', function ($scope, globalKb
     let actualCourseIndex: number = 1
 
     // Loop through the course cart
-    for (var courseIndex = 0; courseIndex < $scope.state.courses.length; courseIndex++) {
+    for (let courseIndex = 0; courseIndex < $scope.state.courses.length; courseIndex++) {
       // Set up our variables
       const course = $scope.state.courses[courseIndex]
       const fieldName = 'courses' + (actualCourseIndex) + 'Opt[]'
@@ -118,7 +118,7 @@ angular.module('sm').controller('GenerateController', function ($scope, globalKb
       let sectionCount: number = 0
 
       // Add selected sections to the request
-      for (var sectionIndex = 0; sectionIndex < course.sections.length; sectionIndex++) {
+      for (let sectionIndex = 0; sectionIndex < course.sections.length; sectionIndex++) {
         if (course.sections[sectionIndex].selected) {
           requestData[fieldName].push(course.sections[sectionIndex].id)
           sectionCount++
@@ -136,7 +136,7 @@ angular.module('sm').controller('GenerateController', function ($scope, globalKb
     }
 
     // Set the request data for the non courses
-    for (var nonCourseIndex = 0; nonCourseIndex < $scope.state.nonCourses.length; nonCourseIndex++) {
+    for (let nonCourseIndex = 0; nonCourseIndex < $scope.state.nonCourses.length; nonCourseIndex++) {
       const nonCourse = $scope.state.nonCourses[nonCourseIndex]
       const index: number = (nonCourseIndex + 1)
       const fieldName = 'nonCourse'
@@ -147,8 +147,8 @@ angular.module('sm').controller('GenerateController', function ($scope, globalKb
     }
 
     // Set the request data for the no courses stuff
-    for (var noCourseIndex = 0; noCourseIndex < $scope.state.noCourses.length; noCourseIndex++) {
-      var noCourse = $scope.state.noCourses[noCourseIndex]
+    for (let noCourseIndex = 0; noCourseIndex < $scope.state.noCourses.length; noCourseIndex++) {
+      const noCourse = $scope.state.noCourses[noCourseIndex]
       const index = (noCourseIndex + 1)
       const fieldName = 'noCourse'
       requestData[fieldName + 'StartTime' + index] = noCourse.startTime
@@ -172,7 +172,7 @@ angular.module('sm').controller('GenerateController', function ($scope, globalKb
             $scope.state.displayOptions.currentPage = 0
             $scope.scrollToSchedules()
 
-            for (var count = 0; count < data.schedules.length; count++) {
+            for (let count = 0; count < data.schedules.length; count++) {
               data.schedules[count][0].initialIndex = count
             }
 

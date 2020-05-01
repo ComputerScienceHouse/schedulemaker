@@ -1,12 +1,12 @@
 angular.module('sm').filter('parseSectionTimes', function ($filter) {
-  var translateDay = $filter('translateDay')
+  const translateDay = $filter('translateDay')
   return function (times, byLocation) {
     if (typeof times !== 'object') return times
-    var parsedTimes = []
-    for (var e = 0; e < times.length; ++e) {
+    const parsedTimes = []
+    for (let e = 0; e < times.length; ++e) {
       // Search the existing list of times to see if a match exists
-      var found: number | boolean = false
-      var time = times[e]
+      let found: number | boolean = false
+      const time = times[e]
 
       if (byLocation && typeof time.bldg !== 'undefined') {
         time.location = time.bldg.code +
@@ -16,7 +16,7 @@ angular.module('sm').filter('parseSectionTimes', function ($filter) {
         time.location = false
       }
 
-      for (var f = 0; f < parsedTimes.length; ++f) {
+      for (let f = 0; f < parsedTimes.length; ++f) {
         if (parsedTimes[f].start === time.start && parsedTimes[f].end === time.end && parsedTimes[f].location === time.location) {
           found = f
         }

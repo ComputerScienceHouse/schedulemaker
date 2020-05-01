@@ -2,11 +2,11 @@ angular.module('sm').directive('pinned', function () {
   return {
     restrict: 'A',
     link: function (scope, elm, attrs) {
-      var $window = $(window)
-      var sizer = elm.parent().parent().find('.pinned-sizer')
-      var $footer = $('footer.main')
-      var fO; var sO
-      var updateHeight = function () {
+      const $window = $(window)
+      const sizer = elm.parent().parent().find('.pinned-sizer')
+      const $footer = $('footer.main')
+      let fO; let sO
+      const updateHeight = function () {
         fO = $window.height() - $footer.offset().top - $footer.outerHeight()
         sO = sizer.height()
         elm.css('height', (fO > 0) ? (sO - fO) : (sO))

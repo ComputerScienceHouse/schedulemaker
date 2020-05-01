@@ -12,7 +12,7 @@ angular.module('sm').directive('dowSelectFields', function (uiDayFactory) {
           return scope.select.indexOf(day) !== -1
         }
         scope.toggle = function (day) {
-          var index = scope.select.indexOf(day)
+          const index = scope.select.indexOf(day)
           if (index === -1) {
             scope.select.push(day)
           } else {

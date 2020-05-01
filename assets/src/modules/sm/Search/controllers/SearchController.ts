@@ -3,7 +3,7 @@
  */
 
 angular.module('sm').controller('SearchController', function ($scope, $http, entityDataRequest, globalKbdShortcuts) {
-  var defaultOptions = {
+  const defaultOptions = {
     college: { id: 'any', code: 'any', number: null, title: 'Any College' },
     department: { id: 'any', code: 'any', number: null, title: 'Any Department' }
   }
@@ -20,7 +20,7 @@ angular.module('sm').controller('SearchController', function ($scope, $http, ent
 
   // Init the search parmeters without changing their object identity
   ($scope.initSearch = function () {
-    var sP = $scope.search.params
+    const sP = $scope.search.params
     sP.term = $scope.state.requestOptions.term
     sP.college = 'any'
     sP.department = 'any'
@@ -43,7 +43,7 @@ angular.module('sm').controller('SearchController', function ($scope, $http, ent
     sP.description = ''
   })()
 
-  var reloadSchoolsForTerm = function (newTerm, oldTerm) {
+  const reloadSchoolsForTerm = function (newTerm, oldTerm) {
     if (newTerm === oldTerm) return
 
     // Set the new term in our params
@@ -107,14 +107,14 @@ angular.module('sm').controller('SearchController', function ($scope, $http, ent
     // 'L'oading
     $scope.searchStatus = 'L'
 
-    var params = angular.copy($scope.search.params)
+    const params = angular.copy($scope.search.params)
 
     // Remove uneeded data
     if (params.timesAny === true) {
       delete params.times
     } else {
-      var times = []
-      for (var time in params.times) {
+      const times = []
+      for (const time in params.times) {
         if (params.times[time] === true) {
           times.push(time)
         }
@@ -170,7 +170,7 @@ angular.module('sm').controller('SearchController', function ($scope, $http, ent
 
   $scope.$watch('searchPagination.pageSize', function (newSize, oldSize) {
     if (newSize !== oldSize) {
-      var numPages = $scope.numberOfPages()
+      const numPages = $scope.numberOfPages()
       if ($scope.searchPagination.currentPage > numPages) {
         $scope.searchPagination.currentPage = numPages - 1
       }

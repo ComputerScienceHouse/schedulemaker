@@ -13,8 +13,8 @@ angular.module('sm').directive('professorLookup', function ($http) {
         if (scope.professorLookup !== '' && scope.professorLookup !== 'TBA') {
           scope.stats = 'none'
           elm.on('click', function () {
-            var nameParts = scope.professorLookup.split(' ')
-            var lastName = nameParts[nameParts.length - 1]
+            const nameParts = scope.professorLookup.split(' ')
+            const lastName = nameParts[nameParts.length - 1]
             if (scope.stats === 'none') {
               $http({
                 method: 'GET',
@@ -23,16 +23,16 @@ angular.module('sm').directive('professorLookup', function ($http) {
                   Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
                 }
               }).success(function (data, status, headers, config) {
-                var parser = new DOMParser()
-                var doc = parser.parseFromString(data, 'text/html')
-                var entry = doc.querySelectorAll('#ratingTable .entry')[0]
-                var getStat = function (selector) {
+                const parser = new DOMParser()
+                const doc = parser.parseFromString(data, 'text/html')
+                const entry = doc.querySelectorAll('#ratingTable .entry')[0]
+                const getStat = function (selector) {
                   return entry.querySelectorAll(selector)[0].innerHTML
                 }
-                var getUrl = function () {
+                const getUrl = function () {
                   return 'http://www.ratemyprofessors.com/ShowRatings.jsp?tid=' + (entry.querySelectorAll('.profName a')[0] as HTMLLinkElement).href.split('?tid=')[1]
                 }
-                var ratingColor = function (score) {
+                const ratingColor = function (score) {
                   score = parseFloat(score)
                   if (score >= 4) {
                     return '#18BC9C'

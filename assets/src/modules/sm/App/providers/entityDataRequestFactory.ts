@@ -1,5 +1,5 @@
 angular.module('sm').factory('entityDataRequest', function ($http) {
-  var entityDataRequest = function (params, callback?) {
+  const entityDataRequest = function (params, callback?) {
     return $http.post('/entity/' + params.action, $.param(params))
   }
   return {

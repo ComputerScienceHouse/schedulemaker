@@ -1,6 +1,6 @@
 angular.module('sm').controller('GenerateScheduleCoursesController', function ($scope, $http, $q, $timeout) {
   // Check if a course needs to be added
-  var checkEmptyCourses = function () {
+  const checkEmptyCourses = function () {
     if ($scope.state.courses.length === 0 || $scope.courseCart.count.all.coursesFromSelect() === 0) {
       $scope.courses_helpers.add()
     }
@@ -9,7 +9,7 @@ angular.module('sm').controller('GenerateScheduleCoursesController', function ($
   $scope.$on('checkForEmptyCourses', checkEmptyCourses)
 
   // Create a way to cancel repeated searches
-  var canceler = {}
+  const canceler = {}
   $scope.search = function (course) {
     // Check if the course id already has an ajax request and end it.
     if (canceler.hasOwnProperty(course.id)) {
@@ -23,7 +23,7 @@ angular.module('sm').controller('GenerateScheduleCoursesController', function ($
     course.status = 'L'
 
     // Create the new search request
-    var searchRequest = $http.post('/generate/getCourseOpts', $.param({
+    const searchRequest = $http.post('/generate/getCourseOpts', $.param({
       course: course.search,
       term: $scope.state.requestOptions.term,
       ignoreFull: $scope.state.requestOptions.ignoreFull
@@ -37,7 +37,7 @@ angular.module('sm').controller('GenerateScheduleCoursesController', function ($
       // If there has been no error
       if (!data.error) {
         // set isError and selected to their defaults
-        for (var c = 0; c < data.length; ++c) {
+        for (let c = 0; c < data.length; ++c) {
           data[c].isError = false
           data[c].selected = true
         }
@@ -60,8 +60,8 @@ angular.module('sm').controller('GenerateScheduleCoursesController', function ($
     if (angular.equals(newRO, oldRO)) {
       return
     }
-    for (var i = 0, l = $scope.state.courses.length; i < l; i++) {
-      var course = $scope.state.courses[i]
+    for (let i = 0, l = $scope.state.courses.length; i < l; i++) {
+      const course = $scope.state.courses[i]
 
       // Only re-search if the search field was valid anyways
       if (course.search.length > 3) {
@@ -82,11 +82,11 @@ angular.module('sm').controller('GenerateScheduleCoursesController', function ($
 
   // Watch for changes in the course cart
   $scope.$watch('state.courses', function (newCourses, oldCourses) {
-    for (var i = 0, l = newCourses.length; i < l; i++) {
-      var newCourse = newCourses[i]
+    for (let i = 0, l = newCourses.length; i < l; i++) {
+      const newCourse = newCourses[i]
 
       // find the old course that the new one came from
-      var oldCourse = oldCourses.filter(function (filterCourse) {
+      let oldCourse = oldCourses.filter(function (filterCourse) {
         return filterCourse.id === newCourse.id
       })[0]
 

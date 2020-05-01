@@ -1,6 +1,6 @@
 angular.module('sm').filter('parseTime', function () {
   return function (rawTime) {
-    var matchedTime = rawTime.match(/([0-9]|1[0-2]):([0-9]{2})(am|pm)/)
+    const matchedTime = rawTime.match(/([0-9]|1[0-2]):([0-9]{2})(am|pm)/)
     if (matchedTime) {
       if (matchedTime[3] === 'am' && parseInt(matchedTime[1]) === 12) {
         return parseInt(matchedTime[2])

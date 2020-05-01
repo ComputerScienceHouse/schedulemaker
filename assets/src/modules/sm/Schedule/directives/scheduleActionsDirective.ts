@@ -2,22 +2,22 @@
  * Several endpoint abstractions for the schedules
  */
 angular.module('sm').directive('scheduleActions', function ($http, $q, shareServiceInfo, openPopup, localStorage, $state, $timeout) {
-  var serializer = new XMLSerializer()
+  const serializer = new XMLSerializer()
 
   function scheduleActions (scope, elm) {
-    var getSavedInfo = function () {
+    const getSavedInfo = function () {
       // See if we already have saved info
       if (scope.saveInfo) {
-        var defferred = $q.defer()
+        const defferred = $q.defer()
         defferred.resolve(scope.saveInfo)
         return defferred.promise
       }
       // If not create it
-      var schedule = angular.copy(scope.schedule)
+      const schedule = angular.copy(scope.schedule)
       scope.status = 'L'
 
       // Create the request params as all strings with correct keys
-      var params = {
+      const params = {
         data: JSON.stringify({
           startday: '' + scope.state.drawOptions.startDay,
           endday: '' + scope.state.drawOptions.endDay,
@@ -73,10 +73,10 @@ angular.module('sm').directive('scheduleActions', function ($http, $q, shareServ
         $event.preventDefault()
         scope.status = 'L'
         if (serviceName && serviceName in shareServiceInfo) {
-          var service = shareServiceInfo[serviceName]
+          const service = shareServiceInfo[serviceName]
 
           // Create a popup in click context to workaround blockers
-          var popup = openPopup(newWindow)
+          const popup = openPopup(newWindow)
 
           getSavedInfo().then(function (data) {
             scope.status = 'D'
@@ -90,7 +90,7 @@ angular.module('sm').directive('scheduleActions', function ($http, $q, shareServ
         $event.preventDefault()
 
         getSavedInfo().then(function (data) {
-          var body = 'Check out my schedule at: ' + data.url
+          const body = 'Check out my schedule at: ' + data.url
 
           // Open a mailto link
           window.location.href = 'mailto:?body=' +
@@ -118,7 +118,7 @@ angular.module('sm').directive('scheduleActions', function ($http, $q, shareServ
         ga('send', 'event', 'schedule', 'download', 'image')
         $event.preventDefault()
 
-        var popup = openPopup(true)
+        const popup = openPopup(true)
 
         getSavedInfo().then(function (data) {
           popup.location = ('http://' + window.location.hostname +
@@ -129,11 +129,11 @@ angular.module('sm').directive('scheduleActions', function ($http, $q, shareServ
       print: function () {
         ga('send', 'event', 'schedule', 'print')
 
-        var reloadSchedule = angular.copy(scope.state.drawOptions)
+        const reloadSchedule = angular.copy(scope.state.drawOptions)
         reloadSchedule.term = scope.state.requestOptions.term
         reloadSchedule.courses = scope.schedule
 
-        var popup = openPopup(920, 800)
+        const popup = openPopup(920, 800)
 
         popup.localStorage.setItem('reloadSchedule', angular.toJson(reloadSchedule))
         popup.document.title = 'My Schedule'

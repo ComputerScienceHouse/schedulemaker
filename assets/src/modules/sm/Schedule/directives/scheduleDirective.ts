@@ -20,11 +20,11 @@ angular.module('sm').directive('schedule', function ($timeout, $filter) {
     return true
   }
   Schedule.prototype.drawGrid = function () {
-    var hourArray = []
-    var ap: string
-    for (var time = +this.drawOptions.startTime; time < +this.drawOptions.endTime; time += 60) {
+    const hourArray = []
+    let ap: string
+    for (let time = +this.drawOptions.startTime; time < +this.drawOptions.endTime; time += 60) {
       // Calculate the label
-      var hourLabel = Math.floor(time / 60)
+      let hourLabel = Math.floor(time / 60)
       if (hourLabel > 12) {
         hourLabel -= 12
       } else if (hourLabel === 0) {
@@ -41,16 +41,16 @@ angular.module('sm').directive('schedule', function ($timeout, $filter) {
     }
 
     // Generate grid
-    var numDays = this.drawOptions.endDay - this.drawOptions.startDay + 1
+    const numDays = this.drawOptions.endDay - this.drawOptions.startDay + 1
     // Set up grid
-    var rawHeight = (hourArray.length * 40)
-    var globalOpts = {
+    const rawHeight = (hourArray.length * 40)
+    const globalOpts = {
       height: rawHeight + 25,
       hoursWidth: 5
     }
-    var rawDayWidth = 100 / numDays
-    var dayPadding = 1
-    var dayOpts = {
+    const rawDayWidth = 100 / numDays
+    const dayPadding = 1
+    const dayOpts = {
       num: numDays,
       rawWidth: rawDayWidth,
       width: (rawDayWidth - (globalOpts.hoursWidth / numDays) - (2 * dayPadding)) + '%',
@@ -58,12 +58,12 @@ angular.module('sm').directive('schedule', function ($timeout, $filter) {
       height: rawHeight
     }
 
-    var dayArray = []
+    const dayArray = []
     // Generate days
 
-    var dayIndex = this.drawOptions.startDay
-    for (var i = 0; i < numDays; i++) {
-      var offset = globalOpts.hoursWidth + (2 * dayOpts.padding) + ((dayOpts.rawWidth - dayOpts.padding) * i)
+    let dayIndex = this.drawOptions.startDay
+    for (let i = 0; i < numDays; i++) {
+      const offset = globalOpts.hoursWidth + (2 * dayOpts.padding) + ((dayOpts.rawWidth - dayOpts.padding) * i)
       dayArray.push({
         name: this.scope.ui.optionLists.days[dayIndex],
         offset: offset + '%'
@@ -87,15 +87,15 @@ angular.module('sm').directive('schedule', function ($timeout, $filter) {
   }
 
   Schedule.prototype.drawCourse = function (course, index) {
-    var grid = this.scope.grid
-    var startTime = +this.drawOptions.startTime
-    var endTime = +this.drawOptions.endTime
+    const grid = this.scope.grid
+    const startTime = +this.drawOptions.startTime
+    const endTime = +this.drawOptions.endTime
 
     // Using the old logic here because it works just as good as anything
 
-    for (var t = 0; t < course.times.length; t++) {
+    for (let t = 0; t < course.times.length; t++) {
       // Make it easier for the developer
-      var time = course.times[t]
+      const time = course.times[t]
       // Skip times that aren't part of the displayed days
       if (time.day < this.drawOptions.startDay || time.day > this.drawOptions.endDay) {
         if (this.scope.hiddenCourses.indexOf(course) === -1) {
@@ -104,9 +104,9 @@ angular.module('sm').directive('schedule', function ($timeout, $filter) {
         continue
       }
 
-      var courseStart = time.start
-      var courseEnd = time.end
-      var shorten = 0
+      let courseStart = time.start
+      let courseEnd = time.end
+      let shorten = 0
 
       // Skip times that aren't part of the displayed hours
       if (courseStart < startTime || courseStart > endTime || courseEnd > endTime) {
@@ -128,14 +128,14 @@ angular.module('sm').directive('schedule', function ($timeout, $filter) {
       }
 
       // Calculate the height
-      var timeHeight = parseInt(courseEnd) - parseInt(courseStart)
+      let timeHeight = parseInt(courseEnd) - parseInt(courseStart)
       timeHeight = timeHeight / 7.5
       timeHeight = Math.ceil(timeHeight)
 
       timeHeight = (timeHeight * 5)
 
       // Calculate the top offset
-      var timeTop = parseInt(courseStart) - startTime
+      let timeTop = parseInt(courseStart) - startTime
       timeTop = timeTop / 7.5
       timeTop = Math.floor(timeTop)
       timeTop = timeTop * 5
@@ -148,14 +148,14 @@ angular.module('sm').directive('schedule', function ($timeout, $filter) {
       }
 
       // Format Start time
-      var hourLabel = Math.floor(courseStart / 60)
+      let hourLabel = Math.floor(courseStart / 60)
       if (hourLabel > 12) {
         hourLabel -= 12
       } else if (hourLabel === 0) {
         hourLabel = 12
       }
-      var minuteLabel = (courseStart % 60)
-      var ap: string
+      let minuteLabel = (courseStart % 60)
+      let ap: string
       minuteLabel = pad(minuteLabel)
       if (courseStart >= 720) {
         ap = ' PM'
@@ -164,9 +164,9 @@ angular.module('sm').directive('schedule', function ($timeout, $filter) {
       }
 
       // Set event data
-      var location = ''
-      var instructor = ''
-      var courseNum = ''
+      let location = ''
+      let instructor = ''
+      let courseNum = ''
       if (course.courseNum !== 'non') {
         location = ((this.drawOptions.bldgStyle === 'code') ? time.bldg.code : time.bldg.number) + '-' + time.room + ' (' + (String(hourLabel) + ':' + String(minuteLabel) + ' ' + ap) + ')'
         instructor = course.instructor
@@ -195,8 +195,8 @@ angular.module('sm').directive('schedule', function ($timeout, $filter) {
   Schedule.prototype.drawCourses = function () {
     this.courseDrawIndex = 0
     this.scope.totalCredits = 0
-    for (var coursesIndex = 0, coursesLength = this.scope.schedule.length; coursesIndex < coursesLength; coursesIndex++) {
-      var course = this.scope.schedule[coursesIndex]
+    for (let coursesIndex = 0, coursesLength = this.scope.schedule.length; coursesIndex < coursesLength; coursesIndex++) {
+      const course = this.scope.schedule[coursesIndex]
       this.courseDrawIndex++
       if (course.online && !course.hasOwnProperty('times')) {
         this.scope.onlineCourses.push(course)
@@ -224,16 +224,16 @@ angular.module('sm').directive('schedule', function ($timeout, $filter) {
 
         scope.scheduleController = new Schedule(scope)
         scope.itemEnter = function ($event) {
-          var $target = $($event.target)
-          var $scope = $target.scope()
+          const $target = $($event.target)
+          const $scope = $target.scope()
           if ($scope.item.boundry.height < 70) {
             $scope.item.boundry.orig_height = $scope.item.boundry.height
             $scope.item.boundry.height = 70
           }
         }
         scope.itemLeave = function ($event) {
-          var $target = $($event.target)
-          var $scope = $target.scope()
+          const $target = $($event.target)
+          const $scope = $target.scope()
           if ($scope.item.boundry.orig_height) {
             $scope.item.boundry.height = $scope.item.boundry.orig_height
           }
@@ -252,7 +252,7 @@ angular.module('sm').directive('schedule', function ($timeout, $filter) {
         }
       },
       post: function (scope, elm) {
-        var update = function (options) {
+        const update = function (options) {
           if (scope.scheduleController.init(options)) {
             scope.scheduleDrawOptions = options
             // Only redraw if valid options
@@ -260,13 +260,13 @@ angular.module('sm').directive('schedule', function ($timeout, $filter) {
 
             // Fix pixel alignment issues
             $timeout(function () {
-              var offset = elm.find('svg').offset()
-              var vert = 1 - parseFloat('0.' + ('' + offset.top).split('.')[1])
-              var horz = 1 - parseFloat('0.' + ('' + offset.left).split('.')[1])
+              const offset = elm.find('svg').offset()
+              const vert = 1 - parseFloat('0.' + ('' + offset.top).split('.')[1])
+              const horz = 1 - parseFloat('0.' + ('' + offset.left).split('.')[1])
               scope.grid.opts.pixelAlignment = 'translate(' + horz + ',' + vert + ')'
 
               // Toggle showing and hiding svgs, which forces a redraw
-              var svg = $(elm).find('svg')
+              const svg = $(elm).find('svg')
               svg.hide()
               setTimeout(function () {
                 svg.show()

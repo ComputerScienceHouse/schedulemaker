@@ -3,13 +3,13 @@ angular.module('sm').filter('formatTime', function () {
     minutes = minutes % 1440
 
     // Figure out how many hours
-    var hours = Math.floor(minutes / 60)
+    let hours = Math.floor(minutes / 60)
 
     // Figure out how many minutes
-    var remMinutes: string | number = minutes % 60
+    let remMinutes: string | number = minutes % 60
 
     // Correct for AM/PM
-    var ampm
+    let ampm
     if (hours >= 12) {
       ampm = 'pm'
       hours -= 12

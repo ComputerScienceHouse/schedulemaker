@@ -1,5 +1,5 @@
 angular.module('sm').factory('localStorage', function ($window) {
-  var localStorage = $window.localStorage
+  const localStorage = $window.localStorage
 
   return {
     setItem: function (key: string, value) {

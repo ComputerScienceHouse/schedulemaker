@@ -15,8 +15,8 @@ angular.module('sm').controller('ScheduleController', function ($scope, parsedSc
     $scope.overrideDrawOptions = {}
 
     // Set the correct draw options
-    for (var key in $scope.state.drawOptions) {
-      var overrideValue = parsedSchedule[key]
+    for (const key in $scope.state.drawOptions) {
+      let overrideValue = parsedSchedule[key]
       if (typeof overrideValue === 'undefined' || overrideValue === null) {
         overrideValue = $scope.state.drawOptions[key]
       }
