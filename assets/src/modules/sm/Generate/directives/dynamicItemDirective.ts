@@ -79,7 +79,7 @@ angular.module('sm').directive('dynamicItem', function ($timeout) {
                   total++
                 }
               }
-              let target;
+              let target
               if (total === scope.item.sections.length) {
                 target = false
               } else {
