@@ -5,6 +5,7 @@
     "exclude": ["node_modules"],
     "compilerOptions": {
         "module": "es2015",
+        "allowJs": false,
         "noImplicitAny": false,
         "target": "es5",
     }

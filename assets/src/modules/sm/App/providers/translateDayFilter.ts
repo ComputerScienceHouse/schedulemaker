@@ -1,5 +1,5 @@
 angular.module('sm').filter('translateDay', function () {
-  return function (day) {
+  return function (day: number) {
     // Modulo it to make sure we get the correct days
     day = day % 7
 

@@ -6,7 +6,8 @@
   "main": "index.php",
   "scripts": {
     "build": "gulp build",
-    "lint": "eslint assets/src/**/*.ts"
+    "lint": "eslint assets/src/**/*.ts",
+    "typecheck": "tsc --noEmit"
   },
   "repository": {
     "type": "git",

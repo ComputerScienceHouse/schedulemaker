@@ -2,7 +2,7 @@ angular.module('sm').factory('localStorage', function ($window) {
   var localStorage = $window.localStorage
 
   return {
-    setItem: function (key, value) {
+    setItem: function (key: string, value) {
       if (localStorage) {
         if (value != null) {
           localStorage.setItem(key, angular.toJson(value))
@@ -13,14 +13,14 @@ angular.module('sm').factory('localStorage', function ($window) {
         return false
       }
     },
-    getItem: function (key) {
+    getItem: function (key: string) {
       if (localStorage) {
         return angular.fromJson(localStorage.getItem(key))
       } else {
         return false
       }
     },
-    hasKey: function (key) {
+    hasKey: function (key: string) {
       if (localStorage) {
         return localStorage.hasOwnProperty(key)
       } else {

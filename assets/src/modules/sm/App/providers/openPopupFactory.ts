@@ -2,7 +2,7 @@ angular.module('sm').factory('openPopup', function ($window) {
   /**
    * A utility to get top/left with a given width and height
    */
-  var getPosition = function (width, height) {
+  var getPosition = function (width: number, height: number) {
     // Set defaults if either not set
     if (!width || !height) {
       width = 550

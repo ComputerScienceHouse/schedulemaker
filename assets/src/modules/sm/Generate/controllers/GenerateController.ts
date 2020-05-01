@@ -34,7 +34,7 @@ angular.module('sm').controller('GenerateController', function ($scope, globalKb
             startTime: parseInt(course.times[0].start),
             endTime: parseInt(course.times[0].end)
           }
-          var mergedNonCourse = false
+          var mergedNonCourse: boolean = false
 
           // Try to merge this non course with other similar ones
           for (var n = 0, l = $scope.state.nonCourses.length; n < l; n++) {
@@ -59,7 +59,7 @@ angular.module('sm').controller('GenerateController', function ($scope, globalKb
   // Decorate some course helpers for our dynamic items directive
   $scope.courses_helpers = {
     add: $scope.courseCart.create.blankCourse,
-    remove: function (index) {
+    remove: function (index: number) {
       $scope.courseCart.remove.byIndex(index - 1)
       if ($scope.state.courses.length === 0) {
         $scope.courses_helpers.add()
@@ -115,7 +115,7 @@ angular.module('sm').controller('GenerateController', function ($scope, globalKb
       const fieldName = 'courses' + (actualCourseIndex) + 'Opt[]'
       requestData['courses' + actualCourseIndex] = course.search
       requestData[fieldName] = []
-      var sectionCount: number = 0
+      let sectionCount: number = 0
 
       // Add selected sections to the request
       for (var sectionIndex = 0; sectionIndex < course.sections.length; sectionIndex++) {
