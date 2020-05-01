@@ -140,8 +140,8 @@ angular.module('sm').controller('SearchController', function ($scope, $http, ent
 
         window.DD_RUM &&
         DD_RUM.addUserAction('SearchParams', {
-            data: data
-        });
+          data: data
+        })
 
         if (status === 200 && typeof data.error === 'undefined') {
           // Set the results
