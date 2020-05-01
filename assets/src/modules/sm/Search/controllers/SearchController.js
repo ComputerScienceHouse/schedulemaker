@@ -138,6 +138,13 @@ angular.module('sm').controller('SearchController', function ($scope, $http, ent
         // 'D'one loading
         $scope.searchStatus = 'D'
 
+        ga('send', 'event', 'search', 'find')
+        window.DD_RUM &&
+        DD_RUM.addUserAction('Search', {
+          type: 'Find',
+          data: data
+        })
+
         if (status === 200 && typeof data.error === 'undefined') {
           // Set the results
           $scope.searchResults = data
