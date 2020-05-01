@@ -164,8 +164,8 @@ angular.module('sm').controller('GenerateController', function ($scope, globalKb
 
         window.DD_RUM &&
         DD_RUM.addUserAction('GenerateMatchingSchedules', {
-            data: data
-        });
+          data: data
+        })
 
         // If no errors happened
         if (!data.error && !data.errors) {
