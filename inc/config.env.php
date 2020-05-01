@@ -9,16 +9,16 @@ $get_env = function (&$var, $default = null) {
 
 $COOKIE_STORE    = $get_env(getenv("COOKIE_STORE"), '/tmp/siscookies.txt');
 $DATABASE_SERVER = $get_env(getenv("DATABASE_SERVER"), 'mysql.csh.rit.edu');
-$DATABASE_USER   = $get_env(getenv("DATABASE_USER"), '');
-$DATABASE_PASS   = $get_env(getenv("DATABASE_PASS"), '');
-$DATABASE_DB     = $get_env(getenv("DATABASE_DB"), '');
+$DATABASE_USER   = $get_env(getenv("DATABASE_USER"), 'schedulemaker_dev');
+$DATABASE_PASS   = $get_env(getenv("DATABASE_PASS"), 'luminary1006>cool-headed');
+$DATABASE_DB     = $get_env(getenv("DATABASE_DB"), 'schedulemaker_dev');
 $DUMPCLASSES     = $get_env(getenv("DUMPCLASSES"), '/mnt/share/cshclass.dat');
 $DUMPCLASSATTR   = $get_env(getenv("DUMPCLASSATTR"), '/mnt/share/cshattrib.dat');
 $DUMPINSTRUCT    = $get_env(getenv("DUMPINSTRUCT"), '/mnt/share/cshinstr.dat');
 $DUMPMEETING     = $get_env(getenv("DUMPMEETING"), '/mnt/share/cshmtgpat.dat');
 $DUMPNOTES       = $get_env(getenv("DUMPNOTES"), '/mnt/share/cshnotes.dat');
 
-$HTTPROOTADDRESS = $get_env(getenv("HTTPROOTADDRESS"), 'http://schedule.csh.rit.edu/');
+$HTTPROOTADDRESS = $get_env(getenv("HTTPROOTADDRESS"), 'http://127.0.0.1:5000/');
 $SERVER_TYPE     = $get_env(getenv("SERVER_TYPE"), 'development');
 
 ////////////////////////////////////////////////////////////////////////////
@@ -26,7 +26,7 @@ $SERVER_TYPE     = $get_env(getenv("SERVER_TYPE"), 'development');
 $S3_SERVER = $get_env(getenv("S3_SERVER"), 'https://s3.csh.rit.edu');
 $S3_KEY = $get_env(getenv("S3_KEY"), '');
 $S3_SECRET = $get_env(getenv("S3_SECRET"), '');
-$S3_IMAGE_BUCKET = $get_env(getenv("S3_IMAGE_BUCKET"), 'schedulemaker');
+$S3_IMAGE_BUCKET = $get_env(getenv("S3_IMAGE_BUCKET"), 'schedulemaker-dev');
 
 ////////////////////////////////////////////////////////////////////////////
 //// APP VERSIONS
@@ -41,7 +41,13 @@ $JSSTATE_VERSION = $APP_CONFIG['config']['stateVersion'];
 $GOOGLEANALYTICS = ($SERVER_TYPE == 'production')?
     $get_env(getenv("GOOGLEANALYTICS1"), ''):
     $get_env(getenv("GOOGLEANALYTICS2"), '');
-//
+
+////////////////////////////////////////////////////////////////////////////
+////// DATADOG RUM ANALYTICS
+////
+
+$RUM_CLIENT_TOKEN    = $get_env(getenv("RUM_CLIENT_TOKEN"), 'pubb1a653b984313c6008e81c8248d19827');
+$RUM_APPLICATION_ID = $get_env(getenv("RUM_APPLICATION_ID"), '112bc072-3cdb-4d0f-acfc-841f0d27c58a');
 
 ////////////////////////////////////////////////////////////////////////////
 // WORK AROUNDS
@@ -67,7 +73,7 @@ if (get_magic_quotes_gpc()) {
 switch(date('n')) {
     case 2:
     case 3:
-        $CURRENT_QUARTER = date("Y")-1 . '3';		// Point them to the spring
+        $CURRENT_QUARTER = date("Y")-1 . '3';       // Point them to the spring
         break;
     case 4:
     case 5:
@@ -75,13 +81,13 @@ switch(date('n')) {
     case 7:
     case 8:
     case 9:
-        $CURRENT_QUARTER = date("Y") . '1';			// Point them to the fall
+        $CURRENT_QUARTER = date("Y") . '1';         // Point them to the fall
         break;
     case 10:
     case 11:
     case 12:
     case 1:
-        $CURRENT_QUARTER = date("Y") . '2';		// Point them to the summer
+        $CURRENT_QUARTER = date("Y") . '2';     // Point them to the summer
         break;
 }
 
