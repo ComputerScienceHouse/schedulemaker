@@ -146,7 +146,7 @@ angular.module('sm').controller('AppController', function ($scope, localStorage,
         }
       },
       course: {
-        selectedSections: function (course) {
+        selectedSections: function (course: Course) {
           let count = 0
           for (let i = 0; i < course.sections.length; i++) {
             if (course.sections[i].selected) count++
@@ -180,7 +180,7 @@ angular.module('sm').controller('AppController', function ($scope, localStorage,
          * @param course {Object} The course the section belongs to
          * @param section {Object} The section to toggle
          */
-        toggleByCourse: function (course, section) {
+        toggleByCourse: function (course: Course, section: Section) {
           course = $scope.courseCart.ensure.course(course)
 
           if (course.selected && section.selected) {
@@ -195,7 +195,7 @@ angular.module('sm').controller('AppController', function ($scope, localStorage,
          *
          * @param section {Object} The section to toggle
          */
-        toggleByOrphanedSection: function (section) {
+        toggleByOrphanedSection: function (section: Section) {
           section = $scope.courseCart.ensure.section(section)
 
           section.selected = !section.selected
@@ -208,7 +208,7 @@ angular.module('sm').controller('AppController', function ($scope, localStorage,
          *
          * @param section {Object} The section to toggle
          */
-        toggle: function (section) {
+        toggle: function (section: Section) {
           section.selected = !section.selected
         },
 
@@ -219,7 +219,7 @@ angular.module('sm').controller('AppController', function ($scope, localStorage,
          * @param course {Object} The course the section belongs to
          * @param section {Object} The section to toggle
          */
-        isByCourse: function (course, section) {
+        isByCourse: function (course: Course, section: Section) {
           return $scope.courseCart.contains.course(course) &&
             section.selected
         }
@@ -228,7 +228,7 @@ angular.module('sm').controller('AppController', function ($scope, localStorage,
         /**
          * Toggles the current course's sections selcted state
          */
-        toggle: function (course) {
+        toggle: function (course: Course) {
           // If new this load or not
           const Ecourse = $scope.courseCart.ensure.course(course)
 
@@ -236,7 +236,7 @@ angular.module('sm').controller('AppController', function ($scope, localStorage,
             .toggleAllSections(Ecourse)
         },
 
-        is: function (course) {
+        is: function (course: Course) {
           if ($scope.courseCart.contains.course(course)) {
             return $scope.courseCart.selection.course
               .allSections($scope.courseCart.ensure.course(course))
@@ -250,7 +250,7 @@ angular.module('sm').controller('AppController', function ($scope, localStorage,
          *
          * Pre-condition: the course exists in the cart
          */
-        toggleAllSections: function (course) {
+        toggleAllSections: function (course: Course) {
           const setTo = !$scope.courseCart.selection.course
             .allSections(course)
           course.sections.forEach(function (section) {
@@ -263,7 +263,7 @@ angular.module('sm').controller('AppController', function ($scope, localStorage,
         /**
          * Returns true if all sections are selected
          */
-        allSections: function (course) {
+        allSections: function (course: Course) {
           return course.sections.reduce(
             function (total, section) {
               return total && section.selected
@@ -273,7 +273,7 @@ angular.module('sm').controller('AppController', function ($scope, localStorage,
         /**
          * Unselects all sections
          */
-        unselect: function (course) {
+        unselect: function (course :Course) {
           course.sections.forEach(function (section) {
             section.selected = false
           })
@@ -287,8 +287,8 @@ angular.module('sm').controller('AppController', function ($scope, localStorage,
        *
        *  @param course {Object} The course to ensure
        */
-      course: function (course) {
-        let ensuredCourse = false
+      course: function (course: Course) {
+        let ensuredCourse: Course | boolean = false
 
         if ($scope.state.courses.indexOf(course) === -1) {
           // The course object was not found in the cart
@@ -322,7 +322,7 @@ angular.module('sm').controller('AppController', function ($scope, localStorage,
         return ensuredCourse
       },
 
-      section: function (section) {
+      section: function (section: Section) {
         if ($scope.courseCart.contains.section(section)) {
           let foundCourse = false
           for (let i = 0; i < $scope.state.courses.length; i++) {
@@ -348,7 +348,7 @@ angular.module('sm').controller('AppController', function ($scope, localStorage,
        * @param course {Object} The course to check
        * @returns {Boolean} The course is in the cart?
        */
-      course: function (course) {
+      course: function (course: Course) {
         return $scope.state.courseMap.hasOwnProperty(course.id)
       },
 
@@ -357,7 +357,7 @@ angular.module('sm').controller('AppController', function ($scope, localStorage,
        * @param section {Object} The course to check
        * @returns {Boolean} The course is in the cart?
        */
-      section: function (section) {
+      section: function (section: Section) {
         return $scope.state.courseMap.hasOwnProperty(section.courseId)
       }
 
@@ -368,7 +368,7 @@ angular.module('sm').controller('AppController', function ($scope, localStorage,
        * Remove a course completely by index
        * @param index The index to remove
        */
-      byIndex: function (index) {
+      byIndex: function (index: number) {
         $scope.state.courses.splice(index, 1)
       }
     },
@@ -377,7 +377,7 @@ angular.module('sm').controller('AppController', function ($scope, localStorage,
       /**
        * Adds a given section to the provided course if it's not there
        */
-      sectionToCourse: function (section, course) {
+      sectionToCourse: function (section: Section, course: Course) {
         let foundSection = false
         for (let i = 0; i < course.sections.length; i++) {
           if (section.id === course.sections[i].id) {
@@ -398,7 +398,7 @@ angular.module('sm').controller('AppController', function ($scope, localStorage,
        * @param course An already formatted course ready for adding
        * @returns {Object} The created course
        */
-      courseToCart: function (course) {
+      courseToCart: function (course: Course) {
         $scope.state.courses.push(course)
         $scope.$broadcast('addedCourse')
 
@@ -424,7 +424,7 @@ angular.module('sm').controller('AppController', function ($scope, localStorage,
        * @param course {Object} A course from the database
        * @returns {Object} The newly created course
        */
-      fromExistingCourse: function (course) {
+      fromExistingCourse: function (course: Course) {
         const mockCourse = $scope.courseCart.getBlankCourse(false)
 
         course.fromSelect = false
@@ -437,10 +437,10 @@ angular.module('sm').controller('AppController', function ($scope, localStorage,
       /**
        * Creates and adds a pre-existing course from a schedule
        *
-       * @param scheduleCourse {Object} A course from the database
-       * @returns {Object} The newly created course
+       * @param scheduleCourse A course from the database
+       * @returns The newly created course
        */
-      fromExistingScheduleCourse: function (scheduleCourse) {
+      fromExistingScheduleCourse: function (scheduleCourse: Course): Course {
         const course = $scope.courseCart.getBlankCourse(true)
 
         course.search = scheduleCourse.courseNum
@@ -456,10 +456,10 @@ angular.module('sm').controller('AppController', function ($scope, localStorage,
        * Creates and adds a pre-existing section from the database to the
        * cart
        *
-       * @param existingSection {Object} A section from the database
-       * @returns {Object} The section now added to the course
+       * @param existingSection A section from the database
+       * @returns The section now added to the course
        */
-      fromExistingSection: function (section) {
+      fromExistingSection: function (section: Section): Section {
         const course = $scope.courseCart.getBlankCourse(false)
 
         course.id = section.courseId

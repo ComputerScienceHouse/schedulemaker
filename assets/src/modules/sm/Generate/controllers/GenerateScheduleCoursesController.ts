@@ -30,12 +30,12 @@ angular.module('sm').controller('GenerateScheduleCoursesController', function ($
     }), {
       // Here is where the request gets canceled from above
       timeout: canceler[course.id].promise
-    }).success(function (data, status, headers, config) {
+    }).success(function (data: Section[] | ResponseError, status, headers, config) {
       // Set loading status to done
       course.status = 'D'
 
       // If there has been no error
-      if (!data.error) {
+      if (Array.isArray(data)) {
         // set isError and selected to their defaults
         for (let c = 0; c < data.length; ++c) {
           data[c].isError = false

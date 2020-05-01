@@ -21,7 +21,7 @@ angular.module('sm').controller('GenerateController', function ($scope, globalKb
       }
 
       for (let i = forkSchedule.length; i--;) {
-        const course = forkSchedule[i]
+        const course: Course = forkSchedule[i]
 
         // If it's a real course
         if (course.courseNum !== 'non') {
