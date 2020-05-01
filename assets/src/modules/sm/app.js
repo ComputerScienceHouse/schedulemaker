@@ -78,7 +78,7 @@ angular.module('sm', ['ngAnimate', 'ngSanitize', 'ui.router'])
       ga('send', 'pageview')
       window.DD_RUM &&
       DD_RUM.addUserAction('Pageview', {
-        type: "On Load",
+        type: 'On Load'
       })
       $($window).scrollTop(0)
     })

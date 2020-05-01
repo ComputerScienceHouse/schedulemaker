@@ -162,10 +162,9 @@ angular.module('sm').controller('GenerateController', function ($scope, globalKb
         ga('send', 'event', 'generate', 'schedule')
         window.DD_RUM &&
         DD_RUM.addUserAction('Generate', {
-          type: "Schedule",
+          type: 'Schedule',
           data: data
         })
-        
         $scope.generationStatus = 'D'
 
         // If no errors happened

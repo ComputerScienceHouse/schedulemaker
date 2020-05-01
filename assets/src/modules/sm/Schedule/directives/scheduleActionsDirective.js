@@ -58,7 +58,7 @@ angular.module('sm').directive('scheduleActions', function ($http, $q, shareServ
           ga('send', 'event', 'schedule', 'save')
           window.DD_RUM &&
           DD_RUM.addUserAction('Schedule', {
-            type: "Save"
+            type: 'Save'
           })
           getSavedInfo().then(function (data) {
             scope.notification = 'This schedule can be accessed at ' +
@@ -73,7 +73,7 @@ angular.module('sm').directive('scheduleActions', function ($http, $q, shareServ
           ga('send', 'event', 'schedule', 'fork')
           window.DD_RUM &&
           DD_RUM.addUserAction('Schedule', {
-            type: "Fork"
+            type: 'Fork'
           })
 
           localStorage.setItem('forkSchedule', scope.schedule)
@@ -85,7 +85,7 @@ angular.module('sm').directive('scheduleActions', function ($http, $q, shareServ
         ga('send', 'event', 'schedule', 'share', serviceName)
         window.DD_RUM &&
         DD_RUM.addUserAction('Schedule', {
-          type: "Share",
+          type: 'Share',
           serviceName: serviceName
         })
         $event.preventDefault()
@@ -107,8 +107,8 @@ angular.module('sm').directive('scheduleActions', function ($http, $q, shareServ
         ga('send', 'event', 'schedule', 'share', 'email')
         window.DD_RUM &&
         DD_RUM.addUserAction('Schedule', {
-          type: "Share",
-          subtype: "Email"
+          type: 'Share',
+          subtype: 'Email'
         })
         $event.preventDefault()
 
@@ -125,8 +125,8 @@ angular.module('sm').directive('scheduleActions', function ($http, $q, shareServ
         ga('send', 'event', 'schedule', 'share', 'link')
         window.DD_RUM &&
         DD_RUM.addUserAction('Schedule', {
-          type: "Share",
-          subtype: "Link"
+          type: 'Share',
+          subtype: 'Link'
         })
         $event.preventDefault()
 
@@ -137,8 +137,8 @@ angular.module('sm').directive('scheduleActions', function ($http, $q, shareServ
         ga('send', 'event', 'schedule', 'download', 'iCal')
         window.DD_RUM &&
         DD_RUM.addUserAction('Schedule', {
-          type: "Download",
-          subtype: "iCal"
+          type: 'Download',
+          subtype: 'iCal'
         })
         $event.preventDefault()
 
@@ -151,8 +151,8 @@ angular.module('sm').directive('scheduleActions', function ($http, $q, shareServ
         ga('send', 'event', 'schedule', 'download', 'image')
         window.DD_RUM &&
         DD_RUM.addUserAction('Schedule', {
-          type: "Download",
-          subtype: "Image"
+          type: 'Download',
+          subtype: 'Image'
         })
         $event.preventDefault()
 
@@ -168,7 +168,7 @@ angular.module('sm').directive('scheduleActions', function ($http, $q, shareServ
         ga('send', 'event', 'schedule', 'print')
         window.DD_RUM &&
         DD_RUM.addUserAction('Schedule', {
-          type: "Print"
+          type: 'Print'
         })
 
         var reloadSchedule = angular.copy(scope.state.drawOptions)
@@ -186,7 +186,7 @@ angular.module('sm').directive('scheduleActions', function ($http, $q, shareServ
         ga('send', 'event', 'schedule', 'hide')
         window.DD_RUM &&
         DD_RUM.addUserAction('Schedule', {
-          type: "Hide",
+          type: 'Hide'
         })
         const appstate = scope.$parent.$parent.state
         const pageStartIndex = appstate.displayOptions.currentPage * appstate.displayOptions.pageSize

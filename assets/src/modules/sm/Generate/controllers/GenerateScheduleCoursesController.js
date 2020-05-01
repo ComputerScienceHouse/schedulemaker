@@ -31,6 +31,11 @@ angular.module('sm').controller('GenerateScheduleCoursesController', function ($
       // Here is where the request gets canceled from above
       timeout: canceler[course.id].promise
     }).success(function (data, status, headers, config) {
+      window.DD_RUM &&
+      DD_RUM.addUserAction('Generate', {
+        type: 'GetCourseOpts',
+        data: data
+      })
       // Set loading status to done
       course.status = 'D'
 
