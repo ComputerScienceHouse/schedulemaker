@@ -2,6 +2,8 @@
  * The controller holding all the logic for the search page
  */
 
+import { datadogRum } from '@datadog/browser-rum';
+
 angular.module('sm').controller('SearchController', function ($scope, $http, entityDataRequest, globalKbdShortcuts) {
   const defaultOptions = {
     college: { id: 'any', code: 'any', number: null, title: 'Any College' },
@@ -140,7 +142,7 @@ angular.module('sm').controller('SearchController', function ($scope, $http, ent
 
         ga('send', 'event', 'search', 'find')
         window.DD_RUM &&
-        DD_RUM.addUserAction('Search', {
+        window.DD_RUM.addUserAction('Search', {
           type: 'Find',
           data: data
         })

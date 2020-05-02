@@ -53,3 +53,5 @@ declare interface Bldg {
 declare interface ResponseError {
     error
 }
+
+declare interface Window { DD_RUM }

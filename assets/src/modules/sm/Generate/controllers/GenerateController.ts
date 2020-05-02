@@ -161,7 +161,7 @@ angular.module('sm').controller('GenerateController', function ($scope, globalKb
       .success(function (data, status, headers, config) {
         ga('send', 'event', 'generate', 'schedule')
         window.DD_RUM &&
-        DD_RUM.addUserAction('Generate', {
+        window.DD_RUM.addUserAction('Generate', {
           type: 'Schedule',
           data: data
         })

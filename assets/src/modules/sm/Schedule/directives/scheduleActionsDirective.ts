@@ -52,7 +52,7 @@ angular.module('sm').directive('scheduleActions', function ($http, $q, shareServ
         if (saveType === 'create') {
           ga('send', 'event', 'schedule', 'save')
           window.DD_RUM &&
-          DD_RUM.addUserAction('Schedule', {
+          window.DD_RUM.addUserAction('Schedule', {
             type: 'Save'
           })
           getSavedInfo().then(function (data) {
@@ -67,7 +67,7 @@ angular.module('sm').directive('scheduleActions', function ($http, $q, shareServ
         } else {
           ga('send', 'event', 'schedule', 'fork')
           window.DD_RUM &&
-          DD_RUM.addUserAction('Schedule', {
+          window.DD_RUM.addUserAction('Schedule', {
             type: 'Fork'
           })
 
