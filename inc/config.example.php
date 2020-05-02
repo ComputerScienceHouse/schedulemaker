@@ -30,6 +30,12 @@ $S3_SECRET = '';
 $S3_IMAGE_BUCKET = 'schedulemaker';
 
 ////////////////////////////////////////////////////////////////////////////
+//// APP VERSIONS
+$APP_CONFIG = json_decode(file_get_contents((empty($APP_ROOT)?"../":$APP_ROOT)."package.json"), true);
+$APP_VERSION     = $APP_CONFIG['version'];
+$JSSTATE_VERSION = $APP_CONFIG['config']['stateVersion'];
+
+////////////////////////////////////////////////////////////////////////////
 // CALCULATIONS
 
 // Calculate the current quarter
