@@ -79,7 +79,7 @@ angular.module('sm').directive('scheduleActions', function ($http, $q, shareServ
       shareToService: function ($event, serviceName, newWindow) {
         ga('send', 'event', 'schedule', 'share', serviceName)
         window.DD_RUM &&
-        DD_RUM.addUserAction('Schedule', {
+        window.DD_RUM.addUserAction('Schedule', {
           type: 'Share',
           serviceName: serviceName
         })
@@ -101,7 +101,7 @@ angular.module('sm').directive('scheduleActions', function ($http, $q, shareServ
       shareToEmail: function ($event) {
         ga('send', 'event', 'schedule', 'share', 'email')
         window.DD_RUM &&
-        DD_RUM.addUserAction('Schedule', {
+        window.DD_RUM.addUserAction('Schedule', {
           type: 'Share',
           subtype: 'Email'
         })
@@ -119,7 +119,7 @@ angular.module('sm').directive('scheduleActions', function ($http, $q, shareServ
       shareToDirectLink: function ($event) {
         ga('send', 'event', 'schedule', 'share', 'link')
         window.DD_RUM &&
-        DD_RUM.addUserAction('Schedule', {
+        window.DD_RUM.addUserAction('Schedule', {
           type: 'Share',
           subtype: 'Link'
         })
@@ -131,7 +131,7 @@ angular.module('sm').directive('scheduleActions', function ($http, $q, shareServ
       downloadiCal: function ($event) {
         ga('send', 'event', 'schedule', 'download', 'iCal')
         window.DD_RUM &&
-        DD_RUM.addUserAction('Schedule', {
+        window.DD_RUM.addUserAction('Schedule', {
           type: 'Download',
           subtype: 'iCal'
         })
@@ -145,7 +145,7 @@ angular.module('sm').directive('scheduleActions', function ($http, $q, shareServ
       downloadImage: function ($event) {
         ga('send', 'event', 'schedule', 'download', 'image')
         window.DD_RUM &&
-        DD_RUM.addUserAction('Schedule', {
+        window.DD_RUM.addUserAction('Schedule', {
           type: 'Download',
           subtype: 'Image'
         })
@@ -162,7 +162,7 @@ angular.module('sm').directive('scheduleActions', function ($http, $q, shareServ
       print: function () {
         ga('send', 'event', 'schedule', 'print')
         window.DD_RUM &&
-        DD_RUM.addUserAction('Schedule', {
+        window.DD_RUM.addUserAction('Schedule', {
           type: 'Print'
         })
 
@@ -180,7 +180,7 @@ angular.module('sm').directive('scheduleActions', function ($http, $q, shareServ
       hide: function () {
         ga('send', 'event', 'schedule', 'hide')
         window.DD_RUM &&
-        DD_RUM.addUserAction('Schedule', {
+        window.DD_RUM.addUserAction('Schedule', {
           type: 'Hide'
         })
         const appstate = scope.$parent.$parent.state
