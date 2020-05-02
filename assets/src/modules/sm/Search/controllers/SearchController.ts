@@ -2,7 +2,7 @@
  * The controller holding all the logic for the search page
  */
 
-import { datadogRum } from '@datadog/browser-rum';
+import { datadogRum } from '@datadog/browser-rum'
 
 angular.module('sm').controller('SearchController', function ($scope, $http, entityDataRequest, globalKbdShortcuts) {
   const defaultOptions = {
