@@ -38,6 +38,24 @@ You can replace `5000` with whatever port you wish to connect locally to. Then v
   - Make sure you increment at least the patch number in any PRs that touch Javascript/CSS.
 - If you get an error with JS/CSS not loading, check your config file.
 
+### Code Practices
+- We use two space indentation and 
+
+### Issues
+- If you can't run the `npm run-script build` command
+	Try creating a file named `npm-shrinkwrap.json` with the following contents:
+	```
+	{
+	  "dependencies": {
+	    "graceful-fs": {
+	        "version": "4.2.2"
+	     }
+	  }
+	}
+	```
+	- Then run `npm install`
+- If your JS/CSS won't load make sure you are on CSH's network if not, contact a current maintainer
+
 ## Maintainers
 
 ### Current Maintainers
