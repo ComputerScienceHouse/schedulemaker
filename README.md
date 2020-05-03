@@ -18,7 +18,7 @@ Available at [schedule.csh.rit.edu](https://schedule.csh.rit.edu)
 
 ### Setup
 - Fork and clone the repository.
-- Copy the `config.example.php` file to `config.php` in `/inc/` or set environment variables as defined in `config.env.php`.
+- In `/inc/` copy the `config.example.php` file or the environment variables section as defined in `config.env.php` to `config.php`.
 - Contact a current maintainer for server/database configs.
 - If you wish to see images locally, you will also need S3 credentials, either supply your own or reach out.
 
