@@ -39,11 +39,11 @@ You can replace `5000` with whatever port you wish to connect locally to. Then v
 - If you get an error with JS/CSS not loading, check your config file.
 
 ### Code Practices
-- We use two space indentation and 
+- We use two space indentation
 
 ### Issues
 - If you can't run the `npm run-script build` command
-	Try creating a file named `npm-shrinkwrap.json` with the following contents:
+	- Try creating a file named `npm-shrinkwrap.json` with the following contents:
 	```
 	{
 	  "dependencies": {
@@ -54,7 +54,8 @@ You can replace `5000` with whatever port you wish to connect locally to. Then v
 	}
 	```
 	- Then run `npm install`
-- If your JS/CSS won't load make sure you are on CSH's network if not, contact a current maintainer
+- If your JS/CSS won't load also make sure you are on CSH's network. If not, try contacting a current maintainer.
+
 
 ## Maintainers
 
