@@ -16,14 +16,13 @@ Available at [schedule.csh.rit.edu](https://schedule.csh.rit.edu)
 
 ## Dev Environment
 
-### Install
-1. Fork and clone the repository.
-2. In `/inc/` copy the `config.example.php` file or the environment variables section as defined in `config.env.php` to `config.php`.
-3. Contact a current maintainer for server/database configs.
-4. If you wish to see images locally, you will also need S3 credentials, either supply your own or reach out.
+### Setup
+- Fork and clone the repository.
+- Copy the `config.example.php` file to `config.php` in `/inc/` or set environment variables as defined in `config.env.php`.
+- Contact a current maintainer for server/database configs.
+- If you wish to see images locally, you will also need S3 credentials, either supply your own or reach out.
 
-### Usage
-
+### Run Locally
 In order to run locally youre going to need [docker](https://www.docker.com/).
 
 ```
@@ -33,40 +32,11 @@ docker run --rm -i -t -p 5000:8080 --name=schedulemaker schedulemaker
 
 You can replace `5000` with whatever port you wish to connect locally to. Then visit `http://localhost:5000` in a browser.
 
-To build js files:
-1. Run `npm run-script build`.
-2. Increment the version number in `package.json` after updating js/css files or ensure all cache cleared.
+### Development
+- To build js files run `npm run-script build`.
+- Increment the version number in `package.json` after updating js/css files or ensure all cache cleared.
   - Make sure you increment at least the patch number in any PRs that touch Javascript/CSS.
-
-### Errors
-
-- If you can't run the `npm run-script build` command
-	- Try creating a file named `npm-shrinkwrap.json` with the following contents:
-	```
-	{
-	  "dependencies": {
-	    "graceful-fs": {
-	        "version": "4.2.2"
-	     }
-	  }
-	}
-	```
-	- Then run `npm install`
-- If your JS/CSS won't load
-	- Make sure you are on CSH's network. If not, try contacting a current maintainer.
-	- Check that your config file is filled out.
-
-## Contributing
-
-1. [Fork](https://help.github.com/en/articles/fork-a-repo) this repository
-    - Optionally create a new [git branch](https://git-scm.com/book/en/v2/Git-Branching-Branches-in-a-Nutshell) if your change is more than a small tweak (`git checkout -b BRANCH-NAME-HERE`)
-2. Make your changes locally, commit, and push to your fork
-	- Make sure you follow standard php code practices. We use [ESLint](https://eslint.org/docs/rules/) as our linting tool.
-3. Create a [Pull Request](https://help.github.com/en/articles/about-pull-requests) on this repo for our Webmasters to review
-
-## Questions/Concerns
-
-Please file an [Issue](https://github.com/ComputerScienceHouse/schedulemaker/issues/new) on this repository.
+- If you get an error with JS/CSS not loading, check your config file.
 
 ## Maintainers
 
