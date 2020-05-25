@@ -165,6 +165,7 @@ angular.module('sm').controller('GenerateController', function ($scope, globalKb
           type: 'Schedule',
           data: data
         })
+
         $scope.generationStatus = 'D'
 
         // If no errors happened
