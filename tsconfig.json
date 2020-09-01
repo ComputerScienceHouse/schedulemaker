@@ -1,8 +1,8 @@
 {
     "include": [
-        "assets/src/modules/sm/**/*.ts"
+        "./assets/src/modules/sm/**/*.ts"
     ],
-    "exclude": ["node_modules"],
+    "exclude": ["./node_modules"],
     "compilerOptions": {
         "module": "es2015",
         "allowJs": false,
