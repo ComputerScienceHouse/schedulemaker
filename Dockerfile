@@ -1,8 +1,39 @@
 FROM php:7.1-apache
 LABEL author="Devin Matte <matted@csh.rit.edu>"
 
+RUN echo "deb-src http://deb.debian.org/debian buster main" >> /etc/apt/sources.list
+
 RUN apt-get -yq update && \
-    apt-get -yq install gnupg libmagickwand-dev git gcc make autoconf libc-dev pkg-config --no-install-recommends
+    apt-get -yq install \
+        gnupg \
+        libmagickwand-dev \
+        git \
+        gcc \
+        make \
+        autoconf \
+        libc-dev \
+        pkg-config \
+        build-essential \
+        libx11-dev \
+        libxext-dev \
+        zlib1g-dev \
+        libpng-dev \
+        libjpeg-dev \
+        libfreetype6-dev \
+        libxml2-dev \
+        wget \
+        --no-install-recommends
+
+RUN apt-get -yq build-dep imagemagick
+
+RUN wget https://github.com/ImageMagick/ImageMagick6/archive/6.9.11-22.tar.gz && \
+    tar -xzvf 6.9.11-22.tar.gz && \
+    cd ImageMagick6-6.9.11-22 && \
+    ./configure && \
+    make && \
+    make install && \
+    ldconfig /usr/local/lib && \
+    make check
 
 RUN docker-php-ext-install mysqli && \
     yes '' | pecl install imagick && docker-php-ext-enable imagick
