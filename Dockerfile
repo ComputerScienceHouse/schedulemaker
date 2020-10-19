@@ -4,14 +4,14 @@ LABEL author="Devin Matte <matted@csh.rit.edu>"
 WORKDIR /usr/src/schedule
 COPY package.json ./
 
-RUN npm install --silent
+RUN npm install
 
 COPY package.json tsconfig.json gulpfile.js ./
 COPY assets ./assets
 RUN npm run-script build
 
 
-FROM php:7.1-apache as php-setup
+FROM php:7.3-apache as php-setup
 LABEL author="Devin Matte <matted@csh.rit.edu>"
 
 RUN echo "deb-src http://deb.debian.org/debian buster main" >> /etc/apt/sources.list
@@ -34,7 +34,7 @@ RUN apt-get -yq update && \
         libjpeg-dev \
         libfreetype6-dev \
         libxml2-dev \
-	unzip \
+        unzip \
         wget \
         --no-install-recommends
 
