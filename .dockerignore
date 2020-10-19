@@ -1,0 +1,10 @@
+Dockerfile
+.dockerignore
+.gitignore
+.nvmrc
+node_modules
+assets/dist
+assets/prod
+LICENSE
+README.md
+
