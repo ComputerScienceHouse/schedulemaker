@@ -134,6 +134,8 @@ if ($path[1] == 'schedule') {
 			window.DD_RUM && window.DD_RUM.init({
 				clientToken: '<?= $RUM_CLIENT_TOKEN ?>',
 				applicationId: '<?= $RUM_APPLICATION_ID ?>',
+				version: '<?= $APP_VERSION ?>',
+				env: '<?= $SERVER_TYPE ?>',
 			});
 		</script>
 		<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
