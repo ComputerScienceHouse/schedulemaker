@@ -12,6 +12,7 @@ package-lock.json
 
 # Ignore built files
 assets/prod/*
+assets/dist/*
 !assets/prod/.gitkeep
 
 # Other files

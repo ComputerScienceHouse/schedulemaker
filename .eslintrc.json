@@ -4,6 +4,10 @@
         "commonjs": true,
         "es6": true
     },
+    "parser": "@typescript-eslint/parser",
+    "plugins": [
+        "@typescript-eslint"
+    ],
     "extends": [
         "standard"
     ],
@@ -16,6 +20,7 @@
     },
     "rules": {
         "no-undef": "off",
+        "no-var": "warn",
         "no-unused-vars": "warn",
         "no-prototype-builtins": "warn",
         "no-redeclare": "warn",

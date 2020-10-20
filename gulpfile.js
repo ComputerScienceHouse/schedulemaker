@@ -7,12 +7,14 @@ if (!pkg.version) {
 
 var assetsRoot = {
   src: 'assets/src/',
+  dist: 'assets/dist/',
   dest: 'assets/prod/'
 }
 
 // Set up core routes
 var modulesRoot = {
   src: assetsRoot.src + 'modules/',
+  dist: assetsRoot.dist + 'modules/',
   dest: assetsRoot.dest + pkg.version + '/modules/'
 }
 
@@ -47,19 +49,22 @@ var assetTypes = {
 }
 
 var paths = {}
+var distPaths = {}
 
-for (var moduleName in assetModuleList) {
-  subModuleList = assetModuleList[moduleName]
+const getPaths = (rootPath, pathsDict) => {
+  for (var moduleName in assetModuleList) {
+    subModuleList = assetModuleList[moduleName]
 
-  paths[moduleName] = {}
-  for (var assetType in assetTypes) {
-    var assetOpts = assetTypes[assetType]
+    pathsDict[moduleName] = {}
+    for (var assetType in assetTypes) {
+      var assetOpts = assetTypes[assetType]
 
-    paths[moduleName][assetType] = []
+      pathsDict[moduleName][assetType] = []
 
-    assetOpts.paths.forEach(function (assetPath) {
-      paths[moduleName][assetType].push(modulesRoot.src + moduleName + '/**/' + assetPath + assetOpts.selector)
-    })
+      assetOpts.paths.forEach(function (assetPath) {
+        pathsDict[moduleName][assetType].push(rootPath + moduleName + '/**/' + assetPath + assetOpts.selector)
+      })
+    }
   }
 }
 
@@ -68,11 +73,14 @@ var doFor = function (assetType, cb) {
   for (var moduleName in assetModuleList) {
     streamResults.push(cb({
       src: paths[moduleName][assetType],
+      dist: distPaths[moduleName][assetType],
       dest: modulesRoot.dest + moduleName + '/'
     }))
   }
   return streamResults
 }
+
+getPaths(modulesRoot.src, paths)
 
 var fs = require('fs')
 var dump = function (tvar) {
@@ -92,6 +100,9 @@ var replace = require('gulp-replace')
 var es = require('event-stream')
 var minifyCSS = require('gulp-minify-css')
 var template = require('gulp-template')
+var ts = require('gulp-typescript')
+
+var tsProject = ts.createProject('tsconfig.json')
 
 // Define Tasks
 gulp.task('templates', function () {
@@ -109,9 +120,17 @@ gulp.task('templates', function () {
   return es.concat.apply(null, mapped)
 })
 
+gulp.task('compile', function () {
+  const tsOut = tsProject.src()
+    .pipe(tsProject())
+    .js.pipe(gulp.dest(modulesRoot.dist + 'sm/'))
+  getPaths(modulesRoot.dist, distPaths)
+  return tsOut
+})
+
 gulp.task('scripts', function () {
   var mapped = doFor('scripts', function (scriptPaths) {
-    return gulp.src(scriptPaths.src)
+    return gulp.src(scriptPaths.dist)
       .pipe(template({ modulePath: scriptPaths.dest }))
       .pipe(ngmin())
       .pipe(concat('dist.js'))
@@ -147,7 +166,7 @@ gulp.task('watch', function () {
     })
   })
   doFor('scripts', function (scriptPaths) {
-    gulp.watch(scriptPaths.src, ['scripts']).on('error', function () {
+    gulp.watch(scriptPaths.dist, ['scripts']).on('error', function () {
     })
   })
   doFor('styles', function (stylesPaths) {
@@ -166,7 +185,7 @@ gulp.task('cleanAll', function () {
     .pipe(clean())
 })
 
-gulp.task('build', ['clean'], function () {
+gulp.task('build', ['clean', 'compile'], function () {
   return gulp.start('scripts', 'templates', 'styles')
 })
 
