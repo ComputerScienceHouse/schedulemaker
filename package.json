@@ -50,7 +50,7 @@
   "homepage": "http://schedule.csh.rit.edu",
   "devDependencies": {
     "@datadog/browser-rum": "^1.11.4",
-    "@types/angular": "1.5",
+    "@types/angular": "1.7",
     "@types/google.analytics": "0.0.40",
     "@types/mousetrap": "^1.6.3",
     "@typescript-eslint/eslint-plugin": "^2.30.0",
