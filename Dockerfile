@@ -11,7 +11,7 @@ COPY assets ./assets
 RUN npm run-script build
 
 
-FROM php:7.3-apache as php-setup
+FROM php:7.3-apache
 LABEL author="Devin Matte <matted@csh.rit.edu>"
 
 RUN echo "deb-src http://deb.debian.org/debian buster main" >> /etc/apt/sources.list
@@ -51,12 +51,7 @@ RUN wget https://github.com/ImageMagick/ImageMagick6/archive/6.9.11-22.tar.gz &&
 
 RUN docker-php-ext-install mysqli && \
     yes '' | pecl install imagick && docker-php-ext-enable imagick
-
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
-
-
-FROM php-setup
-LABEL author="Devin Matte <matted@csh.rit.edu>"
 
 COPY apache-config.conf /etc/apache2/sites-enabled/000-default.conf
 
