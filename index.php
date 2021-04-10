@@ -127,7 +127,7 @@ if ($path[1] == 'schedule') {
 			ga('create', '<?= $GOOGLEANALYTICS ?>', 'rit.edu');
 		</script>
 		<script
-			src="https://www.datadoghq-browser-agent.com/datadog-rum-us.js"
+			src="https://www.datadoghq-browser-agent.com/datadog-rum-recorder.js"
 			type="text/javascript">
 		</script>
 		<script>
@@ -136,6 +136,8 @@ if ($path[1] == 'schedule') {
 				applicationId: '<?= $RUM_APPLICATION_ID ?>',
 				version: '<?= $APP_VERSION ?>',
 				env: '<?= $SERVER_TYPE ?>',
+				sampleRate: 100,
+        		trackInteractions: true
 			});
 		</script>
 		<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
