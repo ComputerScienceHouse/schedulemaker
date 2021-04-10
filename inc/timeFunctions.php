@@ -45,7 +45,7 @@ function getDayField($fieldname, $selectedDay, $numeric = false) {
 }
 
 /**
- * Generates a drop down list of every hour and half hour.
+ * Generates a drop down list of every hour and quarter hour.
  *
  * @param string $fieldname           The name of the select tag, also the id
  * @param int    $selectedTime        The time that is preselected. Defaults to
@@ -57,8 +57,8 @@ function getTimeField($fieldname, $selectedTime = "720", $twelve = true) {
     // Generate a list of times
     $times = [];
 
-    // Start at 0 and add 30 for every hour and every half hour
-    for ($i = 0; $i <= 1440; $i += 30) {
+    // Start at 0 and add 15 for every hour and every quarter hour
+    for ($i = 0; $i <= 1440; $i += 15) {
         $times[] = $i;
     }
 
