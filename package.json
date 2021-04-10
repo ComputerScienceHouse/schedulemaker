@@ -49,7 +49,7 @@
   },
   "homepage": "http://schedule.csh.rit.edu",
   "devDependencies": {
-    "@datadog/browser-rum": "^1.11.4",
+    "@datadog/browser-rum-recorder": "^2.7.1",
     "@types/angular": "1.5",
     "@types/google.analytics": "0.0.40",
     "@types/mousetrap": "^1.6.3",
