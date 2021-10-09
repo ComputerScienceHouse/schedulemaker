@@ -80,7 +80,7 @@ angular.module('sm', ['ngAnimate', 'ngSanitize', 'ui.router'])
     $rootScope.$on('$stateChangeSuccess', function (evt) {
       ga('send', 'pageview')
       window.DD_RUM &&
-      window.DD_RUM.addUserAction('Pageview', {
+      window.DD_RUM.addAction('Pageview', {
         type: 'On Load'
       })
       $($window).scrollTop(0)
