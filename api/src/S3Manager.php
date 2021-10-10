@@ -52,4 +52,18 @@ class S3Manager
             'Body' => $im->getImageBlob()
         ]);
     }
+
+    public function getImage(string $id) {
+        return $this->s3Client->getObject([
+            'Bucket' => $this->imageBucket,
+            'ContentType' => 'image/png',
+            'Key' => "{$id}.png",
+        ]);
+    }
+
+    public function returnImage(string $id) {
+        $result = $this->getImage($id);
+
+        return $result['Body'];
+    }
 }
