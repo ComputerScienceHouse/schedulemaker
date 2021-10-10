@@ -152,7 +152,7 @@ gulp.task('styles', function (done) {
     return gulp.src(stylePaths.src)
       .pipe(concat('dist.css'))
       .pipe(gulp.dest(stylePaths.dest))
-      .pipe(minifyCSS({ processImport: false }))
+      .pipe(minifyCSS({ advanced: false, processImport: true, keepSpecialComments: 0 }))
       .pipe(rename({ suffix: '.min' }))
       .pipe(gulp.dest(stylePaths.dest))
   })
