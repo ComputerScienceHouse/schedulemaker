@@ -127,7 +127,7 @@ if ($path[1] == 'schedule') {
 			ga('create', '<?= $GOOGLEANALYTICS ?>', 'rit.edu');
 		</script>
 		<script
-			src="https://www.datadoghq-browser-agent.com/datadog-rum-recorder.js"
+			src="https://www.datadoghq-browser-agent.com/datadog-rum-v3.js"
 			type="text/javascript">
 		</script>
 		<script>
