@@ -1,28 +1,30 @@
+/* eslint-disable standard/no-callback-literal */
+
 // Get the version info
-var pkg = require('./package.json')
+const pkg = require('./package.json')
 if (!pkg.version) {
   console.error('No version information in package.json.')
   proccess.exit()
 }
 
-var assetsRoot = {
+const assetsRoot = {
   src: 'assets/src/',
   dist: 'assets/dist/',
   dest: 'assets/prod/'
 }
 
 // Set up core routes
-var modulesRoot = {
+const modulesRoot = {
   src: assetsRoot.src + 'modules/',
   dist: assetsRoot.dist + 'modules/',
   dest: assetsRoot.dest + pkg.version + '/modules/'
 }
 
-var assetModuleList = {
+const assetModuleList = {
   sm: ['App', 'Schedule', 'Generate', 'Browse', 'Search', 'Help', 'Index']
 }
 
-var assetTypes = {
+const assetTypes = {
   scripts: {
     paths: [
       '',
@@ -48,16 +50,16 @@ var assetTypes = {
   }
 }
 
-var paths = {}
-var distPaths = {}
+const paths = {}
+const distPaths = {}
 
 const getPaths = (rootPath, pathsDict) => {
-  for (var moduleName in assetModuleList) {
+  for (const moduleName in assetModuleList) {
     subModuleList = assetModuleList[moduleName]
 
     pathsDict[moduleName] = {}
-    for (var assetType in assetTypes) {
-      var assetOpts = assetTypes[assetType]
+    for (const assetType in assetTypes) {
+      const assetOpts = assetTypes[assetType]
 
       pathsDict[moduleName][assetType] = []
 
@@ -68,9 +70,9 @@ const getPaths = (rootPath, pathsDict) => {
   }
 }
 
-var doFor = function (assetType, cb) {
-  var streamResults = []
-  for (var moduleName in assetModuleList) {
+const doFor = function (assetType, cb) {
+  const streamResults = []
+  for (const moduleName in assetModuleList) {
     streamResults.push(cb({
       src: paths[moduleName][assetType],
       dist: distPaths[moduleName][assetType],
@@ -82,31 +84,27 @@ var doFor = function (assetType, cb) {
 
 getPaths(modulesRoot.src, paths)
 
-var fs = require('fs')
-var dump = function (tvar) {
-  fs.writeFileSync('./dump.json', JSON.stringify(tvar))
-}
-
 // Import required plugins
-var gulp = require('gulp')
-var htmlmin = require('gulp-htmlmin')
-var ngmin = require('gulp-ngmin')
-var uglify = require('gulp-uglify')
-var clean = require('gulp-clean')
-var concat = require('gulp-concat')
-var rename = require('gulp-rename')
-var sourcemaps = require('gulp-sourcemaps')
-var replace = require('gulp-replace')
-var es = require('event-stream')
-var minifyCSS = require('gulp-minify-css')
-var template = require('gulp-template')
-var ts = require('gulp-typescript')
+const gulp = require('gulp')
+const htmlmin = require('gulp-htmlmin')
+const ngAnnotate = require('gulp-ng-annotate')
+const uglify = require('gulp-uglify')
+const concat = require('gulp-concat')
+const rename = require('gulp-rename')
+const sourcemaps = require('gulp-sourcemaps')
+const replace = require('gulp-replace')
+const es = require('event-stream')
+const minifyCSS = require('gulp-minify-css')
+const template = require('gulp-template')
+const ts = require('gulp-typescript')
+const del = require('del')
+const vinylPaths = require('vinyl-paths')
 
-var tsProject = ts.createProject('tsconfig.json')
+const tsProject = ts.createProject('tsconfig.json')
 
 // Define Tasks
-gulp.task('templates', function () {
-  var mapped = doFor('templates', function (templatePaths) {
+gulp.task('templates', function (done) {
+  const mapped = doFor('templates', function (templatePaths) {
     return gulp.src(templatePaths.src)
       .pipe(htmlmin({
         collapseWhitespace: true,
@@ -117,6 +115,7 @@ gulp.task('templates', function () {
       .pipe(gulp.dest(templatePaths.dest))
   })
 
+  done()
   return es.concat.apply(null, mapped)
 })
 
@@ -128,11 +127,11 @@ gulp.task('compile', function () {
   return tsOut
 })
 
-gulp.task('scripts', function () {
-  var mapped = doFor('scripts', function (scriptPaths) {
+gulp.task('scripts', function (done) {
+  const mapped = doFor('scripts', function (scriptPaths) {
     return gulp.src(scriptPaths.dist)
       .pipe(template({ modulePath: scriptPaths.dest }))
-      .pipe(ngmin())
+      .pipe(ngAnnotate())
       .pipe(concat('dist.js'))
       .pipe(gulp.dest(scriptPaths.dest))
       .pipe(sourcemaps.init())
@@ -144,49 +143,49 @@ gulp.task('scripts', function () {
       .pipe(gulp.dest(scriptPaths.dest))
   })
 
+  done()
   return es.concat.apply(null, mapped)
 })
 
-gulp.task('styles', function () {
-  var mapped = doFor('styles', function (stylePaths) {
+gulp.task('styles', function (done) {
+  const mapped = doFor('styles', function (stylePaths) {
     return gulp.src(stylePaths.src)
       .pipe(concat('dist.css'))
       .pipe(gulp.dest(stylePaths.dest))
-      .pipe(minifyCSS())
+      .pipe(minifyCSS({ advanced: false, processImport: true, keepSpecialComments: 0 }))
       .pipe(rename({ suffix: '.min' }))
       .pipe(gulp.dest(stylePaths.dest))
   })
 
+  done()
   return es.concat.apply(null, mapped)
 })
 
 gulp.task('watch', function () {
   doFor('templates', function (templatePaths) {
-    gulp.watch(templatePaths.src, ['templates']).on('error', function () {
+    gulp.watch(templatePaths.src, gulp.series('templates')).on('error', function () {
     })
   })
   doFor('scripts', function (scriptPaths) {
-    gulp.watch(scriptPaths.dist, ['scripts']).on('error', function () {
+    gulp.watch(scriptPaths.dist, gulp.series('scripts')).on('error', function () {
     })
   })
   doFor('styles', function (stylesPaths) {
-    gulp.watch(stylesPaths.src, ['styles']).on('error', function () {
+    gulp.watch(stylesPaths.src, gulp.series('styles')).on('error', function () {
     })
   })
 })
 
 gulp.task('clean', function () {
-  return gulp.src(modulesRoot.dest, { read: false })
-    .pipe(clean())
+  return gulp.src(modulesRoot.dest, { read: false, allowEmpty: true })
+    .pipe(vinylPaths(del))
 })
 
 gulp.task('cleanAll', function () {
-  return gulp.src([assetsRoot.dest + '/*', '!' + assetsRoot.dest + '.gitkeep'], { read: false })
-    .pipe(clean())
+  return gulp.src([assetsRoot.dest + '/*', '!' + assetsRoot.dest + '.gitkeep'], { read: false, allowEmpty: true })
+    .pipe(vinylPaths(del))
 })
 
-gulp.task('build', ['clean', 'compile'], function () {
-  return gulp.start('scripts', 'templates', 'styles')
-})
+gulp.task('build', gulp.series('clean', 'compile', gulp.parallel('scripts', 'templates', 'styles')))
 
-gulp.task('default', ['build'])
+gulp.task('default', gulp.series('build'))

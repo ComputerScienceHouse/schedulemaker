@@ -8,7 +8,10 @@ angular.module('sm', ['ngAnimate', 'ngSanitize', 'ui.router'])
   .config(function ($stateProvider, $urlRouterProvider, $locationProvider, $httpProvider) {
     $httpProvider.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded;charset=utf-8'
 
-    $locationProvider.html5Mode(true)
+    $locationProvider.html5Mode({
+      enabled: true,
+      requireBase: false
+    })
 
     $urlRouterProvider.otherwise('/404')
 
@@ -77,7 +80,7 @@ angular.module('sm', ['ngAnimate', 'ngSanitize', 'ui.router'])
     $rootScope.$on('$stateChangeSuccess', function (evt) {
       ga('send', 'pageview')
       window.DD_RUM &&
-      window.DD_RUM.addUserAction('Pageview', {
+      window.DD_RUM.addAction('Pageview', {
         type: 'On Load'
       })
       $($window).scrollTop(0)

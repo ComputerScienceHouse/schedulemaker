@@ -1,25 +1,25 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable camelcase */
 declare let angular: any
-
-declare interface Course {
-    id: string
-    sections: Section[]
-    title: string
-    courseNum: string
-    course: string
-    department: Department
-    times: Time[]
-    fromSelect: boolean
-    selected: boolean
-    description: string
-    search
-}
 
 declare interface Department {
     code: string
     number: null
 }
 
+declare interface Bldg {
+    code: string;
+    number: string;
+}
+
+declare interface Time {
+    bldg: Bldg;
+    room: string;
+    day: string;
+    start: string;
+    end: string;
+    off_campus: boolean;
+}
 declare interface Section {
     title: string;
     instructor: string;
@@ -35,19 +35,18 @@ declare interface Section {
     isError?: boolean
     selected?: boolean
 }
-
-declare interface Time {
-    bldg: Bldg;
-    room: string;
-    day: string;
-    start: string;
-    end: string;
-    off_campus: boolean;
-}
-
-declare interface Bldg {
-    code: string;
-    number: string;
+declare interface Course {
+    id: string
+    sections: Section[]
+    title: string
+    courseNum: string
+    course: string
+    department: Department
+    times: Time[]
+    fromSelect: boolean
+    selected: boolean
+    description: string
+    search
 }
 
 declare interface ResponseError {

@@ -20,7 +20,7 @@
 	<div class="panel-body course-cart-window" ng-class="{'hidden-xs':showCourseCart, 'hidden-sm': showCourseCart}">
 		<div class=" animate-show-hide" ng-switch="courseCart.count.all.selectedSections() > 0">
 			<ul ng-switch-when="true" class="list-group">
-				<li class="list-group-item repeat-item course-cart-item" ng-style="{'border-left-color':ui.colors[$index % 10]}" ng-repeat="course in state.courses | cartFilter">
+				<li class="list-group-item repeat-item course-cart-item" ng-style="{'border-left-color':ui.colors[$index % 10]}" ng-repeat="course in state.courses | cartFilter:this">
 					<div class="btn-group pull-right">
 						<button type="button" class="btn btn-danger" ng-click="courseCart.selection.course.unselect(course)">
 							<i class="fa fa-minus"></i> <i class="fa fa-shopping-cart"></i>

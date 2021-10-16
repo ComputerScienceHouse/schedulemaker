@@ -1,4 +1,4 @@
-FROM node:10-buster-slim as builder
+FROM node:12-buster-slim as builder
 LABEL author="Devin Matte <matted@csh.rit.edu>"
 
 WORKDIR /usr/src/schedule

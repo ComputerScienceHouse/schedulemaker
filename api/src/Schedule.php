@@ -204,10 +204,9 @@ class Schedule
 
             $im->scaleimage(1000, 600, true);
 
-            // Write it to the filesystem and s3
+            // Write it to s3
             //TODO Generate non-white image
             $s3ImageManager->saveImage($im, $id);
-            $im->writeimage("../img/schedules/{$id}.png");
             $im->clear();
             $im->destroy();
 

@@ -140,7 +140,7 @@ angular.module('sm').controller('SearchController', function ($scope, $http, ent
 
         ga('send', 'event', 'search', 'find')
         window.DD_RUM &&
-        window.DD_RUM.addUserAction('Search', {
+        window.DD_RUM.addAction('Search', {
           type: 'Find',
           data: data
         })
