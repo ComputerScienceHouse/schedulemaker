@@ -26,8 +26,8 @@ if (file_exists('./inc/config.php')) {
 require_once('./inc/databaseConn.php');
 require_once('./inc/timeFunctions.php');
 
-// Strips the 'http:' from the root address so it can work on SSL.
-$ASSETROOTADDRESS = substr($HTTPROOTADDRESS, 5);
+// Strips the 'http(s):' from the root address so it can work on SSL.
+$ASSETROOTADDRESS = substr($HTTPROOTADDRESS, strpos($HTTPROOTADDRESS, ":") + 1);
 
 // HACK FOR OPEN-GRAPH TAGS, I KNOW, THIS IS TERRIBLE
 $path = explode('/', $_SERVER['REQUEST_URI']);
@@ -44,7 +44,7 @@ if ($path[1] == 'schedule') {
 //OLD header.inc
 ?>
 <!DOCTYPE html>
-<html prefix="og: http://ogp.me/ns#" ng-app="sm" lang="en">
+<html prefix="og: https://ogp.me/ns#" ng-app="sm" lang="en">
 	<head>
 		<title><?= (!empty($TITLE)) ? $TITLE . " - " : "" ?>Schedule Maker</title>
 
@@ -66,7 +66,7 @@ if ($path[1] == 'schedule') {
         <meta property="og:title" content="<?= (!empty($TITLE)) ? $TITLE . " - " : "" ?>ScheduleMaker" />
         <meta property="og:type" content="website" />
         <meta property="og:description" content="CSH ScheduleMaker makes picking your RIT class schedule easy! Preview all permutations of your schedule, browse available courses, and search for any course, all with ScheduleMaker.">
-        <meta property="og:url" content="http://<?= $_SERVER['HTTP_HOST'] ?><?= $_SERVER['REQUEST_URI'] ?>" />
+        <meta property="og:url" content="https://<?= $_SERVER['HTTP_HOST'] ?><?= $_SERVER['REQUEST_URI'] ?>" />
         <? if(!empty($IMGURL)) { ?>
         <meta property="og:image" content="<?= $IMGURL ?>" />
         <? } else { ?>
@@ -100,20 +100,20 @@ if ($path[1] == 'schedule') {
 			</div>
 			<footer class="main default">
 				<div class="container">
-					<div class="csh"><a target="_blank" rel="noopener" href="http://www.csh.rit.edu/"><img width="90" src="<?=$ASSETROOTADDRESS?>img/csh_logo_square.svg" alt="CSH" /></a></div>
+					<div class="csh"><a target="_blank" rel="noopener" href="https://www.csh.rit.edu/"><img width="90" src="<?=$ASSETROOTADDRESS?>img/csh_logo_square.svg" alt="CSH" /></a></div>
 					<a target="_blank" rel="noopener" href="https://github.com/ComputerScienceHouse/schedulemaker">Version: <?=$APP_VERSION?></a> | <a ui-sref="help">Help</a> | <a href="/status">Status</a> | <a target="_blank" rel="noopener" href="https://github.com/ComputerScienceHouse/schedulemaker/issues">Report Issues</a>
 					<div>
 						Development v3.1: Devin Matte (matted at csh.rit.edu)<br>
 						Development v3: Ben Grawi (bgrawi at csh.rit.edu)<br>
 						Development v2: Ben Russell (benrr101 at csh.rit.edu)<br>
 						Idea: John Resig (phytar at csh.rit.edu)<br>
-						Hosting: <a href="http://www.csh.rit.edu/">Computer Science House</a><br>
+						Hosting: <a href="https://www.csh.rit.edu/">Computer Science House</a><br>
 					</div>
 				</div>
 			</footer>
 			<footer class="main print">
 				Made Using <a href='<?= $HTTPROOTADDRESS ?>'>CSH ScheduleMaker</a>
-				<a target="_blank" rel="noopener" href="http://www.csh.rit.edu/"><img height="25" src="/img/csh_print.png"></a>
+				<a target="_blank" rel="noopener" href="https://www.csh.rit.edu/"><img height="25" src="/img/csh_print.png"></a>
 			</footer>
 		</div>
 		<!-- LOAD SCRIPTS LAST -->
