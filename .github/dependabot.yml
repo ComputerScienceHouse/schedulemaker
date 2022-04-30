@@ -14,3 +14,7 @@ updates:
     directory: "/" # Location of package manifests
     schedule:
       interval: "weekly"
+    ignore:
+      # Ignore patch version bumps
+      - dependency-name: "*"
+        update-types: ["version-update:semver-patch"]
