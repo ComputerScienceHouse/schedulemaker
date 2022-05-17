@@ -76,7 +76,7 @@
     "gulp-sourcemaps": "^3.0.0",
     "gulp-template": "^5.0.0",
     "gulp-typescript": "^5.0.1",
-    "gulp-uglify": "^2.0.0",
+    "gulp-uglify": "^3.0.2",
     "install": "^0.13.0",
     "typescript": "^4.6.4",
     "vinyl-paths": "^3.0.0"
