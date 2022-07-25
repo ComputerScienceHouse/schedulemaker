@@ -55,7 +55,7 @@
     "@types/mousetrap": "^1.6.9",
     "@typescript-eslint/eslint-plugin": "^5.21.0",
     "@typescript-eslint/parser": "^5.21.0",
-    "del": "^6.0.0",
+    "del": "^7.0.0",
     "eslint": "^8.14.0",
     "eslint-config-standard": "^17.0.0",
     "eslint-plugin-import": "^2.26.0",
