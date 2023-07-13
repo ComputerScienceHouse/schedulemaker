@@ -50,46 +50,111 @@ class Schedule
             if(empty($course['times'])) {
                 continue;
             }
-
-            // Iterate over all the times
-            foreach($course['times'] as $time) {
-                $code .= "BEGIN:VEVENT\r\n";
-                $code .= "UID:" . md5(uniqid(mt_rand(), true) . " @{$HTTPROOTADDRESS}");
-                $code .= "\r\n";
-                $code .= "TZID:America/New_York\r\n";
-                $code .= "DTSTAMP:" . gmdate('Ymd') . "T" . gmdate("His") . "Z\r\n";
-
-                $startTime = $this->icalFormatTime($time['start']);
-                $endTime = $this->icalFormatTime($time['end']);
-
-                // The start day of the event MUST be offset by it's day
-                // the -1 is b/c quarter starts are on Monday(=1)
-                // This /could/ be done via the RRULE WKST param, but that means
-                // translating days from numbers to some other esoteric format.
-                // @TODO: Retrieve the timezone from php or the config file
-                $day = date("Ymd", $termStart + ((60*60*24)*($time['day']-1)));
-
-                $code .= "DTSTART;TZID=America/New_York:{$day}T{$startTime}\r\n";
-                $code .= "DTEND;TZID=America/New_York:{$day}T{$endTime}\r\n";
-                $code .= "RRULE:FREQ=WEEKLY;UNTIL={$termEnd}\r\n";
-                $code .= "ORGANIZER:RIT\r\n";
-
-                // Course name
-                $code .= "SUMMARY:{$course['title']}";
-                if($course['courseNum'] != 'non') {
-                    $code .= " ({$course['courseNum']})";
-                }
-                $code .= "\r\n";
-
-                // Meeting location
-                if($course['courseNum'] != 'non') {
-                    $bldg = $time['bldg'][$schedule['bldgStyle']];
-                    $code .= "LOCATION:{$bldg}-{$time['room']}\r\n";
+            else {
+                // Get all the times for this course
+                $times = array();
+                $checker = array(); // allows us to check if all the details are the same by skipping the changing day
+                foreach($course['times'] as $time) {
+                    array_push($times, array(
+                        "day"   => (int)$time['day'],
+                        "start" => (int)$time['start'],
+                        "end"   => (int)$time['end'],
+                        "bldg"  => $time['bldg'],
+                        "room"  => $time['room'],
+                        "offCampus" => $time['off_campus']
+                    ));
+                    array_push($checker, array(
+                        "start" => (int)$time['start'],
+                        "end"   => (int)$time['end'],
+                        "bldg"  => $time['bldg'],
+                        "room"  => $time['room'],
+                        "offCampus" => $time['off_campus']
+                    ));
                 }
 
-                $code .= "END:VEVENT\r\n";
+                //if the details for the course are equal across each day, then set up a series that repeats on each day the course runs
+                if (count(array_unique($checker, SORT_REGULAR)) === 1) {
+                    $code .= "BEGIN:VEVENT\r\n";
+                    $code .= "UID:" . md5(uniqid(mt_rand(), true) . " @{$HTTPROOTADDRESS}");
+                    $code .= "\r\n";
+                    $code .= "TZID:America/New_York\r\n";
+                    $code .= "DTSTAMP:" . gmdate('Ymd') . "T" . gmdate("His") . "Z\r\n";
+
+                    $startTime = $this->icalFormatTime($time['start']);
+                    $endTime = $this->icalFormatTime($time['end']);
+
+                    // The start day of the event MUST be offset by it's day
+                    // @TODO: Retrieve the timezone from php or the config file
+                    $startDayNum = date("N", $termStart); // get the weekday number of the start day of the term
+                    $day = date("Ymd", $termStart + ((60*60*24)*($times[0]['day']-$startDayNum))); //use it to calcuate the start day of the course
+
+                    // Convert day number to abbreviation (based on iCal spec) for the RRULE
+                    $dayAbbArray = array('SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA');
+                    $dayAbb = array();
+                    foreach ($times as $time) {
+                        array_push($dayAbb, $dayAbbArray[$time['day']]); //make $dayAbb an array using only the day abbreviations needed for the course. (MO,WE,FR) or (TU,TH) for example
+                    }
+                    $dayList = implode(',', $dayAbb); //Make a string to use in the RRULE
+
+                    $code .= "DTSTART;TZID=America/New_York:{$day}T{$startTime}\r\n";
+                    $code .= "DTEND;TZID=America/New_York:{$day}T{$endTime}\r\n";
+                    $code .= "RRULE:FREQ=WEEKLY;INTERVAL=1;WKST=MO;BYDAY={$dayList};UNTIL={$termEnd}\r\n";
+                    $code .= "ORGANIZER:RIT\r\n";
+
+                    // Course name
+                    $code .= "SUMMARY:{$course['title']}";
+                    if($course['courseNum'] != 'non') {
+                        $code .= " ({$course['courseNum']})";
+                    }
+                    $code .= "\r\n";
+
+                    // Meeting location
+                    if($course['courseNum'] != 'non') {
+                        $bldg = $times[0]['bldg'];
+                        $code .= "LOCATION:{$bldg['code']}-{$times[0]['room']}\r\n";
+                    }
+
+                    $code .= "END:VEVENT\r\n";
+                }
+                else {
+                    // Iterate over all the times to create separate event series for each time
+                    foreach($course['times'] as $time) {
+                        $code .= "BEGIN:VEVENT\r\n";
+                        $code .= "UID:" . md5(uniqid(mt_rand(), true) . " @{$HTTPROOTADDRESS}");
+                        $code .= "\r\n";
+                        $code .= "TZID:America/New_York\r\n";
+                        $code .= "DTSTAMP:" . gmdate('Ymd') . "T" . gmdate("His") . "Z\r\n";
+
+                        $startTime = $this->icalFormatTime($time['start']);
+                        $endTime = $this->icalFormatTime($time['end']);
+
+                        // The start day of the event MUST be offset by it's day
+                        // @TODO: Retrieve the timezone from php or the config file
+                        $startDayNum = date("N", $termStart); // get the weekday number of the start day of the term
+                        $day = date("Ymd", $termStart + ((60*60*24)*($times[0]['day']-$startDayNum))); //use it to calcuate the start day of the course
+
+                        $code .= "DTSTART;TZID=America/New_York:{$day}T{$startTime}\r\n";
+                        $code .= "DTEND;TZID=America/New_York:{$day}T{$endTime}\r\n";
+                        $code .= "RRULE:FREQ=WEEKLY;UNTIL={$termEnd}\r\n";
+                        $code .= "ORGANIZER:RIT\r\n";
+
+                        // Course name
+                        $code .= "SUMMARY:{$course['title']}";
+                        if($course['courseNum'] != 'non') {
+                            $code .= " ({$course['courseNum']})";
+                        }
+                        $code .= "\r\n";
+
+                        // Meeting location
+                        if($course['courseNum'] != 'non') {
+                            $bldg = $time['bldg'][$schedule['bldgStyle']];
+                            $code .= "LOCATION:{$bldg}-{$time['room']}\r\n";
+                        }
+
+                        $code .= "END:VEVENT\r\n";
+                    }
+                }
             }
-        }
 
         $code .= "END:VCALENDAR\r\n";
 
