@@ -22,6 +22,17 @@ class Schedule
             . "00";
     }
 
+    private function firstDayAfterDate($weekday, $startDate) {
+        $weekdayOfStart = date('w', $startDate);
+        if ($weekdayOfStart > $weekday) {
+            // Try next week:
+            $startDate += 60*60*24*(7-$weekDayOfStart);
+            $weekdayOfStart = 0;
+        }
+        // weekday - weekDayOfStart = number of days between now and the first instance of that week day
+        return $startDate + (60*60*24*($weekday-$weekdayOfStart));
+    }
+
     public function generateIcal($schedule) {
         // Globals
         global $HTTPROOTADDRESS, $dbConn;
@@ -67,7 +78,7 @@ class Schedule
                 // This /could/ be done via the RRULE WKST param, but that means
                 // translating days from numbers to some other esoteric format.
                 // @TODO: Retrieve the timezone from php or the config file
-                $day = date("Ymd", $termStart + ((60*60*24)*($time['day']-1)));
+                $day = date("Ymd", $this->firstDayAfterDate($time['day'], $termStart));
 
                 $code .= "DTSTART;TZID=America/New_York:{$day}T{$startTime}\r\n";
                 $code .= "DTEND;TZID=America/New_York:{$day}T{$endTime}\r\n";
