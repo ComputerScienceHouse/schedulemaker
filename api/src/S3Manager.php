@@ -20,7 +20,7 @@ class S3Manager
 
     function __construct($S3_KEY, $S3_SECRET, $S3_SERVER, $S3_IMAGE_BUCKET) {
         $this->s3Client = new S3Client([
-            'region' => '',
+            'region' => 'us-east-1',
             'version' => '2006-03-01',
             'endpoint' => $S3_SERVER,
             'credentials' => [

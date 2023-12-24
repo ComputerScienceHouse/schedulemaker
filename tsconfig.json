@@ -1,12 +1,11 @@
 {
-    "include": [
-        "./assets/src/modules/sm/**/*.ts"
-    ],
-    "exclude": ["./node_modules"],
-    "compilerOptions": {
-        "module": "es2015",
-        "allowJs": false,
-        "noImplicitAny": false,
-        "target": "es5",
-    }
+  "include": ["./assets/src/modules/sm/**/*.ts"],
+  "exclude": ["./node_modules"],
+  "compilerOptions": {
+    "module": "es2015",
+    "moduleResolution": "node",
+    "allowJs": false,
+    "noImplicitAny": false,
+    "target": "es5"
+  }
 }
