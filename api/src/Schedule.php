@@ -26,7 +26,8 @@ class Schedule
         $weekdayOfStart = date('w', $startDate);
         if ($weekdayOfStart > $weekday) {
             // Try next week:
-            $startDate += 60*60*24*(7-$weekDayOfStart);
+            // 5 = 7 - 1 (we only go up to six) - 1 (we don't want to double count "today")
+            $startDate += 60*60*24*(5-$weekDayOfStart);
             $weekdayOfStart = 0;
         }
         // weekday - weekDayOfStart = number of days between now and the first instance of that week day
@@ -34,6 +35,7 @@ class Schedule
     }
 
     public function generateIcal($schedule) {
+        date_default_timezone_set('America/New_York');
         // Globals
         global $HTTPROOTADDRESS, $dbConn;
 
