@@ -25,7 +25,17 @@ angular.module('sm').directive('professorLookup', function ($http) {
                 .success(function (data, status, headers, config) {
                   const results = data.data.search.teachers.edges
                   if (!results[0]) {
-                    elm.popover('toggle')
+                    elm.popover({
+                      html: true,
+                      trigger: 'manual',
+                      placement: 'auto left',
+                      title: scope.professorLookup,
+                      content: '<a target="_blank" href="https://www.ratemyprofessors.com/search/professors/807?q=' +
+                      scope.professorLookup +
+                      '">No results on RateMyProfessors.com!</a>'
+                    })
+                    elm.popover('show')
+                    scope.stats = null
                     return
                   }
                   const teacher = results[0].node
@@ -74,7 +84,7 @@ angular.module('sm').directive('professorLookup', function ($http) {
                       '</h2>Level of Difficulty</div></div><div style="text-align:center">Based on ' +
                       scope.stats.numRatings +
                       ' ratings<br><a target="_blank" href="https://www.ratemyprofessors.com/search/professors/807?q=' +
-                      scope.professorLookup +
+                      encodeURIComponent(scope.professorLookup) +
                       `">Not the right professor?</a><br><small>&copy; ${yearNumber} <a target="_blank" href="http://www.ratemyprofessors.com">RateMyProfessors.com</a></small></div>`
                   })
                   elm.popover('show')
