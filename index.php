@@ -103,7 +103,8 @@ if ($path[1] == 'schedule') {
 					<div class="csh"><a target="_blank" rel="noopener" href="https://www.csh.rit.edu/"><img width="90" src="<?=$ASSETROOTADDRESS?>img/csh_logo_square.svg" alt="CSH" /></a></div>
 					<a target="_blank" rel="noopener" href="https://github.com/ComputerScienceHouse/schedulemaker">Version: <?=$APP_VERSION?></a> | <a ui-sref="help">Help</a> | <a href="/status">Status</a> | <a target="_blank" rel="noopener" href="https://github.com/ComputerScienceHouse/schedulemaker/issues">Report Issues</a>
 					<div>
-						Development v3.1: Devin Matte (matted at csh.rit.edu)<br>
+						Development v3.4: Mary Strodl (mstrodl at csh.rit.edu)<br>
+						Development v3.1-3.3: Devin Matte (matted at csh.rit.edu)<br>
 						Development v3: Ben Grawi (bgrawi at csh.rit.edu)<br>
 						Development v2: Ben Russell (benrr101 at csh.rit.edu)<br>
 						Idea: John Resig (phytar at csh.rit.edu)<br>

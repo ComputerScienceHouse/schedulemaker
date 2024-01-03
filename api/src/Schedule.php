@@ -34,6 +34,18 @@ class Schedule
         return $startDate + (60*60*24*($weekday-$weekdayOfStart));
     }
 
+    private function firstDayAfterDate($weekday, $startDate) {
+        $weekdayOfStart = date('w', $startDate);
+        if ($weekdayOfStart > $weekday) {
+            // Try next week:
+            // 5 = 7 - 1 (we only go up to six) - 1 (we don't want to double count "today")
+            $startDate += 60*60*24*(5-$weekDayOfStart);
+            $weekdayOfStart = 0;
+        }
+        // weekday - weekDayOfStart = number of days between now and the first instance of that week day
+        return $startDate + (60*60*24*($weekday-$weekdayOfStart));
+    }
+
     public function generateIcal($schedule) {
         date_default_timezone_set('America/New_York');
         // Globals
@@ -63,6 +75,7 @@ class Schedule
             if(empty($course['times'])) {
                 continue;
             }
+
             else {
                 // Get all the times for this course
                 $times = array();
@@ -83,6 +96,7 @@ class Schedule
                         "room"  => $time['room'],
                         "offCampus" => $time['off_campus']
                     ));
+
                 }
 
                 //if the details for the course are equal across each day, then set up a series that repeats on each day the course runs
