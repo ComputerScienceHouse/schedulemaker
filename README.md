@@ -3,9 +3,8 @@
 CSH Schedule**Maker**
 =====================
 
-[![Develop Build Status](https://travis-ci.com/ComputerScienceHouse/schedulemaker.svg?branch=develop)](https://travis-ci.com/ComputerScienceHouse/schedulemaker)
 ![GPL-2.0](https://img.shields.io/github/license/computersciencehouse/schedulemaker.svg)
-![PHP Version](https://img.shields.io/travis/php-v/computersciencehouse/schedulemaker.svg)
+![PHP Version](https://img.shields.io/badge/php-7.3-blue)
 
 A course database lookup tool and schedule building web application for use at Rochester Institute of Technology.
 Built, maintained and hosted by [Computer Science House](https://csh.rit.edu)
