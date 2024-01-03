@@ -3,7 +3,13 @@ angular.module('sm').filter('RMPUrl', function () {
   return function (input: string) {
     if (input && input !== 'TBA') {
       const EscapedName = encodeURIComponent(input)
-      return '<a target="_blank" href="http://www.ratemyprofessors.com/search.jsp?queryBy=teacherName&queryoption=HEADER&query=' + EscapedName + '&facetSearch=true&schoolName=rochester+institute+of+technology">' + input + '</a>'
+      return (
+        '<a target="_blank" href="https://www.ratemyprofessors.com/search/professors/807?q=' +
+        EscapedName +
+        '">' +
+        input +
+        '</a>'
+      )
     } else {
       return '<a href="#">' + input + '</a>'
     }

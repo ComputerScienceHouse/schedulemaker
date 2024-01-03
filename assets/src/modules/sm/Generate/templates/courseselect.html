@@ -34,7 +34,7 @@
 							<h4 class="list-group-item-heading"><span course-detail-popover="section.id">{{$index + 1}}. {{section.courseNum}}</span></h4>
 							<small>{{section.title}}</small>
 							<p class="list-group-item-text label-line ">
-								<span class="label label-default label-professor" ng-bind-html="section.instructor | RMPUrl"></span>
+								<span class="label label-default label-professor" professor-lookup="section.instructor"></span>
 							</p>
 							<div ng-init="parsedTimes = (section.times | parseSectionTimes)">
 								<div ng-repeat="time in parsedTimes" style="font-size:small">{{time.days}} <span style="white-space:nowrap">{{time.start | formatTime}}-{{time.end | formatTime}}</span></div>
