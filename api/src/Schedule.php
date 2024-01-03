@@ -21,8 +21,21 @@ class Schedule
             . str_pad($min, 2, '0', STR_PAD_LEFT)
             . "00";
     }
+    
+    private function firstDayAfterDate($weekday, $startDate) {
+        $weekdayOfStart = date('w', $startDate);
+        if ($weekdayOfStart > $weekday) {
+            // Try next week:
+            // 5 = 7 - 1 (we only go up to six) - 1 (we don't want to double count "today")
+            $startDate += 60*60*24*(5-$weekDayOfStart);
+            $weekdayOfStart = 0;
+        }
+        // weekday - weekDayOfStart = number of days between now and the first instance of that week day
+        return $startDate + (60*60*24*($weekday-$weekdayOfStart));
+    }
 
     public function generateIcal($schedule) {
+        date_default_timezone_set('America/New_York');
         // Globals
         global $HTTPROOTADDRESS, $dbConn;
 
@@ -54,8 +67,8 @@ class Schedule
                 // Get all the times for this course
                 $times = array();
                 $checker = array(); // allows us to check if all the details are the same by skipping the changing day
-                foreach($course['times'] as $time) {
-                    array_push($times, array(
+                foreach($course['times'] as $time) { //iterate over each time the course meets
+                    array_push($times, array( //add the details of the course to the $times array
                         "day"   => (int)$time['day'],
                         "start" => (int)$time['start'],
                         "end"   => (int)$time['end'],
@@ -63,7 +76,7 @@ class Schedule
                         "room"  => $time['room'],
                         "offCampus" => $time['off_campus']
                     ));
-                    array_push($checker, array(
+                    array_push($checker, array( //add the details of the course to the $checker array
                         "start" => (int)$time['start'],
                         "end"   => (int)$time['end'],
                         "bldg"  => $time['bldg'],
@@ -86,7 +99,7 @@ class Schedule
                     // The start day of the event MUST be offset by it's day
                     // @TODO: Retrieve the timezone from php or the config file
                     $startDayNum = date("N", $termStart); // get the weekday number of the start day of the term
-                    $day = date("Ymd", $termStart + ((60*60*24)*($times[0]['day']-$startDayNum))); //use it to calcuate the start day of the course
+                    $day = date("Ymd", $this->firstDayAfterDate($times[0]['day'], $termStart)); //Calculate the start day of the course
 
                     // Convert day number to abbreviation (based on iCal spec) for the RRULE
                     $dayAbbArray = array('SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA');
@@ -98,7 +111,7 @@ class Schedule
 
                     $code .= "DTSTART;TZID=America/New_York:{$day}T{$startTime}\r\n";
                     $code .= "DTEND;TZID=America/New_York:{$day}T{$endTime}\r\n";
-                    $code .= "RRULE:FREQ=WEEKLY;INTERVAL=1;WKST=MO;BYDAY={$dayList};UNTIL={$termEnd}\r\n";
+                    $code .= "RRULE:FREQ=WEEKLY;INTERVAL=1;WKST=MO;BYDAY={$dayList};UNTIL={$termEnd}\r\n"; //add the RRULE that allows the event to repeat across multiple days a week
                     $code .= "ORGANIZER:RIT\r\n";
 
                     // Course name
@@ -117,6 +130,7 @@ class Schedule
                     $code .= "END:VEVENT\r\n";
                 }
                 else {
+                    //fallback to default behavior of creating a separate event for each day the course runs
                     // Iterate over all the times to create separate event series for each time
                     foreach($course['times'] as $time) {
                         $code .= "BEGIN:VEVENT\r\n";
@@ -131,7 +145,7 @@ class Schedule
                         // The start day of the event MUST be offset by it's day
                         // @TODO: Retrieve the timezone from php or the config file
                         $startDayNum = date("N", $termStart); // get the weekday number of the start day of the term
-                        $day = date("Ymd", $termStart + ((60*60*24)*($times[0]['day']-$startDayNum))); //use it to calcuate the start day of the course
+                        $day = date("Ymd", $this->firstDayAfterDate($times[0]['day'], $termStart)); //Calculate the start day of the course
 
                         $code .= "DTSTART;TZID=America/New_York:{$day}T{$startTime}\r\n";
                         $code .= "DTEND;TZID=America/New_York:{$day}T{$endTime}\r\n";
