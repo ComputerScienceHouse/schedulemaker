@@ -34,18 +34,6 @@ class Schedule
         return $startDate + (60*60*24*($weekday-$weekdayOfStart));
     }
 
-    private function firstDayAfterDate($weekday, $startDate) {
-        $weekdayOfStart = date('w', $startDate);
-        if ($weekdayOfStart > $weekday) {
-            // Try next week:
-            // 5 = 7 - 1 (we only go up to six) - 1 (we don't want to double count "today")
-            $startDate += 60*60*24*(5-$weekDayOfStart);
-            $weekdayOfStart = 0;
-        }
-        // weekday - weekDayOfStart = number of days between now and the first instance of that week day
-        return $startDate + (60*60*24*($weekday-$weekdayOfStart));
-    }
-
     public function generateIcal($schedule) {
         date_default_timezone_set('America/New_York');
         // Globals
@@ -62,13 +50,6 @@ class Schedule
         // Start generating code
         $code = "";
 
-        // Header
-        $code .= "BEGIN:VCALENDAR\r\n";
-        $code .= "VERSION:2.0\r\n";
-        $code .= "PRODID: -//CSH ScheduleMaker//iCal4j 1.0//EN\r\n";
-        $code .= "METHOD:PUBLISH\r\n";
-        $code .= "CALSCALE:GREGORIAN\r\n";
-
         // Iterate over all the courses
         foreach($schedule['courses'] as $course) {
             // Skip classes that don't meet
@@ -77,10 +58,11 @@ class Schedule
             }
             else {
                 // Get all the times for this course
-                $times = array();
-                $checker = array(); // allows us to check if all the details are the same by skipping the changing day
-                foreach($course['times'] as $time) { //iterate over each time the course meets
-                    array_push($times, array( //add the details of the course to the $times array
+                $times = array(); // Instantiate an array to hold the details of each time the course meets
+                $checker = array(); // Allows us to check if all the details are the same across each time the course meets
+                foreach($course['times'] as $time) { // Iterate over each time the course meets
+                    // Add the details of the course to the $times array for use when generating the event
+                    array_push($times, array(
                         "day"   => (int)$time['day'],
                         "start" => (int)$time['start'],
                         "end"   => (int)$time['end'],
@@ -88,7 +70,8 @@ class Schedule
                         "room"  => $time['room'],
                         "offCampus" => $time['off_campus']
                     ));
-                    array_push($checker, array( //add the details of the course to the $checker array
+                    // Add the details of the course to the $checker array as a single array object for use when checking if all the details are the same across each time the course meets
+                    array_push($checker, array( 
                         "start" => (int)$time['start'],
                         "end"   => (int)$time['end'],
                         "bldg"  => $time['bldg'],
@@ -97,7 +80,10 @@ class Schedule
                     ));
                 }
 
-                //if the details for the course are equal across each day, then set up a series that repeats on each day the course runs
+                /* If the details for the course are equal across each day, then set up a single series that repeats on each day the course runs.
+                 * This compares start time, end time, building, room, and off_campus flag all as one object; see $checker array above.
+                 * If any of the times have different data, then the count will return a number higher than 1 and the code will move to the else statement.
+                 */
                 if (count(array_unique($checker, SORT_REGULAR)) === 1) {
                     $code .= "BEGIN:VEVENT\r\n";
                     $code .= "UID:" . md5(uniqid(mt_rand(), true) . " @{$HTTPROOTADDRESS}");
@@ -108,7 +94,7 @@ class Schedule
                     $startTime = $this->icalFormatTime($time['start']);
                     $endTime = $this->icalFormatTime($time['end']);
 
-                    // The start day of the event MUST be offset by it's day
+                    // The start day of the event MUST be offset by its day
                     // @TODO: Retrieve the timezone from php or the config file
                     $startDayNum = date("N", $termStart); // get the weekday number of the start day of the term
                     $day = date("Ymd", $this->firstDayAfterDate($times[0]['day'], $termStart)); //Calculate the start day of the course
@@ -142,7 +128,7 @@ class Schedule
                     $code .= "END:VEVENT\r\n";
                 }
                 else {
-                    //fallback to default behavior of creating a separate event for each day the course runs
+                    //fallback to default behavior of creating a separate event for each time the course runs
                     // Iterate over all the times to create separate event series for each time
                     foreach($course['times'] as $time) {
                         $code .= "BEGIN:VEVENT\r\n";
