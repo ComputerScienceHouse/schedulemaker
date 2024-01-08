@@ -240,7 +240,8 @@ if (!mysqli_query($dbConn, $cancelQuery)) {
 // for quarters are well defined. We shall no longer update numeric schools.
 $schoolQuery = "INSERT INTO schools (code)
                 SELECT acad_group FROM classes
-                  WHERE acad_group NOT IN(SELECT code FROM schools WHERE code IS NOT NULL)";
+                  WHERE acad_group NOT IN(SELECT code FROM schools WHERE code IS NOT NULL)
+                ON DUPLICATE KEY UPDATE code = code";
 $parser->debug("... Updating schools");
 if (!mysqli_query($dbConn, $schoolQuery)) {
     echo("*** Error: Failed to update school listings\n");
