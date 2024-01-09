@@ -34,6 +34,13 @@ class Schedule
         return $startDate + (60*60*24*($weekday-$weekdayOfStart));
     }
 
+    private function hashTime($time, $schedule) {
+        return ($time['start'] . "-" .
+                $time['end'] . "-" .
+                $time['bldg'][$schedule['bldgStyle']] . "-" .
+                $time['room']);
+    }
+
     public function generateIcal($schedule) {
         date_default_timezone_set('America/New_York');
         // Globals
@@ -64,27 +71,44 @@ class Schedule
                 continue;
             }
 
-            // Iterate over all the times
+            $scheduleByTime = array();
             foreach($course['times'] as $time) {
+                $hash = $this->hashTime($time, $schedule);
+                // Add to scheduleByTime array
+                if (array_key_exists($hash, $scheduleByTime)) {
+                    $scheduleByTime[$hash][] = $time;
+                } else {
+                    $scheduleByTime[$hash] = array($time);
+                }
+            }
+
+            // Iterate over all the times
+            foreach($scheduleByTime as $times) {
                 $code .= "BEGIN:VEVENT\r\n";
                 $code .= "UID:" . md5(uniqid(mt_rand(), true) . " @{$HTTPROOTADDRESS}");
                 $code .= "\r\n";
                 $code .= "TZID:America/New_York\r\n";
                 $code .= "DTSTAMP:" . gmdate('Ymd') . "T" . gmdate("His") . "Z\r\n";
 
-                $startTime = $this->icalFormatTime($time['start']);
-                $endTime = $this->icalFormatTime($time['end']);
+                $startTime = $this->icalFormatTime($times[0]['start']);
+                $endTime = $this->icalFormatTime($times[0]['end']);
 
                 // The start day of the event MUST be offset by it's day
                 // the -1 is b/c quarter starts are on Monday(=1)
                 // This /could/ be done via the RRULE WKST param, but that means
                 // translating days from numbers to some other esoteric format.
                 // @TODO: Retrieve the timezone from php or the config file
-                $day = date("Ymd", $this->firstDayAfterDate($time['day'], $termStart));
+                $day = date("Ymd", $this->firstDayAfterDate($times[0]['day'], $termStart));
 
                 $code .= "DTSTART;TZID=America/New_York:{$day}T{$startTime}\r\n";
                 $code .= "DTEND;TZID=America/New_York:{$day}T{$endTime}\r\n";
-                $code .= "RRULE:FREQ=WEEKLY;UNTIL={$termEnd}\r\n";
+                $dayCodes = array('SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA');
+                $days = array();
+                foreach ($times as $time) {
+                    $days[] = $dayCodes[$time['day']];
+                }
+                $dayString = implode(',', $days);
+                $code .= "RRULE:FREQ=WEEKLY;INTERVAL=1;WKST=SU;BYDAY={$dayString};UNTIL={$termEnd}\r\n";
                 $code .= "ORGANIZER:RIT\r\n";
 
                 // Course name
@@ -96,8 +120,8 @@ class Schedule
 
                 // Meeting location
                 if($course['courseNum'] != 'non') {
-                    $bldg = $time['bldg'][$schedule['bldgStyle']];
-                    $code .= "LOCATION:{$bldg}-{$time['room']}\r\n";
+                    $bldg = $times[0]['bldg'][$schedule['bldgStyle']];
+                    $code .= "LOCATION:{$bldg}-{$times[0]['room']}\r\n";
                 }
 
                 $code .= "END:VEVENT\r\n";
