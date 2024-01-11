@@ -102,6 +102,8 @@ class Schedule
 
                 $code .= "DTSTART;TZID=America/New_York:{$day}T{$startTime}\r\n";
                 $code .= "DTEND;TZID=America/New_York:{$day}T{$endTime}\r\n";
+                //$holidayTimes is an array of DateTimes that are listed as holidays in RIT's calendar.
+                $code .= "EXDATE:{$holidayTimes}\r\n";
                 $dayCodes = array('SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA');
                 $days = array();
                 foreach ($times as $time) {
