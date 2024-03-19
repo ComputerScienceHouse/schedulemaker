@@ -36,6 +36,8 @@ if (!$dbConn) {
     die("Could not connect to database: " . $dbConn->connect_error);
 }
 
+$dbConn->set_charset("utf8mb4");
+
 ////////////////////////////////////////////////////////////////////////////
 // FUNCTIONS
 
