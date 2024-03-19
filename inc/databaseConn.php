@@ -37,6 +37,7 @@ if (!$dbConn) {
 }
 
 $dbConn->set_charset("utf8mb4");
+$dbConn->query("SET collation_connection = utf8mb4_unicode_ci");
 
 ////////////////////////////////////////////////////////////////////////////
 // FUNCTIONS
