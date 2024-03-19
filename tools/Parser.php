@@ -238,8 +238,9 @@ class Parser {
             }
 
             // Build a query
-            $insQuery = "INSERT INTO {$tableName} VALUES('" . implode("', '", $lineSplit) . "')";
-            if (!mysqli_query($this->dbConn, $insQuery)) {
+            $stmt = $this->dbConn->prepare("INSERT INTO {$tableName} VALUES(" . implode(", ", array_fill(0, $fields, "?")) . ")");
+            $stmt->bind_param(str_repeat("s", $fields), ...$lineSplit);
+            if (!$stmt->execute()) {
                 echo("*** Failed to insert {$tableName}\n");
                 echo("    " . mysqli_error($this->dbConn) . "\n");
                 continue;
