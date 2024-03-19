@@ -79,7 +79,7 @@ function getMeetingInfo($sectionData) {
     ];
 
     if (isset($sectionData['description'])) {
-        $course['description'] = $sectionData['description'];
+        $course['description'] = iconv("ISO-8859-1", "UTF-8", $sectionData['description']);
     }
 
     // Make sure special sections don't get double-counted for their credits
