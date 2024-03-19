@@ -199,6 +199,7 @@ class Parser {
         while ($str = fgets($file, 4096)) {
             // Trim those damn newlines
             $str = trim($str);
+            $str = iconv("ISO-8859-1", "UTF-8", $str);
 
             // Progress bar
             if ($this->debugMode) {

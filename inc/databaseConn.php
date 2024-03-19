@@ -30,7 +30,6 @@ header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
 global $DATABASE_SERVER, $DATABASE_USER, $DATABASE_PASS, $DATABASE_DB;
 
 $dbConn = new mysqli($DATABASE_SERVER, $DATABASE_USER, $DATABASE_PASS, $DATABASE_DB);
-mysqli_set_charset($dbConn, "latin1");
 
 // Error check
 if (!$dbConn) {
