@@ -103,7 +103,7 @@ CREATE TABLE IF NOT EXISTS `classes` (
   `instruction_mode` varchar(2) NOT NULL,
   `course_descrlong` text NOT NULL,
   PRIMARY KEY (`crse_id`,`crse_offer_nbr`,`strm`,`session_code`,`class_section`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
 ENE;
 
 if (mysqli_query($dbConn, $tempQuery)) {
@@ -139,7 +139,7 @@ CREATE TABLE IF NOT EXISTS `meeting` (
   `sun` varchar(1) NOT NULL,
   PRIMARY KEY (`crse_id`,`crse_offer_nbr`,`strm`,`session_code`,`class_section`, `class_mtg_nbr`),
   INDEX(`crse_id`, `crse_offer_nbr`, `strm`, `session_code`, `class_section`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
 ENE;
 
 if (mysqli_query($dbConn, $tempQuery)) {
@@ -163,7 +163,7 @@ CREATE TABLE IF NOT EXISTS `instructors` (
   `last_name` varchar(30) NOT NULL,
   `first_name` varchar(30) NOT NULL,
   INDEX (`crse_id`,`crse_offer_nbr`,`strm`,`session_code`,`class_section`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
 ENE;
 
 if (mysqli_query($dbConn, $tempQuery)) {
