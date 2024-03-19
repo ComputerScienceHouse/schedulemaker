@@ -38,6 +38,7 @@ if (!$dbConn) {
 
 $dbConn->set_charset("utf8mb4");
 $dbConn->query("SET collation_connection = utf8mb4_unicode_ci");
+$dbConn->query("SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci");
 
 ////////////////////////////////////////////////////////////////////////////
 // FUNCTIONS
