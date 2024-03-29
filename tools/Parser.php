@@ -253,11 +253,9 @@ class Parser {
 
     // Process the class file
     function procClassArray(array $lineSplit): array {
-        // Escape class title, description, and course number (since it needs to be trimmed)
-        $lineSplit[6] = $this->dbConn->real_escape_string(trim($lineSplit[6]));
-        $lineSplit[7] = $this->dbConn->real_escape_string($lineSplit[7]);
-        $lineSplit[8] = $this->dbConn->real_escape_string(trim($lineSplit[8]));
-        $lineSplit[23] = $this->dbConn->real_escape_string($lineSplit[23]);
+        // Trim course number and topic
+        $lineSplit[6] = trim($lineSplit[6]);
+        $lineSplit[8] = trim($lineSplit[8]);
 
         // Grab the integer credit count (they give it to us as a decimal)
         preg_match('/(\d)+\.\d\d/', $lineSplit[11], $match);
@@ -287,10 +285,6 @@ class Parser {
     }
 
     function procInstrArray(array $lineSplit): array {
-        // Escape the instructor names
-        $lineSplit[6] = mysqli_real_escape_string($this->dbConn, $lineSplit[6]);
-        $lineSplit[7] = mysqli_real_escape_string($this->dbConn, $lineSplit[7]);
-
         // Section number needs to be padded to at lease 2 digits
         $lineSplit[4] = str_pad($lineSplit[4], 2, '0', STR_PAD_LEFT);
         return $lineSplit;
