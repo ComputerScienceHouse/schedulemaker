@@ -14,6 +14,9 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
+    - name: Check php version
+      run: php --version
+
     - name: Validate composer.json and composer.lock
       run: composer validate
 
