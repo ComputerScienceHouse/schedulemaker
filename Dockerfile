@@ -1,4 +1,4 @@
-FROM docker.io/node:12-buster-slim as builder
+FROM docker.io/node:12-bullseye-slim as builder
 LABEL author="Devin Matte <matted@csh.rit.edu>"
 
 WORKDIR /usr/src/schedule
@@ -11,10 +11,10 @@ COPY assets ./assets
 RUN npm run-script build
 
 
-FROM docker.io/php:7.3-apache
+FROM docker.io/php:8.1-apache-bullseye
 LABEL author="Devin Matte <matted@csh.rit.edu>"
 
-RUN echo "deb-src http://deb.debian.org/debian buster main" >> /etc/apt/sources.list
+RUN echo "deb-src http://deb.debian.org/debian bullseye main" >> /etc/apt/sources.list
 
 RUN apt-get -yq update && \
     apt-get -yq install \
