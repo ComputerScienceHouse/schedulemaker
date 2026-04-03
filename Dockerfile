@@ -14,7 +14,7 @@ RUN npm run-script build
 FROM docker.io/php:7.3-apache
 LABEL author="Devin Matte <matted@csh.rit.edu>"
 
-RUN echo "deb-src http://deb.debian.org/debian buster main" >> /etc/apt/sources.list
+RUN echo "deb-src http://archive.debian.org/debian buster main" >> /etc/apt/sources.list
 
 RUN apt-get -yq update && \
     apt-get -yq install \
@@ -58,6 +58,8 @@ COPY apache-config.conf /etc/apache2/sites-enabled/000-default.conf
 RUN a2enmod rewrite && a2enmod headers && a2enmod expires && \
     sed -i '/Listen/{s/\([0-9]\+\)/8080/; :a;n; ba}' /etc/apache2/ports.conf && \
     chmod og+rwx /var/lock/apache2 && chmod -R og+rwx /var/run/apache2
+
+RUN git config --global --add safe.directory /var/www/html
 
 COPY . /var/www/html
 COPY --from=builder /usr/src/schedule/assets/prod /var/www/html/assets/prod
