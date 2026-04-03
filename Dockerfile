@@ -6,8 +6,6 @@ COPY package.json ./
 
 RUN npm install
 
-RUN npx tsc --version
-
 COPY package.json tsconfig.json gulpfile.js ./
 COPY assets ./assets
 RUN npm run-script build
