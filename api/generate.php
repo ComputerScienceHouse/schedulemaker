@@ -67,7 +67,7 @@ switch (getAction()) {
             }
 
             $course = strtoupper($course);
-            preg_match('/([A-Z]{4})[-\s]*(\d{0,3}[A-Z]?)?(?:[-\s]+(\d{0,2}[A-Z]?\d?))?/', $course, $courseParts);
+            preg_match('/([A-Z0-9]{4})[-\s]*(\d{0,3}[A-Z]?)?(?:[-\s]+(\d{0,2}[A-Z]?\d?))?/', $course, $courseParts);
 
             // Query base: Noncancelled courses from the requested term
             $query = "SELECT s.id
