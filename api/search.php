@@ -146,7 +146,7 @@ switch (getAction()) {
                 $timequery[] = "(start >= 720 AND start < 1020)";
             }
             if (in_array("even", $times)) {
-                $timequery[] = "(start > 1020)";
+                $timequery[] = "(start >= 1020)";
             }
             $timeConstraints[] = "(" . implode(" OR ", $timequery) . ")"; // Make it a single string (condition OR condition ...)
         }
