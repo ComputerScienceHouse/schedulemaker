@@ -103,14 +103,14 @@ class Parser {
         global $coursesUpdated, $coursesAdded;
         // Call the stored proc
         // TODO: Refactor out department ID number (0000)
-        $query = "CALL InsertOrUpdateCourse({$quarter}, 0000, '{$classCode}', '{$course}', {$credits}, '{$title}', '{$description}', '{$prerequisites}', '{$typicallyOffered}', '{$contactHours})";
+        $query = "CALL InsertOrUpdateCourse({$quarter}, 0000, '{$classCode}', '{$course}', {$credits}, '{$title}', '{$description}', '{$prerequisites}', '{$typicallyOffered}', '{$contactHours}')";
         $success = mysqli_multi_query($this->dbConn, $query);
 
         // Catch errors or return the id
         if (!$success) {
             // If the class code errors out, try the department code
             // TODO: Refactor out department ID number (0000)
-            $query = "CALL InsertOrUpdateCourse({$quarter}, 0000, '{$departCode}', '{$course}', {$credits}, '{$title}', '{$description}', '{$prerequisites}', '{$typicallyOffered}', '{$contactHours})";
+            $query = "CALL InsertOrUpdateCourse({$quarter}, 0000, '{$departCode}', '{$course}', {$credits}, '{$title}', '{$description}', '{$prerequisites}', '{$typicallyOffered}', '{$contactHours}')";
             $success = mysqli_multi_query($this->dbConn, $query);
             if (!$success) {
                 return mysqli_error($this->dbConn);
