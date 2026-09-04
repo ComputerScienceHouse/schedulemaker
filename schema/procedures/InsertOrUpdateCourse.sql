@@ -7,7 +7,10 @@ CREATE PROCEDURE InsertOrUpdateCourse(
   IN p_course VARCHAR(4),
   IN p_credits INT,
   IN p_title VARCHAR(50),
-  IN p_description TEXT
+  IN p_description TEXT,
+  IN p_prerequisites TEXT,
+  IN p_typically_offered TEXT,
+  IN p_contact_hours TEXT,
 )
 BEGIN
   -- Determine if the course already exists
@@ -40,13 +43,13 @@ BEGIN
   IF recordFound > 0 THEN
       -- Course exists, so update it
       UPDATE courses AS c
-          SET c.title = p_title, c.description = p_description, c.credits = p_credits
+          SET c.title = p_title, c.description = p_description, c.credits = p_credits, c.prerequisites = p_prerequisites, c.typically_offered = p_typically_offered, c.contact_hours = p_contact_hours
           WHERE c.department = v_department AND course = p_course AND quarter = p_quarter;
       SELECT "updated" AS action;
   ELSE
       -- Course doesn't exist, so insert it
-      INSERT INTO courses (quarter, department, course, title, description, credits)
-          VALUES(p_quarter, v_department, p_course, p_title, p_description, p_credits);
+      INSERT INTO courses (quarter, department, course, title, description, credits, prerequisites, typically_offered, contact_hours)
+          VALUES(p_quarter, v_department, p_course, p_title, p_description, p_credits, p_prerequisites, p_typically_offered, p_contact_hours);
       SELECT "inserted" AS action;
   END IF;
 
