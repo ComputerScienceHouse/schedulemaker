@@ -16,9 +16,9 @@ CREATE TABLE courses (
   `credits`     TINYINT(2) UNSIGNED NOT NULL DEFAULT 0,
   `title`       VARCHAR(50) NOT NULL,
   `description` TEXT NOT NULL,
-  `prerequisites` TEXT NOT NULL,
-  `typically_offered` TEXT NOT NULL,
-  `contact_hours` FLOAT UNSIGNED NOT NULL
+  `prerequisites` TEXT NOT NULL DEFAULT "",
+  `typically_offered` TEXT NOT NULL DEFAULT "",
+  `contact_hours` FLOAT UNSIGNED NOT NULL DEFAULT 0
 )ENGINE=InnoDb;
 
 -- INDEXING ----------------------------------------------------------------

@@ -6,6 +6,6 @@
 -- -------------------------------------------------------------------------
 
 ALTER TABLE courses
-    ADD COLUMN prerequisites TEXT,
-    ADD COLUMN typically_offered TEXT,
-    ADD COLUMN contact_hours FLOAT UNSIGNED;
+    ADD COLUMN prerequisites TEXT NOT NULL DEFAULT '',
+    ADD COLUMN typically_offered TEXT NOT NULL DEFAULT '',
+    ADD COLUMN contact_hours FLOAT UNSIGNED NOT NULL DEFAULT 0;
