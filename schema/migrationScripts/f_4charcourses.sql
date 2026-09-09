@@ -22,7 +22,7 @@ CREATE PROCEDURE InsertOrUpdateCourse(
   IN p_description TEXT,
   IN p_prerequisites TEXT,
   IN p_typically_offered TEXT,
-  IN p_contact_hours TEXT
+  IN p_contact_hours FLOAT
 )
   BEGIN
 -- Determine if the course already exists

@@ -18,7 +18,7 @@ CREATE TABLE courses (
   `description` TEXT NOT NULL,
   `prerequisites` TEXT NOT NULL,
   `typically_offered` TEXT NOT NULL,
-  `contact_hours` TEXT NOT NULL
+  `contact_hours` FLOAT UNSIGNED NOT NULL
 )ENGINE=InnoDb;
 
 -- INDEXING ----------------------------------------------------------------

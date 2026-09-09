@@ -104,7 +104,7 @@ CREATE TABLE IF NOT EXISTS `classes` (
   `course_descrlong` text NOT NULL,
   `prereqs` text NOT NULL,
   `typ_offr` text NOT NULL,
-  `ctc_hrs` text NOT NULL,
+  `ctc_hrs` float NOT NULL,
   PRIMARY KEY (`crse_id`,`crse_offer_nbr`,`strm`,`session_code`,`class_section`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 ENE;
@@ -302,11 +302,10 @@ while ($row = mysqli_fetch_assoc($courseResult)) {
     $row['course_descrlong'] = mysqli_real_escape_string($dbConn, $row['course_descrlong']);
     $row['prereqs'] = mysqli_real_escape_string($dbConn, $row['prereqs']);
     $row['typ_offr'] = mysqli_real_escape_string($dbConn, $row['typ_offr']);
-    $row['ctc_hrs'] = mysqli_real_escape_string($dbConn, $row['ctc_hrs']);
 
     // Insert or update the course
     @$courseId = $parser->insertOrUpdateCourse($row['qtr'], $row['acad_org'], $row['subject'], $row['catalog_nbr'],
-        (int)$row['units'], $row['descr'], $row['course_descrlong'], $row['prereqs'], $row['typ_offr'], $row['ctc_hrs']);
+        (int)$row['units'], $row['descr'], $row['course_descrlong'], $row['prereqs'], $row['typ_offr'], (float)$row['ctc_hrs']);
     if (!is_numeric($courseId)) {
         echo("    *** Error: Failed to update {$row['qtr']} {$row['subject']}-{$row['catalog_nbr']}\n");
         echo("    ");
