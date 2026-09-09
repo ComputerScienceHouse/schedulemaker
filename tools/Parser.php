@@ -86,28 +86,31 @@ class Parser {
     /**
      * Inserts or updates a course. This function calls the stored procedure for
      * inserting or updating a course.
-     * @param $quarter      int     The term that the course is in
-     * @param $departCode   string  The code of the department
-     * @param $classCode    string  The code for the class
-     * @param $course       string  The number of the course
-     * @param $credits      int     The credits the course offers
-     * @param $title        string  The title of the course
-     * @param $description  string  The description for the course
+     * @param $quarter          int     The term that the course is in
+     * @param $departCode       string  The code of the department
+     * @param $classCode        string  The code for the class
+     * @param $course           string  The number of the course
+     * @param $credits          int     The credits the course offers
+     * @param $title            string  The title of the course
+     * @param $description      string  The description for the course
+     * @param $prerequisites    string  The prerequisites for the course
+     * @param $typicallyOffered string  The typically offered semester for the course
+     * @param $contactHours     float   The contact hours for the course
      * @return  mixed   String of error message returned on failure.
      *                  Integer of course ID returned on success
      */
-    function insertOrUpdateCourse(int $quarter, string $departCode, string $classCode, string $course, int $credits, string $title, string $description) {
+    function insertOrUpdateCourse(int $quarter, string $departCode, string $classCode, string $course, int $credits, string $title, string $description, string $prerequisites, string $typicallyOffered, float $contactHours) {
         global $coursesUpdated, $coursesAdded;
         // Call the stored proc
         // TODO: Refactor out department ID number (0000)
-        $query = "CALL InsertOrUpdateCourse({$quarter}, 0000, '{$classCode}', '{$course}', {$credits}, '{$title}', '{$description}')";
+        $query = "CALL InsertOrUpdateCourse({$quarter}, 0000, '{$classCode}', '{$course}', {$credits}, '{$title}', '{$description}', '{$prerequisites}', '{$typicallyOffered}', '{$contactHours}')";
         $success = mysqli_multi_query($this->dbConn, $query);
 
         // Catch errors or return the id
         if (!$success) {
             // If the class code errors out, try the department code
             // TODO: Refactor out department ID number (0000)
-            $query = "CALL InsertOrUpdateCourse({$quarter}, 0000, '{$departCode}', '{$course}', {$credits}, '{$title}', '{$description}')";
+            $query = "CALL InsertOrUpdateCourse({$quarter}, 0000, '{$departCode}', '{$course}', {$credits}, '{$title}', '{$description}', '{$prerequisites}', '{$typicallyOffered}', '{$contactHours}')";
             $success = mysqli_multi_query($this->dbConn, $query);
             if (!$success) {
                 return mysqli_error($this->dbConn);

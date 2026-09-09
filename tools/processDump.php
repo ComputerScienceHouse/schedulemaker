@@ -102,6 +102,9 @@ CREATE TABLE IF NOT EXISTS `classes` (
   `acad_career` varchar(4) NOT NULL,
   `instruction_mode` varchar(2) NOT NULL,
   `course_descrlong` text NOT NULL,
+  `prereqs` text NOT NULL,
+  `typ_offr` text NOT NULL,
+  `ctc_hrs` float NOT NULL,
   PRIMARY KEY (`crse_id`,`crse_offer_nbr`,`strm`,`session_code`,`class_section`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 ENE;
@@ -112,7 +115,7 @@ if (mysqli_query($dbConn, $tempQuery)) {
     $parser->halt(["Error: Failed to create temporary class table", mysqli_error($dbConn)]);
 }
 
-$parser->fileToTempTable("classes", $classFile, 24, $classSize, "procClassArray");
+$parser->fileToTempTable("classes", $classFile, 27, $classSize, "procClassArray");
 fclose($classFile);
 
 // Build a temporary table for the meeting patterns
@@ -266,9 +269,8 @@ if (!mysqli_query($dbConn, $departmentQuery)) {
     $failures++;
 }
 $departmentsProc = mysqli_affected_rows($dbConn);
-
 // Grab each COURSE from the classes table
-$courseQuery = "SELECT strm, subject, units, acad_org, catalog_nbr, descr, course_descrlong,";
+$courseQuery = "SELECT strm, subject, units, acad_org, catalog_nbr, descr, course_descrlong, prereqs, typ_offr, ctc_hrs";
 $courseQuery .= " crse_id, crse_offer_nbr, session_code";
 $courseQuery .= " FROM classes WHERE strm < 20130 GROUP BY crse_id, strm, session_code";
 $parser->debug("... Updating courses\n0%", false);
@@ -298,10 +300,12 @@ while ($row = mysqli_fetch_assoc($courseResult)) {
     // Escape the necessary fields
     $row['descr'] = mysqli_real_escape_string($dbConn, $row['descr']);
     $row['course_descrlong'] = mysqli_real_escape_string($dbConn, $row['course_descrlong']);
+    $row['prereqs'] = mysqli_real_escape_string($dbConn, $row['prereqs']);
+    $row['typ_offr'] = mysqli_real_escape_string($dbConn, $row['typ_offr']);
 
     // Insert or update the course
     @$courseId = $parser->insertOrUpdateCourse($row['qtr'], $row['acad_org'], $row['subject'], $row['catalog_nbr'],
-        (int)$row['units'], $row['descr'], $row['course_descrlong']);
+        (int)$row['units'], $row['descr'], $row['course_descrlong'], $row['prereqs'], $row['typ_offr'], (float)$row['ctc_hrs']);
     if (!is_numeric($courseId)) {
         echo("    *** Error: Failed to update {$row['qtr']} {$row['subject']}-{$row['catalog_nbr']}\n");
         echo("    ");
