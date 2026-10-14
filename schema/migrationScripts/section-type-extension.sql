@@ -6,5 +6,5 @@
 -- -------------------------------------------------------------------------
 
 ALTER TABLE sections MODIFY COLUMN type 
-    ENUM('R', 'N', 'H', 'BL', 'OL', 'OA', 'OS') DEFAULT 'R' NOT NULL 
-    COMMENT 'R=Regular, N=Night, H=Honors, BL=???, OL=Online, OA=Oline Async?, OS=Online Sync?';
+    ENUM('R', 'N', 'H', 'BL', 'OL', 'OS', 'OA') DEFAULT 'R' NOT NULL 
+    COMMENT 'R=Regular, N=Night, H=Honors, BL=Blended Learning, OL=Online, OS=Online - Synchronous, OA=Online - Asynchronous';
