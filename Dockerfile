@@ -11,7 +11,7 @@ COPY assets ./assets
 RUN npm run-script build
 
 
-FROM docker.io/php:7.3-apache
+FROM docker.io/php:8.4-apache
 LABEL author="Devin Matte <matted@csh.rit.edu>"
 
 RUN echo "deb-src http://deb.debian.org/debian buster main" >> /etc/apt/sources.list
@@ -36,6 +36,7 @@ RUN apt-get -yq update && \
         libxml2-dev \
         unzip \
         wget \
+        fonts-roboto \
         --no-install-recommends
 
 RUN apt-get -yq build-dep imagemagick
@@ -44,10 +45,9 @@ RUN wget https://github.com/ImageMagick/ImageMagick6/archive/6.9.11-22.tar.gz &&
     tar -xzvf 6.9.11-22.tar.gz && \
     cd ImageMagick6-6.9.11-22 && \
     ./configure && \
-    make && \
+    make -j16 && \
     make install && \
-    ldconfig /usr/local/lib && \
-    make check
+    ldconfig /usr/local/lib
 
 RUN docker-php-ext-install mysqli && \
     yes '' | pecl install imagick && docker-php-ext-enable imagick
