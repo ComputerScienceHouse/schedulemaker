@@ -154,7 +154,7 @@ angular.module('sm').directive('scheduleActions', function ($http, $q, shareServ
         const popup = openPopup(true)
 
         getSavedInfo().then(function (data) {
-          popup.location = ('http://' + window.location.hostname +
+          popup.location = (window.location.origin +
             '/img/schedules/' + parseInt(data.id, 16) + '.png')
         })
       },
@@ -174,7 +174,7 @@ angular.module('sm').directive('scheduleActions', function ($http, $q, shareServ
 
         popup.localStorage.setItem('reloadSchedule', angular.toJson(reloadSchedule))
         popup.document.title = 'My Schedule'
-        popup.location = 'http://' + window.location.hostname + '/schedule/render/print'
+        popup.location = window.location.origin + '/schedule/render/print'
       },
 
       hide: function () {
