@@ -1,6 +1,6 @@
 <?php
 
-$get_env = function (&$var, $default = null) {
+$get_env = function ($var, $default = null) {
     return !empty($var) ? $var : $default;
 };
 
@@ -49,23 +49,6 @@ $GOOGLEANALYTICS = ($SERVER_TYPE == 'production')?
 $RUM_CLIENT_TOKEN = $get_env(getenv("RUM_CLIENT_TOKEN"), '');
 $RUM_APPLICATION_ID = $get_env(getenv("RUM_APPLICATION_ID"), '');
 
-////////////////////////////////////////////////////////////////////////////
-// WORK AROUNDS
-if (get_magic_quotes_gpc()) {
-    $process = array(&$_GET, &$_POST, &$_COOKIE, &$_REQUEST);
-    while (list($key, $val) = each($process)) {
-        foreach ($val as $k => $v) {
-            unset($process[$key][$k]);
-            if (is_array($v)) {
-                $process[$key][stripslashes($k)] = $v;
-                $process[] = &$process[$key][stripslashes($k)];
-            } else {
-                $process[$key][stripslashes($k)] = stripslashes($v);
-            }
-        }
-    }
-    unset($process);
-}
 ////////////////////////////////////////////////////////////////////////////
 // CALCULATIONS
 
