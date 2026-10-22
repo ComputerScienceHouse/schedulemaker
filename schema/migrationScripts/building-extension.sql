@@ -7,8 +7,7 @@
 -- -------------------------------------------------------------------------
 
 INSERT INTO buildings (number, code, name, off_campus) VALUES
-    ('083', '083', 'PAC', 0),
-    ('83', '83', 'PAC', 0),
+    ('83', 'PAC', 'Performing Arts Center', 0),
     ('820', '820', '820', 0),
     ('909', '909', 'Annex IX', 0),
     ('G', 'G', 'G DUBAI', 1),
