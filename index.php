@@ -32,7 +32,10 @@ $ASSETROOTADDRESS = substr($HTTPROOTADDRESS, strpos($HTTPROOTADDRESS, ":") + 1);
 // HACK FOR OPEN-GRAPH TAGS, I KNOW, THIS IS TERRIBLE
 $path = explode('/', $_SERVER['REQUEST_URI']);
 if ($path[1] == 'schedule') {
-	$id = (empty($path[2]))? '': hexdec($path[2]);
+	$id = '';
+	if (!empty($path[2]) && preg_match('/^[a-fA-F0-9]*$/', $path[2]) === 1) {
+		$id = hexdec($path[2]);
+	}
 	if(!empty($id)) {
 
 		// We are making the assumption that only new schedules with images

@@ -117,7 +117,7 @@ switch (getAction()) {
                 "id" => $department['id'],
                 "title" => $department['title'],
                 "code" => isset($department['code']) ? $department['code'] : null,
-                "number" => trim($department['number'], " ,")
+                "number" => $department['number'] ? trim($department['number'], " ,") : null,
             ];
         }
 
