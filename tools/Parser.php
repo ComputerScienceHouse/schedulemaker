@@ -104,16 +104,25 @@ class Parser {
         // Call the stored proc
         // TODO: Refactor out department ID number (0000)
         $query = "CALL InsertOrUpdateCourse({$quarter}, 0000, '{$classCode}', '{$course}', {$credits}, '{$title}', '{$description}', '{$prerequisites}', '{$typicallyOffered}', {$contactHours})";
-        $success = mysqli_multi_query($this->dbConn, $query);
 
-        // Catch errors or return the id
+        // Error check
+        try {
+            mysqli_multi_query($this->dbConn, $query);
+            $success = true;
+        } catch (\mysqli_sql_exception $e) {
+            $success = false;
+        }
+
+        // Error check
         if (!$success) {
             // If the class code errors out, try the department code
             // TODO: Refactor out department ID number (0000)
             $query = "CALL InsertOrUpdateCourse({$quarter}, 0000, '{$departCode}', '{$course}', {$credits}, '{$title}', '{$description}', '{$prerequisites}', '{$typicallyOffered}', {$contactHours})";
-            $success = mysqli_multi_query($this->dbConn, $query);
-            if (!$success) {
-                return mysqli_error($this->dbConn);
+            try {
+                mysqli_multi_query($this->dbConn, $query);
+            } catch (\mysqli_sql_exception $e) {
+                return $e->getMessage();
+                //return mysqli_error($this->dbConn);
             }
         }
 
@@ -147,8 +156,11 @@ class Parser {
         $query .= "{$maxenroll},{$curenroll})";
 
         // Error check
-        if (!mysqli_multi_query($this->dbConn, $query)) {
-            return mysqli_error($this->dbConn);
+        try {
+            mysqli_multi_query($this->dbConn, $query);
+        } catch (\mysqli_sql_exception $e) {
+            return $e->getMessage();
+            //return mysqli_error($this->dbConn);
         }
 
         // First result is the action performed
