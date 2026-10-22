@@ -2,7 +2,7 @@ FROM docker.io/node:12-buster-slim as builder
 LABEL author="Devin Matte <matted@csh.rit.edu>"
 
 WORKDIR /usr/src/schedule
-COPY package.json ./
+COPY package.json package-lock.json ./
 
 RUN npm install
 
@@ -14,7 +14,7 @@ RUN npm run-script build
 FROM docker.io/php:8.4-apache
 LABEL author="Devin Matte <matted@csh.rit.edu>"
 
-RUN echo "deb-src http://deb.debian.org/debian buster main" >> /etc/apt/sources.list
+RUN echo "deb-src http://deb.debian.org/debian trixie main" >> /etc/apt/sources.list
 
 RUN apt-get -yq update && \
     apt-get -yq install \
