@@ -194,7 +194,7 @@ class Parser {
         return $list;
     }
 
-    function fileToTempTable(string $tableName, $file, $fields, $fileSize, string $procFunc = null) {
+    function fileToTempTable(string $tableName, $file, $fields, $fileSize, ?string $procFunc = null) {
         // Process the file
         $procBytes = 0;
         $outPercent = [0];

@@ -2,8 +2,7 @@
 -- Migration Script for building-extension
 -- 
 -- @author  Nathan Russo (nathanr@csh.rit.edu)
--- @descrip Migration script to add '909', 'G', 'H', 'TIRM', and 'TIRT' to 
---          the buildings table.
+-- @descrip Migration script to add missing buildings to the buildings table.
 -- -------------------------------------------------------------------------
 
 INSERT INTO buildings (number, code, name, off_campus) VALUES
