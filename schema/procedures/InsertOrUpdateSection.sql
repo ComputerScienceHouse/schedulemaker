@@ -25,12 +25,12 @@ BEGIN
                 maxenroll = p_maxenroll, 
                 curenroll = p_curenroll
             WHERE course = p_course AND section = p_section;
-        SELECT "updated" AS action;
+        SELECT 'updated' AS action;
     ELSE
         -- Section does not exist, so insert it
         INSERT INTO sections (course, section, title, instructor, type, status, maxenroll, curenroll)
             VALUES(p_course, p_section, p_title, p_instructor, p_type, p_status, p_maxenroll, p_curenroll);
-        SELECT "inserted" AS action;
+        SELECT 'inserted' AS action;
     END IF;
     
     -- Get the id of the section we just inserted or updated

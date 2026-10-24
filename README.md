@@ -22,7 +22,7 @@ Available at [schedule.csh.rit.edu](https://schedule.csh.rit.edu)
 - If you wish to see images locally, you will also need S3 credentials, either supply your own or reach out.
 
 ### Run Locally
-In order to run locally youre going to need [docker](https://www.docker.com/).
+In order to run locally you're going to need [docker](https://www.docker.com/).
 
 ```
 docker build -t schedulemaker .

@@ -1,4 +1,4 @@
-FROM docker.io/node:12-buster-slim as builder
+FROM docker.io/node:12-buster-slim AS builder
 LABEL author="Devin Matte <matted@csh.rit.edu>"
 
 WORKDIR /usr/src/schedule
