@@ -86,31 +86,43 @@ class Parser {
     /**
      * Inserts or updates a course. This function calls the stored procedure for
      * inserting or updating a course.
-     * @param $quarter      int     The term that the course is in
-     * @param $departCode   string  The code of the department
-     * @param $classCode    string  The code for the class
-     * @param $course       string  The number of the course
-     * @param $credits      int     The credits the course offers
-     * @param $title        string  The title of the course
-     * @param $description  string  The description for the course
+     * @param $quarter          int     The term that the course is in
+     * @param $departCode       string  The code of the department
+     * @param $classCode        string  The code for the class
+     * @param $course           string  The number of the course
+     * @param $credits          int     The credits the course offers
+     * @param $title            string  The title of the course
+     * @param $description      string  The description for the course
+     * @param $prerequisites    string  The prerequisites for the course
+     * @param $typicallyOffered string  The typically offered semester for the course
+     * @param $contactHours     float   The contact hours for the course
      * @return  mixed   String of error message returned on failure.
      *                  Integer of course ID returned on success
      */
-    function insertOrUpdateCourse(int $quarter, string $departCode, string $classCode, string $course, int $credits, string $title, string $description) {
+    function insertOrUpdateCourse(int $quarter, string $departCode, string $classCode, string $course, int $credits, string $title, string $description, string $prerequisites, string $typicallyOffered, float $contactHours) {
         global $coursesUpdated, $coursesAdded;
         // Call the stored proc
         // TODO: Refactor out department ID number (0000)
-        $query = "CALL InsertOrUpdateCourse({$quarter}, 0000, '{$classCode}', '{$course}', {$credits}, '{$title}', '{$description}')";
-        $success = mysqli_multi_query($this->dbConn, $query);
+        $query = "CALL InsertOrUpdateCourse({$quarter}, 0000, '{$classCode}', '{$course}', {$credits}, '{$title}', '{$description}', '{$prerequisites}', '{$typicallyOffered}', {$contactHours})";
 
-        // Catch errors or return the id
+        // Error check
+        try {
+            mysqli_multi_query($this->dbConn, $query);
+            $success = true;
+        } catch (\mysqli_sql_exception $e) {
+            $success = false;
+        }
+
+        // Error check
         if (!$success) {
             // If the class code errors out, try the department code
             // TODO: Refactor out department ID number (0000)
-            $query = "CALL InsertOrUpdateCourse({$quarter}, 0000, '{$departCode}', '{$course}', {$credits}, '{$title}', '{$description}')";
-            $success = mysqli_multi_query($this->dbConn, $query);
-            if (!$success) {
-                return mysqli_error($this->dbConn);
+            $query = "CALL InsertOrUpdateCourse({$quarter}, 0000, '{$departCode}', '{$course}', {$credits}, '{$title}', '{$description}', '{$prerequisites}', '{$typicallyOffered}', {$contactHours})";
+            try {
+                mysqli_multi_query($this->dbConn, $query);
+            } catch (\mysqli_sql_exception $e) {
+                return $e->getMessage();
+                //return mysqli_error($this->dbConn);
             }
         }
 
@@ -144,8 +156,11 @@ class Parser {
         $query .= "{$maxenroll},{$curenroll})";
 
         // Error check
-        if (!mysqli_multi_query($this->dbConn, $query)) {
-            return mysqli_error($this->dbConn);
+        try {
+            mysqli_multi_query($this->dbConn, $query);
+        } catch (\mysqli_sql_exception $e) {
+            return $e->getMessage();
+            //return mysqli_error($this->dbConn);
         }
 
         // First result is the action performed
@@ -191,7 +206,7 @@ class Parser {
         return $list;
     }
 
-    function fileToTempTable(string $tableName, $file, $fields, $fileSize, string $procFunc = null) {
+    function fileToTempTable(string $tableName, $file, $fields, $fileSize, ?string $procFunc = null) {
         // Process the file
         $procBytes = 0;
         $outPercent = [0];
