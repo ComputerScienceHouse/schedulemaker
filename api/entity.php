@@ -40,7 +40,7 @@ switch (getAction()) {
         }
 
         // Do the query
-        $query = "SELECT c.title, c.course, c.description, c.id, d.number, d.code
+        $query = "SELECT c.title, c.course, c.description, c.id, d.number, d.code, c.prerequisites, c.typically_offered, c.contact_hours
                   FROM sections AS s
                   JOIN courses AS c ON s.course = c.id
                   JOIN departments AS d ON d.id = c.department
@@ -62,7 +62,10 @@ switch (getAction()) {
                 "course" => $course['course'],
                 "department" => ["code" => $course['code'], "number" => $course['number']],
                 "title" => $course['title'],
-                "description" => htmlentities($course['description'])
+                "description" => htmlentities($course['description']),
+                "prerequisites" => $course['prerequisites'],
+                "typically_offered" => $course['typically_offered'],
+                "contact_hours" => $course['contact_hours']
             ];
         }
 
